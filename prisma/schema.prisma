@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CompanyRole {
+  OWNER
+  ADMIN
+  ESTIMATOR
+  SALES
+  VIEWER
+}
+
+enum ProjectStatus {
+  LEAD
+  INSPECTION
+  PROCESSING
+  READY_FOR_QUOTE
+  QUOTED
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+}
+
+enum CaptureSource {
+  DRONE
+  SATELLITE
+  MANUAL
+}
+
+enum MeasurementType {
+  AREA
+  DISTANCE
+  RIDGE
+  HIP
+  VALLEY
+  EAVE
+  RAKE
+  PITCH
+  FACET_COUNT
+  WASTE_FACTOR
+}
+
+enum MeasurementUnit {
+  SQFT
+  FT
+  DEGREES
+  RATIO
+  COUNT
+  PERCENT
+  SQUARES
+}
+
+enum IssueSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  VIEWED
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id              String              @id @default(cuid())
+  clerkUserId     String              @unique
+  email           String              @unique
+  firstName       String?
+  lastName        String?
+  imageUrl        String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  memberships     CompanyMembership[]
+  createdProjects Project[]           @relation("CreatedProjects")
+}
+
+model Company {
+  id          String              @id @default(cuid())
+  name        String
+  slug        String              @unique
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  memberships CompanyMembership[]
+  projects    Project[]
+}
+
+model CompanyMembership {
+  id        String      @id @default(cuid())
+  companyId String
+  userId    String
+  role      CompanyRole @default(VIEWER)
+  createdAt DateTime    @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  companyId     String
+  createdById   String
+  name          String
+  clientName    String
+  clientEmail   String?
+  clientPhone   String?
+  status        ProjectStatus @default(LEAD)
+  captureSource CaptureSource @default(MANUAL)
+  addressLine1  String
+  city          String
+  province      String
+  postalCode    String?
+  country       String        @default("Canada")
+  latitude      Float?
+  longitude     Float?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy    User          @relation("CreatedProjects", fields: [createdById], references: [id], onDelete: Restrict)
+  sections     RoofSection[]
+  measurements Measurement[]
+  issues       RoofIssue[]
+  photos       PhotoAsset[]
+  proposals    Proposal[]
+
+  @@index([companyId, status])
+  @@index([companyId, createdAt])
+}
+
+model RoofSection {
+  id                String   @id @default(cuid())
+  projectId         String
+  label             String
+  planeIndex        Int?
+  pitchRatio        String?
+  pitchDegrees      Float?
+  projectedAreaSqft Float?
+  surfaceAreaSqft   Float?
+  ridgeLengthFt     Float?
+  hipLengthFt       Float?
+  valleyLengthFt    Float?
+  eaveLengthFt      Float?
+  rakeLengthFt      Float?
+  geometryJson      Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  measurements Measurement[]
+
+  @@index([projectId])
+}
+
+model Measurement {
+  id            String          @id @default(cuid())
+  projectId     String
+  roofSectionId String?
+  type          MeasurementType
+  label         String
+  unit          MeasurementUnit
+  value         Float
+  displayValue  String
+  confidence    Float?
+  source        CaptureSource   @default(MANUAL)
+  sortOrder     Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  roofSection RoofSection? @relation(fields: [roofSectionId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, type])
+  @@index([roofSectionId])
+}
+
+model RoofIssue {
+  id             String        @id @default(cuid())
+  projectId      String
+  title          String
+  description    String?
+  severity       IssueSeverity @default(MEDIUM)
+  locationLabel  String?
+  annotationJson Json?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, severity])
+}
+
+model PhotoAsset {
+  id          String   @id @default(cuid())
+  projectId   String
+  url         String
+  fileName    String?
+  contentType String?
+  createdAt   DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Proposal {
+  id          String         @id @default(cuid())
+  projectId   String
+  title       String
+  status      ProposalStatus @default(DRAFT)
+  totalAmount Float?
+  pdfUrl      String?
+  scopeOfWork String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+}
