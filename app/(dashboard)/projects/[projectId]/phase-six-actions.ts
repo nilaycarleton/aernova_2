@@ -20,6 +20,11 @@ import {
   materializeDroneMeasurements,
   syncNodeOdmModelJob,
 } from "@/lib/processing-jobs";
+import {
+  buildPlanPreviewForModel,
+  extractAndPersistRoof,
+} from "@/lib/roof-extraction-service";
+import type { PlanPreview, RoofExtractionSummary } from "@/lib/roof-extraction-types";
 
 const imageryTypes = new Set(["DRONE", "ORTHOMOSAIC", "MODEL", "BEFORE", "AFTER"]);
 const statuses = new Set(["UPLOADED", "QUEUED", "PROCESSING", "READY", "NEEDS_REVIEW", "FAILED"]);
@@ -355,6 +360,44 @@ export async function materializeDroneMeasurementsAction(formData: FormData) {
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}/report`);
+}
+
+export async function prepareRoofExtractionAction(
+  projectId: string,
+  imageryId: string
+): Promise<PlanPreview> {
+  if (!projectId) throw new Error("Missing projectId");
+  if (!imageryId) throw new Error("Missing imageryId");
+
+  return buildPlanPreviewForModel(projectId, imageryId);
+}
+
+export async function extractRoofFromMeshAction(
+  projectId: string,
+  imageryId: string,
+  roiPolygon: { x: number; y: number }[]
+): Promise<RoofExtractionSummary> {
+  if (!projectId) throw new Error("Missing projectId");
+  if (!imageryId) throw new Error("Missing imageryId");
+
+  const result = await extractAndPersistRoof(projectId, imageryId, roiPolygon);
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/projects/${projectId}/report`);
+
+  return {
+    facetCount: result.extraction.facetCount,
+    totalSurfaceAreaSqft: result.extraction.totalSurfaceAreaSqft,
+    totalProjectedAreaSqft: result.extraction.totalProjectedAreaSqft,
+    roofSquares: result.extraction.roofSquares,
+    predominantPitchRatio: result.extraction.predominantPitchRatio,
+    pitchBreakdown: result.extraction.pitchBreakdown,
+    diagnostics: {
+      trianglesInRoi: result.extraction.diagnostics.trianglesInRoi,
+      trianglesSegmented: result.extraction.diagnostics.trianglesSegmented,
+    },
+    sectionsCreated: result.sectionsCreated,
+  };
 }
 
 export async function createRoofComparisonAction(formData: FormData) {

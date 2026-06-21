@@ -10,7 +10,9 @@ import { InspectionWorkflow } from "@/components/dashboard/inspection-workflow";
 import { ProposalEditor } from "@/components/dashboard/proposal-editor";
 import { PricingTemplatePanel } from "@/components/dashboard/pricing-template-panel";
 import { PhaseSixWorkflow } from "@/components/dashboard/phase-six-workflow";
+import { RoofExtractionPanel } from "@/components/dashboard/roof-extraction-panel";
 import { getNodeOdmWorkerHealth } from "@/lib/nodeodm-client";
+import { getModelTaskUuid } from "@/lib/roof-extraction-service";
 
 export default async function ProjectDetailPage({
   params,
@@ -49,6 +51,12 @@ export default async function ProjectDetailPage({
 
   const latestProposal = project.proposals[0];
   const workerHealth = await getNodeOdmWorkerHealth();
+
+  // A model is extractable once it has a linked NodeODM task (the mesh assets
+  // are resolved on demand from the worker / local cache).
+  const extractableModel = project.imagery.find(
+    (item) => item.type === "MODEL" && getModelTaskUuid(item.metadataJson) !== null
+  );
 
   return (
     <div className="min-w-0 space-y-8">
@@ -122,6 +130,14 @@ export default async function ProjectDetailPage({
         workerHealth={workerHealth}
         comparisons={project.comparisons}
       />
+
+      {extractableModel && (
+        <RoofExtractionPanel
+          projectId={project.id}
+          imageryId={extractableModel.id}
+          modelLabel={extractableModel.fileName ?? "Drone photogrammetry model"}
+        />
+      )}
 
       <PricingTemplatePanel />
     </div>
