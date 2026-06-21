@@ -105,7 +105,6 @@ export function MeasurementManager({ projectId, measurements }: Props) {
               className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
             >
               <option value="MANUAL">MANUAL</option>
-              <option value="SATELLITE">SATELLITE</option>
               <option value="DRONE">DRONE</option>
             </select>
           </div>
@@ -254,7 +253,6 @@ export function MeasurementManager({ projectId, measurements }: Props) {
                       className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
                     >
                       <option value="MANUAL">MANUAL</option>
-                      <option value="SATELLITE">SATELLITE</option>
                       <option value="DRONE">DRONE</option>
                     </select>
                   </div>

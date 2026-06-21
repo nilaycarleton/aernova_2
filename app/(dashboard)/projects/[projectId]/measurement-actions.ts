@@ -36,7 +36,6 @@ const allowedUnits = new Set([
 
 const allowedSources = new Set([
   "MANUAL",
-  "SATELLITE",
   "DRONE",
 ]);
 

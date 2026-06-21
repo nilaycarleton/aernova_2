@@ -19,6 +19,15 @@ export default async function ProjectReportPage({
       },
       sections: true,
       issues: true,
+      photos: {
+        orderBy: { createdAt: "desc" },
+      },
+      imagery: {
+        orderBy: { createdAt: "desc" },
+      },
+      comparisons: {
+        orderBy: { createdAt: "desc" },
+      },
       proposals: {
         orderBy: { createdAt: "desc" },
       },
@@ -34,6 +43,9 @@ export default async function ProjectReportPage({
     measurements: project.measurements,
     sections: project.sections,
     issues: project.issues,
+    photos: project.photos,
+    imagery: project.imagery,
+    comparisons: project.comparisons,
     proposals: project.proposals,
   });
 

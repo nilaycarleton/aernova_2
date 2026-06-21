@@ -1,10 +1,17 @@
 import {
   Measurement,
+  PhotoAsset,
   Project,
+  ProjectImagery,
   Proposal,
+  RoofComparison,
   RoofIssue,
   RoofSection,
 } from "@prisma/client";
+import {
+  buildPitchBreakdown,
+  buildWasteRecommendation,
+} from "@/lib/roof-intelligence";
 
 type ReportSection = {
   title: string;
@@ -25,6 +32,10 @@ type ParsedProposalPayload = {
     dripEdgeFt?: number;
     predominantPitch?: string;
     totalFacets?: number | null;
+    complexity?: string;
+    complexityScore?: number;
+    laborMultiplier?: number;
+    areaSource?: string;
     estimatedMaterialCost?: number;
     estimatedLaborCost?: number;
     estimatedAccessoryCost?: number;
@@ -39,6 +50,9 @@ type ProjectReportInput = {
   measurements: Measurement[];
   sections: RoofSection[];
   issues: RoofIssue[];
+  photos: PhotoAsset[];
+  imagery: ProjectImagery[];
+  comparisons: RoofComparison[];
   proposals: Proposal[];
 };
 
@@ -121,6 +135,9 @@ export function buildProjectReportViewModel({
   measurements,
   sections,
   issues,
+  photos,
+  imagery,
+  comparisons,
   proposals,
 }: ProjectReportInput) {
   const latestProposal = proposals[0] ?? null;
@@ -245,7 +262,12 @@ export function buildProjectReportViewModel({
     },
 
     sections: sectionsData,
+    pitchBreakdown: buildPitchBreakdown(sections),
+    wasteRecommendation: buildWasteRecommendation(measurements, sections),
     issues,
+    photos,
+    imagery,
+    comparisons,
     reportSections,
     latestProposal,
     totalAreaSqft: area,

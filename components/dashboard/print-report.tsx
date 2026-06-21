@@ -41,12 +41,58 @@ type ReportVm = {
     eaveLengthFt: number | null;
     rakeLengthFt: number | null;
   }>;
+  pitchBreakdown: Array<{
+    pitch: string;
+    area: number;
+    percent: number;
+  }>;
+  wasteRecommendation: {
+    measuredSquares: number;
+    suggestedSquares: number;
+    recommendedWaste: number;
+    measuredWaste: number | null;
+    complexity: string;
+    complexityScore: number;
+    laborMultiplier: number;
+    areaSource: string;
+    totalAreaSqft: number;
+    totalLineLengthFt: number;
+    valleyHipFt: number;
+    reasons: string[];
+  };
   issues: Array<{
     id: string;
     title: string;
     description: string | null;
     severity: string;
     locationLabel: string | null;
+  }>;
+  photos: Array<{
+    id: string;
+    url: string;
+    fileName: string | null;
+    locationTag: string | null;
+    caption: string | null;
+    roofIssueId: string | null;
+    annotationsJson: unknown;
+  }>;
+  imagery: Array<{
+    id: string;
+    type: string;
+    status: string;
+    url: string;
+    fileName: string | null;
+    altitudeFt: number | null;
+    notes: string | null;
+    extractedJson: unknown;
+  }>;
+  comparisons: Array<{
+    id: string;
+    beforeUrl: string | null;
+    afterUrl: string | null;
+    title: string;
+    summary: string | null;
+    differencesJson: unknown;
   }>;
   reportSections: Array<{
     title: string;
@@ -57,6 +103,15 @@ type ReportVm = {
 function money(value: number | null) {
   if (value === null || value === undefined) return "—";
   return `$${value.toLocaleString()}`;
+}
+
+function parseAnnotations(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item) => item && typeof item === "object") as Array<Record<string, unknown>>;
+}
+
+function parseTextList(value: unknown) {
+  return Array.isArray(value) ? value.map(String) : [];
 }
 
 export function PrintReport({ report }: { report: ReportVm }) {
@@ -147,6 +202,40 @@ export function PrintReport({ report }: { report: ReportVm }) {
       </section>
 
       <section className="rounded-3xl border border-slate-200 p-6">
+        <h2 className="text-2xl font-semibold">Areas by Pitch & Waste Guidance</h2>
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="text-sm font-semibold text-slate-700">Pitch breakdown</div>
+            <div className="mt-3 space-y-2">
+              {report.pitchBreakdown.length === 0 ? (
+                <p className="text-sm text-slate-600">No pitch-grouped facet data available.</p>
+              ) : (
+                report.pitchBreakdown.map((row) => (
+                  <div key={row.pitch} className="flex items-center justify-between gap-4 text-sm">
+                    <span>{row.pitch}</span>
+                    <span>{row.area.toLocaleString()} sq ft · {row.percent}%</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="text-sm font-semibold text-slate-700">Waste recommendation</div>
+            <p className="mt-3 text-sm leading-6 text-slate-700">
+              Complexity: {report.wasteRecommendation.complexity}. Measured squares:{" "}
+              {report.wasteRecommendation.measuredSquares.toFixed(2)}. Suggested squares:{" "}
+              {report.wasteRecommendation.suggestedSquares.toFixed(2)}. Recommended waste:{" "}
+              {report.wasteRecommendation.recommendedWaste}% based on{" "}
+              {report.wasteRecommendation.reasons.join(", ")}. Score:{" "}
+              {report.wasteRecommendation.complexityScore}/100. Labor factor:{" "}
+              {report.wasteRecommendation.laborMultiplier.toFixed(2)}x. Area source:{" "}
+              {report.wasteRecommendation.areaSource}.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 p-6">
         <h2 className="text-2xl font-semibold">Pricing & Material Summary</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-2xl bg-slate-50 p-4">Estimated Total: {money(report.pricingSummary.totalAmount)}</div>
@@ -228,6 +317,147 @@ export function PrintReport({ report }: { report: ReportVm }) {
                 {issue.description ? (
                   <p className="mt-2 text-sm leading-6 text-slate-700">{issue.description}</p>
                 ) : null}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 p-6">
+        <h2 className="text-2xl font-semibold">Photo Evidence</h2>
+        {report.photos.length === 0 ? (
+          <p className="mt-4 text-slate-600">No photo evidence uploaded.</p>
+        ) : (
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            {report.photos.map((photo) => {
+              const annotations = parseAnnotations(photo.annotationsJson);
+              return (
+                <div key={photo.id} className="break-inside-avoid rounded-2xl border border-slate-200 p-4">
+                  <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                    <img src={photo.url} alt="" className="block aspect-video w-full object-cover" />
+                    <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      {annotations.map((annotation) => {
+                        const id = String(annotation.id ?? Math.random());
+                        const tool = String(annotation.tool ?? "");
+                        const label = String(annotation.label ?? "");
+
+                        if (tool === "circle") {
+                          const x = Number(annotation.x ?? 0);
+                          const y = Number(annotation.y ?? 0);
+                          const r = Number(annotation.r ?? 7);
+                          return (
+                            <g key={id}>
+                              <circle cx={x} cy={y} r={r} fill="rgba(249,115,22,0.18)" stroke="#EA580C" strokeWidth="0.8" />
+                              <text x={x + r + 1} y={y} fill="#9A3412" fontSize="3" dominantBaseline="middle">
+                                {label}
+                              </text>
+                            </g>
+                          );
+                        }
+
+                        if (tool === "arrow") {
+                          return (
+                            <g key={id}>
+                              <line
+                                x1={Number(annotation.x1 ?? 0)}
+                                y1={Number(annotation.y1 ?? 0)}
+                                x2={Number(annotation.x2 ?? 0)}
+                                y2={Number(annotation.y2 ?? 0)}
+                                stroke="#B45309"
+                                strokeWidth="0.9"
+                              />
+                              <text x={Number(annotation.x1 ?? 0)} y={Number(annotation.y1 ?? 0) - 2} fill="#92400E" fontSize="3">
+                                {label}
+                              </text>
+                            </g>
+                          );
+                        }
+
+                        if (tool === "label") {
+                          const x = Number(annotation.x ?? 0);
+                          const y = Number(annotation.y ?? 0);
+                          return (
+                            <g key={id}>
+                              <rect x={x} y={y - 4} width={Math.max(label.length * 1.9, 12)} height="6" rx="1.5" fill="rgba(15,23,42,0.86)" />
+                              <text x={x + 1.5} y={y} fill="#BFDBFE" fontSize="3.1" dominantBaseline="middle">
+                                {label}
+                              </text>
+                            </g>
+                          );
+                        }
+
+                        return null;
+                      })}
+                    </svg>
+                  </div>
+                  <div className="mt-3 text-sm text-slate-700">
+                    <div className="font-semibold text-slate-900">
+                      {photo.locationTag ?? photo.fileName ?? "Inspection photo"}
+                    </div>
+                    {photo.caption ? <p className="mt-1 leading-6">{photo.caption}</p> : null}
+                    <p className="mt-2 text-slate-500">
+                      {annotations.length} annotation{annotations.length === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 p-6">
+        <h2 className="text-2xl font-semibold">Drone Processing Workflow</h2>
+        <div className="mt-5 rounded-2xl bg-slate-50 p-4">
+          <div className="text-sm font-semibold text-slate-700">Imagery processing</div>
+          {report.imagery.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-600">No drone imagery uploaded.</p>
+          ) : (
+            <div className="mt-3 space-y-3 text-sm text-slate-700">
+              {report.imagery.slice(0, 4).map((item) => (
+                <div key={item.id} className="flex gap-3 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
+                  <img src={item.url} alt="" className="h-16 w-20 rounded-lg object-cover" />
+                  <div>
+                    <div className="font-semibold text-slate-900">{item.fileName ?? item.type}</div>
+                    <div>{item.type} · {item.status.replaceAll("_", " ")} · {item.altitudeFt ? `${item.altitudeFt} ft` : "No altitude"}</div>
+                    {item.notes ? <div className="mt-1 text-slate-600">{item.notes}</div> : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 p-6">
+        <h2 className="text-2xl font-semibold">Before / After Comparisons</h2>
+        {report.comparisons.length === 0 ? (
+          <p className="mt-4 text-slate-600">No comparison sheets created.</p>
+        ) : (
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            {report.comparisons.map((comparison) => (
+              <div key={comparison.id} className="break-inside-avoid rounded-2xl border border-slate-200 p-4">
+                <h3 className="font-semibold text-slate-900">{comparison.title}</h3>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="mb-1 text-xs uppercase tracking-[0.16em] text-slate-500">Before</div>
+                    <div className="aspect-video overflow-hidden rounded-xl bg-slate-100">
+                      {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt="" className="h-full w-full object-cover" /> : null}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="mb-1 text-xs uppercase tracking-[0.16em] text-slate-500">After</div>
+                    <div className="aspect-video overflow-hidden rounded-xl bg-slate-100">
+                      {comparison.afterUrl ? <img src={comparison.afterUrl} alt="" className="h-full w-full object-cover" /> : null}
+                    </div>
+                  </div>
+                </div>
+                {comparison.summary ? <p className="mt-3 text-sm leading-6 text-slate-700">{comparison.summary}</p> : null}
+                <ul className="mt-3 space-y-1 text-sm text-slate-600">
+                  {parseTextList(comparison.differencesJson).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>

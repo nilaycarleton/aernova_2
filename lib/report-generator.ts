@@ -1,4 +1,9 @@
-import { Measurement, Project } from "@prisma/client";
+import { Measurement, Project, RoofSection } from "@prisma/client";
+import { defaultPricingTemplate } from "@/lib/pricing-template";
+import {
+  buildRoofSectionTotals,
+  buildWasteRecommendation,
+} from "@/lib/roof-intelligence";
 
 type ReportSection = {
   title: string;
@@ -22,6 +27,10 @@ export type GeneratedReport = {
     dripEdgeFt: number;
     predominantPitch: string;
     totalFacets: number | null;
+    complexity: string;
+    complexityScore: number;
+    laborMultiplier: number;
+    areaSource: string;
     estimatedMaterialCost: number;
     estimatedLaborCost: number;
     estimatedAccessoryCost: number;
@@ -56,34 +65,26 @@ function roundUpSquaresToThird(areaSqft: number) {
   return Math.ceil(rawSquares * 3) / 3;
 }
 
-function inferWasteFactor(pitchValue: number, valleyFt: number, hipFt: number) {
-  // EagleView-style reports show a waste recommendation table for asphalt shingles.
-  // We are not copying their exact algorithm, but using a similar contractor-friendly idea:
-  // steeper / more complex roofs -> more waste.
-  let waste = 10;
-
-  if (pitchValue >= 8) waste += 3;
-  if (pitchValue >= 12) waste += 3;
-  if (valleyFt > 40) waste += 2;
-  if (valleyFt > 80) waste += 2;
-  if (hipFt > 80) waste += 2;
-
-  return Math.min(waste, 25);
-}
-
-export function generateRoofingReport(project: Project, measurements: Measurement[]): GeneratedReport {
+export function generateRoofingReport(
+  project: Project,
+  measurements: Measurement[],
+  sectionsInput: RoofSection[] = []
+): GeneratedReport {
+  const sectionTotals = buildRoofSectionTotals(sectionsInput);
+  const wasteRecommendation = buildWasteRecommendation(measurements, sectionsInput);
   const roofAreaSqft =
+    sectionTotals.totalAreaSqft ||
     getValue(measurements, "AREA") ||
     0;
 
-  const ridgeFt = getValue(measurements, "RIDGE");
-  const hipFt = getValue(measurements, "HIP");
-  const valleyFt = getValue(measurements, "VALLEY");
-  const eaveFt = getValue(measurements, "EAVE");
-  const rakeFt = getValue(measurements, "RAKE");
+  const ridgeFt = sectionTotals.ridgeLengthFt || getValue(measurements, "RIDGE");
+  const hipFt = sectionTotals.hipLengthFt || getValue(measurements, "HIP");
+  const valleyFt = sectionTotals.valleyLengthFt || getValue(measurements, "VALLEY");
+  const eaveFt = sectionTotals.eaveLengthFt || getValue(measurements, "EAVE");
+  const rakeFt = sectionTotals.rakeLengthFt || getValue(measurements, "RAKE");
   const wasteFactorMeasured = getValue(measurements, "WASTE_FACTOR");
   const pitchValue = getValue(measurements, "PITCH");
-  const facets = getValue(measurements, "FACET_COUNT") || null;
+  const facets = sectionTotals.facetCount || getValue(measurements, "FACET_COUNT") || null;
 
   const predominantPitch = pitchValue ? `${pitchValue}/12` : "Not provided";
   const ridgeOrHipFt = ridgeFt + hipFt;
@@ -92,46 +93,41 @@ export function generateRoofingReport(project: Project, measurements: Measuremen
   const wasteFactorPercent =
     wasteFactorMeasured > 0
       ? wasteFactorMeasured
-      : inferWasteFactor(pitchValue, valleyFt, hipFt);
+      : wasteRecommendation.recommendedWaste;
 
   const effectiveAreaSqft = roofAreaSqft * (1 + wasteFactorPercent / 100);
   const roofSquares = roundUpSquaresToThird(roofAreaSqft);
-  const suggestedSquares = roundUpSquaresToThird(effectiveAreaSqft);
+  const suggestedSquares = wasteRecommendation.suggestedSquares || roundUpSquaresToThird(effectiveAreaSqft);
 
   const shingleBundles = roundUpBundles(effectiveAreaSqft);
   const underlaymentRolls = roundUpRolls(roofAreaSqft);
   const ridgeCapBundles = Math.ceil(ridgeOrHipFt / 33);
   const starterBundles = Math.ceil(eaveFt / 100);
 
-  // Very simple MVP pricing assumptions
-  const shingleBundleCost = 42;
-  const underlaymentRollCost = 95;
-  const ridgeCapBundleCost = 65;
-  const starterBundleCost = 52;
-  const dripEdgeCostPerFt = 3.5;
-  const valleyLinerCostPerFt = 4.25;
-  const disposalCost = roofAreaSqft > 0 ? 650 : 0;
+  const pricing = defaultPricingTemplate;
+  const disposalCost = roofAreaSqft > 0 ? pricing.disposalFee : 0;
 
   const estimatedMaterialCost =
-    shingleBundles * shingleBundleCost +
-    underlaymentRolls * underlaymentRollCost +
-    ridgeCapBundles * ridgeCapBundleCost +
-    starterBundles * starterBundleCost +
-    dripEdgeFt * dripEdgeCostPerFt +
-    valleyFt * valleyLinerCostPerFt;
+    shingleBundles * pricing.shingleBundleCost +
+    underlaymentRolls * pricing.underlaymentRollCost +
+    ridgeCapBundles * pricing.ridgeCapBundleCost +
+    starterBundles * pricing.starterBundleCost +
+    dripEdgeFt * pricing.dripEdgeCostPerFt +
+    valleyFt * pricing.valleyLinerCostPerFt;
 
   const laborRatePerSqft =
-    pitchValue >= 12 ? 4.5 :
-    pitchValue >= 8 ? 3.85 :
-    3.2;
+    pitchValue >= 12 ? pricing.laborRateComplex :
+    pitchValue >= 8 ? pricing.laborRateNormal :
+    pricing.laborRateSimple;
 
-  const estimatedLaborCost = roofAreaSqft * laborRatePerSqft;
+  const estimatedLaborCost = roofAreaSqft * laborRatePerSqft * wasteRecommendation.laborMultiplier;
   const estimatedAccessoryCost = 375;
-  const totalAmount =
+  const subtotal =
     estimatedMaterialCost +
     estimatedLaborCost +
     estimatedAccessoryCost +
     disposalCost;
+  const totalAmount = subtotal * (1 + pricing.markupPercent / 100);
 
   const scopeOfWork = [
     "Remove existing roofing materials where applicable.",
@@ -160,7 +156,8 @@ export function generateRoofingReport(project: Project, measurements: Measuremen
       title: "Waste Recommendation",
       body:
         `Suggested waste factor: ${wasteFactorPercent}%. ` +
-        `This is meant as a job-planning guide for asphalt shingle estimating, similar to the way roofing reports surface a measured-versus-suggested waste view. ` +
+        `Complexity score: ${wasteRecommendation.complexityScore}/100 (${wasteRecommendation.complexity}). ` +
+        `Primary factors: ${wasteRecommendation.reasons.join(", ")}. ` +
         `Measured roof squares: ${roofSquares.toFixed(2)}. ` +
         `Suggested ordering squares: ${suggestedSquares.toFixed(2)}.`
     },
@@ -179,7 +176,8 @@ export function generateRoofingReport(project: Project, measurements: Measuremen
         `Estimated labor cost: $${roundMoney(estimatedLaborCost).toLocaleString()}. ` +
         `Estimated accessories: $${roundMoney(estimatedAccessoryCost).toLocaleString()}. ` +
         `Estimated disposal: $${roundMoney(disposalCost).toLocaleString()}. ` +
-        `Estimated total: $${roundMoney(totalAmount).toLocaleString()}.`
+        `Markup: ${pricing.markupPercent}%. ` +
+        `Estimated total before tax: $${roundMoney(totalAmount).toLocaleString()}.`
     },
     {
       title: "Scope of Work",
@@ -209,6 +207,10 @@ export function generateRoofingReport(project: Project, measurements: Measuremen
       dripEdgeFt,
       predominantPitch,
       totalFacets: facets || null,
+      complexity: wasteRecommendation.complexity,
+      complexityScore: wasteRecommendation.complexityScore,
+      laborMultiplier: wasteRecommendation.laborMultiplier,
+      areaSource: wasteRecommendation.areaSource,
       estimatedMaterialCost: roundMoney(estimatedMaterialCost),
       estimatedLaborCost: roundMoney(estimatedLaborCost),
       estimatedAccessoryCost: roundMoney(estimatedAccessoryCost),

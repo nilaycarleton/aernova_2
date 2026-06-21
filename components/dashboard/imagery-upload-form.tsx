@@ -1,0 +1,142 @@
+"use client";
+
+import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+
+export function ImageryUploadForm({ projectId }: { projectId: string }) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  function updateSelectedFiles(files: FileList | null) {
+    setSelectedFiles(files ? Array.from(files) : []);
+  }
+
+  function handleDrop(event: React.DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setIsDragActive(false);
+    const droppedFiles = Array.from(event.dataTransfer.files).filter((file) => file.type.startsWith("image/"));
+    if (!fileInputRef.current || droppedFiles.length === 0) return;
+
+    const dataTransfer = new DataTransfer();
+    droppedFiles.forEach((file) => dataTransfer.items.add(file));
+    fileInputRef.current.files = dataTransfer.files;
+    setSelectedFiles(droppedFiles);
+  }
+
+  async function submitUpload(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+    setIsUploading(true);
+
+    const formData = new FormData(event.currentTarget);
+    const response = await fetch(`/api/projects/${projectId}/imagery`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      uploaded?: number;
+    };
+
+    if (!response.ok) {
+      setError(payload.error ?? "Upload failed");
+      setIsUploading(false);
+      return;
+    }
+
+    formRef.current?.reset();
+    setSelectedFiles([]);
+    setSuccess(`${payload.uploaded ?? 1} image${payload.uploaded === 1 ? "" : "s"} uploaded`);
+    setIsUploading(false);
+    startTransition(() => {
+      router.refresh();
+    });
+  }
+
+  return (
+    <form ref={formRef} onSubmit={submitUpload} className="mt-6 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_420px]">
+        <label
+          onDragOver={(event) => {
+            event.preventDefault();
+            setIsDragActive(true);
+          }}
+          onDragLeave={() => setIsDragActive(false)}
+          onDrop={handleDrop}
+          className={`flex min-h-32 cursor-pointer flex-col justify-center rounded-2xl border border-dashed p-4 transition ${
+            isDragActive
+              ? "border-cyan-300/70 bg-cyan-300/10"
+              : "border-white/15 bg-slate-950/45 hover:border-cyan-300/35 hover:bg-slate-950/65"
+          }`}
+        >
+          <input
+            ref={fileInputRef}
+            name="images"
+            type="file"
+            accept="image/*"
+            multiple
+            className="sr-only"
+            onChange={(event) => updateSelectedFiles(event.currentTarget.files)}
+            required
+          />
+          <span className="text-sm uppercase tracking-[0.16em] text-slate-500">Upload Capture Set</span>
+          <span className="mt-2 text-lg font-semibold text-white">
+            {selectedFiles.length > 0
+              ? `${selectedFiles.length} image${selectedFiles.length === 1 ? "" : "s"} selected`
+              : "Drop drone photos here"}
+          </span>
+          <span className="mt-1 max-w-xl text-sm leading-6 text-slate-400">
+            Add the full flight batch at once. Metadata below is applied to every selected image so large geotech sets stay organized.
+          </span>
+          <span className="mt-3 inline-flex w-fit rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500">
+            Choose files
+          </span>
+          {selectedFiles.length > 0 ? (
+            <span className="mt-3 max-w-full truncate text-xs text-cyan-100">
+              {selectedFiles.slice(0, 3).map((file) => file.name).join(", ")}
+              {selectedFiles.length > 3 ? `, +${selectedFiles.length - 3} more` : ""}
+            </span>
+          ) : null}
+        </label>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <select name="type" defaultValue="DRONE" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400">
+          <option value="DRONE">Drone image</option>
+          <option value="ORTHOMOSAIC">Orthomosaic</option>
+          <option value="MODEL">Model preview</option>
+          <option value="BEFORE">Before image</option>
+          <option value="AFTER">After image</option>
+          </select>
+          <input name="altitudeFt" type="number" step="0.01" placeholder="Altitude ft" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400" />
+          <input name="captureDate" type="date" aria-label="Capture date" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
+          <input name="captureTime" type="time" aria-label="Capture time" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
+          <textarea name="notes" rows={2} placeholder="Flight name, capture state, roof zone, or processing notes" className="w-full resize-none rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400 sm:col-span-2" />
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs leading-5 text-slate-500">
+          Best results come from original drone photos with EXIF/GPS retained.
+        </p>
+        <button
+          type="submit"
+          disabled={isUploading || isPending}
+          className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isUploading ? "Uploading..." : isPending ? "Refreshing..." : "Upload Image Set"}
+        </button>
+      </div>
+      {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
+      {success ? <p className="mt-3 text-sm text-emerald-300">{success}</p> : null}
+    </form>
+  );
+}
