@@ -1,0 +1,15 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#0D1320"/>
+  <rect x="80" y="84" width="1040" height="632" rx="28" fill="#111827" stroke="#334155" stroke-width="3"/>
+  <path d="M192 498L374 288L610 474L770 342L1016 542V646H192V498Z" fill="#1E293B"/>
+  <path d="M193 499L374 288L610 474L770 342L1016 542" stroke="#60A5FA" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M274 600H930" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="842" cy="416" r="46" fill="#F97316" fill-opacity="0.18" stroke="#FDBA74" stroke-width="7"/>
+  <path d="M808 352L752 280" stroke="#FBBF24" stroke-width="8" stroke-linecap="round"/>
+  <path d="M752 280L768 329" stroke="#FBBF24" stroke-width="8" stroke-linecap="round"/>
+  <path d="M752 280L803 289" stroke="#FBBF24" stroke-width="8" stroke-linecap="round"/>
+  <rect x="118" y="116" width="274" height="74" rx="16" fill="#020617" fill-opacity="0.82" stroke="#1E3A8A"/>
+  <text x="148" y="162" fill="#BFDBFE" font-family="Arial, sans-serif" font-size="28" font-weight="700">Rear slope photo</text>
+  <rect x="740" y="474" width="244" height="58" rx="14" fill="#020617" fill-opacity="0.84" stroke="#FDBA74"/>
+  <text x="768" y="511" fill="#FED7AA" font-family="Arial, sans-serif" font-size="22" font-weight="700">Flashing wear</text>
+</svg>

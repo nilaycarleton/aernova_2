@@ -69,7 +69,6 @@ export default function NewProjectPage() {
               className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition focus:border-blue-500"
             >
               <option value="MANUAL">Manual</option>
-              <option value="SATELLITE">Satellite</option>
               <option value="DRONE">Drone</option>
             </select>
           </div>

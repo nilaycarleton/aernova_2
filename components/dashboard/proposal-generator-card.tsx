@@ -65,7 +65,7 @@ export function ProposalGeneratorCard({ projectId, proposals }: Props) {
           </div>
 
           {parsed?.summary ? (
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Roof Area</div>
                 <div className="mt-2 text-lg font-semibold text-white">
@@ -88,6 +88,18 @@ export function ProposalGeneratorCard({ projectId, proposals }: Props) {
                 <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Suggested Squares</div>
                 <div className="mt-2 text-lg font-semibold text-white">
                   {String(parsed.summary.suggestedSquares ?? 0)}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Complexity</div>
+                <div className="mt-2 text-lg font-semibold capitalize text-white">
+                  {String(parsed.summary.complexity ?? "—")}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Labor Factor</div>
+                <div className="mt-2 text-lg font-semibold text-white">
+                  {String(parsed.summary.laborMultiplier ?? "—")}x
                 </div>
               </div>
             </div>

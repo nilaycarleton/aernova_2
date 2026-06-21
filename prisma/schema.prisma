@@ -29,7 +29,6 @@ enum ProjectStatus {
 
 enum CaptureSource {
   DRONE
-  SATELLITE
   MANUAL
 }
 
@@ -69,6 +68,23 @@ enum ProposalStatus {
   VIEWED
   APPROVED
   REJECTED
+}
+
+enum ImageryType {
+  DRONE
+  ORTHOMOSAIC
+  MODEL
+  BEFORE
+  AFTER
+}
+
+enum ProcessingStatus {
+  UPLOADED
+  QUEUED
+  PROCESSING
+  READY
+  NEEDS_REVIEW
+  FAILED
 }
 
 model User {
@@ -134,6 +150,9 @@ model Project {
   measurements Measurement[]
   issues       RoofIssue[]
   photos       PhotoAsset[]
+  imagery      ProjectImagery[]
+  processingJobs ProcessingJob[]
+  comparisons  RoofComparison[]
   proposals    Proposal[]
 
   @@index([companyId, status])
@@ -198,17 +217,89 @@ model RoofIssue {
   updatedAt      DateTime      @updatedAt
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  photos  PhotoAsset[]
 
   @@index([projectId, severity])
 }
 
 model PhotoAsset {
-  id          String   @id @default(cuid())
-  projectId   String
-  url         String
-  fileName    String?
-  contentType String?
-  createdAt   DateTime @default(now())
+  id              String   @id @default(cuid())
+  projectId       String
+  roofIssueId     String?
+  url             String
+  fileName        String?
+  contentType     String?
+  locationTag     String?
+  caption         String?
+  annotationsJson Json?
+  createdAt       DateTime @default(now())
+
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  roofIssue RoofIssue? @relation(fields: [roofIssueId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([roofIssueId])
+}
+
+model ProjectImagery {
+  id              String           @id @default(cuid())
+  projectId       String
+  type            ImageryType
+  status          ProcessingStatus @default(UPLOADED)
+  url             String
+  fileName        String?
+  contentType     String?
+  captureDate     DateTime?
+  altitudeFt      Float?
+  metadataJson    Json?
+  extractedJson   Json?
+  notes           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  processingJobs ProcessingJob[]
+
+  @@index([projectId, type])
+  @@index([projectId, status])
+}
+
+model ProcessingJob {
+  id             String           @id @default(cuid())
+  projectId      String
+  modelImageryId String?
+  provider       String           @default("nodeodm")
+  providerTaskId String?
+  status         ProcessingStatus @default(QUEUED)
+  progress       Float?
+  quality        String           @default("standard")
+  sourceImageIds Json?
+  optionsJson    Json?
+  outputsJson    Json?
+  errorMessage   String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  modelImagery ProjectImagery? @relation(fields: [modelImageryId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, status])
+  @@index([provider, providerTaskId])
+  @@index([modelImageryId])
+}
+
+model RoofComparison {
+  id            String   @id @default(cuid())
+  projectId     String
+  beforeUrl     String?
+  afterUrl      String?
+  title         String
+  summary       String?
+  differencesJson Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 

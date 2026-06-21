@@ -43,7 +43,7 @@ export async function createProjectAction(formData: FormData) {
     throw new Error("Province is required.");
   }
 
-  const allowedSources = new Set(["DRONE", "SATELLITE", "MANUAL"]);
+  const allowedSources = new Set(["DRONE", "MANUAL"]);
   const captureSource = allowedSources.has(captureSourceRaw)
     ? (captureSourceRaw as CaptureSource)
     : CaptureSource.MANUAL;

@@ -15,6 +15,7 @@ export async function generateProposalAction(formData: FormData) {
     where: { id: projectId },
     include: {
       measurements: true,
+      sections: true,
     },
   });
 
@@ -22,7 +23,7 @@ export async function generateProposalAction(formData: FormData) {
     throw new Error("Project not found");
   }
 
-  const report = generateRoofingReport(project, project.measurements);
+  const report = generateRoofingReport(project, project.measurements, project.sections);
 
   const proposal = await prisma.proposal.create({
     data: {

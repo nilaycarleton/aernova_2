@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ProjectList } from "@/components/dashboard/project-list";
 import { StatsStrip } from "@/components/dashboard/stats-strip";
+import { OperationsOverview } from "@/components/dashboard/operations-overview";
 
 export default async function DashboardPage() {
   // Temporary no-auth dashboard:
@@ -55,14 +56,14 @@ export default async function DashboardPage() {
   }, 0);
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
+    <div className="min-w-0 space-y-8">
+      <section className="min-w-0 rounded-3xl border border-white/10 bg-white/5 p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
+          <div className="min-w-0">
             <p className="text-sm uppercase tracking-[0.2em] text-slate-400">
               Dashboard
             </p>
-            <h2 className="mt-2 text-3xl font-semibold text-white">
+            <h2 className="mt-2 break-words text-3xl font-semibold text-white">
               Roofing workflow command center
             </h2>
             <p className="mt-3 max-w-2xl text-slate-400">
@@ -73,7 +74,7 @@ export default async function DashboardPage() {
 
           <Link
             href="/projects/new"
-            className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500"
+            className="shrink-0 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500"
           >
             New Project
           </Link>
@@ -86,6 +87,8 @@ export default async function DashboardPage() {
         quoted={quoted}
         totalValue={totalDraftProposalValue}
       />
+
+      <OperationsOverview projects={projects} />
 
       <section className="space-y-4">
         <div>
