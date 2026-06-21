@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "postinstall": "prisma generate",
-    "db:start": "pg_ctl -D .postgres-data status || pg_ctl -D .postgres-data -o \"-p 5433\" -l .postgres-data/server.log start",
+    "db:start": "pg_ctl -D .postgres-data status || LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 pg_ctl -D .postgres-data -o \"-p 5433\" -l .postgres-data/server.log start",
     "db:status": "pg_ctl -D .postgres-data status",
     "db:stop": "pg_ctl -D .postgres-data stop",
     "db:push": "prisma db push",
