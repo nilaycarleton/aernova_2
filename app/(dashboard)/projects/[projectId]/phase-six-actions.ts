@@ -1,11 +1,11 @@
 "use server";
 
-import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { ImageryType, Prisma, ProcessingStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { storage } from "@/lib/storage";
 import {
   buildNodeOdmModelPackage,
   buildPhotogrammetryModelPackage,
@@ -42,10 +42,6 @@ function getOptionalNumber(formData: FormData, key: string) {
   return value;
 }
 
-function uploadDir(projectId: string) {
-  return path.join(process.cwd(), "public", "uploads", "imagery", projectId);
-}
-
 export async function uploadProjectImageryAction(formData: FormData) {
   const projectId = getString(formData, "projectId");
   const typeRaw = getString(formData, "type");
@@ -63,8 +59,6 @@ export async function uploadProjectImageryAction(formData: FormData) {
     throw new Error("Only image uploads are supported in this MVP");
   }
 
-  const dir = uploadDir(projectId);
-  await mkdir(dir, { recursive: true });
   const batchId = randomUUID();
   const captureDate =
     captureDateRaw && captureTimeRaw
@@ -84,14 +78,14 @@ export async function uploadProjectImageryAction(formData: FormData) {
     const extension = path.extname(file.name).toLowerCase() || ".jpg";
     const storedName = `${randomUUID()}${extension}`;
     const bytes = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(dir, storedName), bytes);
+    const { url } = await storage.put(`imagery/${projectId}/${storedName}`, bytes, file.type);
 
     await prisma.projectImagery.create({
       data: {
         projectId,
         type: typeRaw as ImageryType,
         status: "UPLOADED",
-        url: `/uploads/imagery/${projectId}/${storedName}`,
+        url,
         fileName: file.name,
         contentType: file.type,
         captureDate,
