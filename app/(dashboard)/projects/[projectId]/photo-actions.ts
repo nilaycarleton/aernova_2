@@ -1,18 +1,14 @@
 "use server";
 
-import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { storage } from "@/lib/storage";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
-}
-
-function projectUploadDir(projectId: string) {
-  return path.join(process.cwd(), "public", "uploads", "inspections", projectId);
 }
 
 export async function uploadInspectionPhotoAction(formData: FormData) {
@@ -31,19 +27,16 @@ export async function uploadInspectionPhotoAction(formData: FormData) {
     throw new Error("Only image uploads are supported");
   }
 
-  const uploadDir = projectUploadDir(projectId);
-  await mkdir(uploadDir, { recursive: true });
-
   const extension = path.extname(file.name).toLowerCase() || ".jpg";
   const storedName = `${randomUUID()}${extension}`;
   const bytes = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(uploadDir, storedName), bytes);
+  const { url } = await storage.put(`inspections/${projectId}/${storedName}`, bytes, file.type);
 
   await prisma.photoAsset.create({
     data: {
       projectId,
       roofIssueId: roofIssueId || null,
-      url: `/uploads/inspections/${projectId}/${storedName}`,
+      url,
       fileName: file.name,
       contentType: file.type,
       locationTag: locationTag || null,
