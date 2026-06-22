@@ -1,30 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requireCompanyContext } from "@/lib/auth";
 import { ProjectList } from "@/components/dashboard/project-list";
 import { StatsStrip } from "@/components/dashboard/stats-strip";
 import { OperationsOverview } from "@/components/dashboard/operations-overview";
 
 export default async function DashboardPage() {
-  // Temporary no-auth dashboard:
-  // pull the seeded demo company directly so the UI works while
-  // we finish the app shell and database flows first.
-  const company = await prisma.company.findUnique({
-    where: { slug: "aernova-demo" },
-  });
-
-  if (!company) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold text-white">No demo company found</h2>
-        <p className="text-slate-400">
-          Run the seed script first so the dashboard has data to display.
-        </p>
-        <pre className="rounded-xl border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-300">
-{`npx tsx prisma/seed.ts`}
-        </pre>
-      </div>
-    );
-  }
+  const { company } = await requireCompanyContext();
 
   const projects = await prisma.project.findMany({
     where: {
