@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requireCompanyContext } from "@/lib/auth";
 import Link from "next/link";
 import { MeasurementManager } from "@/components/dashboard/measurement-manager";
 import { ProposalGeneratorCard } from "@/components/dashboard/proposal-generator-card";
@@ -20,6 +21,7 @@ export default async function ProjectDetailPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+  const { company } = await requireCompanyContext();
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -45,7 +47,8 @@ export default async function ProjectDetailPage({
     },
   });
 
-  if (!project) {
+  // Scope to the caller's company so projects can't be opened cross-tenant.
+  if (!project || project.companyId !== company.id) {
     notFound();
   }
 
