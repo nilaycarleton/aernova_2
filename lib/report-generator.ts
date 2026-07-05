@@ -10,9 +10,32 @@ type ReportSection = {
   body: string;
 };
 
+export type LineItem = {
+  description: string;
+  quantity: number;
+  unit: string;
+  unitCost: number;
+  amount: number;
+};
+
+export type CostTotals = {
+  materials: number;
+  labor: number;
+  accessories: number;
+  disposal: number;
+  subtotal: number;
+  markupPercent: number;
+  markupAmount: number;
+  taxPercent: number;
+  taxAmount: number;
+  total: number;
+};
+
 export type GeneratedReport = {
   title: string;
   totalAmount: number;
+  lineItems: LineItem[];
+  totals: CostTotals;
   scopeOfWork: string;
   summary: {
     roofAreaSqft: number;
@@ -127,7 +150,39 @@ export function generateRoofingReport(
     estimatedLaborCost +
     estimatedAccessoryCost +
     disposalCost;
-  const totalAmount = subtotal * (1 + pricing.markupPercent / 100);
+
+  // Itemised quote: quantity x unit cost = amount. Zero-quantity lines drop out.
+  const laborUnitCost = laborRatePerSqft * wasteRecommendation.laborMultiplier;
+  const lineItems: LineItem[] = [
+    { description: "Architectural asphalt shingles", quantity: shingleBundles, unit: "bundle", unitCost: pricing.shingleBundleCost, amount: shingleBundles * pricing.shingleBundleCost },
+    { description: "Synthetic underlayment", quantity: underlaymentRolls, unit: "roll", unitCost: pricing.underlaymentRollCost, amount: underlaymentRolls * pricing.underlaymentRollCost },
+    { description: "Ridge cap shingles", quantity: ridgeCapBundles, unit: "bundle", unitCost: pricing.ridgeCapBundleCost, amount: ridgeCapBundles * pricing.ridgeCapBundleCost },
+    { description: "Starter strip", quantity: starterBundles, unit: "bundle", unitCost: pricing.starterBundleCost, amount: starterBundles * pricing.starterBundleCost },
+    { description: "Drip edge", quantity: dripEdgeFt, unit: "ft", unitCost: pricing.dripEdgeCostPerFt, amount: dripEdgeFt * pricing.dripEdgeCostPerFt },
+    { description: "Valley liner", quantity: valleyFt, unit: "ft", unitCost: pricing.valleyLinerCostPerFt, amount: valleyFt * pricing.valleyLinerCostPerFt },
+    { description: `Installation labor (${predominantPitch} pitch)`, quantity: Math.round(roofAreaSqft), unit: "sq ft", unitCost: roundMoney(laborUnitCost), amount: estimatedLaborCost },
+    { description: "Accessories & fasteners", quantity: 1, unit: "lot", unitCost: estimatedAccessoryCost, amount: estimatedAccessoryCost },
+    { description: "Debris disposal", quantity: 1, unit: "lot", unitCost: disposalCost, amount: disposalCost },
+  ]
+    .filter((li) => li.quantity > 0 && li.amount > 0)
+    .map((li) => ({ ...li, amount: roundMoney(li.amount) }));
+
+  const markupAmount = subtotal * (pricing.markupPercent / 100);
+  const afterMarkup = subtotal + markupAmount;
+  const taxAmount = afterMarkup * (pricing.taxRatePercent / 100);
+  const totalAmount = afterMarkup + taxAmount;
+  const totals: CostTotals = {
+    materials: roundMoney(estimatedMaterialCost),
+    labor: roundMoney(estimatedLaborCost),
+    accessories: roundMoney(estimatedAccessoryCost),
+    disposal: roundMoney(disposalCost),
+    subtotal: roundMoney(subtotal),
+    markupPercent: pricing.markupPercent,
+    markupAmount: roundMoney(markupAmount),
+    taxPercent: pricing.taxRatePercent,
+    taxAmount: roundMoney(taxAmount),
+    total: roundMoney(totalAmount),
+  };
 
   const scopeOfWork = [
     "Remove existing roofing materials where applicable.",
@@ -172,12 +227,10 @@ export function generateRoofingReport(
     {
       title: "Pricing Summary",
       body:
-        `Estimated material cost: $${roundMoney(estimatedMaterialCost).toLocaleString()}. ` +
-        `Estimated labor cost: $${roundMoney(estimatedLaborCost).toLocaleString()}. ` +
-        `Estimated accessories: $${roundMoney(estimatedAccessoryCost).toLocaleString()}. ` +
-        `Estimated disposal: $${roundMoney(disposalCost).toLocaleString()}. ` +
-        `Markup: ${pricing.markupPercent}%. ` +
-        `Estimated total before tax: $${roundMoney(totalAmount).toLocaleString()}.`
+        `Subtotal: $${totals.subtotal.toLocaleString()}. ` +
+        `Overhead & profit (${totals.markupPercent}%): $${totals.markupAmount.toLocaleString()}. ` +
+        `Tax (${totals.taxPercent}%): $${totals.taxAmount.toLocaleString()}. ` +
+        `Estimated total: $${totals.total.toLocaleString()}.`
     },
     {
       title: "Scope of Work",
@@ -193,6 +246,8 @@ export function generateRoofingReport(
   return {
     title: `${project.name} – Roofing Report & Proposal`,
     totalAmount: roundMoney(totalAmount),
+    lineItems,
+    totals,
     scopeOfWork,
     summary: {
       // Round display metrics so stored values don't carry float noise
