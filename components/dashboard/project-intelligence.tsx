@@ -25,7 +25,7 @@ export function ProjectIntelligence({ measurements, sections }: Props) {
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
-              Measurement Intelligence
+              Roof summary
             </p>
             <h3 className="mt-2 text-2xl font-semibold text-white">
               Areas by pitch
@@ -64,7 +64,7 @@ export function ProjectIntelligence({ measurements, sections }: Props) {
 
       <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
         <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
-          Waste Engine
+          Material estimate
         </p>
         <h3 className="mt-2 text-2xl font-semibold text-white">
           {waste.complexity[0].toUpperCase() + waste.complexity.slice(1)} roof complexity

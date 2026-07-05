@@ -36,6 +36,11 @@ export function RoofExtractionPanel({
       try {
         const data = await prepareRoofExtractionAction(projectId, imageryId);
         setPreview(data);
+        // Seed the ROI with the auto-detected footprint so the operator only has
+        // to confirm/adjust instead of outlining the roof from scratch.
+        if (data.suggestedRoiPolygon && data.suggestedRoiPolygon.length >= 3) {
+          setPolygon(data.suggestedRoiPolygon);
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load the roof model preview");
       }
@@ -112,7 +117,7 @@ export function RoofExtractionPanel({
 
   const runExtraction = () => {
     if (polygon.length < 3) {
-      setError("Click at least three points around the roof to define the region");
+      setError("Draw a box around the roof — tap at least three points to outline it.");
       return;
     }
     setError(null);
@@ -129,13 +134,26 @@ export function RoofExtractionPanel({
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-      <div className="flex flex-col gap-1">
-        <h3 className="text-lg font-semibold text-white">Roof measurement extraction</h3>
+      <div className="flex flex-col gap-2">
+        <h3 className="text-lg font-semibold text-white">Measure your roof</h3>
         <p className="text-sm text-slate-400">
-          Draw a region around the roof on the 3D model’s plan view. Aernova segments the mesh into
-          planar facets and computes real surface area, footprint, and pitch — no estimates.
+          Draw a box around the roof and we&apos;ll calculate the real area, slope, and number of
+          squares — measured straight from the 3D model, not guessed.
         </p>
-        <p className="mt-1 text-xs text-slate-500">Model: {modelLabel}</p>
+        <ol className="mt-1 grid gap-1 text-xs text-slate-400 sm:grid-cols-3">
+          <li className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
+            <span className="font-semibold text-sky-300">1.</span> Load the 3D roof
+          </li>
+          <li className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
+            <span className="font-semibold text-sky-300">2.</span> Draw a box around the roof
+          </li>
+          <li className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
+            <span className="font-semibold text-sky-300">3.</span> Get measurements — they save automatically
+          </li>
+        </ol>
+        <p className="mt-1 text-xs text-slate-500">
+          Your measurements save as roof sections you can edit below. Measuring again replaces them.
+        </p>
       </div>
 
       {!preview && (
@@ -145,7 +163,7 @@ export function RoofExtractionPanel({
           disabled={loadingPreview}
           className="mt-4 rounded-xl border border-white/10 bg-sky-500/20 px-4 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-500/30 disabled:opacity-50"
         >
-          {loadingPreview ? "Loading model…" : "Load roof model"}
+          {loadingPreview ? "Loading…" : "Load the 3D roof"}
         </button>
       )}
 
@@ -181,7 +199,7 @@ export function RoofExtractionPanel({
                 disabled={polygon.length < 3 || extracting}
                 className="rounded-lg border border-white/10 bg-emerald-500/20 px-3 py-1.5 text-xs font-medium text-emerald-100 transition hover:bg-emerald-500/30 disabled:opacity-40"
               >
-                {extracting ? "Extracting…" : "Extract measurements"}
+                {extracting ? "Measuring…" : "Measure roof"}
               </button>
             </div>
             <p className="mt-2 text-xs text-slate-500">
@@ -193,16 +211,16 @@ export function RoofExtractionPanel({
           <div className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
             {!result && !error && (
               <p className="text-sm text-slate-400">
-                Outline the target roof, then extract. Facets are written as roof sections and flow
-                straight into the intelligence panel, waste calc, and report.
+                Draw a box around the roof, then measure. The results flow straight into your quote
+                and report.
               </p>
             )}
             {error && <p className="text-sm text-rose-300">{error}</p>}
             {result && (
               <div className="space-y-3 text-sm text-slate-200">
-                <p className="font-medium text-white">Extraction complete</p>
+                <p className="font-medium text-white">Measurements ready</p>
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <dt className="text-slate-400">Facets</dt>
+                  <dt className="text-slate-400">Roof faces</dt>
                   <dd className="text-right">{result.facetCount}</dd>
                   <dt className="text-slate-400">Surface area</dt>
                   <dd className="text-right">{result.totalSurfaceAreaSqft.toLocaleString()} ft²</dd>
@@ -210,8 +228,17 @@ export function RoofExtractionPanel({
                   <dd className="text-right">{result.totalProjectedAreaSqft.toLocaleString()} ft²</dd>
                   <dt className="text-slate-400">Squares</dt>
                   <dd className="text-right">{result.roofSquares}</dd>
-                  <dt className="text-slate-400">Predominant pitch</dt>
+                  <dt className="text-slate-400">Main pitch</dt>
                   <dd className="text-right">{result.predominantPitchRatio}</dd>
+                  <dt className="text-slate-400">Detail captured</dt>
+                  <dd className="text-right">
+                    {result.diagnostics.trianglesInRoi > 0
+                      ? Math.round(
+                          (result.diagnostics.trianglesSegmented / result.diagnostics.trianglesInRoi) * 100
+                        )
+                      : 0}
+                    %
+                  </dd>
                 </dl>
                 <div>
                   <p className="mb-1 text-xs uppercase tracking-wide text-slate-500">Pitch breakdown</p>

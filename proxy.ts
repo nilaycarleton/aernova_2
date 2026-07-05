@@ -1,8 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Public routes that do not require a signed-in user. Everything else
-// (dashboard, projects, API routes) is protected.
-const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
+// (dashboard, projects, API routes) is protected. Cron endpoints are public to
+// Clerk because they authenticate themselves with CRON_SECRET, not a user session.
+const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)", "/api/cron(.*)"]);
 
 // Next 16 renamed the `middleware` file convention to `proxy`. Clerk's
 // middleware works the same way; exporting it as the default `proxy` function

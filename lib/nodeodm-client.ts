@@ -1,6 +1,7 @@
-import { readFile } from "fs/promises";
 import path from "path";
-import { ProjectImagery } from "@prisma/client";
+import { unzipSync } from "fflate";
+import type { ProjectImagery } from "@prisma/client";
+import { storage, keyFromUrl } from "./storage.ts";
 
 type NodeOdmTaskResponse = {
   uuid?: string;
@@ -41,15 +42,28 @@ export type NodeOdmWorkerHealth = {
   errorMessage?: string;
 };
 
+// Tuned for roof reconstruction: we keep the DSM (roof-height QA) but drop the
+// DTM (bare-earth terrain) which is irrelevant for roofs and only adds worker
+// time. `resize-to` caps the working image dimension so processing stays fast
+// without hurting roof-scale geometry — the viewer guards each asset link, so a
+// missing DTM degrades gracefully.
 const defaultNodeOdmOptions: NodeOdmOption[] = [
   { name: "dsm", value: true },
-  { name: "dtm", value: true },
   { name: "gltf", value: true },
   { name: "cog", value: true },
+  { name: "resize-to", value: 2048 },
   { name: "orthophoto-resolution", value: 5 },
   { name: "feature-quality", value: "high" },
   { name: "pc-quality", value: "medium" },
 ];
+
+// Hard ceiling on images submitted to a single task. Lightning bills by image
+// count and caps datasets per plan; refusing oversized sets before submit avoids
+// wasted credits and forced plan upgrades. Override with NODEODM_MAX_IMAGES.
+export function nodeOdmMaxImages() {
+  const raw = Number(process.env.NODEODM_MAX_IMAGES);
+  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 1500;
+}
 
 const outputAssets = {
   all: "all.zip",
@@ -76,14 +90,6 @@ function withToken(url: URL) {
   return url;
 }
 
-function publicFilePath(url: string) {
-  if (!url.startsWith("/uploads/")) {
-    throw new Error(`Only local uploaded imagery can be sent to NodeODM: ${url}`);
-  }
-
-  return path.join(process.cwd(), "public", url);
-}
-
 export function nodeOdmTaskOptions(quality: "standard" | "high") {
   const configured = process.env.NODEODM_OPTIONS_JSON || process.env.NODEODX_OPTIONS_JSON;
 
@@ -106,6 +112,7 @@ export function nodeOdmTaskOptions(quality: "standard" | "high") {
   return defaultNodeOdmOptions.map((option) => {
     if (option.name === "pc-quality") return { ...option, value: quality === "high" ? "high" : "medium" };
     if (option.name === "orthophoto-resolution") return { ...option, value: quality === "high" ? 2 : 5 };
+    if (option.name === "resize-to") return { ...option, value: quality === "high" ? 4096 : 2048 };
     return option;
   });
 }
@@ -146,8 +153,11 @@ export async function createNodeOdmTask(images: ProjectImagery[], options: Creat
   formData.set("options", JSON.stringify(nodeOdmTaskOptions(options.quality)));
 
   for (const image of images) {
-    const bytes = await readFile(publicFilePath(image.url));
-    const blob = new Blob([bytes], {
+    // Read source bytes through the storage abstraction so this works whether
+    // imagery lives on local disk (dev) or in S3 (deployed).
+    const bytes = await storage.getBytes(keyFromUrl(image.url));
+    if (!bytes) throw new Error(`Source image bytes not found in storage for ${image.url}`);
+    const blob = new Blob([new Uint8Array(bytes)], {
       type: image.contentType || "application/octet-stream",
     });
     formData.append("images", blob, image.fileName || path.basename(image.url));
@@ -258,6 +268,21 @@ export async function downloadNodeOdmAsset(uuid: string, asset: NodeOdmAssetKey 
   }
 
   return response;
+}
+
+// NodeODM's download endpoint only serves the `all.zip` archive (individual
+// asset paths return an "Invalid asset" error). So to get a single output we
+// download the archive and extract the entry, whose name is its full path
+// within the task (e.g. odm_texturing/odm_textured_model_geo.glb).
+export async function downloadNodeOdmAllZip(uuid: string): Promise<Buffer> {
+  const response = await downloadNodeOdmAsset(uuid, "all");
+  return Buffer.from(await response.arrayBuffer());
+}
+
+export function extractZipEntry(zipBytes: Uint8Array, innerPath: string): Buffer | null {
+  const found = unzipSync(zipBytes, { filter: (file) => file.name === innerPath });
+  const data = found[innerPath];
+  return data ? Buffer.from(data) : null;
 }
 
 export function nodeOdmStatusToProcessingStatus(code: NodeOdmTaskInfo["status"]["code"]) {

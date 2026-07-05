@@ -195,10 +195,12 @@ export function generateRoofingReport(
     totalAmount: roundMoney(totalAmount),
     scopeOfWork,
     summary: {
-      roofAreaSqft,
-      roofSquares,
+      // Round display metrics so stored values don't carry float noise
+      // (e.g. 3664.1000000000004 or 42.333333333333336).
+      roofAreaSqft: Math.round(roofAreaSqft * 10) / 10,
+      roofSquares: Math.round(roofSquares * 10) / 10,
       wasteFactorPercent,
-      suggestedSquares,
+      suggestedSquares: Math.round(suggestedSquares * 10) / 10,
       shingleBundles,
       ridgeOrHipFt,
       starterEaveFt: eaveFt,

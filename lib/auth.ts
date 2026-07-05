@@ -91,6 +91,24 @@ export async function requireCompanyContext(): Promise<CompanyContext> {
   return { user, company, membership, role: membership.role };
 }
 
+/**
+ * Guard for project mutations: confirm the project belongs to the signed-in
+ * user's company. Throws (→ caught by the error boundary) on miss so a user
+ * can never mutate another company's project via a forged projectId.
+ */
+export async function requireProjectAccess(projectId: string) {
+  if (!projectId) throw new Error("Missing projectId");
+  const { company } = await requireCompanyContext();
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { companyId: true },
+  });
+  if (!project || project.companyId !== company.id) {
+    throw new Error("Project not found");
+  }
+  return { companyId: company.id };
+}
+
 function companyNameFor(user: User) {
   const name = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
   if (name) return `${name}'s Company`;
