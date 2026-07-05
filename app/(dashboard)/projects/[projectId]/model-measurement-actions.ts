@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { Measurement, MeasurementType, Prisma } from "@prisma/client";
+import { CaptureSource, Measurement, MeasurementType, MeasurementUnit, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireProjectAccess } from "@/lib/auth";
 import { generateRoofingReport } from "@/lib/report-generator";
@@ -223,4 +223,80 @@ export async function generateEstimateFromMeasurementsAction(formData: FormData)
 
   revalidatePath(`/projects/${projectId}`);
   redirect(`/projects/${projectId}?proposal=${proposal.id}`);
+}
+
+type ModelRow = { kind: string; category: string | null; pointsJson: unknown };
+
+/** Roll drawn measurements up into roofing quantities (shared by estimate + materialize). */
+function roofQuantitiesFromModelMeasurements(rows: ModelRow[]) {
+  const areas = rows.filter((r) => r.kind === "area").map((r) => r.pointsJson as unknown as Pt[]);
+  let totalSurfaceM2 = 0;
+  let slopeWeighted = 0;
+  for (const poly of areas) {
+    const a = polygonArea3D(poly);
+    totalSurfaceM2 += a;
+    slopeWeighted += pitchFromNormal(polygonNormal(poly)).degrees * a;
+  }
+  const avgSlopeDeg = totalSurfaceM2 > 0 ? slopeWeighted / totalSurfaceM2 : 0;
+  const lineFt: Record<string, number> = { ridge: 0, hip: 0, valley: 0, eave: 0, rake: 0 };
+  for (const r of rows) {
+    if (r.kind === "distance" && r.category && r.category in lineFt) {
+      lineFt[r.category] += polylineLength(r.pointsJson as unknown as Pt[]) * M_TO_FT;
+    }
+  }
+  return {
+    areaCount: areas.length,
+    totalAreaSqft: totalSurfaceM2 * M2_TO_FT2,
+    riseOver12: Math.round(Math.tan((avgSlopeDeg * Math.PI) / 180) * 12),
+    lineFt,
+  };
+}
+
+const CATEGORY_TO_TYPE: Record<string, MeasurementType> = {
+  ridge: MeasurementType.RIDGE,
+  hip: MeasurementType.HIP,
+  valley: MeasurementType.VALLEY,
+  eave: MeasurementType.EAVE,
+  rake: MeasurementType.RAKE,
+};
+
+const MODEL_MEASUREMENT_LABEL_PREFIX = "Model roof:";
+
+/**
+ * Materialise the drawn measurements into the project's standard Measurement
+ * rows so they appear in the measurements panel (and the classic proposal
+ * generator), not just the 3D viewer. Idempotent — replaces the previous
+ * "Model roof:" rows each time.
+ */
+export async function saveModelMeasurementsToProjectAction(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "").trim();
+  await requireProjectAccess(projectId);
+
+  const rows = await prisma.modelMeasurement.findMany({ where: { projectId } });
+  const q = roofQuantitiesFromModelMeasurements(rows);
+  if (q.areaCount === 0 && Object.values(q.lineFt).every((v) => v === 0)) {
+    throw new Error("Draw some measurements on the model first.");
+  }
+
+  const round1 = (n: number) => Math.round(n * 10) / 10;
+  const base = { projectId, source: CaptureSource.DRONE, confidence: null };
+  const toCreate: Prisma.MeasurementCreateManyInput[] = [];
+  if (q.areaCount > 0) {
+    const area = round1(q.totalAreaSqft);
+    toCreate.push({ ...base, sortOrder: 20, type: MeasurementType.AREA, unit: MeasurementUnit.SQFT, label: `${MODEL_MEASUREMENT_LABEL_PREFIX} roof area`, value: area, displayValue: `${area.toLocaleString()} sq ft` });
+    toCreate.push({ ...base, sortOrder: 21, type: MeasurementType.PITCH, unit: MeasurementUnit.RATIO, label: `${MODEL_MEASUREMENT_LABEL_PREFIX} predominant pitch`, value: q.riseOver12, displayValue: `${q.riseOver12}/12` });
+    toCreate.push({ ...base, sortOrder: 22, type: MeasurementType.FACET_COUNT, unit: MeasurementUnit.COUNT, label: `${MODEL_MEASUREMENT_LABEL_PREFIX} facets`, value: q.areaCount, displayValue: `${q.areaCount} facets` });
+  }
+  let sort = 23;
+  for (const [cat, ft] of Object.entries(q.lineFt)) {
+    if (ft <= 0) continue;
+    const len = round1(ft);
+    toCreate.push({ ...base, sortOrder: sort++, type: CATEGORY_TO_TYPE[cat], unit: MeasurementUnit.FT, label: `${MODEL_MEASUREMENT_LABEL_PREFIX} ${cat}`, value: len, displayValue: `${len.toLocaleString()} ft` });
+  }
+
+  await prisma.$transaction([
+    prisma.measurement.deleteMany({ where: { projectId, label: { startsWith: MODEL_MEASUREMENT_LABEL_PREFIX } } }),
+    prisma.measurement.createMany({ data: toCreate }),
+  ]);
+  revalidatePath(`/projects/${projectId}`);
 }
