@@ -196,8 +196,8 @@ export function PrintReport({ report }: { report: ReportVm }) {
           <div className="rounded-2xl bg-slate-50 p-4">Rakes: {report.measurementsSummary.rakesFt.toLocaleString()} ft</div>
           <div className="rounded-2xl bg-slate-50 p-4">Eaves / Starter: {report.measurementsSummary.eavesFt.toLocaleString()} ft</div>
           <div className="rounded-2xl bg-slate-50 p-4">Drip Edge: {report.measurementsSummary.dripEdgeFt.toLocaleString()} ft</div>
-          <div className="rounded-2xl bg-slate-50 p-4">Total Facets: {report.measurementsSummary.totalFacets ?? "—"}</div>
-          <div className="rounded-2xl bg-slate-50 p-4">Report Type: Roofing Measurement Summary</div>
+          <div className="rounded-2xl bg-slate-50 p-4">Roof faces: {report.measurementsSummary.totalFacets ?? "—"}</div>
+          <div className="rounded-2xl bg-slate-50 p-4">Report type: Roof measurement summary</div>
         </div>
       </section>
 
@@ -244,7 +244,9 @@ export function PrintReport({ report }: { report: ReportVm }) {
           <div className="rounded-2xl bg-slate-50 p-4">Accessory Cost: {money(report.pricingSummary.accessoryCost)}</div>
           <div className="rounded-2xl bg-slate-50 p-4">Disposal Cost: {money(report.pricingSummary.disposalCost)}</div>
           <div className="rounded-2xl bg-slate-50 p-4">
-            Suggested Squares: {report.pricingSummary.suggestedSquares ?? "—"}
+            Suggested Squares: {typeof report.pricingSummary.suggestedSquares === "number"
+              ? report.pricingSummary.suggestedSquares.toLocaleString(undefined, { maximumFractionDigits: 1 })
+              : "—"}
             <br />
             Estimated Bundles: {report.pricingSummary.shingleBundles ?? "—"}
           </div>
@@ -290,7 +292,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
       </section>
 
       <section className="space-y-4 rounded-3xl border border-slate-200 p-6">
-        <h2 className="text-2xl font-semibold">Report Narrative</h2>
+        <h2 className="text-2xl font-semibold">Summary</h2>
         {report.reportSections.map((section) => (
           <div key={section.title} className="rounded-2xl bg-slate-50 p-5">
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-600">
@@ -407,9 +409,9 @@ export function PrintReport({ report }: { report: ReportVm }) {
       </section>
 
       <section className="rounded-3xl border border-slate-200 p-6">
-        <h2 className="text-2xl font-semibold">Drone Processing Workflow</h2>
+        <h2 className="text-2xl font-semibold">Drone scan</h2>
         <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-          <div className="text-sm font-semibold text-slate-700">Imagery processing</div>
+          <div className="text-sm font-semibold text-slate-700">Photos &amp; 3D model</div>
           {report.imagery.length === 0 ? (
             <p className="mt-3 text-sm text-slate-600">No drone imagery uploaded.</p>
           ) : (

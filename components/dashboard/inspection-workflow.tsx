@@ -40,7 +40,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
-              Phase 3 Inspection Workflow
+              Inspection
             </p>
             <h3 className="mt-2 text-2xl font-semibold text-white">
               Photo evidence, annotations, and issue tracking
@@ -84,9 +84,13 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               name="photo"
               type="file"
               accept="image/*"
+              capture="environment"
               className="block w-full rounded-2xl border border-dashed border-white/15 bg-slate-950/50 px-4 py-5 text-sm text-slate-300 file:mr-4 file:rounded-xl file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
               required
             />
+            <p className="text-xs text-slate-500">
+              On phones and tablets this opens the camera directly for on-roof capture.
+            </p>
             <div className="grid gap-4 md:grid-cols-2">
               <input
                 name="locationTag"
@@ -129,7 +133,28 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
             Record structured inspection issues
           </h3>
 
-          <form action={createRoofIssueAction} className="mt-6 space-y-4">
+          <div className="mt-4">
+            <p className="mb-2 text-xs uppercase tracking-[0.14em] text-slate-500">
+              Quick add common issues
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {issueTypes.slice(0, 4).map((issueType) => (
+                <form key={issueType} action={createRoofIssueAction}>
+                  <input type="hidden" name="projectId" value={projectId} />
+                  <input type="hidden" name="title" value={issueType} />
+                  <input type="hidden" name="severity" value="MEDIUM" />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-white/10 bg-slate-950/50 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:border-blue-400/40 hover:bg-blue-500/10 hover:text-blue-200"
+                  >
+                    + {issueType}
+                  </button>
+                </form>
+              ))}
+            </div>
+          </div>
+
+          <form action={createRoofIssueAction} className="mt-4 space-y-4">
             <input type="hidden" name="projectId" value={projectId} />
             <select
               name="title"

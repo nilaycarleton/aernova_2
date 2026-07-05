@@ -12,13 +12,17 @@
     "db:stop": "pg_ctl -D .postgres-data stop",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "node prisma/seed.mjs"
+    "db:seed": "node prisma/seed.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "import:photos": "node --env-file=.env --experimental-strip-types prisma/import-photos.ts",
+    "nodeodm": "scripts/nodeodm.sh"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1073.0",
     "@clerk/nextjs": "^7.2.3",
     "@prisma/client": "^6.19.3",
     "@types/three": "^0.184.1",
+    "fflate": "^0.8.3",
     "next": "16.2.4",
     "openai": "^6.35.0",
     "prisma": "^6.19.3",

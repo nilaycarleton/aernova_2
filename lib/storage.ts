@@ -28,6 +28,23 @@ function normalizeKey(key: string) {
   return key.replace(/^\/+/, "");
 }
 
+/**
+ * Recover the storage key from a stored public URL, so callers that only kept
+ * the `url` (e.g. ProjectImagery.url) can still read the bytes back through the
+ * active driver. Handles the local `/uploads/<key>` form and the S3
+ * `<publicBase>/<key>` form, falling back to the URL pathname.
+ */
+export function keyFromUrl(url: string): string {
+  if (url.startsWith("/uploads/")) return normalizeKey(url.slice("/uploads/".length));
+  const base = (process.env.STORAGE_PUBLIC_BASE_URL || "").replace(/\/$/, "");
+  if (base && url.startsWith(`${base}/`)) return normalizeKey(url.slice(base.length + 1));
+  try {
+    return normalizeKey(new URL(url).pathname.replace(/^\/uploads\//, ""));
+  } catch {
+    return normalizeKey(url);
+  }
+}
+
 // --- Local disk driver -----------------------------------------------------
 
 function localPath(key: string) {

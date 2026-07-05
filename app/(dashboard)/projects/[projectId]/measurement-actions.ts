@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { MeasurementType, MeasurementUnit, CaptureSource } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { requireProjectAccess } from "@/lib/auth";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -55,6 +56,7 @@ export async function createMeasurementAction(formData: FormData) {
   if (!allowedTypes.has(typeRaw)) throw new Error("Invalid measurement type");
   if (!allowedUnits.has(unitRaw)) throw new Error("Invalid measurement unit");
   if (!allowedSources.has(sourceRaw)) throw new Error("Invalid measurement source");
+  await requireProjectAccess(projectId);
 
   const value = getNumber(formData, "value");
   const confidence = confidenceRaw ? Number(confidenceRaw) : null;
@@ -95,6 +97,7 @@ export async function updateMeasurementAction(formData: FormData) {
   if (!allowedTypes.has(typeRaw)) throw new Error("Invalid measurement type");
   if (!allowedUnits.has(unitRaw)) throw new Error("Invalid measurement unit");
   if (!allowedSources.has(sourceRaw)) throw new Error("Invalid measurement source");
+  await requireProjectAccess(projectId);
 
   const value = getNumber(formData, "value");
   const confidence = confidenceRaw ? Number(confidenceRaw) : null;

@@ -1,5 +1,3 @@
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 import {
   CaptureSource,
   MeasurementType,
@@ -9,6 +7,7 @@ import {
   ProjectImagery,
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { storage } from "@/lib/storage";
 import {
   buildNodeOdmModelPackage,
   parsePhotogrammetryModelPackage,
@@ -31,12 +30,12 @@ function stringArray(value: unknown) {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
-function jobOutputDir(projectId: string, imageryId: string) {
-  return path.join(process.cwd(), "public", "uploads", "processing", projectId, imageryId);
+function manifestKey(projectId: string, imageryId: string) {
+  return `processing/${projectId}/${imageryId}/manifest.json`;
 }
 
 export function processingManifestUrl(projectId: string, imageryId: string) {
-  return `/uploads/processing/${projectId}/${imageryId}/manifest.json`;
+  return storage.url(manifestKey(projectId, imageryId));
 }
 
 export async function writeProcessingOutputManifest(
@@ -44,10 +43,9 @@ export async function writeProcessingOutputManifest(
   imageryId: string,
   payload: Prisma.InputJsonValue
 ) {
-  const dir = jobOutputDir(projectId, imageryId);
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, "manifest.json"), JSON.stringify(payload, null, 2));
-  return processingManifestUrl(projectId, imageryId);
+  const key = manifestKey(projectId, imageryId);
+  await storage.put(key, Buffer.from(JSON.stringify(payload, null, 2)), "application/json");
+  return storage.url(key);
 }
 
 function measurementShape(measurement: ModelMeasurement) {
@@ -270,4 +268,55 @@ export async function syncNodeOdmModelJob(projectId: string, imageryId: string) 
   ]);
 
   return { status, progress: info.progress ?? null };
+}
+
+export type SyncSweepResult = {
+  swept: number;
+  advanced: number;
+  jobs: {
+    projectId: string;
+    modelImageryId: string;
+    status?: ProcessingStatus;
+    progress?: number | null;
+    error?: string;
+  }[];
+};
+
+/**
+ * Pull the current NodeODM status for every in-flight MODEL job across all
+ * projects and advance it (queued -> processing -> ready/failed). This is the
+ * unattended counterpart to the per-project sync route: a cron hits it so queued
+ * reconstructions reach READY without a human opening the project and refreshing.
+ * Bounded by `limit` so a single tick can't fan out unboundedly.
+ */
+export async function syncAllInFlightModelJobs(limit = 25): Promise<SyncSweepResult> {
+  const jobs = await prisma.processingJob.findMany({
+    where: {
+      provider: "nodeodm",
+      status: { in: ["QUEUED", "PROCESSING"] },
+      modelImageryId: { not: null },
+    },
+    orderBy: { createdAt: "asc" },
+    take: limit,
+  });
+
+  const results: SyncSweepResult["jobs"] = [];
+  let advanced = 0;
+  for (const job of jobs) {
+    if (!job.modelImageryId) continue;
+    try {
+      const outcome = await syncNodeOdmModelJob(job.projectId, job.modelImageryId);
+      // "advanced" = left the in-flight set (reached a terminal state).
+      if (outcome.status !== "QUEUED" && outcome.status !== "PROCESSING") advanced++;
+      results.push({ projectId: job.projectId, modelImageryId: job.modelImageryId, ...outcome });
+    } catch (error) {
+      results.push({
+        projectId: job.projectId,
+        modelImageryId: job.modelImageryId,
+        error: error instanceof Error ? error.message : "Unable to sync job",
+      });
+    }
+  }
+
+  return { swept: results.length, advanced, jobs: results };
 }

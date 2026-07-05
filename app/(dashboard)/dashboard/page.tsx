@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireCompanyContext } from "@/lib/auth";
-import { ProjectList } from "@/components/dashboard/project-list";
+import { ProjectsBrowser } from "@/components/dashboard/projects-browser";
 import { StatsStrip } from "@/components/dashboard/stats-strip";
 import { OperationsOverview } from "@/components/dashboard/operations-overview";
 
@@ -76,11 +76,26 @@ export default async function DashboardPage() {
         <div>
           <h3 className="text-xl font-semibold text-white">Projects</h3>
           <p className="text-sm text-slate-400">
-            Recent jobs across your roofing workspace
+            Search, filter, and sort jobs across your roofing workspace
           </p>
         </div>
 
-        <ProjectList projects={projects} />
+        <ProjectsBrowser
+          projects={projects.map((project) => ({
+            id: project.id,
+            name: project.name,
+            clientName: project.clientName,
+            addressLine1: project.addressLine1,
+            city: project.city,
+            province: project.province,
+            status: project.status,
+            captureSource: project.captureSource,
+            updatedAt: project.updatedAt,
+            measurements: project.measurements.length,
+            issues: project.issues.length,
+            proposals: project.proposals.length,
+          }))}
+        />
       </section>
     </div>
   );

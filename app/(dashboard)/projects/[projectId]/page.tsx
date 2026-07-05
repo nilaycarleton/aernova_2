@@ -12,15 +12,29 @@ import { ProposalEditor } from "@/components/dashboard/proposal-editor";
 import { PricingTemplatePanel } from "@/components/dashboard/pricing-template-panel";
 import { PhaseSixWorkflow } from "@/components/dashboard/phase-six-workflow";
 import { RoofExtractionPanel } from "@/components/dashboard/roof-extraction-panel";
+import { ProjectStatusStepper } from "@/components/dashboard/project-status-stepper";
+import { ProposalPreview } from "@/components/dashboard/proposal-preview";
+import { ProjectWorkspace } from "@/components/dashboard/project-workspace";
 import { getNodeOdmWorkerHealth } from "@/lib/nodeodm-client";
 import { getModelTaskUuid } from "@/lib/roof-extraction-service";
+import { statusLabel } from "@/lib/project-status";
 
 export default async function ProjectDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ proposal?: string; tab?: string }>;
 }) {
   const { projectId } = await params;
+  const { proposal: proposalParam, tab: tabParam } = await searchParams;
+  // Landing with a freshly generated proposal (or ?tab=quote) opens the Quote tab.
+  const initialTab: "inspect" | "scan" | "quote" =
+    tabParam === "inspect" || tabParam === "scan" || tabParam === "quote"
+      ? tabParam
+      : proposalParam
+        ? "quote"
+        : "scan";
   const { company } = await requireCompanyContext();
 
   const project = await prisma.project.findUnique({
@@ -43,6 +57,9 @@ export default async function ProjectDetailPage({
       },
       comparisons: {
         orderBy: { createdAt: "desc" },
+      },
+      modelMeasurements: {
+        orderBy: { createdAt: "asc" },
       },
     },
   });
@@ -78,10 +95,9 @@ export default async function ProjectDetailPage({
           </div>
 
           <div className="shrink-0 rounded-2xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-300">
-            <p>Status: {project.status.replaceAll("_", " ")}</p>
-            <p className="mt-2">Capture: {project.captureSource}</p>
+            <p>Status: {statusLabel(project.status)}</p>
             <p className="mt-2">
-              Proposal: {latestProposal ? `$${latestProposal.totalAmount?.toLocaleString() ?? 0}` : "None yet"}
+              Quote: {latestProposal ? `$${latestProposal.totalAmount?.toLocaleString() ?? 0}` : "None yet"}
             </p>
           </div>
           <Link
@@ -93,56 +109,50 @@ export default async function ProjectDetailPage({
         </div>
       </section>
 
+      <ProjectStatusStepper projectId={project.id} status={project.status} />
+
       <AiSummary projectId={project.id} />
 
-      <ProjectIntelligence
-        measurements={project.measurements}
-        sections={project.sections}
+      <ProjectWorkspace
+        initialTab={initialTab}
+        inspect={
+          <InspectionWorkflow
+            projectId={project.id}
+            issues={project.issues}
+            photos={project.photos}
+          />
+        }
+        scan={
+          <>
+            <PhaseSixWorkflow
+              projectId={project.id}
+              imagery={project.imagery}
+              processingJobs={project.processingJobs}
+              workerHealth={workerHealth}
+              comparisons={project.comparisons}
+              modelMeasurements={project.modelMeasurements}
+            />
+            {extractableModel && (
+              <RoofExtractionPanel
+                projectId={project.id}
+                imageryId={extractableModel.id}
+                modelLabel={extractableModel.fileName ?? "Roof 3D model"}
+              />
+            )}
+            <RoofSectionManager projectId={project.id} sections={project.sections} />
+            <MeasurementManager projectId={project.id} measurements={project.measurements} />
+            <ProjectIntelligence measurements={project.measurements} sections={project.sections} />
+          </>
+        }
+        quote={
+          <>
+            <ProposalGeneratorCard projectId={project.id} proposals={project.proposals} />
+            <ProposalEditor projectId={project.id} latestProposal={latestProposal ?? null} />
+            <ProposalPreview companyName={company.name} proposal={latestProposal ?? null} />
+            <PricingTemplatePanel />
+          </>
+        }
       />
-
-      <RoofSectionManager
-        projectId={project.id}
-        sections={project.sections}
-      />
-
-      <MeasurementManager
-        projectId={project.id}
-        measurements={project.measurements}
-      />
-
-      <ProposalGeneratorCard
-        projectId={project.id}
-        proposals={project.proposals}
-      />
-
-      <ProposalEditor
-        projectId={project.id}
-        latestProposal={latestProposal ?? null}
-      />
-
-      <InspectionWorkflow
-        projectId={project.id}
-        issues={project.issues}
-        photos={project.photos}
-      />
-
-      <PhaseSixWorkflow
-        projectId={project.id}
-        imagery={project.imagery}
-        processingJobs={project.processingJobs}
-        workerHealth={workerHealth}
-        comparisons={project.comparisons}
-      />
-
-      {extractableModel && (
-        <RoofExtractionPanel
-          projectId={project.id}
-          imageryId={extractableModel.id}
-          modelLabel={extractableModel.fileName ?? "Drone photogrammetry model"}
-        />
-      )}
-
-      <PricingTemplatePanel />
     </div>
   );
 }

@@ -39,6 +39,9 @@ yarn-error.log*
 nodeodm-data/
 public/uploads/
 
+# Claude Code local state (worktrees, local settings)
+.claude/
+
 # vercel
 .vercel
 

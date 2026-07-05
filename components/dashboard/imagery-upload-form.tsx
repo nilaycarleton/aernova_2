@@ -88,14 +88,14 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
             onChange={(event) => updateSelectedFiles(event.currentTarget.files)}
             required
           />
-          <span className="text-sm uppercase tracking-[0.16em] text-slate-500">Upload Capture Set</span>
+          <span className="text-sm uppercase tracking-[0.16em] text-slate-500">Upload photos</span>
           <span className="mt-2 text-lg font-semibold text-white">
             {selectedFiles.length > 0
-              ? `${selectedFiles.length} image${selectedFiles.length === 1 ? "" : "s"} selected`
-              : "Drop drone photos here"}
+              ? `${selectedFiles.length} photo${selectedFiles.length === 1 ? "" : "s"} selected`
+              : "Drop your drone photos here"}
           </span>
           <span className="mt-1 max-w-xl text-sm leading-6 text-slate-400">
-            Add the full flight batch at once. Metadata below is applied to every selected image so large geotech sets stay organized.
+            Add all the photos from your drone flight at once. The details on the right apply to every photo you select.
           </span>
           <span className="mt-3 inline-flex w-fit rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500">
             Choose files
@@ -109,30 +109,30 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <select name="type" defaultValue="DRONE" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400">
-          <option value="DRONE">Drone image</option>
-          <option value="ORTHOMOSAIC">Orthomosaic</option>
-          <option value="MODEL">Model preview</option>
-          <option value="BEFORE">Before image</option>
-          <option value="AFTER">After image</option>
+          <select name="type" defaultValue="DRONE" aria-label="Photo type" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400">
+          <option value="DRONE">Drone photo</option>
+          <option value="ORTHOMOSAIC">Top-down map</option>
+          <option value="MODEL">3D model</option>
+          <option value="BEFORE">Before photo</option>
+          <option value="AFTER">After photo</option>
           </select>
-          <input name="altitudeFt" type="number" step="0.01" placeholder="Altitude ft" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400" />
-          <input name="captureDate" type="date" aria-label="Capture date" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
-          <input name="captureTime" type="time" aria-label="Capture time" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
-          <textarea name="notes" rows={2} placeholder="Flight name, capture state, roof zone, or processing notes" className="w-full resize-none rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400 sm:col-span-2" />
+          <input name="altitudeFt" type="number" step="0.01" placeholder="Flight height (ft) — optional" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400" />
+          <input name="captureDate" type="date" aria-label="Date taken" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
+          <input name="captureTime" type="time" aria-label="Time taken" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
+          <textarea name="notes" rows={2} placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400 sm:col-span-2" />
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs leading-5 text-slate-500">
-          Best results come from original drone photos with EXIF/GPS retained.
+          Tip: upload the original files straight from the drone — they include location data that makes a better model.
         </p>
         <button
           type="submit"
           disabled={isUploading || isPending}
           className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isUploading ? "Uploading..." : isPending ? "Refreshing..." : "Upload Image Set"}
+          {isUploading ? "Uploading..." : isPending ? "Refreshing..." : "Upload photos"}
         </button>
       </div>
       {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
