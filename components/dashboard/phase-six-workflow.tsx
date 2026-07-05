@@ -12,7 +12,10 @@ import {
   materializeDroneMeasurementsAction,
   syncNodeOdmTaskAction,
 } from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
-import { generateEstimateFromMeasurementsAction } from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
+import {
+  generateEstimateFromMeasurementsAction,
+  saveModelMeasurementsToProjectAction,
+} from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
 import { ImageryUploadForm } from "@/components/dashboard/imagery-upload-form";
 import { ModelMeasurementViewer } from "@/components/dashboard/model-measurement-viewer";
 import { MeasureViewer } from "@/components/dashboard/measure-viewer";
@@ -305,18 +308,29 @@ export function PhaseSixWorkflow({
                     modelImageryId={latestModel.id}
                     initialMeasurements={savedMeasurements}
                   />
-                  <form action={generateEstimateFromMeasurementsAction} className="mt-3 flex flex-wrap items-center gap-3">
-                    <input type="hidden" name="projectId" value={projectId} />
-                    <SubmitButton
-                      pendingText="Building estimate…"
-                      className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-400/20 disabled:opacity-60"
-                    >
-                      Generate estimate from these measurements
-                    </SubmitButton>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <form action={generateEstimateFromMeasurementsAction}>
+                      <input type="hidden" name="projectId" value={projectId} />
+                      <SubmitButton
+                        pendingText="Building estimate…"
+                        className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-400/20 disabled:opacity-60"
+                      >
+                        Generate estimate from these measurements
+                      </SubmitButton>
+                    </form>
+                    <form action={saveModelMeasurementsToProjectAction}>
+                      <input type="hidden" name="projectId" value={projectId} />
+                      <SubmitButton
+                        pendingText="Saving…"
+                        className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10 disabled:opacity-60"
+                      >
+                        Save to project measurements
+                      </SubmitButton>
+                    </form>
                     <span className="text-xs text-slate-500">
-                      Uses your roof-area polygons (and any ridge/eave/valley lines) to build a priced proposal.
+                      Build a priced proposal, or roll these up into the project&apos;s measurements list.
                     </span>
-                  </form>
+                  </div>
                 </div>
               ) : null;
             })()}
