@@ -34,6 +34,8 @@ export async function generateProposalAction(formData: FormData) {
       scopeOfWork: JSON.stringify({
         summary: report.summary,
         sections: report.sections,
+        lineItems: report.lineItems,
+        totals: report.totals,
         plainTextScope: report.scopeOfWork,
       }),
     },

@@ -1,11 +1,23 @@
 import { Proposal } from "@prisma/client";
+import type { CostTotals, LineItem } from "@/lib/report-generator";
 
 type ParsedScope = {
   plainTextScope?: string;
   notes?: string;
   customLineItems?: string[];
+  lineItems?: LineItem[];
+  totals?: CostTotals;
   acceptance?: { name?: string; date?: string } | null;
 };
+
+function TotalRow({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex justify-between text-slate-600">
+      <span>{label}</span>
+      <span>${value.toLocaleString()}</span>
+    </div>
+  );
+}
 
 function parse(proposal: Proposal | null): ParsedScope {
   if (!proposal?.scopeOfWork) return {};
@@ -35,7 +47,9 @@ export function ProposalPreview({
   }
 
   const scope = parse(proposal);
-  const lineItems = scope.customLineItems ?? [];
+  const lineItems = scope.lineItems ?? [];
+  const totals = scope.totals ?? null;
+  const legacyLineItems = scope.customLineItems ?? [];
 
   return (
     <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
@@ -72,18 +86,55 @@ export function ProposalPreview({
           </div>
         )}
 
-        {lineItems.length > 0 && (
+        {lineItems.length > 0 ? (
+          <div className="mt-6">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Estimate</p>
+            <table className="mt-2 w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-left text-[11px] uppercase tracking-wide text-slate-400">
+                  <th className="py-2 font-medium">Item</th>
+                  <th className="py-2 text-right font-medium">Qty</th>
+                  <th className="py-2 text-right font-medium">Unit price</th>
+                  <th className="py-2 text-right font-medium">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {lineItems.map((li, i) => (
+                  <tr key={i}>
+                    <td className="py-2 pr-2 text-slate-700">{li.description}</td>
+                    <td className="py-2 text-right tabular-nums text-slate-600">
+                      {li.quantity.toLocaleString()} {li.unit}
+                    </td>
+                    <td className="py-2 text-right tabular-nums text-slate-600">${li.unitCost.toLocaleString()}</td>
+                    <td className="py-2 text-right font-medium tabular-nums text-slate-800">${li.amount.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {totals && (
+              <div className="mt-3 ml-auto w-full max-w-[16rem] space-y-1 text-sm tabular-nums">
+                <TotalRow label="Subtotal" value={totals.subtotal} />
+                <TotalRow label={`Overhead & profit (${totals.markupPercent}%)`} value={totals.markupAmount} />
+                <TotalRow label={`Tax (${totals.taxPercent}%)`} value={totals.taxAmount} />
+                <div className="flex justify-between border-t border-slate-200 pt-1.5 text-base font-bold text-slate-900">
+                  <span>Total</span>
+                  <span>${totals.total.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : legacyLineItems.length > 0 ? (
           <div className="mt-5">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Line items</p>
             <ul className="mt-2 divide-y divide-slate-100 border-y border-slate-100">
-              {lineItems.map((item, i) => (
+              {legacyLineItems.map((item, i) => (
                 <li key={i} className="py-2 text-sm text-slate-700">
                   {item}
                 </li>
               ))}
             </ul>
           </div>
-        )}
+        ) : null}
 
         {scope.notes && (
           <div className="mt-5">
