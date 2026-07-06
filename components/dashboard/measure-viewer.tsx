@@ -9,8 +9,17 @@ import { CSS2DObject, CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRe
 import { Line2 } from "three/examples/jsm/lines/Line2.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from "three-mesh-bvh";
 import { fitObjectToViewer } from "@/lib/viewer-fit";
 import { buildFacetFillGeometry } from "@/lib/facet-overlay-geometry";
+
+// Accelerate raycasts against the full-res GLB (257k triangles): a BVH turns
+// each pick/edit-drag from an O(n) triangle scan into ~O(log n). Patched onto
+// THREE globally; acceleratedRaycast falls back to the default when a mesh has
+// no boundsTree, so other viewers are unaffected.
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 import {
   autoDetectRoofFacetsAction,
   clearModelMeasurementsAction,
@@ -249,6 +258,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     dragDraftRef.current = dragDraft;
 
     const raycaster = new THREE.Raycaster();
+    raycaster.firstHitOnly = true; // three-mesh-bvh: return only the closest hit
     // Screen coords -> normalized device coords for this canvas.
     const ndcFrom = (event: MouseEvent) => {
       const rect = renderer.domElement.getBoundingClientRect();
@@ -277,6 +287,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
         const root = gltf.scene;
         root.traverse((o) => {
           if (o instanceof THREE.Mesh) {
+            o.geometry.computeBoundsTree(); // build the BVH for fast raycasts
             pickTargetsRef.current.push(o);
             const mats = Array.isArray(o.material) ? o.material : [o.material];
             mats.forEach((m) => {
@@ -483,6 +494,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           else if (m instanceof THREE.Material) m.dispose();
         }
       });
+      for (const mesh of pickTargetsRef.current) mesh.geometry.disposeBoundsTree?.();
       pickTargetsRef.current = [];
       draftPtsRef.current = [];
       handleMeshesRef.current = [];
