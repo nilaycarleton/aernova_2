@@ -22,6 +22,7 @@ THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 import {
   autoDetectRoofFacetsAction,
+  classifyRoofEdgesAction,
   clearModelMeasurementsAction,
   deleteModelMeasurementAction,
   saveModelMeasurementAction,
@@ -175,6 +176,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   const [draftCount, setDraftCount] = useState(0);
   const [detecting, setDetecting] = useState(false);
   const [detectError, setDetectError] = useState("");
+  const [classifying, setClassifying] = useState(false);
 
   // Imperative scene handles shared across effects/handlers.
   const groupRef = useRef<THREE.Group | null>(null);
@@ -589,6 +591,23 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     setTool(t);
   };
 
+  const hasAreas = measurements.filter((m) => m.type === "area").length >= 2;
+  const runClassify = async () => {
+    setClassifying(true);
+    try {
+      const lines = await classifyRoofEdgesAction({ projectId });
+      // Drop any prior auto-classified edges from view, then add the fresh set.
+      setMeasurements((prev) => [
+        ...prev.filter((m) => !m.label?.startsWith("Auto edge:")),
+        ...lines.map((l) => ({ id: l.id, type: "distance" as const, points: l.points as Pt[], label: l.label, category: l.category })),
+      ]);
+    } catch (e) {
+      console.error("[measure] classify edges failed", e);
+    } finally {
+      setClassifying(false);
+    }
+  };
+
   return (
     <div className="min-w-0">
       <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -621,6 +640,15 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           }`}
         >
           Edit points
+        </button>
+        <button
+          type="button"
+          onClick={runClassify}
+          disabled={!hasAreas || classifying}
+          title={hasAreas ? "Find ridges, hips, and valleys where facets meet" : "Draw or auto-detect at least two roof areas first"}
+          className="rounded-lg border border-sky-300/30 bg-sky-400/10 px-3 py-1.5 text-sm font-medium text-sky-100 transition hover:bg-sky-400/20 disabled:opacity-40"
+        >
+          {classifying ? "Finding edges…" : "⚡ Find ridges/valleys"}
         </button>
         <div className="ml-auto inline-flex overflow-hidden rounded-lg border border-white/10 text-sm">
           {(["imperial", "metric"] as Units[]).map((u) => (
