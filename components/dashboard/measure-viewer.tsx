@@ -37,8 +37,8 @@ import {
 } from "@/lib/measure-geometry";
 
 type MeasureTool = "distance" | "area" | "height" | "marker";
-// "detect" boxes a region and auto-fills roof facets; it is not a measurement kind.
-type Tool = "orbit" | MeasureTool | "detect";
+// "detect" boxes a region and auto-fills facets; "edit" drags existing vertices.
+type Tool = "orbit" | MeasureTool | "detect" | "edit";
 
 type Measurement = {
   id: string;
@@ -96,6 +96,58 @@ function makeLabel(text: string, className: string): CSS2DObject {
 const LABEL_CLASS =
   "pointer-events-none rounded-md border border-white/15 bg-slate-950/85 px-1.5 py-0.5 text-[11px] font-medium text-white shadow";
 
+/**
+ * Build the on-model graphics for one measurement (fill/outline/dots/label).
+ * Shared by the committed render and the live edit-drag so a dragged shape
+ * updates identically. Returns the group plus its LineMaterials (need viewport
+ * resolution kept in sync).
+ */
+function buildMeasurementGraphics(
+  m: Measurement,
+  color: number,
+  units: Units,
+  resolution: [number, number]
+): { group: THREE.Group; mats: LineMaterial[] } {
+  const group = new THREE.Group();
+  const mats: LineMaterial[] = [];
+  const local = m.points.map((p) => new THREE.Vector3(...p));
+
+  const addOutline = (pts: THREE.Vector3[], width: number) => {
+    const geo = new LineGeometry();
+    geo.setPositions(pts.flatMap((v) => [v.x, v.y, v.z]));
+    const mat = new LineMaterial({ color, linewidth: width, transparent: true });
+    mat.resolution.set(resolution[0], resolution[1]);
+    mats.push(mat);
+    group.add(new Line2(geo, mat));
+  };
+
+  if (m.type === "area" && local.length >= 3) {
+    const fill = buildFacetFillGeometry(m.points, polygonNormal(m.points), 0.05);
+    group.add(new THREE.Mesh(fill, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false })));
+    addOutline([...local, local[0]], 3);
+  } else if (m.type === "marker") {
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16), new THREE.MeshBasicMaterial({ color }));
+    dot.position.copy(local[0]);
+    group.add(dot);
+  } else if (local.length >= 2) {
+    for (const v of [local[0], local[local.length - 1]]) {
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 12), new THREE.MeshBasicMaterial({ color }));
+      dot.position.copy(v);
+      group.add(dot);
+    }
+    addOutline(local, 3);
+  }
+
+  const label = makeLabel(summarize(m, units), LABEL_CLASS);
+  label.position.copy(local[Math.floor((local.length - 1) / 2)] ?? local[0]);
+  group.add(label);
+  return { group, mats };
+}
+
+function colorForMeasurement(m: Measurement, areaIndex: number): number {
+  return m.type === "area" ? AREA_PALETTE[areaIndex % AREA_PALETTE.length] : TOOL_META[m.type].color;
+}
+
 export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasurements = [] }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
@@ -127,8 +179,17 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   // Thick-line materials need the viewport size; track it and keep them in sync.
   const lineMatsRef = useRef<LineMaterial[]>([]);
   const sizeRef = useRef<[number, number]>([1, 1]);
+  // Edit mode: draggable vertex handles + live-drag state.
+  const handlesGroupRef = useRef<THREE.Group | null>(null);
+  const dragDraftRef = useRef<THREE.Group | null>(null);
+  const handleMeshesRef = useRef<THREE.Mesh[]>([]);
+  const committedMapRef = useRef<Map<string, THREE.Object3D>>(new Map());
+  const colorMapRef = useRef<Map<string, number>>(new Map());
+  const measurementsRef = useRef<Measurement[]>(measurements);
+  const dragRef = useRef<{ id: string; index: number; handle: THREE.Mesh; point: Pt } | null>(null);
   toolRef.current = tool;
   unitsRef.current = units;
+  measurementsRef.current = measurements;
 
   // ---- Scene lifecycle (mount once per model) -------------------------------
   useEffect(() => {
@@ -179,11 +240,32 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     groupRef.current = group;
     const committed = new THREE.Group();
     const draft = new THREE.Group();
-    group.add(committed, draft);
+    const handles = new THREE.Group();
+    const dragDraft = new THREE.Group();
+    group.add(committed, draft, handles, dragDraft);
     committedRef.current = committed;
     draftRef.current = draft;
+    handlesGroupRef.current = handles;
+    dragDraftRef.current = dragDraft;
 
     const raycaster = new THREE.Raycaster();
+    // Screen coords -> normalized device coords for this canvas.
+    const ndcFrom = (event: MouseEvent) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      return new THREE.Vector2(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        -((event.clientY - rect.top) / rect.height) * 2 + 1
+      );
+    };
+    // Raycast the model surface; returns the hit point in model-metre coords.
+    const pickSurface = (event: MouseEvent): Pt | null => {
+      if (pickTargetsRef.current.length === 0) return null;
+      raycaster.setFromCamera(ndcFrom(event), camera);
+      const hit = raycaster.intersectObjects(pickTargetsRef.current, true)[0];
+      if (!hit) return null;
+      const p = group.worldToLocal(hit.point.clone());
+      return [p.x, p.y, p.z];
+    };
 
     const loader = new GLTFLoader();
     const draco = new DRACOLoader();
@@ -222,7 +304,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       if (!d) return;
       d.clear();
       const active = toolRef.current;
-      if (active === "orbit") return;
+      if (active === "orbit" || active === "edit") return;
       const color = active === "detect" ? DETECT_COLOR : TOOL_META[active].color;
       // Points are stored in group-local metres and draft is a child of group.
       const local = draftPtsRef.current.map((p) => new THREE.Vector3(...p));
@@ -246,7 +328,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
 
     const finishDraft = () => {
       const active = toolRef.current;
-      if (active === "orbit" || active === "detect") return;
+      if (active === "orbit" || active === "detect" || active === "edit") return;
       const pts = draftPtsRef.current;
       if (pts.length < TOOL_META[active].min) return;
       let label: string | undefined;
@@ -266,22 +348,62 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
 
     const onClick = (event: MouseEvent) => {
       const active = toolRef.current;
-      if (active === "orbit" || pickTargetsRef.current.length === 0) return;
-      const rect = renderer.domElement.getBoundingClientRect();
-      const ndc = new THREE.Vector2(
-        ((event.clientX - rect.left) / rect.width) * 2 - 1,
-        -((event.clientY - rect.top) / rect.height) * 2 + 1
-      );
-      raycaster.setFromCamera(ndc, camera);
-      const hit = raycaster.intersectObjects(pickTargetsRef.current, true)[0];
-      if (!hit) return;
-      const local = group.worldToLocal(hit.point.clone());
-      draftPtsRef.current.push([local.x, local.y, local.z]);
+      // Orbit and edit do not place points on click (edit uses drag).
+      if (active === "orbit" || active === "edit") return;
+      const point = pickSurface(event);
+      if (!point) return;
+      draftPtsRef.current.push(point);
       setDraftCount(draftPtsRef.current.length);
       redrawDraft();
       // Single-shot tools complete themselves.
       if (active === "height" && draftPtsRef.current.length === 2) finishDraft();
       if (active === "marker") finishDraft();
+    };
+
+    // ---- Edit mode: drag a vertex handle across the surface -----------------
+    const onPointerDown = (event: PointerEvent) => {
+      if (toolRef.current !== "edit" || handleMeshesRef.current.length === 0) return;
+      raycaster.setFromCamera(ndcFrom(event), camera);
+      const hit = raycaster.intersectObjects(handleMeshesRef.current, false)[0];
+      if (!hit) return; // missed a handle -> let OrbitControls orbit
+      const { id, index } = hit.object.userData as { id: string; index: number };
+      const handle = hit.object as THREE.Mesh;
+      const m = measurementsRef.current.find((x) => x.id === id);
+      if (!m) return;
+      dragRef.current = { id, index, handle, point: m.points[index] };
+      controls.enabled = false; // OrbitControls checks this each move -> no orbit
+      const existing = committedMapRef.current.get(id);
+      if (existing) existing.visible = false; // hide the static copy; draft shows live
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      const drag = dragRef.current;
+      if (!drag) return;
+      const point = pickSurface(event);
+      if (!point) return;
+      drag.point = point;
+      drag.handle.position.set(point[0], point[1], point[2]);
+      // Rebuild just the dragged measurement live in the draft layer.
+      const base = measurementsRef.current.find((x) => x.id === drag.id);
+      const dd = dragDraftRef.current;
+      if (!base || !dd) return;
+      dd.clear();
+      const updated: Measurement = { ...base, points: base.points.map((p, i) => (i === drag.index ? point : p)) };
+      const color = colorMapRef.current.get(drag.id) ?? TOOL_META.area.color;
+      dd.add(buildMeasurementGraphics(updated, color, unitsRef.current, sizeRef.current).group);
+    };
+    const onPointerUp = () => {
+      const drag = dragRef.current;
+      controls.enabled = true;
+      dragDraftRef.current?.clear();
+      if (!drag) return;
+      dragRef.current = null;
+      const base = measurementsRef.current.find((x) => x.id === drag.id);
+      if (!base) return;
+      const points = base.points.map((p, i) => (i === drag.index ? drag.point : p));
+      setMeasurements((prev) => prev.map((m) => (m.id === drag.id ? { ...m, points } : m)));
+      saveModelMeasurementAction({ id: drag.id, projectId, kind: base.type, points, label: base.label, category: base.category }).catch(
+        (e) => console.error("[measure] edit save failed", e)
+      );
     };
     const onDblClick = () => finishDraft();
 
@@ -315,6 +437,9 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
 
     renderer.domElement.addEventListener("click", onClick);
     renderer.domElement.addEventListener("dblclick", onDblClick);
+    renderer.domElement.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
     // Expose finish/detect for the toolbar buttons.
     (host as HTMLDivElement & { __finish?: () => void }).__finish = finishDraft;
     (host as HTMLDivElement & { __redraw?: () => void }).__redraw = redrawDraft;
@@ -345,6 +470,9 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       resizeObserver.disconnect();
       renderer.domElement.removeEventListener("click", onClick);
       renderer.domElement.removeEventListener("dblclick", onDblClick);
+      renderer.domElement.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
       controls.dispose();
       renderer.dispose();
       scene.traverse((o) => {
@@ -357,6 +485,8 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       });
       pickTargetsRef.current = [];
       draftPtsRef.current = [];
+      handleMeshesRef.current = [];
+      dragRef.current = null;
       groupRef.current = null;
       host.replaceChildren();
     };
@@ -369,51 +499,18 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     if (!committed || !group) return;
     committed.clear();
     lineMatsRef.current = [];
-    const [rw, rh] = sizeRef.current;
-
-    // Crisp, screen-space-thick outline that sits just above the surface.
-    const outline = (points: THREE.Vector3[], color: number, width: number) => {
-      const geo = new LineGeometry();
-      geo.setPositions(points.flatMap((v) => [v.x, v.y, v.z]));
-      const mat = new LineMaterial({ color, linewidth: width, transparent: true, depthTest: true });
-      mat.resolution.set(rw, rh);
-      lineMatsRef.current.push(mat);
-      committed.add(new Line2(geo, mat));
-    };
+    committedMapRef.current = new Map();
+    colorMapRef.current = new Map();
+    const resolution = sizeRef.current;
 
     let areaIndex = 0;
     for (const m of measurements) {
-      const local = m.points.map((p) => new THREE.Vector3(...p));
-
-      if (m.type === "area" && local.length >= 3) {
-        // Each facet gets its own hue so neighbours stay distinguishable.
-        const color = AREA_PALETTE[areaIndex++ % AREA_PALETTE.length];
-        const fill = buildFacetFillGeometry(m.points, polygonNormal(m.points), 0.05);
-        committed.add(
-          new THREE.Mesh(
-            fill,
-            new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false })
-          )
-        );
-        outline([...local, local[0]], color, 3);
-      } else if (m.type === "marker") {
-        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16), new THREE.MeshBasicMaterial({ color: TOOL_META.marker.color }));
-        dot.position.copy(local[0]);
-        committed.add(dot);
-      } else if (local.length >= 2) {
-        const color = TOOL_META[m.type].color;
-        // Small end-dots help read distance/height segments; no clutter dots on facets.
-        for (const v of [local[0], local[local.length - 1]]) {
-          const dot = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 12), new THREE.MeshBasicMaterial({ color }));
-          dot.position.copy(v);
-          committed.add(dot);
-        }
-        outline(local, color, 3);
-      }
-
-      const label = makeLabel(summarize(m, units), LABEL_CLASS);
-      label.position.copy(local[Math.floor((local.length - 1) / 2)] ?? local[0]);
-      committed.add(label);
+      const color = colorForMeasurement(m, m.type === "area" ? areaIndex++ : 0);
+      colorMapRef.current.set(m.id, color);
+      const { group: g, mats } = buildMeasurementGraphics(m, color, units, resolution);
+      committed.add(g);
+      committedMapRef.current.set(m.id, g);
+      lineMatsRef.current.push(...mats);
     }
 
     return () => {
@@ -434,11 +531,43 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     (hostRef.current as (HTMLDivElement & { __redraw?: () => void }) | null)?.__redraw?.();
   }, [units, draftCount]);
 
+  // Orbit and edit let you rotate the model; drawing/detect lock it so clicks place points.
   useEffect(() => {
-    if (controlsRef.current) controlsRef.current.enableRotate = tool === "orbit";
+    if (controlsRef.current) controlsRef.current.enableRotate = tool === "orbit" || tool === "edit";
   }, [tool]);
 
-  const activeMin = tool !== "orbit" && tool !== "detect" ? TOOL_META[tool].min : 0;
+  // Show draggable vertex handles only in edit mode.
+  useEffect(() => {
+    const handles = handlesGroupRef.current;
+    if (!handles) return;
+    handles.clear();
+    handleMeshesRef.current = [];
+    if (tool !== "edit" || loadState !== "ready") return;
+    for (const m of measurements) {
+      m.points.forEach((p, index) => {
+        const mesh = new THREE.Mesh(
+          new THREE.SphereGeometry(0.7, 16, 16),
+          new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false })
+        );
+        mesh.position.set(p[0], p[1], p[2]);
+        mesh.renderOrder = 999; // always grabbable, even behind the roof
+        mesh.userData = { id: m.id, index };
+        handles.add(mesh);
+        handleMeshesRef.current.push(mesh);
+      });
+    }
+    return () => {
+      handles.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+        mesh.geometry?.dispose?.();
+        if (mesh.material instanceof THREE.Material) mesh.material.dispose();
+      });
+      handles.clear();
+      handleMeshesRef.current = [];
+    };
+  }, [measurements, tool, loadState]);
+
+  const activeMin = tool !== "orbit" && tool !== "detect" && tool !== "edit" ? TOOL_META[tool].min : 0;
 
   const startTool = (t: Tool) => {
     draftPtsRef.current = [];
@@ -471,6 +600,15 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           }`}
         >
           ✨ Auto-detect roof
+        </button>
+        <button
+          type="button"
+          onClick={() => startTool("edit")}
+          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+            tool === "edit" ? "bg-violet-400 text-slate-950" : "border border-violet-300/30 bg-violet-400/10 text-violet-100 hover:bg-violet-400/20"
+          }`}
+        >
+          Edit points
         </button>
         <div className="ml-auto inline-flex overflow-hidden rounded-lg border border-white/10 text-sm">
           {(["imperial", "metric"] as Units[]).map((u) => (
@@ -517,6 +655,14 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
               >
                 {detecting ? "Detecting…" : "Detect roof areas"}
               </button>
+            </div>
+          ) : tool === "edit" ? (
+            <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-violet-300/25 bg-slate-950/85 px-3 py-2 text-sm backdrop-blur">
+              <span className="text-slate-300">
+                {measurements.length === 0
+                  ? "Nothing to edit yet — draw a measurement first."
+                  : "Drag the white handles to move a point. Drag empty space to rotate."}
+              </span>
             </div>
           ) : tool !== "orbit" ? (
             <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950/85 px-3 py-2 text-sm backdrop-blur">
