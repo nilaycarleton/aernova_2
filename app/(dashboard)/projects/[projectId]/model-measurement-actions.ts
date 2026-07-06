@@ -8,6 +8,7 @@ import { requireProjectAccess } from "@/lib/auth";
 import { generateRoofingReport } from "@/lib/report-generator";
 import { resolveTexturedModelMesh } from "@/lib/roof-extraction-service";
 import { extractRoofMeasurements, mergeCoplanarFacets } from "@/lib/roof-mesh-extraction";
+import { classifyRoofEdges } from "@/lib/edge-classification";
 import {
   M2_TO_FT2,
   M_TO_FT,
@@ -151,6 +152,60 @@ export async function autoDetectRoofFacetsAction(input: {
       data: { id, projectId: input.projectId, kind: "area", pointsJson: points as unknown as Prisma.InputJsonValue, label: `Auto ${f.pitchRatio}` },
     });
     created.push({ id, kind: "area", points, label: `Auto ${f.pitchRatio}`, category: null });
+  }
+
+  revalidatePath(`/projects/${input.projectId}`);
+  return created;
+}
+
+export type ClassifiedLine = {
+  id: string;
+  kind: "distance";
+  points: [number, number, number][];
+  label: string;
+  category: LineCategory;
+};
+
+const EDGE_LABEL_PREFIX = "Auto edge:";
+
+/**
+ * Classify the edges where roof-area facets meet (ridge/hip/valley) and persist
+ * each as an editable distance line that feeds the estimate. Idempotent —
+ * replaces the previous "Auto edge:" lines each run.
+ */
+export async function classifyRoofEdgesAction(input: { projectId: string }): Promise<ClassifiedLine[]> {
+  await requireProjectAccess(input.projectId);
+
+  const rows = await prisma.modelMeasurement.findMany({ where: { projectId: input.projectId, kind: "area" } });
+  const facets = rows.map((r) => ({ polygon: r.pointsJson as unknown as [number, number, number][] }));
+  if (facets.length < 2) {
+    throw new Error("Draw or auto-detect at least two roof areas first — edges come from where facets meet.");
+  }
+
+  const edges = classifyRoofEdges(facets);
+  await prisma.modelMeasurement.deleteMany({
+    where: { projectId: input.projectId, label: { startsWith: EDGE_LABEL_PREFIX } },
+  });
+  if (edges.length === 0) {
+    revalidatePath(`/projects/${input.projectId}`);
+    return [];
+  }
+
+  const created: ClassifiedLine[] = [];
+  for (const e of edges) {
+    const id = crypto.randomUUID();
+    const label = `${EDGE_LABEL_PREFIX} ${e.category}`;
+    await prisma.modelMeasurement.create({
+      data: {
+        id,
+        projectId: input.projectId,
+        kind: "distance",
+        pointsJson: e.points as unknown as Prisma.InputJsonValue,
+        label,
+        category: e.category,
+      },
+    });
+    created.push({ id, kind: "distance", points: e.points, label, category: e.category });
   }
 
   revalidatePath(`/projects/${input.projectId}`);
