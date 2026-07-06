@@ -6,8 +6,8 @@ import { CaptureSource, Measurement, MeasurementType, MeasurementUnit, Prisma } 
 import { prisma } from "@/lib/prisma";
 import { requireProjectAccess } from "@/lib/auth";
 import { generateRoofingReport } from "@/lib/report-generator";
-import { resolveTexturedModelMeshText } from "@/lib/roof-extraction-service";
-import { parseObjMesh, extractRoofMeasurements, mergeCoplanarFacets } from "@/lib/roof-mesh-extraction";
+import { resolveTexturedModelMesh } from "@/lib/roof-extraction-service";
+import { extractRoofMeasurements, mergeCoplanarFacets } from "@/lib/roof-mesh-extraction";
 import {
   M2_TO_FT2,
   M_TO_FT,
@@ -125,8 +125,8 @@ export async function autoDetectRoofFacetsAction(input: {
     throw new Error("Draw a box around the roof before auto-detecting.");
   }
 
-  const { text } = await resolveTexturedModelMeshText(input.projectId, input.imageryId);
-  const extraction = extractRoofMeasurements(parseObjMesh(text), {
+  const mesh = await resolveTexturedModelMesh(input.projectId, input.imageryId);
+  const extraction = extractRoofMeasurements(mesh, {
     roiPolygon: input.roiPolygon,
     maxRoofSlopeDeg: 48, // drop near-vertical walls before segmentation
   });

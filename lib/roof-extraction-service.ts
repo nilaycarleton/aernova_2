@@ -10,6 +10,7 @@ import { prisma } from "@/lib/prisma";
 import {
   parseObjMesh,
   extractRoofMeasurements,
+  type ParsedMesh,
   type RoofMeshExtraction,
 } from "@/lib/roof-mesh-extraction";
 import { downloadNodeOdmAllZip, extractZipEntry } from "@/lib/nodeodm-client";
@@ -305,6 +306,25 @@ export async function resolveTexturedModelMeshText(
     // fall through to the error below
   }
   throw new Error("The textured 3D mesh for this model could not be loaded.");
+}
+
+// In-process cache of parsed textured meshes, so re-detecting on the same model
+// (adjusting the ROI box) skips re-reading + re-parsing the ~30MB OBJ.
+const texturedMeshCache = new Map<string, ParsedMesh>();
+
+/** Resolve + parse the textured (GLB-frame) mesh, cached per model in-process. */
+export async function resolveTexturedModelMesh(projectId: string, imageryId: string): Promise<ParsedMesh> {
+  const key = `${projectId}:${imageryId}`;
+  const cached = texturedMeshCache.get(key);
+  if (cached) return cached;
+  const { text } = await resolveTexturedModelMeshText(projectId, imageryId);
+  const mesh = parseObjMesh(text);
+  if (texturedMeshCache.size >= 3) {
+    const oldest = texturedMeshCache.keys().next().value;
+    if (oldest) texturedMeshCache.delete(oldest);
+  }
+  texturedMeshCache.set(key, mesh);
+  return mesh;
 }
 
 async function loadModelMesh(projectId: string, imageryId: string) {
