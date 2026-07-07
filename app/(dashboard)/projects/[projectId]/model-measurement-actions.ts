@@ -89,6 +89,41 @@ export async function updateModelMeasurementCategoryAction(input: {
   revalidatePath(`/projects/${input.projectId}`);
 }
 
+/**
+ * Replace the project's entire model-measurement set with the given list, in one
+ * transaction. Backs undo/redo: the client restores a history snapshot, then
+ * calls this so the saved data matches (a reload reflects the undone/redone state).
+ */
+export type ModelMeasurementItem = {
+  id: string;
+  kind: ModelMeasurementKind;
+  points: [number, number, number][];
+  label?: string | null;
+  category?: LineCategory | null;
+};
+
+export async function replaceModelMeasurementsAction(input: {
+  projectId: string;
+  measurements: ModelMeasurementItem[];
+}) {
+  await requireProjectAccess(input.projectId);
+  const rows = input.measurements
+    .filter((m) => KINDS.has(m.kind) && validPoints(m.points))
+    .map((m) => ({
+      id: m.id,
+      projectId: input.projectId,
+      kind: m.kind,
+      pointsJson: m.points as unknown as Prisma.InputJsonValue,
+      label: m.label ?? null,
+      category: m.category && LINE_CATEGORIES.has(m.category) ? m.category : null,
+    }));
+  await prisma.$transaction([
+    prisma.modelMeasurement.deleteMany({ where: { projectId: input.projectId } }),
+    ...(rows.length ? [prisma.modelMeasurement.createMany({ data: rows })] : []),
+  ]);
+  revalidatePath(`/projects/${input.projectId}`);
+}
+
 export async function deleteModelMeasurementAction(input: { projectId: string; id: string }) {
   await requireProjectAccess(input.projectId);
   await prisma.modelMeasurement.deleteMany({ where: { id: input.id, projectId: input.projectId } });

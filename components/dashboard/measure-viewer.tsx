@@ -25,6 +25,7 @@ import {
   classifyRoofEdgesAction,
   clearModelMeasurementsAction,
   deleteModelMeasurementAction,
+  replaceModelMeasurementsAction,
   saveModelMeasurementAction,
   updateModelMeasurementCategoryAction,
   type LineCategory,
@@ -177,6 +178,12 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   const [detecting, setDetecting] = useState(false);
   const [detectError, setDetectError] = useState("");
   const [classifying, setClassifying] = useState(false);
+  // Undo/redo: snapshots of the measurement list. historyVersion re-renders the buttons.
+  const undoStackRef = useRef<Measurement[][]>([]);
+  const redoStackRef = useRef<Measurement[][]>([]);
+  const snapshotRef = useRef<() => void>(() => {});
+  const hoveredRef = useRef(false);
+  const [historyVersion, setHistoryVersion] = useState(0);
 
   // Imperative scene handles shared across effects/handlers.
   const groupRef = useRef<THREE.Group | null>(null);
@@ -348,6 +355,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       if (active === "marker") label = window.prompt("Marker label", "Note") || "Note";
       const id = crypto.randomUUID();
       const points = pts.slice(0, active === "height" ? 2 : pts.length);
+      snapshotRef.current();
       setMeasurements((prev) => [...prev, { id, type: active, points, label }]);
       // Persist optimistically; drop the row again if the server rejects it.
       saveModelMeasurementAction({ id, projectId, kind: active, points, label }).catch((e) => {
@@ -413,6 +421,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       const base = measurementsRef.current.find((x) => x.id === drag.id);
       if (!base) return;
       const points = base.points.map((p, i) => (i === drag.index ? drag.point : p));
+      snapshotRef.current();
       setMeasurements((prev) => prev.map((m) => (m.id === drag.id ? { ...m, points } : m)));
       saveModelMeasurementAction({ id: drag.id, projectId, kind: base.type, points, label: base.label, category: base.category }).catch(
         (e) => console.error("[measure] edit save failed", e)
@@ -433,6 +442,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           imageryId: modelImageryId,
           roiPolygon: roi.map((p) => ({ x: p[0], y: p[1] })),
         });
+        snapshotRef.current();
         setMeasurements((prev) => [
           ...prev,
           ...facets.map((f) => ({ id: f.id, type: "area" as const, points: f.points as Pt[], label: f.label ?? undefined, category: null })),
@@ -583,6 +593,54 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
 
   const activeMin = tool !== "orbit" && tool !== "detect" && tool !== "edit" ? TOOL_META[tool].min : 0;
 
+  // ---- Undo/redo -----------------------------------------------------------
+  const reconcile = (list: Measurement[]) => {
+    replaceModelMeasurementsAction({
+      projectId,
+      measurements: list.map((m) => ({ id: m.id, kind: m.type, points: m.points, label: m.label ?? null, category: m.category ?? null })),
+    }).catch((e) => console.error("[measure] reconcile failed", e));
+  };
+  // Record the pre-change state so it can be undone. Call BEFORE mutating.
+  const snapshot = () => {
+    undoStackRef.current.push(measurementsRef.current);
+    if (undoStackRef.current.length > 40) undoStackRef.current.shift();
+    redoStackRef.current = [];
+    setHistoryVersion((v) => v + 1);
+  };
+  snapshotRef.current = snapshot;
+  const undo = () => {
+    if (undoStackRef.current.length === 0) return;
+    redoStackRef.current.push(measurementsRef.current);
+    const prev = undoStackRef.current.pop()!;
+    setMeasurements(prev);
+    reconcile(prev);
+    setHistoryVersion((v) => v + 1);
+  };
+  const redo = () => {
+    if (redoStackRef.current.length === 0) return;
+    undoStackRef.current.push(measurementsRef.current);
+    const next = redoStackRef.current.pop()!;
+    setMeasurements(next);
+    reconcile(next);
+    setHistoryVersion((v) => v + 1);
+  };
+  const canUndo = undoStackRef.current.length > 0;
+  const canRedo = redoStackRef.current.length > 0;
+  void historyVersion; // canUndo/canRedo recompute when this bumps
+
+  // ⌘Z / ⌘⇧Z (Ctrl on Windows) while the viewer is hovered.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!hoveredRef.current || !(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== "z") return;
+      e.preventDefault();
+      if (e.shiftKey) redo();
+      else undo();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const startTool = (t: Tool) => {
     draftPtsRef.current = [];
     setDraftCount(0);
@@ -596,6 +654,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     setClassifying(true);
     try {
       const lines = await classifyRoofEdgesAction({ projectId });
+      snapshotRef.current();
       // Drop any prior auto-classified edges from view, then add the fresh set.
       setMeasurements((prev) => [
         ...prev.filter((m) => !m.label?.startsWith("Auto edge:")),
@@ -650,22 +709,48 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
         >
           {classifying ? "Finding edges…" : "⚡ Find ridges/valleys"}
         </button>
-        <div className="ml-auto inline-flex overflow-hidden rounded-lg border border-white/10 text-sm">
-          {(["imperial", "metric"] as Units[]).map((u) => (
+        <div className="ml-auto flex items-center gap-2">
+          <div className="inline-flex overflow-hidden rounded-lg border border-white/10 text-sm">
             <button
-              key={u}
               type="button"
-              onClick={() => setUnits(u)}
-              className={`px-3 py-1.5 ${units === u ? "bg-white/15 text-white" : "bg-slate-950/50 text-slate-300"}`}
+              onClick={undo}
+              disabled={!canUndo}
+              title="Undo (⌘Z / Ctrl+Z)"
+              className="px-2.5 py-1.5 text-slate-200 transition hover:bg-white/10 disabled:opacity-30"
             >
-              {u === "imperial" ? "ft" : "m"}
+              ↶ Undo
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={redo}
+              disabled={!canRedo}
+              title="Redo (⌘⇧Z / Ctrl+Shift+Z)"
+              className="border-l border-white/10 px-2.5 py-1.5 text-slate-200 transition hover:bg-white/10 disabled:opacity-30"
+            >
+              Redo ↷
+            </button>
+          </div>
+          <div className="inline-flex overflow-hidden rounded-lg border border-white/10 text-sm">
+            {(["imperial", "metric"] as Units[]).map((u) => (
+              <button
+                key={u}
+                type="button"
+                onClick={() => setUnits(u)}
+                className={`px-3 py-1.5 ${units === u ? "bg-white/15 text-white" : "bg-slate-950/50 text-slate-300"}`}
+              >
+                {u === "imperial" ? "ft" : "m"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-[1fr_240px]">
-        <div className="relative min-h-[480px] overflow-hidden rounded-2xl border border-white/10 bg-[#0b1418] sm:min-h-[560px]">
+        <div
+          className="relative min-h-[480px] overflow-hidden rounded-2xl border border-white/10 bg-[#0b1418] sm:min-h-[560px]"
+          onPointerEnter={() => (hoveredRef.current = true)}
+          onPointerLeave={() => (hoveredRef.current = false)}
+        >
           <div ref={hostRef} className="absolute inset-0" />
           {loadState !== "ready" ? (
             <div className="pointer-events-none absolute inset-x-4 top-4 rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm backdrop-blur">
@@ -734,6 +819,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
               <button
                 type="button"
                 onClick={() => {
+                  snapshot();
                   setMeasurements([]);
                   clearModelMeasurementsAction({ projectId }).catch((e) => console.error("[measure] clear failed", e));
                 }}
@@ -757,6 +843,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                     <button
                       type="button"
                       onClick={() => {
+                        snapshot();
                         setMeasurements((prev) => prev.filter((x) => x.id !== m.id));
                         deleteModelMeasurementAction({ projectId, id: m.id }).catch((e) =>
                           console.error("[measure] delete failed", e)
@@ -773,6 +860,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                       value={m.category ?? ""}
                       onChange={(e) => {
                         const category = (e.target.value || null) as LineCategory | null;
+                        snapshot();
                         setMeasurements((prev) => prev.map((x) => (x.id === m.id ? { ...x, category } : x)));
                         updateModelMeasurementCategoryAction({ projectId, id: m.id, category }).catch((err) =>
                           console.error("[measure] category failed", err)
