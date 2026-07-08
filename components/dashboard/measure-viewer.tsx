@@ -159,6 +159,20 @@ function colorForMeasurement(m: Measurement, areaIndex: number): number {
   return m.type === "area" ? AREA_PALETTE[areaIndex % AREA_PALETTE.length] : TOOL_META[m.type].color;
 }
 
+// Free a group's children (GPU geometry/materials + label DOM nodes), then empty
+// it. THREE's group.clear() only detaches — it never releases these resources.
+function disposeAndClear(group: THREE.Group) {
+  group.traverse((o) => {
+    if (o instanceof CSS2DObject) o.element.remove();
+    const mesh = o as THREE.Mesh;
+    mesh.geometry?.dispose?.();
+    const mat = mesh.material;
+    if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
+    else if (mat instanceof THREE.Material) mat.dispose();
+  });
+  group.clear();
+}
+
 export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasurements = [] }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
@@ -322,7 +336,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     const redrawDraft = () => {
       const d = draftRef.current;
       if (!d) return;
-      d.clear();
+      disposeAndClear(d);
       const active = toolRef.current;
       if (active === "orbit" || active === "edit") return;
       const color = active === "detect" ? DETECT_COLOR : TOOL_META[active].color;
@@ -407,7 +421,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       const base = measurementsRef.current.find((x) => x.id === drag.id);
       const dd = dragDraftRef.current;
       if (!base || !dd) return;
-      dd.clear();
+      disposeAndClear(dd);
       const updated: Measurement = { ...base, points: base.points.map((p, i) => (i === drag.index ? point : p)) };
       const color = colorMapRef.current.get(drag.id) ?? TOOL_META.area.color;
       dd.add(buildMeasurementGraphics(updated, color, unitsRef.current, sizeRef.current).group);
@@ -415,11 +429,15 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     const onPointerUp = () => {
       const drag = dragRef.current;
       controls.enabled = true;
-      dragDraftRef.current?.clear();
+      if (dragDraftRef.current) disposeAndClear(dragDraftRef.current);
       if (!drag) return;
       dragRef.current = null;
       const base = measurementsRef.current.find((x) => x.id === drag.id);
       if (!base) return;
+      const orig = base.points[drag.index];
+      // Skip a no-op (clicked a handle, or a drag that never hit the surface): no
+      // spurious undo step, no needless DB write.
+      if (drag.point[0] === orig[0] && drag.point[1] === orig[1] && drag.point[2] === orig[2]) return;
       const points = base.points.map((p, i) => (i === drag.index ? drag.point : p));
       snapshotRef.current();
       setMeasurements((prev) => prev.map((m) => (m.id === drag.id ? { ...m, points } : m)));

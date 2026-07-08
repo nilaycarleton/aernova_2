@@ -128,44 +128,46 @@ export function generateRoofingReport(
   const starterBundles = Math.ceil(eaveFt / 100);
 
   const pricing = defaultPricingTemplate;
-  const disposalCost = roofAreaSqft > 0 ? pricing.disposalFee : 0;
-
-  const estimatedMaterialCost =
-    shingleBundles * pricing.shingleBundleCost +
-    underlaymentRolls * pricing.underlaymentRollCost +
-    ridgeCapBundles * pricing.ridgeCapBundleCost +
-    starterBundles * pricing.starterBundleCost +
-    dripEdgeFt * pricing.dripEdgeCostPerFt +
-    valleyFt * pricing.valleyLinerCostPerFt;
-
+  const disposalFee = roofAreaSqft > 0 ? pricing.disposalFee : 0;
   const laborRatePerSqft =
     pitchValue >= 12 ? pricing.laborRateComplex :
     pitchValue >= 8 ? pricing.laborRateNormal :
     pricing.laborRateSimple;
+  const laborUnitCost = roundMoney(laborRatePerSqft * wasteRecommendation.laborMultiplier);
+  const laborQuantity = Math.round(roofAreaSqft);
 
-  const estimatedLaborCost = roofAreaSqft * laborRatePerSqft * wasteRecommendation.laborMultiplier;
-  const estimatedAccessoryCost = 375;
-  const subtotal =
-    estimatedMaterialCost +
-    estimatedLaborCost +
-    estimatedAccessoryCost +
-    disposalCost;
+  // Itemised quote. Each amount is quantity x unit cost (rounded), so lines both
+  // multiply out and sum to the subtotal — no per-line rounding drift.
+  type PricedLine = LineItem & { group: "material" | "labor" | "accessories" | "disposal" };
+  const lines: PricedLine[] = (
+    [
+      { group: "material", description: "Architectural asphalt shingles", quantity: shingleBundles, unit: "bundle", unitCost: pricing.shingleBundleCost },
+      { group: "material", description: "Synthetic underlayment", quantity: underlaymentRolls, unit: "roll", unitCost: pricing.underlaymentRollCost },
+      { group: "material", description: "Ridge cap shingles", quantity: ridgeCapBundles, unit: "bundle", unitCost: pricing.ridgeCapBundleCost },
+      { group: "material", description: "Starter strip", quantity: starterBundles, unit: "bundle", unitCost: pricing.starterBundleCost },
+      { group: "material", description: "Drip edge", quantity: dripEdgeFt, unit: "ft", unitCost: pricing.dripEdgeCostPerFt },
+      { group: "material", description: "Valley liner", quantity: valleyFt, unit: "ft", unitCost: pricing.valleyLinerCostPerFt },
+      { group: "labor", description: `Installation labor (${predominantPitch} pitch)`, quantity: laborQuantity, unit: "sq ft", unitCost: laborUnitCost },
+      { group: "accessories", description: "Accessories & fasteners", quantity: 1, unit: "lot", unitCost: 375 },
+      { group: "disposal", description: "Debris disposal", quantity: 1, unit: "lot", unitCost: disposalFee },
+    ] as Omit<PricedLine, "amount">[]
+  )
+    .filter((li) => li.quantity > 0 && li.unitCost > 0)
+    .map((li) => ({ ...li, amount: roundMoney(li.quantity * li.unitCost) }));
 
-  // Itemised quote: quantity x unit cost = amount. Zero-quantity lines drop out.
-  const laborUnitCost = laborRatePerSqft * wasteRecommendation.laborMultiplier;
-  const lineItems: LineItem[] = [
-    { description: "Architectural asphalt shingles", quantity: shingleBundles, unit: "bundle", unitCost: pricing.shingleBundleCost, amount: shingleBundles * pricing.shingleBundleCost },
-    { description: "Synthetic underlayment", quantity: underlaymentRolls, unit: "roll", unitCost: pricing.underlaymentRollCost, amount: underlaymentRolls * pricing.underlaymentRollCost },
-    { description: "Ridge cap shingles", quantity: ridgeCapBundles, unit: "bundle", unitCost: pricing.ridgeCapBundleCost, amount: ridgeCapBundles * pricing.ridgeCapBundleCost },
-    { description: "Starter strip", quantity: starterBundles, unit: "bundle", unitCost: pricing.starterBundleCost, amount: starterBundles * pricing.starterBundleCost },
-    { description: "Drip edge", quantity: dripEdgeFt, unit: "ft", unitCost: pricing.dripEdgeCostPerFt, amount: dripEdgeFt * pricing.dripEdgeCostPerFt },
-    { description: "Valley liner", quantity: valleyFt, unit: "ft", unitCost: pricing.valleyLinerCostPerFt, amount: valleyFt * pricing.valleyLinerCostPerFt },
-    { description: `Installation labor (${predominantPitch} pitch)`, quantity: Math.round(roofAreaSqft), unit: "sq ft", unitCost: roundMoney(laborUnitCost), amount: estimatedLaborCost },
-    { description: "Accessories & fasteners", quantity: 1, unit: "lot", unitCost: estimatedAccessoryCost, amount: estimatedAccessoryCost },
-    { description: "Debris disposal", quantity: 1, unit: "lot", unitCost: disposalCost, amount: disposalCost },
-  ]
-    .filter((li) => li.quantity > 0 && li.amount > 0)
-    .map((li) => ({ ...li, amount: roundMoney(li.amount) }));
+  const lineItems: LineItem[] = lines.map((li) => ({
+    description: li.description,
+    quantity: li.quantity,
+    unit: li.unit,
+    unitCost: li.unitCost,
+    amount: li.amount,
+  }));
+  const sumGroup = (g: PricedLine["group"]) => lines.filter((li) => li.group === g).reduce((s, li) => s + li.amount, 0);
+  const estimatedMaterialCost = sumGroup("material");
+  const estimatedLaborCost = sumGroup("labor");
+  const estimatedAccessoryCost = sumGroup("accessories");
+  const disposalCost = sumGroup("disposal");
+  const subtotal = estimatedMaterialCost + estimatedLaborCost + estimatedAccessoryCost + disposalCost;
 
   const markupAmount = subtotal * (pricing.markupPercent / 100);
   const afterMarkup = subtotal + markupAmount;
