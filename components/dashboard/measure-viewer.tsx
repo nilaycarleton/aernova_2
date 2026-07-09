@@ -12,6 +12,7 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from "three-mesh-bvh";
 import { fitObjectToViewer } from "@/lib/viewer-fit";
 import { buildFacetFillGeometry } from "@/lib/facet-overlay-geometry";
+import { splitFacetPolygon } from "@/lib/facet-split";
 
 // Accelerate raycasts against the full-res GLB (257k triangles): a BVH turns
 // each pick/edit-drag from an O(n) triangle scan into ~O(log n). Patched onto
@@ -48,8 +49,10 @@ import {
 } from "@/lib/measure-geometry";
 
 type MeasureTool = "distance" | "area" | "height" | "marker";
-// "detect" boxes a region and auto-fills facets; "edit" drags existing vertices.
-type Tool = "orbit" | MeasureTool | "detect" | "edit";
+// "detect" boxes a region and auto-fills facets; "edit" drags existing vertices;
+// "split" cuts a facet in two along a drawn line.
+type Tool = "orbit" | MeasureTool | "detect" | "edit" | "split";
+const SPLIT_COLOR = 0xffffff;
 
 type Measurement = {
   id: string;
@@ -192,6 +195,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   const [detecting, setDetecting] = useState(false);
   const [detectError, setDetectError] = useState("");
   const [classifying, setClassifying] = useState(false);
+  const [splitError, setSplitError] = useState("");
   // Undo/redo: snapshots of the measurement list. historyVersion re-renders the buttons.
   const undoStackRef = useRef<Measurement[][]>([]);
   const redoStackRef = useRef<Measurement[][]>([]);
@@ -339,7 +343,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       disposeAndClear(d);
       const active = toolRef.current;
       if (active === "orbit" || active === "edit") return;
-      const color = active === "detect" ? DETECT_COLOR : TOOL_META[active].color;
+      const color = active === "detect" ? DETECT_COLOR : active === "split" ? SPLIT_COLOR : TOOL_META[active].color;
       // Points are stored in group-local metres and draft is a child of group.
       const local = draftPtsRef.current.map((p) => new THREE.Vector3(...p));
       for (const v of local) {
@@ -352,7 +356,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
         const line = active === "detect" && local.length >= 3 ? [...local, local[0]] : local;
         d.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(line), new THREE.LineBasicMaterial({ color })));
       }
-      if (active !== "detect" && draftPtsRef.current.length >= TOOL_META[active].min) {
+      if (active !== "detect" && active !== "split" && draftPtsRef.current.length >= TOOL_META[active].min) {
         const preview: Measurement = { id: "draft", type: active, points: draftPtsRef.current };
         const label = makeLabel(summarize(preview, unitsRef.current), LABEL_CLASS);
         label.position.copy(local[local.length - 1]);
@@ -362,7 +366,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
 
     const finishDraft = () => {
       const active = toolRef.current;
-      if (active === "orbit" || active === "detect" || active === "edit") return;
+      if (active === "orbit" || active === "detect" || active === "edit" || active === "split") return;
       const pts = draftPtsRef.current;
       if (pts.length < TOOL_META[active].min) return;
       let label: string | undefined;
@@ -381,6 +385,42 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       redrawDraft();
     };
 
+    // Split: the two drawn points define a cut line; slice whichever facet it crosses.
+    const runSplit = () => {
+      const [cutA, cutB] = draftPtsRef.current;
+      let target: Measurement | undefined;
+      let halves: [Pt[], Pt[]] | null = null;
+      for (const m of measurementsRef.current) {
+        if (m.type !== "area") continue;
+        const res = splitFacetPolygon(m.points, cutA, cutB);
+        if (res) {
+          target = m;
+          halves = res;
+          break;
+        }
+      }
+      draftPtsRef.current = [];
+      setDraftCount(0);
+      redrawDraft();
+      if (!target || !halves) {
+        setSplitError("Draw the line all the way across one facet, then it splits.");
+        return;
+      }
+      setSplitError("");
+      setTool("orbit");
+      const removedId = target.id;
+      const a: Measurement = { id: crypto.randomUUID(), type: "area", points: halves[0] };
+      const b: Measurement = { id: crypto.randomUUID(), type: "area", points: halves[1] };
+      snapshotRef.current();
+      setMeasurements((prev) => [...prev.filter((x) => x.id !== removedId), a, b]);
+      deleteModelMeasurementAction({ projectId, id: removedId }).catch((e) => console.error("[measure] split delete failed", e));
+      for (const half of [a, b]) {
+        saveModelMeasurementAction({ id: half.id, projectId, kind: "area", points: half.points, label: null, category: null }).catch((e) =>
+          console.error("[measure] split save failed", e)
+        );
+      }
+    };
+
     const onClick = (event: MouseEvent) => {
       const active = toolRef.current;
       // Orbit and edit do not place points on click (edit uses drag).
@@ -391,6 +431,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       setDraftCount(draftPtsRef.current.length);
       redrawDraft();
       // Single-shot tools complete themselves.
+      if (active === "split" && draftPtsRef.current.length === 2) runSplit();
       if (active === "height" && draftPtsRef.current.length === 2) finishDraft();
       if (active === "marker") finishDraft();
     };
@@ -609,7 +650,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     };
   }, [measurements, tool, loadState]);
 
-  const activeMin = tool !== "orbit" && tool !== "detect" && tool !== "edit" ? TOOL_META[tool].min : 0;
+  const activeMin = tool !== "orbit" && tool !== "detect" && tool !== "edit" && tool !== "split" ? TOOL_META[tool].min : 0;
 
   // ---- Undo/redo -----------------------------------------------------------
   const reconcile = (list: Measurement[]) => {
@@ -663,6 +704,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     draftPtsRef.current = [];
     setDraftCount(0);
     setDetectError("");
+    setSplitError("");
     (hostRef.current as (HTMLDivElement & { __redraw?: () => void }) | null)?.__redraw?.();
     setTool(t);
   };
@@ -717,6 +759,15 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           }`}
         >
           Edit points
+        </button>
+        <button
+          type="button"
+          onClick={() => startTool("split")}
+          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+            tool === "split" ? "bg-slate-200 text-slate-950" : "border border-white/15 bg-slate-950/50 text-slate-200 hover:text-white"
+          }`}
+        >
+          Split facet
         </button>
         <button
           type="button"
@@ -805,6 +856,16 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                 {measurements.length === 0
                   ? "Nothing to edit yet — draw a measurement first."
                   : "Drag the white handles to move a point. Drag empty space to rotate."}
+              </span>
+            </div>
+          ) : tool === "split" ? (
+            <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-white/20 bg-slate-950/85 px-3 py-2 text-sm backdrop-blur">
+              <span className="text-slate-300">
+                {splitError ? (
+                  <span className="text-rose-200">{splitError}</span>
+                ) : (
+                  `Click two points across a facet to cut it in two (${draftCount}/2).`
+                )}
               </span>
             </div>
           ) : tool !== "orbit" ? (
