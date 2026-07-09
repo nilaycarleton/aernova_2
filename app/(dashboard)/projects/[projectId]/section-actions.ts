@@ -27,6 +27,7 @@ export async function createRoofSectionAction(formData: FormData) {
     data: {
       projectId,
       label,
+      source: "manual",
       pitchRatio: pitchRatio || null,
       surfaceAreaSqft: getOptionalNumber(formData, "surfaceAreaSqft"),
       ridgeLengthFt: getOptionalNumber(formData, "ridgeLengthFt"),

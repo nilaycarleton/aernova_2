@@ -1,4 +1,4 @@
-import { ProjectImagery } from "@prisma/client";
+import type { ProjectImagery } from "@prisma/client";
 
 export type PipelineStageStatus = "complete" | "review" | "queued";
 

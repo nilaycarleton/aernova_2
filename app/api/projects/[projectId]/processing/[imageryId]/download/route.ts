@@ -1,8 +1,14 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { readFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { downloadNodeOdmAsset, nodeOdmOutputAssets, type NodeOdmAssetKey } from "@/lib/nodeodm-client";
+import { storage } from "@/lib/storage";
+import {
+  downloadNodeOdmAllZip,
+  extractZipEntry,
+  nodeOdmOutputAssets,
+  type NodeOdmAssetKey,
+} from "@/lib/nodeodm-client";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,8 +18,10 @@ function metadataObject(value: unknown) {
   return value as Record<string, unknown>;
 }
 
-function cachedAssetPath(projectId: string, imageryId: string, fileName: string) {
-  return path.join(process.cwd(), "public", "uploads", "processing", projectId, imageryId, fileName);
+// Storage key for a cached worker output, shared across servers when the S3
+// driver is active (local disk in dev).
+function cacheKey(projectId: string, imageryId: string, fileName: string) {
+  return `processing/${projectId}/${imageryId}/${fileName}`;
 }
 
 async function readLocalNodeOdmAsset(taskUuid: string, assetPath: string) {
@@ -22,7 +30,17 @@ async function readLocalNodeOdmAsset(taskUuid: string, assetPath: string) {
 }
 
 async function cachedAssetBytes(projectId: string, imageryId: string, fileName: string) {
-  return readFile(cachedAssetPath(projectId, imageryId, fileName)).catch(() => null);
+  return storage.getBytes(cacheKey(projectId, imageryId, fileName));
+}
+
+// Fetch the task's all.zip once and cache it, so repeated asset requests extract
+// from the cached archive instead of re-downloading from the worker.
+async function getAllZipBytes(projectId: string, imageryId: string, taskUuid: string) {
+  const cached = await storage.getBytes(cacheKey(projectId, imageryId, "all.zip"));
+  if (cached) return cached;
+  const bytes = await downloadNodeOdmAllZip(taskUuid);
+  await storage.put(cacheKey(projectId, imageryId, "all.zip"), bytes, "application/zip");
+  return bytes;
 }
 
 function contentTypeFor(fileName: string) {
@@ -72,7 +90,6 @@ export async function GET(
       ? nodeOdmOutputAssets[requestedAsset as NodeOdmAssetKey]
       : requestedAsset;
     const fileName = assetPath.split("/").pop() || `${imageryId}-odm-asset`;
-    const cachedPath = cachedAssetPath(projectId, imageryId, fileName);
     const headers = new Headers();
     headers.set("Content-Disposition", `attachment; filename="${fileName}"`);
     headers.set("Content-Type", contentTypeFor(fileName));
@@ -87,61 +104,50 @@ export async function GET(
       const cachedViewer = await cachedAssetBytes(projectId, imageryId, viewerFileName);
       if (cachedViewer) {
         viewerHeaders.set("X-Aernova-Viewer-Asset", "cached");
-        return new Response(cachedViewer, {
+        return new Response(new Uint8Array(cachedViewer), {
           status: 200,
           headers: viewerHeaders,
         });
       }
 
-      const cachedFullModel = await cachedAssetBytes(projectId, imageryId, "odm_textured_model_geo.glb");
-      const localFullModel = cachedFullModel ?? await readLocalNodeOdmAsset(taskUuid, nodeOdmOutputAssets.texturedGlb);
-      const bytes = localFullModel ?? Buffer.from(await (await downloadNodeOdmAsset(taskUuid, "texturedGlb")).arrayBuffer());
-      const outputPath = cachedAssetPath(projectId, imageryId, viewerFileName);
-      await mkdir(path.dirname(outputPath), { recursive: true });
-      await writeFile(cachedAssetPath(projectId, imageryId, "odm_textured_model_geo.glb"), bytes);
-      await writeFile(outputPath, bytes);
+      const localFullModel = await readLocalNodeOdmAsset(taskUuid, nodeOdmOutputAssets.texturedGlb);
+      const fullBytes =
+        localFullModel ??
+        extractZipEntry(await getAllZipBytes(projectId, imageryId, taskUuid), nodeOdmOutputAssets.texturedGlb);
+      if (!fullBytes) {
+        return NextResponse.json({ error: "Textured GLB not found in worker output" }, { status: 404 });
+      }
+      await storage.put(cacheKey(projectId, imageryId, viewerFileName), fullBytes, "model/gltf-binary");
 
-      viewerHeaders.set("X-Aernova-Viewer-Asset", bytes.byteLength <= 10_000_000 ? "preview" : "full-fallback");
-      viewerHeaders.set("X-Aernova-Viewer-Bytes", String(bytes.byteLength));
-      return new Response(bytes, {
+      viewerHeaders.set("X-Aernova-Viewer-Asset", "textured-glb");
+      viewerHeaders.set("X-Aernova-Viewer-Bytes", String(fullBytes.byteLength));
+      return new Response(new Uint8Array(fullBytes), {
         status: 200,
         headers: viewerHeaders,
       });
     }
 
-    if (requestedAsset !== "all") {
-      const cached = await cachedAssetBytes(projectId, imageryId, fileName);
-      if (cached) {
-        return new Response(cached, {
-          status: 200,
-          headers,
-        });
-      }
-    }
-
-    const localAsset = requestedAsset !== "all" ? await readLocalNodeOdmAsset(taskUuid, assetPath) : null;
-    if (localAsset) {
-      await mkdir(path.dirname(cachedPath), { recursive: true });
-      await writeFile(cachedPath, localAsset);
-      return new Response(localAsset, {
-        status: 200,
-        headers,
-      });
-    }
-
-    const asset = await downloadNodeOdmAsset(taskUuid, requestedAsset);
+    // The full archive is served (and cached) directly.
     if (requestedAsset === "all") {
-      return new Response(asset.body, {
-        status: asset.status,
-        headers,
-      });
+      const zip = await getAllZipBytes(projectId, imageryId, taskUuid);
+      return new Response(new Uint8Array(zip), { status: 200, headers });
     }
 
-    const bytes = Buffer.from(await asset.arrayBuffer());
-    await mkdir(path.dirname(cachedPath), { recursive: true });
-    await writeFile(cachedPath, bytes);
+    const cached = await cachedAssetBytes(projectId, imageryId, fileName);
+    if (cached) {
+      return new Response(new Uint8Array(cached), { status: 200, headers });
+    }
 
-    return new Response(bytes, {
+    // Prefer a shared-disk read (dev), else extract the entry from all.zip.
+    const bytes =
+      (await readLocalNodeOdmAsset(taskUuid, assetPath)) ??
+      extractZipEntry(await getAllZipBytes(projectId, imageryId, taskUuid), assetPath);
+    if (!bytes) {
+      return NextResponse.json({ error: `Asset ${requestedAsset} not found in worker output` }, { status: 404 });
+    }
+    await storage.put(cacheKey(projectId, imageryId, fileName), bytes, contentTypeFor(fileName));
+
+    return new Response(new Uint8Array(bytes), {
       status: 200,
       headers,
     });

@@ -141,18 +141,31 @@ export function MeasurementManager({ projectId, measurements }: Props) {
         </form>
 
         <div className="mt-6">
-          <p className="mb-3 text-sm text-slate-400">Quick examples</p>
+          <p className="mb-3 text-sm text-slate-400">
+            Quick add — one click drops in a starter metric you can edit below
+          </p>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {measurementTemplates.map((item) => (
-              <div
+              <form
                 key={item.label}
-                className="rounded-2xl border border-white/10 bg-slate-950/40 p-4"
+                action={createMeasurementAction}
+                className="rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-left transition hover:border-blue-400/40 hover:bg-slate-950/60"
               >
-                <p className="font-medium text-white">{item.label}</p>
-                <p className="mt-1 text-sm text-slate-400">
-                  {item.displayValue} · {item.type} · {item.unit}
-                </p>
-              </div>
+                <input type="hidden" name="projectId" value={projectId} />
+                <input type="hidden" name="label" value={item.label} />
+                <input type="hidden" name="displayValue" value={item.displayValue} />
+                <input type="hidden" name="type" value={item.type} />
+                <input type="hidden" name="unit" value={item.unit} />
+                <input type="hidden" name="value" value={item.value} />
+                <input type="hidden" name="source" value="MANUAL" />
+                <button type="submit" className="w-full text-left">
+                  <p className="font-medium text-white">{item.label}</p>
+                  <p className="mt-1 text-sm text-slate-400">
+                    {item.displayValue} · {item.type} · {item.unit}
+                  </p>
+                  <p className="mt-2 text-xs font-medium text-blue-300">+ Add this metric</p>
+                </button>
+              </form>
             ))}
           </div>
         </div>

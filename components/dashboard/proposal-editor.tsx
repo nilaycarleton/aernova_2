@@ -22,6 +22,7 @@ function parseScope(proposal: Proposal | null) {
       notes?: string;
       customLineItems?: string[];
       optionalMarkup?: number | null;
+      acceptance?: { name?: string; date?: string } | null;
     };
 
     return {
@@ -29,6 +30,8 @@ function parseScope(proposal: Proposal | null) {
       notes: parsed.notes ?? "",
       customLineItems: parsed.customLineItems?.join("\n") ?? "",
       optionalMarkup: parsed.optionalMarkup?.toString() ?? "",
+      acceptedByName: parsed.acceptance?.name ?? "",
+      acceptedDate: parsed.acceptance?.date ?? "",
     };
   } catch {
     return {
@@ -36,6 +39,8 @@ function parseScope(proposal: Proposal | null) {
       notes: "",
       customLineItems: "",
       optionalMarkup: "",
+      acceptedByName: "",
+      acceptedDate: "",
     };
   }
 }
@@ -126,6 +131,30 @@ export function ProposalEditor({ projectId, latestProposal }: Props) {
             placeholder="Financing notes, exclusions, warranty terms, homeowner notes"
             className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
           />
+        </div>
+
+        <div className="md:col-span-2 grid gap-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4 sm:grid-cols-2">
+          <p className="text-sm font-medium text-slate-300 sm:col-span-2">
+            Client acceptance (signature section)
+          </p>
+          <div>
+            <label className="mb-2 block text-xs text-slate-400">Accepted by (client name)</label>
+            <input
+              name="acceptedByName"
+              defaultValue={draft.acceptedByName}
+              placeholder="Client name as signed"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-xs text-slate-400">Date accepted</label>
+            <input
+              name="acceptedDate"
+              type="date"
+              defaultValue={draft.acceptedDate}
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-cyan-400"
+            />
+          </div>
         </div>
 
         <div className="md:col-span-2">

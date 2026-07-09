@@ -154,9 +154,30 @@ model Project {
   processingJobs ProcessingJob[]
   comparisons  RoofComparison[]
   proposals    Proposal[]
+  modelMeasurements ModelMeasurement[]
 
   @@index([companyId, status])
   @@index([companyId, createdAt])
+}
+
+// An interactive measurement drawn directly on the 3D model (WebODM-style):
+// distance / area / height polylines/polygons, or a point marker. Points are
+// stored in the model's metre frame (z-up) so they re-render exactly and can be
+// recomputed server-side (areas, lengths) for reports/estimates.
+model ModelMeasurement {
+  id         String   @id @default(cuid())
+  projectId  String
+  kind       String // "distance" | "area" | "height" | "marker"
+  pointsJson Json // number[][], model metres (z-up)
+  label      String?
+  // Roofing role for distance lines that feed the estimate:
+  // "ridge" | "hip" | "valley" | "eave" | "rake" (null = uncategorised / not a line).
+  category   String?
+  createdAt  DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
 
 model RoofSection {
@@ -173,6 +194,10 @@ model RoofSection {
   valleyLengthFt    Float?
   eaveLengthFt      Float?
   rakeLengthFt      Float?
+  // "auto"   = produced by mesh extraction (re-extract replaces these).
+  // "manual" = drawn/entered by a user (re-extract must NOT touch these).
+  // Nullable only for rows created before this column existed; backfilled on push.
+  source            String?
   geometryJson      Json?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -181,6 +206,7 @@ model RoofSection {
   measurements Measurement[]
 
   @@index([projectId])
+  @@index([projectId, source])
 }
 
 model Measurement {
