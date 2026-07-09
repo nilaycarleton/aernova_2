@@ -8,7 +8,7 @@
  * Pure — see tests/edge-classification.test.ts. Best-effort on rough facets.
  */
 export type Pt = [number, number, number];
-export type RoofEdgeCategory = "ridge" | "hip" | "valley";
+export type RoofEdgeCategory = "ridge" | "hip" | "valley" | "eave" | "rake";
 export type ClassifiedEdge = { category: RoofEdgeCategory; points: [Pt, Pt] };
 
 type V = [number, number, number];
@@ -79,6 +79,7 @@ export type ClassifyOptions = {
   minEdgeLengthM?: number; // ignore shorter shared edges
   meetToleranceM?: number; // both facets must come this close to the intersection line
   hipSlopeZ?: number; // |edge direction z| above this = sloped -> hip, else ridge
+  eaveSlopeZ?: number; // boundary edge: |z| above this = rake, else (if low) eave
 };
 
 const DEFAULTS: Required<ClassifyOptions> = {
@@ -86,7 +87,31 @@ const DEFAULTS: Required<ClassifyOptions> = {
   minEdgeLengthM: 1.0,
   meetToleranceM: 2.0,
   hipSlopeZ: 0.12,
+  eaveSlopeZ: 0.12,
 };
+
+// Distance from p to segment a-b.
+function distPointToSegment(p: Pt, a: Pt, b: Pt): number {
+  const ab = sub(b, a);
+  const t = Math.max(0, Math.min(1, dot(sub(p, a), ab) / (dot(ab, ab) || 1)));
+  return len(sub(p, add(a, scale(ab, t))));
+}
+
+// Does another facet's outline pass right by this point? If so the edge is shared
+// (already ridge/hip/valley), not a roof boundary. Uses distance to the other
+// facets' edge segments so it fires only on genuinely coincident edges.
+function hasNeighbourAt(mid: Pt, self: number, data: FacetData[], tol: number): boolean {
+  for (let k = 0; k < data.length; k++) {
+    if (k === self) continue;
+    const poly = data[k].poly;
+    for (let e = 0; e < poly.length; e++) {
+      if (distPointToSegment(mid, poly[e], poly[(e + 1) % poly.length]) <= tol) return true;
+    }
+  }
+  return false;
+}
+
+type FacetData = { poly: Pt[]; normal: V; centroid: Pt; bb: ReturnType<typeof bbox> };
 
 export function classifyRoofEdges(facets: { polygon: Pt[] }[], options: ClassifyOptions = {}): ClassifiedEdge[] {
   const cfg = { ...DEFAULTS, ...options };
@@ -133,6 +158,24 @@ export function classifyRoofEdges(facets: { polygon: Pt[] }[], options: Classify
       edges.push({ category, points: [start, end] });
     }
   }
+
+  // Boundary edges: a facet's own perimeter segments with no neighbouring facet.
+  // Sloped -> rake; horizontal and below the facet centroid -> eave. A horizontal
+  // edge above the centroid is a free top edge (shed ridge) — left unclassified.
+  for (let i = 0; i < data.length; i++) {
+    const F = data[i];
+    for (let e = 0; e < F.poly.length; e++) {
+      const a = F.poly[e];
+      const b = F.poly[(e + 1) % F.poly.length];
+      if (len(sub(b, a)) < cfg.minEdgeLengthM) continue;
+      const mid: Pt = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
+      if (hasNeighbourAt(mid, i, data, cfg.proximityM)) continue; // shared edge -> already ridge/hip/valley
+      const dir = normalize(sub(b, a));
+      if (Math.abs(dir[2]) >= cfg.eaveSlopeZ) edges.push({ category: "rake", points: [a, b] });
+      else if (mid[2] < F.centroid[2]) edges.push({ category: "eave", points: [a, b] });
+    }
+  }
+
   return dedupe(edges);
 }
 
