@@ -32,11 +32,15 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # local runtime data
 .postgres-data/
 nodeodm-data/
 public/uploads/
+
+# Claude Code local state (worktrees, local settings)
+.claude/
 
 # vercel
 .vercel

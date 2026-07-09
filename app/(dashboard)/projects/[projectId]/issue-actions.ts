@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { IssueSeverity } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { requireProjectAccess } from "@/lib/auth";
 
 const allowedSeverities = new Set(["LOW", "MEDIUM", "HIGH", "CRITICAL"]);
 
@@ -23,6 +24,7 @@ export async function createRoofIssueAction(formData: FormData) {
   if (!projectId) throw new Error("Missing projectId");
   if (!title) throw new Error("Issue title is required");
   if (!allowedSeverities.has(severityRaw)) throw new Error("Invalid severity");
+  await requireProjectAccess(projectId);
 
   const details = [
     recommendedAction ? `Recommended action: ${recommendedAction}` : null,

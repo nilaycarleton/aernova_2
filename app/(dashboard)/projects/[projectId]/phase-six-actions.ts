@@ -1,21 +1,21 @@
 "use server";
 
-import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { ImageryType, Prisma, ProcessingStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { storage } from "@/lib/storage";
+import { buildPhotogrammetryModelPackage } from "@/lib/photogrammetry-pipeline";
+import { isNodeOdmConfigured } from "@/lib/nodeodm-client";
+import { requireProjectAccess } from "@/lib/auth";
+import { parseDroneImageMetadata } from "@/lib/drone-metadata";
 import {
-  buildNodeOdmModelPackage,
-  buildPhotogrammetryModelPackage,
-} from "@/lib/photogrammetry-pipeline";
-import {
-  createNodeOdmTask,
-  isNodeOdmConfigured,
-  nodeOdmAssetUrls,
-  nodeOdmDownloadUrl,
-} from "@/lib/nodeodm-client";
+  buildProcessingReadiness,
+  loadSourceImages,
+  queueNodeOdmReconstruction,
+  type ProcessingReadiness,
+} from "@/lib/reconstruction";
 import {
   materializeDroneMeasurements,
   syncNodeOdmModelJob,
@@ -42,10 +42,6 @@ function getOptionalNumber(formData: FormData, key: string) {
   return value;
 }
 
-function uploadDir(projectId: string) {
-  return path.join(process.cwd(), "public", "uploads", "imagery", projectId);
-}
-
 export async function uploadProjectImageryAction(formData: FormData) {
   const projectId = getString(formData, "projectId");
   const typeRaw = getString(formData, "type");
@@ -63,8 +59,6 @@ export async function uploadProjectImageryAction(formData: FormData) {
     throw new Error("Only image uploads are supported in this MVP");
   }
 
-  const dir = uploadDir(projectId);
-  await mkdir(dir, { recursive: true });
   const batchId = randomUUID();
   const captureDate =
     captureDateRaw && captureTimeRaw
@@ -80,22 +74,31 @@ export async function uploadProjectImageryAction(formData: FormData) {
     throw new Error("Capture time is invalid");
   }
 
+  const formAltitude = getOptionalNumber(formData, "altitudeFt");
+
   for (const [index, file] of files.entries()) {
     const extension = path.extname(file.name).toLowerCase() || ".jpg";
     const storedName = `${randomUUID()}${extension}`;
     const bytes = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(dir, storedName), bytes);
+    const { url } = await storage.put(`imagery/${projectId}/${storedName}`, bytes, file.type);
+
+    // Recover GPS / altitude / capture date from the drone image itself so the
+    // geotag and capture-QA stages reflect the real data. Form values win when
+    // the operator supplied them.
+    const droneMeta = parseDroneImageMetadata(bytes, file.name);
+    const effectiveAltitude = formAltitude ?? droneMeta.altitudeFt;
+    const effectiveCaptureDate = captureDate ?? droneMeta.captureDate;
 
     await prisma.projectImagery.create({
       data: {
         projectId,
         type: typeRaw as ImageryType,
         status: "UPLOADED",
-        url: `/uploads/imagery/${projectId}/${storedName}`,
+        url,
         fileName: file.name,
         contentType: file.type,
-        captureDate,
-        altitudeFt: getOptionalNumber(formData, "altitudeFt"),
+        captureDate: effectiveCaptureDate,
+        altitudeFt: effectiveAltitude,
         notes: notes || null,
         metadataJson: {
           source: typeRaw,
@@ -107,6 +110,11 @@ export async function uploadProjectImageryAction(formData: FormData) {
           captureDate: captureDateRaw || null,
           captureTime: captureTimeRaw || null,
           photogrammetryRole: typeRaw === "DRONE" ? "source-capture" : "reference",
+          latitude: droneMeta.latitude ?? undefined,
+          longitude: droneMeta.longitude ?? undefined,
+          gps: droneMeta.latitude != null && droneMeta.longitude != null ? true : undefined,
+          exifAltitudeFt: droneMeta.altitudeFt ?? undefined,
+          exifCaptureDate: droneMeta.captureDate?.toISOString() ?? undefined,
         },
       },
     });
@@ -166,6 +174,14 @@ export async function generateExtractionSuggestionAction(formData: FormData) {
   revalidatePath(`/projects/${projectId}`);
 }
 
+// Free, no-write readiness check + draft estimate. Lets the operator preview the
+// capture score and rough numbers before committing a paid reconstruction.
+export async function previewPhotogrammetryModelAction(projectId: string): Promise<ProcessingReadiness> {
+  if (!projectId) throw new Error("Missing projectId");
+  await requireProjectAccess(projectId);
+  return buildProcessingReadiness(projectId);
+}
+
 export async function processPhotogrammetryModelAction(formData: FormData) {
   const projectId = getString(formData, "projectId");
   const label = getString(formData, "label") || "Drone photogrammetry model";
@@ -173,94 +189,18 @@ export async function processPhotogrammetryModelAction(formData: FormData) {
 
   if (!projectId) throw new Error("Missing projectId");
   if (!modelQualities.has(qualityRaw)) throw new Error("Invalid model quality");
+  await requireProjectAccess(projectId);
 
-  const sourceImages = await prisma.projectImagery.findMany({
-    where: {
-      projectId,
-      type: { in: ["DRONE", "ORTHOMOSAIC"] },
-      NOT: { status: "FAILED" },
-    },
-    orderBy: [{ captureDate: "asc" }, { createdAt: "asc" }],
-  });
+  const sourceImages = await loadSourceImages(projectId);
 
   if (sourceImages.length === 0) {
     throw new Error("Upload drone imagery before processing a 3D model");
   }
 
   if (isNodeOdmConfigured()) {
-    const nodeTask = await createNodeOdmTask(sourceImages, {
-      label,
-      quality: qualityRaw as "standard" | "high",
-    });
-
-    if (!nodeTask) throw new Error("NODEODM_URL is not configured");
-
-    const modelPackage = buildNodeOdmModelPackage(sourceImages, {
-      quality: qualityRaw as "standard" | "high",
-      taskUuid: nodeTask.uuid,
-      processingStatus: "queued",
-    });
-
-    const model = await prisma.projectImagery.create({
-      data: {
-        projectId,
-        type: "MODEL",
-        status: "QUEUED",
-        url: modelPackage.previewUrl ?? sourceImages[0].url,
-        fileName: label,
-        contentType: "application/vnd.aernova.model+json",
-        captureDate: sourceImages[0].captureDate,
-        altitudeFt: sourceImages[0].altitudeFt,
-        metadataJson: {
-          source: "NodeODM / ODM photogrammetry pipeline",
-          nodeOdmTaskUuid: nodeTask.uuid,
-          nodeOdmOptions: nodeTask.options,
-          nodeOdxTaskUuid: nodeTask.uuid,
-          nodeOdxOptions: nodeTask.options,
-          sourceImageIds: sourceImages.map((image) => image.id),
-        },
-        extractedJson: modelPackage as unknown as Prisma.InputJsonValue,
-        notes: "NodeODM task queued. Sync worker status to update progress and collect output assets.",
-      },
-    });
-
-    await prisma.projectImagery.update({
-      where: { id: model.id },
-      data: {
-        extractedJson: buildNodeOdmModelPackage(sourceImages, {
-          quality: qualityRaw as "standard" | "high",
-          taskUuid: nodeTask.uuid,
-          processingStatus: "queued",
-          downloadUrl: nodeOdmDownloadUrl(projectId, model.id),
-          assetUrls: nodeOdmAssetUrls(projectId, model.id),
-        }) as unknown as Prisma.InputJsonValue,
-      },
-    });
-
-    await prisma.processingJob.create({
-      data: {
-        projectId,
-        modelImageryId: model.id,
-        provider: "nodeodm",
-        providerTaskId: nodeTask.uuid,
-        status: "QUEUED",
-        quality: qualityRaw,
-        sourceImageIds: sourceImages.map((image) => image.id),
-        optionsJson: nodeTask.options as unknown as Prisma.InputJsonValue,
-        outputsJson: {
-          assetUrls: nodeOdmAssetUrls(projectId, model.id),
-          manifestUrl: null,
-        },
-      },
-    });
-
-    await prisma.projectImagery.updateMany({
-      where: {
-        id: { in: sourceImages.map((image) => image.id) },
-        status: { in: ["UPLOADED", "READY"] },
-      },
-      data: { status: "QUEUED" },
-    });
+    // Gate + submit + record creation live in the shared reconstruction module
+    // so the UI flow and the import-photos CLI stay in lockstep.
+    await queueNodeOdmReconstruction(projectId, label, qualityRaw as "standard" | "high");
 
     revalidatePath(`/projects/${projectId}`);
     revalidatePath(`/projects/${projectId}/report`);

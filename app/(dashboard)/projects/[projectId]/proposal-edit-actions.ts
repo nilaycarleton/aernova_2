@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireProjectAccess } from "@/lib/auth";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -24,9 +25,12 @@ export async function saveProposalDraftAction(formData: FormData) {
   const customLineItems = getString(formData, "customLineItems");
   const optionalMarkup = getOptionalNumber(formData, "optionalMarkup");
   const totalAmount = getOptionalNumber(formData, "totalAmount");
+  const acceptedByName = getString(formData, "acceptedByName");
+  const acceptedDate = getString(formData, "acceptedDate");
 
   if (!projectId) throw new Error("Missing projectId");
   if (!title) throw new Error("Proposal title is required");
+  await requireProjectAccess(projectId);
 
   const scopeOfWork = JSON.stringify({
     version: new Date().toISOString(),
@@ -37,6 +41,7 @@ export async function saveProposalDraftAction(formData: FormData) {
       .map((item) => item.trim())
       .filter(Boolean),
     optionalMarkup,
+    acceptance: acceptedByName || acceptedDate ? { name: acceptedByName, date: acceptedDate } : null,
     sections: [
       {
         title: "Scope of Work",

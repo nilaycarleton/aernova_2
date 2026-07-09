@@ -12,6 +12,7 @@ import {
   buildPitchBreakdown,
   buildWasteRecommendation,
 } from "@/lib/roof-intelligence";
+import type { CostTotals, LineItem } from "@/lib/report-generator";
 
 type ReportSection = {
   title: string;
@@ -42,6 +43,8 @@ type ParsedProposalPayload = {
     disposalCost?: number;
   };
   sections?: ReportSection[];
+  lineItems?: LineItem[];
+  totals?: CostTotals;
   plainTextScope?: string;
 };
 
@@ -260,6 +263,9 @@ export function buildProjectReportViewModel({
       shingleBundles:
         parsedProposal?.summary?.shingleBundles ?? null,
     },
+
+    lineItems: parsedProposal?.lineItems ?? [],
+    totals: parsedProposal?.totals ?? null,
 
     sections: sectionsData,
     pitchBreakdown: buildPitchBreakdown(sections),

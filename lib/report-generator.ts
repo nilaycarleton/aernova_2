@@ -10,9 +10,32 @@ type ReportSection = {
   body: string;
 };
 
+export type LineItem = {
+  description: string;
+  quantity: number;
+  unit: string;
+  unitCost: number;
+  amount: number;
+};
+
+export type CostTotals = {
+  materials: number;
+  labor: number;
+  accessories: number;
+  disposal: number;
+  subtotal: number;
+  markupPercent: number;
+  markupAmount: number;
+  taxPercent: number;
+  taxAmount: number;
+  total: number;
+};
+
 export type GeneratedReport = {
   title: string;
   totalAmount: number;
+  lineItems: LineItem[];
+  totals: CostTotals;
   scopeOfWork: string;
   summary: {
     roofAreaSqft: number;
@@ -105,29 +128,63 @@ export function generateRoofingReport(
   const starterBundles = Math.ceil(eaveFt / 100);
 
   const pricing = defaultPricingTemplate;
-  const disposalCost = roofAreaSqft > 0 ? pricing.disposalFee : 0;
-
-  const estimatedMaterialCost =
-    shingleBundles * pricing.shingleBundleCost +
-    underlaymentRolls * pricing.underlaymentRollCost +
-    ridgeCapBundles * pricing.ridgeCapBundleCost +
-    starterBundles * pricing.starterBundleCost +
-    dripEdgeFt * pricing.dripEdgeCostPerFt +
-    valleyFt * pricing.valleyLinerCostPerFt;
-
+  const disposalFee = roofAreaSqft > 0 ? pricing.disposalFee : 0;
   const laborRatePerSqft =
     pitchValue >= 12 ? pricing.laborRateComplex :
     pitchValue >= 8 ? pricing.laborRateNormal :
     pricing.laborRateSimple;
+  const laborUnitCost = roundMoney(laborRatePerSqft * wasteRecommendation.laborMultiplier);
+  const laborQuantity = Math.round(roofAreaSqft);
 
-  const estimatedLaborCost = roofAreaSqft * laborRatePerSqft * wasteRecommendation.laborMultiplier;
-  const estimatedAccessoryCost = 375;
-  const subtotal =
-    estimatedMaterialCost +
-    estimatedLaborCost +
-    estimatedAccessoryCost +
-    disposalCost;
-  const totalAmount = subtotal * (1 + pricing.markupPercent / 100);
+  // Itemised quote. Each amount is quantity x unit cost (rounded), so lines both
+  // multiply out and sum to the subtotal — no per-line rounding drift.
+  type PricedLine = LineItem & { group: "material" | "labor" | "accessories" | "disposal" };
+  const lines: PricedLine[] = (
+    [
+      { group: "material", description: "Architectural asphalt shingles", quantity: shingleBundles, unit: "bundle", unitCost: pricing.shingleBundleCost },
+      { group: "material", description: "Synthetic underlayment", quantity: underlaymentRolls, unit: "roll", unitCost: pricing.underlaymentRollCost },
+      { group: "material", description: "Ridge cap shingles", quantity: ridgeCapBundles, unit: "bundle", unitCost: pricing.ridgeCapBundleCost },
+      { group: "material", description: "Starter strip", quantity: starterBundles, unit: "bundle", unitCost: pricing.starterBundleCost },
+      { group: "material", description: "Drip edge", quantity: dripEdgeFt, unit: "ft", unitCost: pricing.dripEdgeCostPerFt },
+      { group: "material", description: "Valley liner", quantity: valleyFt, unit: "ft", unitCost: pricing.valleyLinerCostPerFt },
+      { group: "labor", description: `Installation labor (${predominantPitch} pitch)`, quantity: laborQuantity, unit: "sq ft", unitCost: laborUnitCost },
+      { group: "accessories", description: "Accessories & fasteners", quantity: 1, unit: "lot", unitCost: 375 },
+      { group: "disposal", description: "Debris disposal", quantity: 1, unit: "lot", unitCost: disposalFee },
+    ] as Omit<PricedLine, "amount">[]
+  )
+    .filter((li) => li.quantity > 0 && li.unitCost > 0)
+    .map((li) => ({ ...li, amount: roundMoney(li.quantity * li.unitCost) }));
+
+  const lineItems: LineItem[] = lines.map((li) => ({
+    description: li.description,
+    quantity: li.quantity,
+    unit: li.unit,
+    unitCost: li.unitCost,
+    amount: li.amount,
+  }));
+  const sumGroup = (g: PricedLine["group"]) => lines.filter((li) => li.group === g).reduce((s, li) => s + li.amount, 0);
+  const estimatedMaterialCost = sumGroup("material");
+  const estimatedLaborCost = sumGroup("labor");
+  const estimatedAccessoryCost = sumGroup("accessories");
+  const disposalCost = sumGroup("disposal");
+  const subtotal = estimatedMaterialCost + estimatedLaborCost + estimatedAccessoryCost + disposalCost;
+
+  const markupAmount = subtotal * (pricing.markupPercent / 100);
+  const afterMarkup = subtotal + markupAmount;
+  const taxAmount = afterMarkup * (pricing.taxRatePercent / 100);
+  const totalAmount = afterMarkup + taxAmount;
+  const totals: CostTotals = {
+    materials: roundMoney(estimatedMaterialCost),
+    labor: roundMoney(estimatedLaborCost),
+    accessories: roundMoney(estimatedAccessoryCost),
+    disposal: roundMoney(disposalCost),
+    subtotal: roundMoney(subtotal),
+    markupPercent: pricing.markupPercent,
+    markupAmount: roundMoney(markupAmount),
+    taxPercent: pricing.taxRatePercent,
+    taxAmount: roundMoney(taxAmount),
+    total: roundMoney(totalAmount),
+  };
 
   const scopeOfWork = [
     "Remove existing roofing materials where applicable.",
@@ -172,12 +229,10 @@ export function generateRoofingReport(
     {
       title: "Pricing Summary",
       body:
-        `Estimated material cost: $${roundMoney(estimatedMaterialCost).toLocaleString()}. ` +
-        `Estimated labor cost: $${roundMoney(estimatedLaborCost).toLocaleString()}. ` +
-        `Estimated accessories: $${roundMoney(estimatedAccessoryCost).toLocaleString()}. ` +
-        `Estimated disposal: $${roundMoney(disposalCost).toLocaleString()}. ` +
-        `Markup: ${pricing.markupPercent}%. ` +
-        `Estimated total before tax: $${roundMoney(totalAmount).toLocaleString()}.`
+        `Subtotal: $${totals.subtotal.toLocaleString()}. ` +
+        `Overhead & profit (${totals.markupPercent}%): $${totals.markupAmount.toLocaleString()}. ` +
+        `Tax (${totals.taxPercent}%): $${totals.taxAmount.toLocaleString()}. ` +
+        `Estimated total: $${totals.total.toLocaleString()}.`
     },
     {
       title: "Scope of Work",
@@ -193,12 +248,16 @@ export function generateRoofingReport(
   return {
     title: `${project.name} – Roofing Report & Proposal`,
     totalAmount: roundMoney(totalAmount),
+    lineItems,
+    totals,
     scopeOfWork,
     summary: {
-      roofAreaSqft,
-      roofSquares,
+      // Round display metrics so stored values don't carry float noise
+      // (e.g. 3664.1000000000004 or 42.333333333333336).
+      roofAreaSqft: Math.round(roofAreaSqft * 10) / 10,
+      roofSquares: Math.round(roofSquares * 10) / 10,
       wasteFactorPercent,
-      suggestedSquares,
+      suggestedSquares: Math.round(suggestedSquares * 10) / 10,
       shingleBundles,
       ridgeOrHipFt,
       starterEaveFt: eaveFt,

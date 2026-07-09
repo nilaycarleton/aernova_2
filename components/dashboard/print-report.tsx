@@ -98,6 +98,15 @@ type ReportVm = {
     title: string;
     body: string;
   }>;
+  lineItems: Array<{ description: string; quantity: number; unit: string; unitCost: number; amount: number }>;
+  totals: {
+    subtotal: number;
+    markupPercent: number;
+    markupAmount: number;
+    taxPercent: number;
+    taxAmount: number;
+    total: number;
+  } | null;
 };
 
 function money(value: number | null) {
@@ -196,8 +205,8 @@ export function PrintReport({ report }: { report: ReportVm }) {
           <div className="rounded-2xl bg-slate-50 p-4">Rakes: {report.measurementsSummary.rakesFt.toLocaleString()} ft</div>
           <div className="rounded-2xl bg-slate-50 p-4">Eaves / Starter: {report.measurementsSummary.eavesFt.toLocaleString()} ft</div>
           <div className="rounded-2xl bg-slate-50 p-4">Drip Edge: {report.measurementsSummary.dripEdgeFt.toLocaleString()} ft</div>
-          <div className="rounded-2xl bg-slate-50 p-4">Total Facets: {report.measurementsSummary.totalFacets ?? "—"}</div>
-          <div className="rounded-2xl bg-slate-50 p-4">Report Type: Roofing Measurement Summary</div>
+          <div className="rounded-2xl bg-slate-50 p-4">Roof faces: {report.measurementsSummary.totalFacets ?? "—"}</div>
+          <div className="rounded-2xl bg-slate-50 p-4">Report type: Roof measurement summary</div>
         </div>
       </section>
 
@@ -244,11 +253,47 @@ export function PrintReport({ report }: { report: ReportVm }) {
           <div className="rounded-2xl bg-slate-50 p-4">Accessory Cost: {money(report.pricingSummary.accessoryCost)}</div>
           <div className="rounded-2xl bg-slate-50 p-4">Disposal Cost: {money(report.pricingSummary.disposalCost)}</div>
           <div className="rounded-2xl bg-slate-50 p-4">
-            Suggested Squares: {report.pricingSummary.suggestedSquares ?? "—"}
+            Suggested Squares: {typeof report.pricingSummary.suggestedSquares === "number"
+              ? report.pricingSummary.suggestedSquares.toLocaleString(undefined, { maximumFractionDigits: 1 })
+              : "—"}
             <br />
             Estimated Bundles: {report.pricingSummary.shingleBundles ?? "—"}
           </div>
         </div>
+
+        {report.lineItems.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold">Itemized estimate</h3>
+            <table className="mt-3 min-w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-left text-slate-500">
+                  <th className="px-3 py-2">Item</th>
+                  <th className="px-3 py-2 text-right">Qty</th>
+                  <th className="px-3 py-2 text-right">Unit price</th>
+                  <th className="px-3 py-2 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.lineItems.map((li, i) => (
+                  <tr key={i} className="border-b border-slate-100">
+                    <td className="px-3 py-2">{li.description}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{li.quantity.toLocaleString()} {li.unit}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">${li.unitCost.toLocaleString()}</td>
+                    <td className="px-3 py-2 text-right font-medium tabular-nums">${li.amount.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {report.totals && (
+              <div className="mt-3 ml-auto w-full max-w-xs space-y-1 text-sm tabular-nums">
+                <div className="flex justify-between text-slate-600"><span>Subtotal</span><span>${report.totals.subtotal.toLocaleString()}</span></div>
+                <div className="flex justify-between text-slate-600"><span>Overhead &amp; profit ({report.totals.markupPercent}%)</span><span>${report.totals.markupAmount.toLocaleString()}</span></div>
+                <div className="flex justify-between text-slate-600"><span>Tax ({report.totals.taxPercent}%)</span><span>${report.totals.taxAmount.toLocaleString()}</span></div>
+                <div className="flex justify-between border-t border-slate-300 pt-1.5 text-base font-bold"><span>Total</span><span>${report.totals.total.toLocaleString()}</span></div>
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       <section className="rounded-3xl border border-slate-200 p-6">
@@ -290,7 +335,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
       </section>
 
       <section className="space-y-4 rounded-3xl border border-slate-200 p-6">
-        <h2 className="text-2xl font-semibold">Report Narrative</h2>
+        <h2 className="text-2xl font-semibold">Summary</h2>
         {report.reportSections.map((section) => (
           <div key={section.title} className="rounded-2xl bg-slate-50 p-5">
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-600">
@@ -407,9 +452,9 @@ export function PrintReport({ report }: { report: ReportVm }) {
       </section>
 
       <section className="rounded-3xl border border-slate-200 p-6">
-        <h2 className="text-2xl font-semibold">Drone Processing Workflow</h2>
+        <h2 className="text-2xl font-semibold">Drone scan</h2>
         <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-          <div className="text-sm font-semibold text-slate-700">Imagery processing</div>
+          <div className="text-sm font-semibold text-slate-700">Photos &amp; 3D model</div>
           {report.imagery.length === 0 ? (
             <p className="mt-3 text-sm text-slate-600">No drone imagery uploaded.</p>
           ) : (

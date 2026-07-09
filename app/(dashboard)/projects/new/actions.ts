@@ -3,14 +3,14 @@
 import { redirect } from "next/navigation";
 import { CaptureSource, ProjectStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getDemoContext } from "@/lib/demo-context";
+import { requireCompanyContext } from "@/lib/auth";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
 export async function createProjectAction(formData: FormData) {
-  const { company, user } = await getDemoContext();
+  const { company, user } = await requireCompanyContext();
 
   const name = getString(formData, "name");
   const clientName = getString(formData, "clientName");
