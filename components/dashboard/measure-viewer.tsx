@@ -722,10 +722,10 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           type="button"
           onClick={runClassify}
           disabled={!hasAreas || classifying}
-          title={hasAreas ? "Find ridges, hips, and valleys where facets meet" : "Draw or auto-detect at least two roof areas first"}
+          title={hasAreas ? "Find ridges, hips, valleys, eaves, and rakes from the facets" : "Draw or auto-detect at least two roof areas first"}
           className="rounded-lg border border-sky-300/30 bg-sky-400/10 px-3 py-1.5 text-sm font-medium text-sky-100 transition hover:bg-sky-400/20 disabled:opacity-40"
         >
-          {classifying ? "Finding edges…" : "⚡ Find ridges/valleys"}
+          {classifying ? "Finding edges…" : "⚡ Find roof edges"}
         </button>
         <div className="ml-auto flex items-center gap-2">
           <div className="inline-flex overflow-hidden rounded-lg border border-white/10 text-sm">
