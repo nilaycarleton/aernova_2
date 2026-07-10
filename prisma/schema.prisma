@@ -169,6 +169,11 @@ model ModelMeasurement {
   projectId  String
   kind       String // "distance" | "area" | "height" | "marker"
   pointsJson Json // number[][], model metres (z-up)
+  // Authoritative surface area (ft²) for auto-detected "area" facets, computed
+  // server-side from the facet's triangles. The viewer trusts this instead of
+  // recomputing from pointsJson, whose boundary loop can self-intersect on noisy
+  // meshes and collapse to ~0. Null for hand-drawn/edited shapes (recompute those).
+  areaSqft   Float?
   label      String?
   // Roofing role for distance lines that feed the estimate:
   // "ridge" | "hip" | "valley" | "eave" | "rake" (null = uncategorised / not a line).
