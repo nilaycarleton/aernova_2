@@ -126,6 +126,7 @@ export function PhaseSixWorkflow({
     kind: m.kind as ModelMeasurementKind,
     points: m.pointsJson as [number, number, number][],
     label: m.label,
+    areaSqft: m.areaSqft,
   }));
   const photos = imagery.filter((item) => item.type === "DRONE" || item.type === "ORTHOMOSAIC");
   const locatedPhotos = photos.filter(hasLocation).length;
