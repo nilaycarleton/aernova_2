@@ -16,7 +16,8 @@ jobs:
           cache: npm
       # postinstall runs `prisma generate` (schema-only, no DB needed).
       - run: npm ci
-      # Accuracy gate: golden-roof extraction, viewer-transform invertibility,
+      # Accuracy gate: golden-roof extraction, edge classification (ridge/eave/
+      # rake lengths off the golden mesh), viewer-transform invertibility,
       # measurement math, overlay geometry, coplanar merge. The real-mesh
       # regression test auto-skips when the (uncommitted) ODM mesh is absent.
       - run: npm test
