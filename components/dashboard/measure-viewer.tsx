@@ -60,6 +60,10 @@ type Measurement = {
   points: Pt[]; // model metres
   label?: string;
   category?: LineCategory | null;
+  // Server-authoritative area (ft²) for auto-detected facets. When set, the label
+  // uses it instead of recomputing from `points` (whose boundary loop can self-
+  // intersect and collapse to ~0). Cleared when the shape is edited.
+  areaSqft?: number | null;
 };
 
 const LINE_CATEGORIES: LineCategory[] = ["ridge", "hip", "valley", "eave", "rake"];
@@ -73,6 +77,7 @@ export type SavedMeasurement = {
   points: Pt[];
   label?: string | null;
   category?: LineCategory | null;
+  areaSqft?: number | null;
 };
 
 type Props = {
@@ -89,12 +94,22 @@ const TOOL_META: Record<MeasureTool, { name: string; color: number; min: number 
   marker: { name: "Marker", color: 0xf43f5e, min: 1 },
 };
 
+const FT2_PER_M2 = 10.7639104167;
+
 // Human-readable value(s) for a completed measurement, given a unit system.
 function summarize(m: Measurement, units: Units): string {
   if (m.type === "distance") return formatLength(polylineLength(m.points), units);
   if (m.type === "height") return formatLength(verticalDrop(m.points[0], m.points[1]), units);
   if (m.type === "marker") return m.label || "Marker";
-  // area
+  // area — prefer the server's triangle-summed figures for auto-detected facets:
+  // their boundary loop can self-intersect on noisy meshes, collapsing both the
+  // recomputed area (→ ~0) and the recomputed pitch. The server area is carried on
+  // areaSqft (ft²) and the pitch in the "Auto N/12" label.
+  if (typeof m.areaSqft === "number") {
+    const surface = m.areaSqft / FT2_PER_M2;
+    const ratio = m.label?.match(/\d+\/12/)?.[0] ?? pitchFromNormal(polygonNormal(m.points)).ratio;
+    return `${formatArea(surface, units)} · ${roofSquares(surface)} sq · ${ratio}`;
+  }
   const surface = polygonArea3D(m.points);
   const pitch = pitchFromNormal(polygonNormal(m.points));
   return `${formatArea(surface, units)} · ${roofSquares(surface)} sq · ${pitch.ratio}`;
@@ -189,6 +204,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       points: m.points,
       label: m.label ?? undefined,
       category: m.category ?? null,
+      areaSqft: m.areaSqft ?? null,
     }))
   );
   const [draftCount, setDraftCount] = useState(0);
@@ -481,8 +497,10 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       if (drag.point[0] === orig[0] && drag.point[1] === orig[1] && drag.point[2] === orig[2]) return;
       const points = base.points.map((p, i) => (i === drag.index ? drag.point : p));
       snapshotRef.current();
-      setMeasurements((prev) => prev.map((m) => (m.id === drag.id ? { ...m, points } : m)));
-      saveModelMeasurementAction({ id: drag.id, projectId, kind: base.type, points, label: base.label, category: base.category }).catch(
+      // Editing the geometry invalidates the server's cached area — clear it so the
+      // label recomputes from the (now hand-edited, simple) polygon.
+      setMeasurements((prev) => prev.map((m) => (m.id === drag.id ? { ...m, points, areaSqft: null } : m)));
+      saveModelMeasurementAction({ id: drag.id, projectId, kind: base.type, points, label: base.label, category: base.category, areaSqft: null }).catch(
         (e) => console.error("[measure] edit save failed", e)
       );
     };
@@ -504,7 +522,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
         snapshotRef.current();
         setMeasurements((prev) => [
           ...prev,
-          ...facets.map((f) => ({ id: f.id, type: "area" as const, points: f.points as Pt[], label: f.label ?? undefined, category: null })),
+          ...facets.map((f) => ({ id: f.id, type: "area" as const, points: f.points as Pt[], label: f.label ?? undefined, category: null, areaSqft: f.areaSqft })),
         ]);
         draftPtsRef.current = [];
         setDraftCount(0);
@@ -656,7 +674,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   const reconcile = (list: Measurement[]) => {
     replaceModelMeasurementsAction({
       projectId,
-      measurements: list.map((m) => ({ id: m.id, kind: m.type, points: m.points, label: m.label ?? null, category: m.category ?? null })),
+      measurements: list.map((m) => ({ id: m.id, kind: m.type, points: m.points, label: m.label ?? null, category: m.category ?? null, areaSqft: m.areaSqft ?? null })),
     }).catch((e) => console.error("[measure] reconcile failed", e));
   };
   // Record the pre-change state so it can be undone. Call BEFORE mutating.

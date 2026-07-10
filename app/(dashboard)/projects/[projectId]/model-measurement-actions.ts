@@ -33,6 +33,9 @@ export type ModelMeasurementInput = {
   points: [number, number, number][];
   label?: string | null;
   category?: LineCategory | null;
+  // Server-authoritative area (ft²) for auto-detected facets. Null for hand-drawn
+  // or edited shapes, whose area is recomputed from points.
+  areaSqft?: number | null;
 };
 
 function validPoints(points: unknown): points is [number, number, number][] {
@@ -53,6 +56,7 @@ export async function saveModelMeasurementAction(input: ModelMeasurementInput) {
   if (!validPoints(input.points)) throw new Error("Measurement needs at least one 3D point");
 
   const category = input.category && LINE_CATEGORIES.has(input.category) ? input.category : null;
+  const areaSqft = input.kind === "area" && typeof input.areaSqft === "number" ? input.areaSqft : null;
   await prisma.modelMeasurement.upsert({
     where: { id: input.id },
     create: {
@@ -62,12 +66,14 @@ export async function saveModelMeasurementAction(input: ModelMeasurementInput) {
       pointsJson: input.points as unknown as Prisma.InputJsonValue,
       label: input.label ?? null,
       category,
+      areaSqft,
     },
     update: {
       kind: input.kind,
       pointsJson: input.points as unknown as Prisma.InputJsonValue,
       label: input.label ?? null,
       category,
+      areaSqft,
     },
   });
 
@@ -100,6 +106,7 @@ export type ModelMeasurementItem = {
   points: [number, number, number][];
   label?: string | null;
   category?: LineCategory | null;
+  areaSqft?: number | null;
 };
 
 export async function replaceModelMeasurementsAction(input: {
@@ -116,6 +123,7 @@ export async function replaceModelMeasurementsAction(input: {
       pointsJson: m.points as unknown as Prisma.InputJsonValue,
       label: m.label ?? null,
       category: m.category && LINE_CATEGORIES.has(m.category) ? m.category : null,
+      areaSqft: m.kind === "area" && typeof m.areaSqft === "number" ? m.areaSqft : null,
     }));
   await prisma.$transaction([
     prisma.modelMeasurement.deleteMany({ where: { projectId: input.projectId } }),
@@ -142,6 +150,10 @@ export type DetectedFacet = {
   points: [number, number, number][];
   label: string | null;
   category: null;
+  // Surface area (ft²) from the facet's triangles — the accurate figure. The
+  // viewer displays this rather than recomputing from `points` (the boundary
+  // loop can self-intersect on noisy meshes and collapse to ~0).
+  areaSqft: number;
 };
 
 /**
@@ -184,9 +196,16 @@ export async function autoDetectRoofFacetsAction(input: {
     const id = crypto.randomUUID();
     const points = f.polygon as [number, number, number][];
     await prisma.modelMeasurement.create({
-      data: { id, projectId: input.projectId, kind: "area", pointsJson: points as unknown as Prisma.InputJsonValue, label: `Auto ${f.pitchRatio}` },
+      data: {
+        id,
+        projectId: input.projectId,
+        kind: "area",
+        pointsJson: points as unknown as Prisma.InputJsonValue,
+        label: `Auto ${f.pitchRatio}`,
+        areaSqft: f.surfaceAreaSqft,
+      },
     });
-    created.push({ id, kind: "area", points, label: `Auto ${f.pitchRatio}`, category: null });
+    created.push({ id, kind: "area", points, label: `Auto ${f.pitchRatio}`, category: null, areaSqft: f.surfaceAreaSqft });
   }
 
   revalidatePath(`/projects/${input.projectId}`);
@@ -248,6 +267,27 @@ export async function classifyRoofEdgesAction(input: { projectId: string }): Pro
 }
 
 /**
+ * Area (m²) and slope (degrees) for one drawn "area" row. Auto-detected facets
+ * carry a server-computed surface area (ft², summed from the facet's triangles)
+ * and a "Auto N/12" pitch label — both authoritative. The boundary polygon in
+ * pointsJson can self-intersect on noisy meshes, collapsing polygonArea3D to ~0
+ * and skewing the Newell normal, so trust the stored figures when present.
+ */
+function areaRowMetrics(row: { pointsJson: unknown; areaSqft?: number | null; label?: string | null }): {
+  areaM2: number;
+  slopeDeg: number;
+} {
+  const poly = row.pointsJson as Pt[];
+  const areaM2 = typeof row.areaSqft === "number" ? row.areaSqft / M2_TO_FT2 : polygonArea3D(poly);
+  const labelPitch = row.label?.match(/(\d+)\/12/);
+  const slopeDeg =
+    typeof row.areaSqft === "number" && labelPitch
+      ? (Math.atan(Number(labelPitch[1]) / 12) * 180) / Math.PI
+      : pitchFromNormal(polygonNormal(poly)).degrees;
+  return { areaM2, slopeDeg };
+}
+
+/**
  * Turn the measurements drawn on the model into a roofing proposal: area polygons
  * become total roof area + area-weighted pitch + facet count; categorised distance
  * lines become ridge/hip/valley/eave/rake linear footage. These synthesise the
@@ -263,17 +303,17 @@ export async function generateEstimateFromMeasurementsAction(formData: FormData)
   if (!project) throw new Error("Project not found");
 
   const rows = await prisma.modelMeasurement.findMany({ where: { projectId } });
-  const areas = rows.filter((r) => r.kind === "area").map((r) => r.pointsJson as unknown as Pt[]);
-  if (areas.length === 0) {
+  const areaRows = rows.filter((r) => r.kind === "area");
+  if (areaRows.length === 0) {
     throw new Error("Draw at least one roof area on the model before generating an estimate.");
   }
 
   let totalSurfaceM2 = 0;
   let slopeWeightedByArea = 0;
-  for (const poly of areas) {
-    const a = polygonArea3D(poly);
-    totalSurfaceM2 += a;
-    slopeWeightedByArea += pitchFromNormal(polygonNormal(poly)).degrees * a;
+  for (const r of areaRows) {
+    const { areaM2, slopeDeg } = areaRowMetrics(r);
+    totalSurfaceM2 += areaM2;
+    slopeWeightedByArea += slopeDeg * areaM2;
   }
   const avgSlopeDeg = totalSurfaceM2 > 0 ? slopeWeightedByArea / totalSurfaceM2 : 0;
   const riseOver12 = Math.round(Math.tan((avgSlopeDeg * Math.PI) / 180) * 12);
@@ -293,7 +333,7 @@ export async function generateEstimateFromMeasurementsAction(formData: FormData)
     { type: MeasurementType.EAVE, value: lineFt.eave },
     { type: MeasurementType.RAKE, value: lineFt.rake },
     { type: MeasurementType.PITCH, value: riseOver12 },
-    { type: MeasurementType.FACET_COUNT, value: areas.length },
+    { type: MeasurementType.FACET_COUNT, value: areaRows.length },
   ] as unknown as Measurement[];
 
   const report = generateRoofingReport(project, synthetic, []);
@@ -317,17 +357,17 @@ export async function generateEstimateFromMeasurementsAction(formData: FormData)
   redirect(`/projects/${projectId}?proposal=${proposal.id}`);
 }
 
-type ModelRow = { kind: string; category: string | null; pointsJson: unknown };
+type ModelRow = { kind: string; category: string | null; pointsJson: unknown; areaSqft?: number | null; label?: string | null };
 
 /** Roll drawn measurements up into roofing quantities (shared by estimate + materialize). */
 function roofQuantitiesFromModelMeasurements(rows: ModelRow[]) {
-  const areas = rows.filter((r) => r.kind === "area").map((r) => r.pointsJson as unknown as Pt[]);
+  const areaRows = rows.filter((r) => r.kind === "area");
   let totalSurfaceM2 = 0;
   let slopeWeighted = 0;
-  for (const poly of areas) {
-    const a = polygonArea3D(poly);
-    totalSurfaceM2 += a;
-    slopeWeighted += pitchFromNormal(polygonNormal(poly)).degrees * a;
+  for (const r of areaRows) {
+    const { areaM2, slopeDeg } = areaRowMetrics(r);
+    totalSurfaceM2 += areaM2;
+    slopeWeighted += slopeDeg * areaM2;
   }
   const avgSlopeDeg = totalSurfaceM2 > 0 ? slopeWeighted / totalSurfaceM2 : 0;
   const lineFt: Record<string, number> = { ridge: 0, hip: 0, valley: 0, eave: 0, rake: 0 };
@@ -337,7 +377,7 @@ function roofQuantitiesFromModelMeasurements(rows: ModelRow[]) {
     }
   }
   return {
-    areaCount: areas.length,
+    areaCount: areaRows.length,
     totalAreaSqft: totalSurfaceM2 * M2_TO_FT2,
     riseOver12: Math.round(Math.tan((avgSlopeDeg * Math.PI) / 180) * 12),
     lineFt,
