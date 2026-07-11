@@ -262,6 +262,10 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     renderer.domElement.setAttribute("data-testid", "measure-viewer");
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
+    // Let the canvas own all touch gestures (orbit/pinch/tap) instead of the
+    // browser scrolling/zooming the page over it. OrbitControls also sets this,
+    // but pin it explicitly so drawing taps aren't eaten on mobile.
+    renderer.domElement.style.touchAction = "none";
     host.appendChild(renderer.domElement);
     sizeRef.current = [host.clientWidth, host.clientHeight];
 
@@ -318,6 +322,34 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       if (!hit) return null;
       const p = group.worldToLocal(hit.point.clone());
       return [p.x, p.y, p.z];
+    };
+
+    // ---- Touch / pointer gesture state -------------------------------------
+    // One finger tap = place point / grab handle; a second finger means the user
+    // is navigating (orbit/pinch), so we cancel any pending tap or handle drag.
+    const activePointers = new Set<number>();
+    let lastPointerType = "mouse";
+    let tapCandidate: { x: number; y: number; t: number } | null = null;
+    const TAP_MOVE_PX = 10; // a touch that moves more than this is a drag, not a tap
+    const TAP_MS = 600;
+    // Grab the nearest edit handle within a finger-friendly screen radius, so a
+    // fat-finger tap near a small handle still catches it (and stays easy at any zoom).
+    const handleScreenTmp = new THREE.Vector3();
+    const pickHandleScreen = (event: PointerEvent): THREE.Mesh | null => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      const ex = event.clientX - rect.left;
+      const ey = event.clientY - rect.top;
+      let bestD = event.pointerType === "touch" ? 44 : 14;
+      let best: THREE.Mesh | null = null;
+      for (const h of handleMeshesRef.current) {
+        h.getWorldPosition(handleScreenTmp).project(camera);
+        if (handleScreenTmp.z > 1) continue; // behind the camera
+        const hx = (handleScreenTmp.x * 0.5 + 0.5) * rect.width;
+        const hy = (-handleScreenTmp.y * 0.5 + 0.5) * rect.height;
+        const d = Math.hypot(hx - ex, hy - ey);
+        if (d < bestD) { bestD = d; best = h; }
+      }
+      return best;
     };
 
     const loader = new GLTFLoader();
@@ -437,11 +469,13 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       }
     };
 
-    const onClick = (event: MouseEvent) => {
+    // Place one draft point at the event location (shared by mouse click and a
+    // single-finger touch tap).
+    const drawPlace = (event: { clientX: number; clientY: number }) => {
       const active = toolRef.current;
-      // Orbit and edit do not place points on click (edit uses drag).
+      // Orbit and edit do not place points (edit uses drag).
       if (active === "orbit" || active === "edit") return;
-      const point = pickSurface(event);
+      const point = pickSurface(event as MouseEvent);
       if (!point) return;
       draftPtsRef.current.push(point);
       setDraftCount(draftPtsRef.current.length);
@@ -451,15 +485,39 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       if (active === "height" && draftPtsRef.current.length === 2) finishDraft();
       if (active === "marker") finishDraft();
     };
+    const onClick = (event: MouseEvent) => {
+      // Touch taps are placed on pointerup; ignore the synthetic click they emit.
+      if (lastPointerType === "touch") return;
+      drawPlace(event);
+    };
 
     // ---- Edit mode: drag a vertex handle across the surface -----------------
+    // Abort an in-progress handle drag without committing (e.g. a second finger
+    // lands and the gesture becomes a two-finger navigation).
+    const abortDrag = () => {
+      const drag = dragRef.current;
+      controls.enabled = true;
+      if (dragDraftRef.current) disposeAndClear(dragDraftRef.current);
+      if (drag) {
+        const existing = committedMapRef.current.get(drag.id);
+        if (existing) existing.visible = true;
+      }
+      dragRef.current = null;
+    };
     const onPointerDown = (event: PointerEvent) => {
+      lastPointerType = event.pointerType;
+      activePointers.add(event.pointerId);
+      // A second finger => navigation (orbit/pinch): drop any pending tap or drag.
+      if (activePointers.size > 1) {
+        tapCandidate = null;
+        abortDrag();
+        return;
+      }
+      tapCandidate = { x: event.clientX, y: event.clientY, t: performance.now() };
       if (toolRef.current !== "edit" || handleMeshesRef.current.length === 0) return;
-      raycaster.setFromCamera(ndcFrom(event), camera);
-      const hit = raycaster.intersectObjects(handleMeshesRef.current, false)[0];
-      if (!hit) return; // missed a handle -> let OrbitControls orbit
-      const { id, index } = hit.object.userData as { id: string; index: number };
-      const handle = hit.object as THREE.Mesh;
+      const handle = pickHandleScreen(event);
+      if (!handle) return; // missed a handle -> let OrbitControls orbit
+      const { id, index } = handle.userData as { id: string; index: number };
       const m = measurementsRef.current.find((x) => x.id === id);
       if (!m) return;
       dragRef.current = { id, index, handle, point: m.points[index] };
@@ -468,8 +526,12 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       if (existing) existing.visible = false; // hide the static copy; draft shows live
     };
     const onPointerMove = (event: PointerEvent) => {
+      // A touch that travels is a drag/navigation, not a tap.
+      if (tapCandidate && Math.hypot(event.clientX - tapCandidate.x, event.clientY - tapCandidate.y) > TAP_MOVE_PX) {
+        tapCandidate = null;
+      }
       const drag = dragRef.current;
-      if (!drag) return;
+      if (!drag || activePointers.size > 1) return; // >1 pointer -> navigating, not dragging
       const point = pickSurface(event);
       if (!point) return;
       drag.point = point;
@@ -483,11 +545,21 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       const color = colorMapRef.current.get(drag.id) ?? TOOL_META.area.color;
       dd.add(buildMeasurementGraphics(updated, color, unitsRef.current, sizeRef.current).group);
     };
-    const onPointerUp = () => {
+    const onPointerUp = (event: PointerEvent) => {
+      activePointers.delete(event.pointerId);
       const drag = dragRef.current;
       controls.enabled = true;
       if (dragDraftRef.current) disposeAndClear(dragDraftRef.current);
-      if (!drag) return;
+      if (!drag) {
+        // A single-finger touch that didn't travel and released alone = a tap:
+        // place a draft point (the synthetic click is suppressed for touch).
+        if (tapCandidate && event.pointerType === "touch" && activePointers.size === 0 && performance.now() - tapCandidate.t < TAP_MS) {
+          drawPlace(event);
+        }
+        tapCandidate = null;
+        return;
+      }
+      tapCandidate = null;
       dragRef.current = null;
       const base = measurementsRef.current.find((x) => x.id === drag.id);
       if (!base) return;
@@ -540,6 +612,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
     // Expose finish/detect for the toolbar buttons.
     (host as HTMLDivElement & { __finish?: () => void }).__finish = finishDraft;
     (host as HTMLDivElement & { __redraw?: () => void }).__redraw = redrawDraft;
@@ -573,6 +646,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       renderer.domElement.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
       controls.dispose();
       renderer.dispose();
       scene.traverse((o) => {
@@ -632,9 +706,28 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     (hostRef.current as (HTMLDivElement & { __redraw?: () => void }) | null)?.__redraw?.();
   }, [units, draftCount]);
 
-  // Orbit and edit let you rotate the model; drawing/detect lock it so clicks place points.
+  // Map camera gestures per tool, keeping mouse and touch independent:
+  //  - orbit/edit: one finger / left-drag rotates (edit still grabs a handle first),
+  //    two fingers dolly+pan.
+  //  - drawing/detect: one finger / left-drag is reserved for placing points, so the
+  //    camera moves only with two fingers (orbit + pinch-zoom). This is why a draw
+  //    tool doesn't accidentally spin the model when you tap corners.
   useEffect(() => {
-    if (controlsRef.current) controlsRef.current.enableRotate = tool === "orbit" || tool === "edit";
+    const c = controlsRef.current;
+    if (!c) return;
+    const drawing = tool !== "orbit" && tool !== "edit";
+    c.enableRotate = true;
+    c.enableZoom = true;
+    c.enablePan = true;
+    if (drawing) {
+      c.mouseButtons.LEFT = null; // left-drag places points, never orbits
+      c.touches.ONE = null; // one finger is for tapping points
+      c.touches.TWO = THREE.TOUCH.DOLLY_ROTATE; // two fingers orbit + pinch-zoom
+    } else {
+      c.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+      c.touches.ONE = THREE.TOUCH.ROTATE;
+      c.touches.TWO = THREE.TOUCH.DOLLY_PAN;
+    }
   }, [tool]);
 
   // Show draggable vertex handles only in edit mode.
