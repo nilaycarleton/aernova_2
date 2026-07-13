@@ -58,6 +58,7 @@ export async function uploadProjectImageryAction(formData: FormData) {
   if (files.some((file) => !file.type.startsWith("image/"))) {
     throw new Error("Only image uploads are supported in this MVP");
   }
+  await requireProjectAccess(projectId);
 
   const batchId = randomUUID();
   const captureDate =
@@ -131,11 +132,15 @@ export async function updateImageryStatusAction(formData: FormData) {
   if (!projectId) throw new Error("Missing projectId");
   if (!imageryId) throw new Error("Missing imageryId");
   if (!statuses.has(statusRaw)) throw new Error("Invalid status");
+  await requireProjectAccess(projectId);
 
-  await prisma.projectImagery.update({
-    where: { id: imageryId },
+  // Scope the write by projectId too: owning `projectId` must not let a caller
+  // mutate another project's imagery via a mismatched imageryId.
+  const updated = await prisma.projectImagery.updateMany({
+    where: { id: imageryId, projectId },
     data: { status: statusRaw as ProcessingStatus },
   });
+  if (updated.count === 0) throw new Error("Imagery not found");
 
   revalidatePath(`/projects/${projectId}`);
 }
@@ -146,6 +151,7 @@ export async function generateExtractionSuggestionAction(formData: FormData) {
 
   if (!projectId) throw new Error("Missing projectId");
   if (!imageryId) throw new Error("Missing imageryId");
+  await requireProjectAccess(projectId);
 
   const extraction: Prisma.InputJsonValue = {
     generatedAt: new Date().toISOString(),
@@ -163,13 +169,14 @@ export async function generateExtractionSuggestionAction(formData: FormData) {
     reviewNote: "AI extraction is a planning draft. Confirm roof planes and edges before final estimate.",
   };
 
-  await prisma.projectImagery.update({
-    where: { id: imageryId },
+  const updated = await prisma.projectImagery.updateMany({
+    where: { id: imageryId, projectId },
     data: {
       status: "NEEDS_REVIEW",
       extractedJson: extraction,
     },
   });
+  if (updated.count === 0) throw new Error("Imagery not found");
 
   revalidatePath(`/projects/${projectId}`);
 }
@@ -280,6 +287,7 @@ export async function syncNodeOdmTaskAction(formData: FormData) {
 
   if (!projectId) throw new Error("Missing projectId");
   if (!imageryId) throw new Error("Missing imageryId");
+  await requireProjectAccess(projectId);
 
   await syncNodeOdmModelJob(projectId, imageryId);
 
@@ -295,6 +303,7 @@ export async function materializeDroneMeasurementsAction(formData: FormData) {
 
   if (!projectId) throw new Error("Missing projectId");
   if (!imageryId) throw new Error("Missing imageryId");
+  await requireProjectAccess(projectId);
 
   await materializeDroneMeasurements(projectId, imageryId);
 
@@ -308,6 +317,7 @@ export async function prepareRoofExtractionAction(
 ): Promise<PlanPreview> {
   if (!projectId) throw new Error("Missing projectId");
   if (!imageryId) throw new Error("Missing imageryId");
+  await requireProjectAccess(projectId);
 
   return buildPlanPreviewForModel(projectId, imageryId);
 }
@@ -319,6 +329,7 @@ export async function extractRoofFromMeshAction(
 ): Promise<RoofExtractionSummary> {
   if (!projectId) throw new Error("Missing projectId");
   if (!imageryId) throw new Error("Missing imageryId");
+  await requireProjectAccess(projectId);
 
   const result = await extractAndPersistRoof(projectId, imageryId, roiPolygon);
 
@@ -349,6 +360,7 @@ export async function createRoofComparisonAction(formData: FormData) {
 
   if (!projectId) throw new Error("Missing projectId");
   if (!title) throw new Error("Comparison title is required");
+  await requireProjectAccess(projectId);
 
   await prisma.roofComparison.create({
     data: {
