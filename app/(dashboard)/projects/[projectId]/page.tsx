@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MeasurementManager } from "@/components/dashboard/measurement-manager";
 import { ProposalGeneratorCard } from "@/components/dashboard/proposal-generator-card";
 import { AiSummary } from "@/components/dashboard/ai-summary";
+import { RoofAssistant } from "@/components/dashboard/roof-assistant";
 import { ProjectIntelligence } from "@/components/dashboard/project-intelligence";
 import { RoofSectionManager } from "@/components/dashboard/roof-section-manager";
 import { InspectionWorkflow } from "@/components/dashboard/inspection-workflow";
@@ -112,6 +113,8 @@ export default async function ProjectDetailPage({
       <ProjectStatusStepper projectId={project.id} status={project.status} />
 
       <AiSummary projectId={project.id} />
+
+      <RoofAssistant projectId={project.id} />
 
       <ProjectWorkspace
         initialTab={initialTab}
