@@ -1,96 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
-import { prisma } from "@/lib/prisma";
+import { getAnthropic, isAiConfigured, AI_MODELS } from "@/lib/ai/client";
+import { buildRoofContext, ROOF_ASSISTANT_SYSTEM } from "@/lib/ai/roof-context";
+import { requireProjectAccess } from "@/lib/auth";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+export const runtime = "nodejs";
+
+const SUMMARY_PROMPT = `Write a short, professional summary of this roof project for the roofer — 3-5 sentences. Cover the roof type/size, location, the key measurements, any major issues, and the estimate/proposal status. Use the numbers from the project data; don't invent anything not present.`;
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   const { projectId } = await params;
-  const body = await req.json();
 
-  const { action } = body;
-
-  if (action !== "summarize_project") {
-    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+  if (!isAiConfigured()) {
+    return NextResponse.json(
+      { error: "AI is not configured. Set ANTHROPIC_API_KEY." },
+      { status: 503 }
+    );
   }
 
-  // 🔥 Load project data
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    include: {
-      measurements: true,
-      issues: true,
-      proposals: {
-        orderBy: { createdAt: "desc" },
-        take: 1,
-      },
-    },
-  });
-
-  if (!project) {
+  // Scope to the caller's company — this route previously trusted the
+  // client-supplied projectId with no access check (cross-tenant leak).
+  try {
+    await requireProjectAccess(projectId);
+  } catch {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
-  const latestProposal = project.proposals[0];
+  const body = (await req.json().catch(() => null)) as { action?: string } | null;
+  if (body?.action !== "summarize_project") {
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+  }
 
-  // 🧠 Build structured context
-  const context = {
-    project: {
-      name: project.name,
-      clientName: project.clientName,
-      address: `${project.addressLine1}, ${project.city}, ${project.province}`,
-      status: project.status,
-    },
-    measurements: project.measurements.map((m) => ({
-      type: m.type,
-      value: m.value,
-    })),
-    issues: project.issues.map((i) => ({
-      title: i.title,
-      severity: i.severity,
-    })),
-    proposal: latestProposal
-      ? {
-          total: latestProposal.totalAmount,
-        }
-      : null,
-  };
+  const context = await buildRoofContext(projectId);
 
-  // 🧠 Call OpenAI
-  const response = await openai.responses.create({
-    model: "gpt-5-mini",
-    input: [
+  const message = await getAnthropic().messages.create({
+    model: AI_MODELS.chat,
+    max_tokens: 400,
+    thinking: { type: "disabled" },
+    system: [
       {
-        role: "system",
-        content: `
-You are a roofing project assistant.
-
-Write a short, professional summary of the project.
-
-Rules:
-- Keep it 3–5 sentences
-- Be clear and professional
-- Mention:
-  - project type
-  - location
-  - key measurements
-  - major issues (if any)
-  - proposal status
-        `,
-      },
-      {
-        role: "user",
-        content: JSON.stringify(context),
+        type: "text",
+        // Byte-identical to the chat route's system prefix, so the roof context
+        // caches once and both features read it at ~0.1x cost.
+        text: `${ROOF_ASSISTANT_SYSTEM}\n\n---\nPROJECT DATA:\n${context}`,
+        cache_control: { type: "ephemeral" },
       },
     ],
+    messages: [{ role: "user", content: SUMMARY_PROMPT }],
   });
 
-  const summary = response.output_text;
+  const summary = message.content
+    .map((b) => (b.type === "text" ? b.text : ""))
+    .join("")
+    .trim();
 
   return NextResponse.json({ summary });
 }
