@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { storage } from "@/lib/storage";
+import { requireProjectAccess } from "@/lib/auth";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -26,6 +27,7 @@ export async function uploadInspectionPhotoAction(formData: FormData) {
   if (!file.type.startsWith("image/")) {
     throw new Error("Only image uploads are supported");
   }
+  await requireProjectAccess(projectId);
 
   const extension = path.extname(file.name).toLowerCase() || ".jpg";
   const storedName = `${randomUUID()}${extension}`;
@@ -55,15 +57,17 @@ export async function updateInspectionPhotoAction(formData: FormData) {
 
   if (!projectId) throw new Error("Missing projectId");
   if (!photoId) throw new Error("Missing photoId");
+  await requireProjectAccess(projectId);
 
-  await prisma.photoAsset.update({
-    where: { id: photoId },
+  const updated = await prisma.photoAsset.updateMany({
+    where: { id: photoId, projectId },
     data: {
       locationTag: getString(formData, "locationTag") || null,
       caption: getString(formData, "caption") || null,
       roofIssueId: roofIssueId || null,
     },
   });
+  if (updated.count === 0) throw new Error("Photo not found");
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}/report`);
@@ -76,6 +80,7 @@ export async function savePhotoAnnotationsAction(formData: FormData) {
 
   if (!projectId) throw new Error("Missing projectId");
   if (!photoId) throw new Error("Missing photoId");
+  await requireProjectAccess(projectId);
 
   let annotations: Prisma.InputJsonValue = [];
 
@@ -87,12 +92,13 @@ export async function savePhotoAnnotationsAction(formData: FormData) {
     }
   }
 
-  await prisma.photoAsset.update({
-    where: { id: photoId },
+  const updated = await prisma.photoAsset.updateMany({
+    where: { id: photoId, projectId },
     data: {
       annotationsJson: annotations,
     },
   });
+  if (updated.count === 0) throw new Error("Photo not found");
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}/report`);
