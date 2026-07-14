@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { generateRoofingReport } from "@/lib/report-generator";
+import { requireProjectAccess } from "@/lib/auth";
 
 export async function generateProposalAction(formData: FormData) {
   const projectId = String(formData.get("projectId") ?? "").trim();
@@ -10,6 +11,7 @@ export async function generateProposalAction(formData: FormData) {
   if (!projectId) {
     throw new Error("Missing projectId");
   }
+  await requireProjectAccess(projectId);
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },

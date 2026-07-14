@@ -103,8 +103,10 @@ export async function updateMeasurementAction(formData: FormData) {
   const confidence = confidenceRaw ? Number(confidenceRaw) : null;
   const sortOrder = sortOrderRaw ? Number(sortOrderRaw) : 0;
 
-  await prisma.measurement.update({
-    where: { id: measurementId },
+  // Scope by projectId so owning `projectId` can't be paired with another
+  // project's measurementId.
+  const updated = await prisma.measurement.updateMany({
+    where: { id: measurementId, projectId },
     data: {
       label,
       displayValue,
@@ -116,6 +118,7 @@ export async function updateMeasurementAction(formData: FormData) {
       sortOrder,
     },
   });
+  if (updated.count === 0) throw new Error("Measurement not found");
 
   revalidatePath(`/projects/${projectId}`);
 }
@@ -126,10 +129,12 @@ export async function deleteMeasurementAction(formData: FormData) {
 
   if (!measurementId) throw new Error("Missing measurementId");
   if (!projectId) throw new Error("Missing projectId");
+  await requireProjectAccess(projectId);
 
-  await prisma.measurement.delete({
-    where: { id: measurementId },
+  const deleted = await prisma.measurement.deleteMany({
+    where: { id: measurementId, projectId },
   });
+  if (deleted.count === 0) throw new Error("Measurement not found");
 
   revalidatePath(`/projects/${projectId}`);
 }

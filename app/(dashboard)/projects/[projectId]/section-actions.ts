@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireProjectAccess } from "@/lib/auth";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -22,6 +23,7 @@ export async function createRoofSectionAction(formData: FormData) {
 
   if (!projectId) throw new Error("Missing projectId");
   if (!label) throw new Error("Structure or facet label is required");
+  await requireProjectAccess(projectId);
 
   await prisma.roofSection.create({
     data: {
@@ -51,9 +53,10 @@ export async function updateRoofSectionAction(formData: FormData) {
   if (!projectId) throw new Error("Missing projectId");
   if (!sectionId) throw new Error("Missing sectionId");
   if (!label) throw new Error("Structure or facet label is required");
+  await requireProjectAccess(projectId);
 
-  await prisma.roofSection.update({
-    where: { id: sectionId },
+  const updated = await prisma.roofSection.updateMany({
+    where: { id: sectionId, projectId },
     data: {
       label,
       pitchRatio: pitchRatio || null,
@@ -67,6 +70,7 @@ export async function updateRoofSectionAction(formData: FormData) {
       rakeLengthFt: getOptionalNumber(formData, "rakeLengthFt"),
     },
   });
+  if (updated.count === 0) throw new Error("Roof section not found");
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}/report`);
@@ -78,10 +82,12 @@ export async function deleteRoofSectionAction(formData: FormData) {
 
   if (!projectId) throw new Error("Missing projectId");
   if (!sectionId) throw new Error("Missing sectionId");
+  await requireProjectAccess(projectId);
 
-  await prisma.roofSection.delete({
-    where: { id: sectionId },
+  const deleted = await prisma.roofSection.deleteMany({
+    where: { id: sectionId, projectId },
   });
+  if (deleted.count === 0) throw new Error("Roof section not found");
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}/report`);
