@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
+
 // Catches errors thrown in the root layout itself. Must render its own
 // <html>/<body> because it replaces the root layout when it fires.
 export default function GlobalError({
@@ -9,6 +12,12 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // React render crashes never reach instrumentation's onRequestError, so this
+  // boundary is the only place they can be reported from.
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <html lang="en">
       <body className="min-h-screen bg-slate-950 text-white antialiased">
