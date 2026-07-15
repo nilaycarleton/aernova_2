@@ -36,7 +36,13 @@ export function RoofAssistant({ projectId }: { projectId: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history }),
       });
-      if (!res.ok || !res.body) throw new Error(`chat failed: ${res.status}`);
+      if (!res.ok) {
+        // Surface the server's reason verbatim — notably the rate-limit message,
+        // which tells the roofer what the cap is and when it resets.
+        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(data?.error || `The assistant is unavailable (${res.status}).`);
+      }
+      if (!res.body) throw new Error("The assistant returned an empty response.");
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -57,7 +63,10 @@ export function RoofAssistant({ projectId }: { projectId: string }) {
         const copy = [...prev];
         copy[copy.length - 1] = {
           role: "assistant",
-          content: "Sorry — I couldn't reach the assistant. Please try again.",
+          content:
+            err instanceof Error && err.message
+              ? err.message
+              : "Sorry — I couldn't reach the assistant. Please try again.",
         };
         return copy;
       });

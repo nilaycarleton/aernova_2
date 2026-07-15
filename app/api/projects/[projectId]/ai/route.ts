@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAnthropic, isAiConfigured, AI_MODELS } from "@/lib/ai/client";
 import { buildRoofContext, ROOF_ASSISTANT_SYSTEM } from "@/lib/ai/roof-context";
+import { checkAiRateLimit, recordAiUsage } from "@/lib/ai/rate-limit";
 import { requireProjectAccess } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -22,8 +23,9 @@ export async function POST(
 
   // Scope to the caller's company — this route previously trusted the
   // client-supplied projectId with no access check (cross-tenant leak).
+  let userId: string;
   try {
-    await requireProjectAccess(projectId);
+    ({ userId } = await requireProjectAccess(projectId));
   } catch {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
@@ -33,7 +35,17 @@ export async function POST(
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   }
 
+  // Summaries share the project's AI budget — they cost the same as a chat turn.
+  const limit = await checkAiRateLimit({ projectId, userId });
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: limit.message },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+    );
+  }
+
   const context = await buildRoofContext(projectId);
+  await recordAiUsage({ projectId, userId, kind: "summary" });
 
   const message = await getAnthropic().messages.create({
     model: AI_MODELS.chat,
