@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 export default function DashboardError({
   error,
@@ -10,7 +11,10 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Surface for server-side log aggregation later (Phase 4).
+    // Client-side render errors in this segment never reach instrumentation's
+    // onRequestError, so report them here. Server-rendered errors arrive via
+    // both paths; Sentry dedupes them by digest.
+    Sentry.captureException(error);
     console.error(error);
   }, [error]);
 
