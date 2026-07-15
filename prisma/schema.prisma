@@ -155,9 +155,31 @@ model Project {
   comparisons  RoofComparison[]
   proposals    Proposal[]
   modelMeasurements ModelMeasurement[]
+  aiUsageEvents AiUsageEvent[]
 
   @@index([companyId, status])
   @@index([companyId, createdAt])
+}
+
+/**
+ * One row per billable AI call. Backs the rate limiter (counts within a rolling
+ * window) and doubles as the record of what AI actually costs per project.
+ * Rows are only written after a call is allowed through.
+ */
+model AiUsageEvent {
+  id        String   @id @default(cuid())
+  projectId String
+  // Clerk-backed User id. Kept as a plain indexed column rather than a relation
+  // so the usage record survives a user being removed.
+  userId    String
+  kind      String // "chat" | "summary"
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Serve the two limiter queries: per-project rolling day, per-user burst.
+  @@index([projectId, createdAt])
+  @@index([userId, createdAt])
 }
 
 // An interactive measurement drawn directly on the 3D model (WebODM-style):
