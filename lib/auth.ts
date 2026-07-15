@@ -98,7 +98,7 @@ export async function requireCompanyContext(): Promise<CompanyContext> {
  */
 export async function requireProjectAccess(projectId: string) {
   if (!projectId) throw new Error("Missing projectId");
-  const { company } = await requireCompanyContext();
+  const { company, user } = await requireCompanyContext();
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: { companyId: true },
@@ -106,7 +106,7 @@ export async function requireProjectAccess(projectId: string) {
   if (!project || project.companyId !== company.id) {
     throw new Error("Project not found");
   }
-  return { companyId: company.id };
+  return { companyId: company.id, userId: user.id };
 }
 
 function companyNameFor(user: User) {
