@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAnthropic, isAiConfigured, AI_MODELS } from "@/lib/ai/client";
 import { buildRoofContext, ROOF_ASSISTANT_SYSTEM } from "@/lib/ai/roof-context";
+import { checkAiRateLimit, recordAiUsage } from "@/lib/ai/rate-limit";
 import { requireProjectAccess } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -24,10 +25,20 @@ export async function POST(
   }
 
   // Scope to the caller's company — the old /ai route skipped this.
+  let userId: string;
   try {
-    await requireProjectAccess(projectId);
+    ({ userId } = await requireProjectAccess(projectId));
   } catch {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
+
+  // Each call spends real money, so cap before doing any work.
+  const limit = await checkAiRateLimit({ projectId, userId });
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: limit.message },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+    );
   }
 
   const body = (await req.json().catch(() => null)) as { messages?: unknown } | null;
@@ -50,6 +61,11 @@ export async function POST(
   }
 
   const context = await buildRoofContext(projectId);
+
+  // Count it once the request is valid and about to hit the API. Recorded before
+  // streaming because the spend is committed the moment the call is made — a
+  // client disconnecting mid-stream doesn't refund it.
+  await recordAiUsage({ projectId, userId, kind: "chat" });
 
   const stream = getAnthropic().messages.stream({
     model: AI_MODELS.chat,
