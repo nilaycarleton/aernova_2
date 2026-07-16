@@ -4,12 +4,26 @@ import { redirect } from "next/navigation";
 import { CaptureSource, ProjectStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireCompanyContext } from "@/lib/auth";
+import { validateNewProject } from "@/lib/project-validation";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
-export async function createProjectAction(formData: FormData) {
+/**
+ * Validation failures are returned, not thrown. A thrown error unmounts the
+ * form via the error boundary and takes everything the user typed with it —
+ * see https://nextjs.org/docs/app/getting-started/error-handling ("model
+ * expected errors as return values"). Only genuine invariants throw here.
+ */
+export type NewProjectState = {
+  fieldErrors?: Record<string, string>;
+};
+
+export async function createProjectAction(
+  _prevState: NewProjectState,
+  formData: FormData
+): Promise<NewProjectState> {
   const { company, user } = await requireCompanyContext();
 
   const name = getString(formData, "name");
@@ -23,24 +37,9 @@ export async function createProjectAction(formData: FormData) {
   const notes = getString(formData, "notes");
   const captureSourceRaw = getString(formData, "captureSource");
 
-  if (!name) {
-    throw new Error("Project name is required.");
-  }
-
-  if (!clientName) {
-    throw new Error("Client name is required.");
-  }
-
-  if (!addressLine1) {
-    throw new Error("Address is required.");
-  }
-
-  if (!city) {
-    throw new Error("City is required.");
-  }
-
-  if (!province) {
-    throw new Error("Province is required.");
+  const fieldErrors = validateNewProject({ name, clientName, addressLine1, city, province });
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
   }
 
   const allowedSources = new Set(["DRONE", "MANUAL"]);
