@@ -72,7 +72,7 @@ function StepBadge({ n, state }: { n: number; state: StepState }) {
           ? "bg-emerald-500/85 text-slate-950"
           : state === "current"
             ? "bg-cyan-400 text-slate-950"
-            : "bg-white/10 text-slate-500"
+            : "bg-white/10 text-ink-muted"
       }`}
     >
       {state === "done" ? "✓" : n}
@@ -212,7 +212,9 @@ export function PhaseSixWorkflow({
                 <img
                   key={item.id}
                   src={item.url}
-                  alt=""
+                  alt={item.fileName ?? "Drone photo of the roof"}
+                  loading="lazy"
+                  decoding="async"
                   className="h-16 w-20 shrink-0 rounded-lg border border-white/10 object-cover"
                 />
               ))}
@@ -328,7 +330,7 @@ export function PhaseSixWorkflow({
                         Save to project measurements
                       </SubmitButton>
                     </form>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-ink-muted">
                       Build a priced proposal, or roll these up into the project&apos;s measurements list.
                     </span>
                   </div>
@@ -373,7 +375,7 @@ export function PhaseSixWorkflow({
             <input
               name="title"
               placeholder="e.g. Front slope — before and after"
-              className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400 md:col-span-2"
+              className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400 md:col-span-2"
               required
             />
             <select name="beforeUrl" defaultValue="" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400">
@@ -388,7 +390,7 @@ export function PhaseSixWorkflow({
                 <option key={item.id} value={item.url}>{item.fileName ?? "After photo"}</option>
               ))}
             </select>
-            <textarea name="summary" rows={2} placeholder="Optional note" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400 md:col-span-2" />
+            <textarea name="summary" rows={2} placeholder="Optional note" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400 md:col-span-2" />
             <button type="submit" className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500 md:col-span-2">
               Create comparison
             </button>
@@ -401,10 +403,10 @@ export function PhaseSixWorkflow({
                   <p className="font-medium text-white">{comparison.title}</p>
                   <div className="mt-3 grid grid-cols-2 gap-3">
                     <div className="aspect-video overflow-hidden rounded-xl bg-slate-950">
-                      {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt="" className="h-full w-full object-cover" /> : null}
+                      {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt={`Before: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
                     </div>
                     <div className="aspect-video overflow-hidden rounded-xl bg-slate-950">
-                      {comparison.afterUrl ? <img src={comparison.afterUrl} alt="" className="h-full w-full object-cover" /> : null}
+                      {comparison.afterUrl ? <img src={comparison.afterUrl} alt={`After: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
                     </div>
                   </div>
                   {comparison.summary ? <p className="mt-3 text-sm leading-6 text-slate-400">{comparison.summary}</p> : null}
@@ -455,7 +457,7 @@ export function PhaseSixWorkflow({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-500">No processing jobs yet.</p>
+            <p className="text-xs text-ink-muted">No processing jobs yet.</p>
           )}
 
           {modelReady && latestModel ? (

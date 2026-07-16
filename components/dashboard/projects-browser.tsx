@@ -101,7 +101,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by project, client, or address…"
-          className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950/60 px-4 py-2 text-sm text-white placeholder:text-slate-500 focus:border-sky-500/50 focus:outline-none"
+          className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950/60 px-4 py-2 text-sm text-white placeholder:text-ink-muted focus:border-sky-500/50 focus:outline-none"
         />
         <select
           value={statusFilter}
@@ -128,7 +128,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
         </select>
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-ink-muted">
         {filtered.length} of {projects.length} project{projects.length === 1 ? "" : "s"}
       </p>
 
@@ -148,7 +148,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
                   <div className="min-w-0">
                     <h4 className="truncate text-lg font-semibold text-white">{project.name}</h4>
                     <p className="mt-1 text-sm text-slate-400">{project.clientName}</p>
-                    <p className="mt-2 truncate text-sm text-slate-500">
+                    <p className="mt-2 truncate text-sm text-ink-muted">
                       {project.addressLine1}, {project.city}, {project.province}
                     </p>
                   </div>
@@ -170,7 +170,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
                 </div>
 
                 <div className="mt-3 flex items-center gap-2 text-sm">
-                  <span className="text-slate-500">Next:</span>
+                  <span className="text-ink-muted">Next:</span>
                   <span className="font-medium text-cyan-100">{STATUS_META[project.status].nextStep}</span>
                 </div>
               </Link>

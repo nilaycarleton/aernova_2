@@ -36,7 +36,7 @@ function issueTone(severity: string) {
 export function InspectionWorkflow({ projectId, issues, photos }: Props) {
   return (
     <section className="space-y-6">
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/8 to-white/5 p-6 shadow-2xl shadow-black/20">
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
@@ -53,17 +53,17 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
           <div className="grid grid-cols-3 gap-3 text-center">
             <div className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3">
               <p className="text-lg font-semibold text-white">{photos.length}</p>
-              <p className="text-xs text-slate-500">Photos</p>
+              <p className="text-xs text-ink-muted">Photos</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3">
               <p className="text-lg font-semibold text-white">{issues.length}</p>
-              <p className="text-xs text-slate-500">Issues</p>
+              <p className="text-xs text-ink-muted">Issues</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3">
               <p className="text-lg font-semibold text-white">
                 {issues.filter((issue) => ["HIGH", "CRITICAL"].includes(issue.severity)).length}
               </p>
-              <p className="text-xs text-slate-500">Urgent</p>
+              <p className="text-xs text-ink-muted">Urgent</p>
             </div>
           </div>
         </div>
@@ -88,14 +88,14 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               className="block w-full rounded-2xl border border-dashed border-white/15 bg-slate-950/50 px-4 py-5 text-sm text-slate-300 file:mr-4 file:rounded-xl file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
               required
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-ink-muted">
               On phones and tablets this opens the camera directly for on-roof capture.
             </p>
             <div className="grid gap-4 md:grid-cols-2">
               <input
                 name="locationTag"
                 placeholder="Slope, section, or location"
-                className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
               />
               <select
                 name="roofIssueId"
@@ -114,7 +114,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               name="caption"
               rows={3}
               placeholder="Caption for report evidence"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
             />
             <button
               type="submit"
@@ -134,7 +134,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
           </h3>
 
           <div className="mt-4">
-            <p className="mb-2 text-xs uppercase tracking-[0.14em] text-slate-500">
+            <p className="mb-2 text-xs uppercase tracking-[0.14em] text-ink-muted">
               Quick add common issues
             </p>
             <div className="flex flex-wrap gap-2">
@@ -181,31 +181,31 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               <input
                 name="locationLabel"
                 placeholder="Rear slope near ridge"
-                className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
               />
             </div>
             <input
               name="photoTag"
               placeholder="Photo tag, slope, or section"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
             />
             <textarea
               name="recommendedAction"
               rows={3}
               placeholder="Recommended action"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
             />
             <textarea
               name="urgency"
               rows={2}
               placeholder="Urgency explanation"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
             />
             <textarea
               name="caption"
               rows={3}
               placeholder="Homeowner-friendly caption or claim support note"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
             />
             <button
               type="submit"
@@ -250,13 +250,19 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                   <input type="hidden" name="projectId" value={projectId} />
                   <input type="hidden" name="photoId" value={photo.id} />
                   <div className="aspect-video overflow-hidden rounded-xl bg-slate-950">
-                    <img src={photo.url} alt="" className="h-full w-full object-cover" />
+                    <img
+                      src={photo.url}
+                      alt={photo.caption || photo.locationTag || photo.fileName || "Inspection photo"}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                   <input
                     name="locationTag"
                     defaultValue={photo.locationTag ?? ""}
                     placeholder="Location tag"
-                    className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                    className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                   />
                   <select
                     name="roofIssueId"
@@ -275,7 +281,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                     rows={3}
                     defaultValue={photo.caption ?? ""}
                     placeholder="Caption"
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                   />
                   <button
                     type="submit"

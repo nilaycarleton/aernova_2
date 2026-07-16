@@ -85,7 +85,7 @@ export function ProjectIntelligence({ measurements, sections }: Props) {
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
+            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
               Measured
             </p>
             <p className="mt-2 text-xl font-semibold text-white">
@@ -93,7 +93,7 @@ export function ProjectIntelligence({ measurements, sections }: Props) {
             </p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
+            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
               Suggested
             </p>
             <p className="mt-2 text-xl font-semibold text-white">
@@ -101,7 +101,7 @@ export function ProjectIntelligence({ measurements, sections }: Props) {
             </p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
+            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
               Waste
             </p>
             <p className="mt-2 text-xl font-semibold text-white">
@@ -112,7 +112,7 @@ export function ProjectIntelligence({ measurements, sections }: Props) {
 
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
+            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
               Area Source
             </p>
             <p className="mt-2 text-lg font-semibold capitalize text-white">
@@ -120,7 +120,7 @@ export function ProjectIntelligence({ measurements, sections }: Props) {
             </p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
+            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
               Line Density
             </p>
             <p className="mt-2 text-lg font-semibold text-white">
@@ -128,7 +128,7 @@ export function ProjectIntelligence({ measurements, sections }: Props) {
             </p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
+            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
               Labor Factor
             </p>
             <p className="mt-2 text-lg font-semibold text-white">

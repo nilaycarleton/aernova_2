@@ -57,7 +57,7 @@ export function OperationsOverview({ projects }: Props) {
                     </div>
                   ))}
                   {statusProjects.length === 0 ? (
-                    <p className="text-sm text-slate-500">No jobs</p>
+                    <p className="text-sm text-ink-muted">No jobs</p>
                   ) : null}
                 </div>
               </div>
@@ -89,11 +89,11 @@ export function OperationsOverview({ projects }: Props) {
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl bg-slate-950/50 p-4">
-              <p className="text-xs uppercase tracking-[0.14em] text-slate-500">Revenue</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Revenue</p>
               <p className="mt-2 text-xl font-semibold text-white">${totalEstimated.toLocaleString()}</p>
             </div>
             <div className="rounded-2xl bg-slate-950/50 p-4">
-              <p className="text-xs uppercase tracking-[0.14em] text-slate-500">Gross Margin</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Gross Margin</p>
               <p className="mt-2 text-xl font-semibold text-white">{margin}%</p>
             </div>
           </div>

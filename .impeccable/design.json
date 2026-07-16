@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-16T00:00:00.000Z",
+  "title": "Design System: Aernova",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Ground",
+        "canonical": "oklch(0.129 0.042 264.695)",
+        "tonalRamp": ["#020617", "#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1"]
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Surface Raised",
+        "canonical": "color-mix(in oklab, #ffffff 5%, transparent)",
+        "tonalRamp": ["#ffffff05", "#ffffff0a", "#ffffff0d", "#ffffff14", "#ffffff1a", "#ffffff26", "#ffffff33", "#ffffff4d"]
+      },
+      "surface-lifted": {
+        "role": "neutral",
+        "displayName": "Surface Lifted",
+        "canonical": "color-mix(in oklab, #ffffff 10%, transparent)",
+        "tonalRamp": ["#ffffff05", "#ffffff0a", "#ffffff0d", "#ffffff14", "#ffffff1a", "#ffffff26", "#ffffff33", "#ffffff4d"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "color-mix(in oklab, #ffffff 10%, transparent)",
+        "tonalRamp": ["#ffffff0d", "#ffffff1a", "#ffffff26", "#ffffff33", "#ffffff40", "#ffffff4d", "#ffffff66", "#ffffff80"]
+      },
+      "instrument-cyan": {
+        "role": "primary",
+        "displayName": "Instrument Cyan",
+        "canonical": "oklch(0.789 0.154 211.53)",
+        "tonalRamp": ["#083344", "#164e63", "#155e75", "#0e7490", "#0891b2", "#06b6d4", "#22d3ee", "#67e8f9"]
+      },
+      "instrument-cyan-bright": {
+        "role": "primary",
+        "displayName": "Instrument Cyan Bright",
+        "canonical": "oklch(0.865 0.127 207.078)",
+        "tonalRamp": ["#083344", "#164e63", "#155e75", "#0e7490", "#0891b2", "#06b6d4", "#22d3ee", "#67e8f9"]
+      },
+      "instrument-cyan-deep": {
+        "role": "primary",
+        "displayName": "Instrument Cyan Deep",
+        "canonical": "oklch(0.715 0.143 215.221)",
+        "tonalRamp": ["#083344", "#164e63", "#155e75", "#0e7490", "#0891b2", "#06b6d4", "#22d3ee", "#67e8f9"]
+      },
+      "signal-blue": {
+        "role": "secondary",
+        "displayName": "Signal Blue",
+        "canonical": "oklch(0.623 0.214 259.815)",
+        "tonalRamp": ["#172554", "#1e3a8a", "#1e40af", "#1d4ed8", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd"]
+      },
+      "sky-accent": {
+        "role": "secondary",
+        "displayName": "Sky Accent",
+        "canonical": "oklch(0.746 0.16 232.661)",
+        "tonalRamp": ["#082f49", "#0c4a6e", "#075985", "#0369a1", "#0284c7", "#0ea5e9", "#38bdf8", "#7dd3fc"]
+      },
+      "confirm-green": {
+        "role": "tertiary",
+        "displayName": "Confirm Green",
+        "canonical": "oklch(0.696 0.17 162.48)",
+        "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#34d399", "#6ee7b7"]
+      },
+      "ink-primary": {
+        "role": "neutral",
+        "displayName": "Ink Primary",
+        "canonical": "oklch(1 0 0)",
+        "tonalRamp": ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9", "#ffffff"]
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "canonical": "oklch(0.869 0.022 252.894)",
+        "tonalRamp": ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9", "#ffffff"]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Ink Muted",
+        "canonical": "oklch(0.704 0.04 256.788)",
+        "tonalRamp": ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9", "#ffffff"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(0.968 0.007 247.896)",
+        "tonalRamp": ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9", "#f8fafc"]
+      },
+      "paper-ink": {
+        "role": "neutral",
+        "displayName": "Paper Ink",
+        "canonical": "oklch(0.208 0.042 265.755)",
+        "tonalRamp": ["#020617", "#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1"]
+      },
+      "paper-rule": {
+        "role": "neutral",
+        "displayName": "Paper Rule",
+        "canonical": "oklch(0.929 0.013 255.508)",
+        "tonalRamp": ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9", "#f8fafc"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page and workspace titles. One per screen." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings inside a panel." },
+      "title": { "displayName": "Title", "purpose": "Panel headers, control labels, table column heads. Body size, separated by weight alone." },
+      "body": { "displayName": "Body", "purpose": "The workhorse. Default for all reading. Cap prose at 65-75ch." },
+      "label": { "displayName": "Label", "purpose": "Metadata, units, badges, timestamps. The only place uppercase is permitted." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "transition-default", "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Tailwind's `transition` default. Color and background state changes on buttons, rows, and chips." },
+      { "name": "transition-progress", "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Determinate progress fills in the processing pipeline (`transition-all` on cyan bars)." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Advances the job. The brightest object on the screen and the only one that inverts to dark text.",
+      "html": "<button class=\"ds-btn-primary\">Generate estimate</button>",
+      "css": ".ds-btn-primary { background: #22d3ee; color: #020617; padding: 8px 12px; border: none; border-radius: 8px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; line-height: 1.25rem; cursor: pointer; transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-primary:hover { background: #67e8f9; } .ds-btn-primary:focus-visible { outline: 2px solid #67e8f9; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Present but recessive. An action that exists without competing with the primary one.",
+      "html": "<button class=\"ds-btn-ghost\">Re-run detection</button>",
+      "css": ".ds-btn-ghost { background: color-mix(in oklab, #38bdf8 10%, transparent); color: #e0f2fe; padding: 6px 12px; border: 1px solid color-mix(in oklab, #7dd3fc 30%, transparent); border-radius: 8px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; line-height: 1.25rem; cursor: pointer; transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-ghost:hover { background: color-mix(in oklab, #38bdf8 20%, transparent); } .ds-btn-ghost:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "The workhorse container. Sits on the ground; never floats. Depth from tone, never shadow.",
+      "html": "<div class=\"ds-panel\"><h3 class=\"ds-panel-title\">Roof sections</h3><p class=\"ds-panel-body\">Four sections detected across two planes.</p></div>",
+      "css": ".ds-panel { background: color-mix(in oklab, #ffffff 5%, transparent); border: 1px solid color-mix(in oklab, #ffffff 10%, transparent); border-radius: 16px; padding: 24px; font-family: ui-sans-serif, system-ui, sans-serif; } .ds-panel-title { color: #ffffff; font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; margin: 0 0 8px; } .ds-panel-body { color: #cbd5e1; font-size: 0.875rem; font-weight: 400; line-height: 1.25rem; margin: 0; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Read-only state carrier: job phase, measurement state. Never interactive.",
+      "html": "<span class=\"ds-chip\">Measured</span>",
+      "css": ".ds-chip { display: inline-block; background: color-mix(in oklab, #06b6d4 10%, transparent); color: #67e8f9; padding: 4px 10px; border-radius: 9999px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 1rem; letter-spacing: 0.025em; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Surface-raised fill with a hairline border. Focus shifts the border to cyan — never a glow.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"36 Wetherby Ave\" />",
+      "css": ".ds-input { background: color-mix(in oklab, #ffffff 5%, transparent); color: #ffffff; padding: 12px 16px; border: 1px solid color-mix(in oklab, #ffffff 10%, transparent); border-radius: 12px; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; line-height: 1.25rem; width: 100%; transition: border-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-input::placeholder { color: #94a3b8; } .ds-input:focus { border-color: #22d3ee; outline: 2px solid color-mix(in oklab, #22d3ee 40%, transparent); outline-offset: 1px; }"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "panel-lifted",
+      "description": "Active row marked by a Surface Lifted fill. No accent stripe — The One Rule Rule.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item ds-nav-item--active\" href=\"#\">Projects</a><a class=\"ds-nav-item\" href=\"#\">Proposals</a></nav>",
+      "css": ".ds-nav { display: flex; flex-direction: column; gap: 4px; font-family: ui-sans-serif, system-ui, sans-serif; } .ds-nav-item { color: #cbd5e1; padding: 8px 12px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; line-height: 1.25rem; text-decoration: none; transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-nav-item:hover { background: color-mix(in oklab, #ffffff 5%, transparent); color: #ffffff; } .ds-nav-item--active { background: color-mix(in oklab, #ffffff 10%, transparent); color: #ffffff; } .ds-nav-item:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }"
+    },
+    {
+      "name": "Measurement Readout",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "The signature component. The number a contractor stakes a bid on: legible, unit-stated, confidence plain.",
+      "html": "<div class=\"ds-readout\"><span class=\"ds-readout-label\">Total roof area</span><span class=\"ds-readout-value\">2,847 <span class=\"ds-readout-unit\">sq ft</span></span><span class=\"ds-readout-note\">±2% from 148 photos</span></div>",
+      "css": ".ds-readout { display: flex; flex-direction: column; gap: 4px; background: color-mix(in oklab, #ffffff 5%, transparent); border: 1px solid color-mix(in oklab, #ffffff 10%, transparent); border-radius: 16px; padding: 24px; font-family: ui-sans-serif, system-ui, sans-serif; } .ds-readout-label { color: #94a3b8; font-size: 0.75rem; font-weight: 500; line-height: 1rem; letter-spacing: 0.025em; text-transform: uppercase; } .ds-readout-value { color: #22d3ee; font-size: 1.5rem; font-weight: 600; line-height: 2rem; } .ds-readout-unit { color: #cbd5e1; font-size: 0.875rem; font-weight: 400; } .ds-readout-note { color: #94a3b8; font-size: 0.75rem; line-height: 1rem; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Field Notebook",
+    "overview": "A field notebook is the least precious object on a job site and the most trusted. It is plain, durable, and legible in any light. Nobody admires it; everybody relies on it. Its virtue is that a measurement written in it can be read back six months later without ambiguity. Aernova's interface answers to that standard: the numbers are the content, and everything around them is there to keep them readable.\n\nThe system is dark and flat. A near-black navy ground (#020617) carries translucent white panels that layer without ever casting a shadow. Separation comes from a single hairline rule (#ffffff1a) and from tone — not from depth effects, gradients, or glow. This is the notebook's discipline expressed in a dark surface: ruled lines and plain paper, nothing embossed. Corners are generously soft (12-16px) so the system reads as unhurried rather than engineered.\n\nWhat this system rejects, in PRODUCT.md's words, is CAD and engineering complexity: exposed technical controls, dense parameter panels, and the vocabulary of the pipeline surfaced into the UI. Aernova performs photogrammetry and shows a roofer a number. The interface's job is to make that number plain, never to advertise the machinery that produced it.\n\nThe notebook metaphor carries one non-negotiable consequence: legibility is not a preference here, it is the whole premise. A notebook you cannot read is not a calm notebook, it is a broken one. Any contrast decision that trades readability for atmosphere has failed this North Star on its own terms.",
+    "keyCharacteristics": [
+      "Flat by doctrine — depth from tonal layering, never shadow",
+      "One hairline rule (#ffffff1a) does all structural separation",
+      "Small, dense, workmanlike type (14px body) — but never at the cost of contrast",
+      "Cyan reserved for measurement truth, not decoration",
+      "Soft radii (12-16px) to keep a technical product feeling unhurried"
+    ],
+    "rules": [
+      {
+        "name": "The Readout Rule",
+        "body": "Instrument Cyan means \"this is a measurement or the action that produces one.\" It is never a brand flourish, never a link color, never a decorative highlight. If cyan appears next to something a contractor cannot read a number off of or click to advance the job, it is misused.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Floor Rule",
+        "body": "#94a3b8 (Ink Muted, measured 7.87:1 on the ground) is the dimmest color permitted to carry text. Anything below it is prohibited outright. This rule is currently violated in ~102 places by text-slate-500 (#64748b), which measures 4.24:1 on the ground and 3.98:1 on a raised panel — below the 4.5:1 AA needs for body text. It clears the 3:1 large-text bar, so the failure is confined to the 14px body and 12px label sizes where it is mostly used. The margin is small; the fix is a find-and-replace to Ink Muted, not a redesign. The Field Notebook is legible or it is nothing.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Rule Rule",
+        "body": "All structural separation uses the hairline at one weight. No 2px borders, no colored stripes, no left-border accent bars. If a boundary needs more emphasis than a hairline, the answer is spacing or tone, not a heavier line.",
+        "section": "colors"
+      },
+      {
+        "name": "The Weight-Not-Size Rule",
+        "body": "Hierarchy between a label and its value is carried by weight and color, not by size. The system runs on two real sizes (14px and 12px); reaching for a third size to make something stand out is a failure of grouping, not a shortage of scale.",
+        "section": "typography"
+      },
+      {
+        "name": "The Uppercase Confinement Rule",
+        "body": "Uppercase is a label treatment only, at 12px with tracking. A measurement, a heading, or a sentence is never uppercased — it costs legibility, and legibility is the premise.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two-Layer Rule",
+        "body": "Ground → raised (5%) → lifted (10%). That is the entire elevation vocabulary. If a design needs a third layer, the layout is too nested; flatten it instead of inventing tone.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Scrim Rule",
+        "body": "Blur is permitted only where unpredictable content sits underneath — the viewer canvas, a sticky bar over scrolling content. It must always pair with an opaque scrim doing the real contrast work; blur alone is never the mechanism. On the ground, blur is prohibited.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Anti-Pattern Test",
+        "body": "If a panel appears to float above the page rather than sit on it, the treatment is wrong. Surfaces in this system rest; they do not hover.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use Instrument Cyan (#22d3ee) only for measurement truth and the primary action that advances the job — The Readout Rule.",
+      "Do express every border as the 1px hairline (#ffffff1a) at one weight.",
+      "Do build depth from the two-layer tonal scale (5% → 10% white) and nothing else.",
+      "Do keep body copy at 14px / Ink Secondary (#cbd5e1) and treat #94a3b8 as the absolute dimmest text on screen.",
+      "Do separate a label from its value with weight and color, never a third font size.",
+      "Do state units and confidence plainly next to any measurement — PRODUCT.md: \"a number presented with false precision is a liability the contractor absorbs, not us.\"",
+      "Do keep the (report) route on its light paper tokens. It is a printed document handed to a homeowner.",
+      "Do render a visible focus ring on every interactive element. WCAG 2.2 AA is the stated target."
+    ],
+    "donts": [
+      "Don't surface CAD and engineering complexity — PRODUCT.md's named anti-reference. No exposed parameter panels, no tolerance sliders, no dense technical control clusters in front of a contractor.",
+      "Don't put pipeline vocabulary on screen: facet, normal, mesh, RANSAC, tolerance, reconstruction. If it wouldn't be said on a roof, it isn't a label.",
+      "Don't add a shadow to a translucent panel on the dark ground. If it looks like it's floating, the treatment is wrong. An opaque paper surface (the proposal preview) is the exception.",
+      "Don't use backdrop-blur on the ground. It is permitted only over the viewer canvas or a sticky bar, and only alongside an opaque scrim — see The Scrim Rule.",
+      "Don't use text-slate-500 (#64748b) for body or label text on the dark ground. At 4.24:1 it misses AA's 4.5:1, and it breaks the North Star — a notebook you can't read is a broken notebook. Use Ink Muted (#94a3b8, 7.87:1) instead.",
+      "Don't signal an error, a warning, or a state with color alone. Always pair with text or an icon.",
+      "Don't uppercase anything larger than a 12px label.",
+      "Don't use a colored left-border stripe or a border heavier than 1px to emphasize a panel. Use spacing or tone.",
+      "Don't let Confirm Green (#10b981) mean \"in progress.\" It means done, and only done.",
+      "Don't introduce a webfont without a deliberate reason. The system stack is a considered choice, not a gap to fill."
+    ]
+  }
+}

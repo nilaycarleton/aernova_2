@@ -379,7 +379,11 @@ export function PrintReport({ report }: { report: ReportVm }) {
               return (
                 <div key={photo.id} className="break-inside-avoid rounded-2xl border border-slate-200 p-4">
                   <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
-                    <img src={photo.url} alt="" className="block aspect-video w-full object-cover" />
+                    <img
+                      src={photo.url}
+                      alt={photo.caption || photo.locationTag || photo.fileName || "Roof inspection photo"}
+                      className="block aspect-video w-full object-cover"
+                    />
                     <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                       {annotations.map((annotation) => {
                         const id = String(annotation.id ?? Math.random());
@@ -461,7 +465,11 @@ export function PrintReport({ report }: { report: ReportVm }) {
             <div className="mt-3 space-y-3 text-sm text-slate-700">
               {report.imagery.slice(0, 4).map((item) => (
                 <div key={item.id} className="flex gap-3 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
-                  <img src={item.url} alt="" className="h-16 w-20 rounded-lg object-cover" />
+                  <img
+                    src={item.url}
+                    alt={item.fileName ?? "Drone photo of the roof"}
+                    className="h-16 w-20 rounded-lg object-cover"
+                  />
                   <div>
                     <div className="font-semibold text-slate-900">{item.fileName ?? item.type}</div>
                     <div>{item.type} · {item.status.replaceAll("_", " ")} · {item.altitudeFt ? `${item.altitudeFt} ft` : "No altitude"}</div>
@@ -487,13 +495,13 @@ export function PrintReport({ report }: { report: ReportVm }) {
                   <div>
                     <div className="mb-1 text-xs uppercase tracking-[0.16em] text-slate-500">Before</div>
                     <div className="aspect-video overflow-hidden rounded-xl bg-slate-100">
-                      {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt="" className="h-full w-full object-cover" /> : null}
+                      {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt={`Before: ${comparison.title}`} className="h-full w-full object-cover" /> : null}
                     </div>
                   </div>
                   <div>
                     <div className="mb-1 text-xs uppercase tracking-[0.16em] text-slate-500">After</div>
                     <div className="aspect-video overflow-hidden rounded-xl bg-slate-100">
-                      {comparison.afterUrl ? <img src={comparison.afterUrl} alt="" className="h-full w-full object-cover" /> : null}
+                      {comparison.afterUrl ? <img src={comparison.afterUrl} alt={`After: ${comparison.title}`} className="h-full w-full object-cover" /> : null}
                     </div>
                   </div>
                 </div>

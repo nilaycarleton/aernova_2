@@ -39,7 +39,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
           ["Valley + drip", `${(totals.valleyLengthFt + totals.eaveLengthFt + totals.rakeLengthFt).toLocaleString()} ft`],
         ].map(([label, value]) => (
           <div key={label} className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-xs uppercase tracking-[0.14em] text-slate-500">{label}</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">{label}</p>
             <p className="mt-2 text-lg font-semibold text-white">{value}</p>
           </div>
         ))}
@@ -50,55 +50,55 @@ export function RoofSectionManager({ projectId, sections }: Props) {
         <input
           name="label"
           placeholder="Garage rear slope"
-          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400 md:col-span-2"
+          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400 md:col-span-2"
           required
         />
         <input
           name="pitchRatio"
           placeholder="6/12"
-          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
         />
         <input
           name="surfaceAreaSqft"
           type="number"
           step="0.01"
           placeholder="Area sq ft"
-          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
         />
         <input
           name="ridgeLengthFt"
           type="number"
           step="0.01"
           placeholder="Ridge ft"
-          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
         />
         <input
           name="hipLengthFt"
           type="number"
           step="0.01"
           placeholder="Hip ft"
-          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
         />
         <input
           name="valleyLengthFt"
           type="number"
           step="0.01"
           placeholder="Valley ft"
-          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
         />
         <input
           name="eaveLengthFt"
           type="number"
           step="0.01"
           placeholder="Eave ft"
-          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
         />
         <input
           name="rakeLengthFt"
           type="number"
           step="0.01"
           placeholder="Rake ft"
-          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+          className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
         />
         <button
           type="submit"
@@ -129,7 +129,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
                   name="pitchRatio"
                   defaultValue={section.pitchRatio ?? ""}
                   placeholder="Pitch"
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                 />
                 <input
                   name="projectedAreaSqft"
@@ -137,7 +137,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
                   step="0.01"
                   defaultValue={section.projectedAreaSqft ?? ""}
                   placeholder="Projected"
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                 />
                 <input
                   name="surfaceAreaSqft"
@@ -145,7 +145,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
                   step="0.01"
                   defaultValue={section.surfaceAreaSqft ?? ""}
                   placeholder="Surface"
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                 />
                 <input
                   name="ridgeLengthFt"
@@ -153,7 +153,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
                   step="0.01"
                   defaultValue={section.ridgeLengthFt ?? ""}
                   placeholder="Ridge"
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                 />
                 <input
                   name="hipLengthFt"
@@ -161,7 +161,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
                   step="0.01"
                   defaultValue={section.hipLengthFt ?? ""}
                   placeholder="Hip"
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                 />
                 <input
                   name="valleyLengthFt"
@@ -169,7 +169,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
                   step="0.01"
                   defaultValue={section.valleyLengthFt ?? ""}
                   placeholder="Valley"
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                 />
                 <input
                   name="eaveLengthFt"
@@ -177,7 +177,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
                   step="0.01"
                   defaultValue={section.eaveLengthFt ?? ""}
                   placeholder="Eave"
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                 />
                 <input
                   name="rakeLengthFt"
@@ -185,7 +185,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
                   step="0.01"
                   defaultValue={section.rakeLengthFt ?? ""}
                   placeholder="Rake"
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-ink-muted focus:border-blue-400"
                 />
                 <div className="flex gap-2 md:col-span-4 xl:col-span-9">
                   <button

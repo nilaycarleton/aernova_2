@@ -208,6 +208,7 @@ export function ModelMeasurementViewer({ modelPackage, previewUrl }: Props) {
           </>
         ) : (
           <div className="absolute inset-0 grid place-items-center p-8 text-center">
+            {/* Decorative backdrop behind the empty-state message; alt="" is intentional. */}
             {previewUrl ? (
               <img src={previewUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
             ) : null}
@@ -222,7 +223,7 @@ export function ModelMeasurementViewer({ modelPackage, previewUrl }: Props) {
       </div>
 
       {glbUrl && view === "model" ? (
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-ink-muted">
           Drag to rotate · scroll to zoom. Use the measurement tool below to measure the roof.
         </p>
       ) : null}

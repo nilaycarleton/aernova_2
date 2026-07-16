@@ -151,7 +151,7 @@ export function RoofExtractionPanel({
             <span className="font-semibold text-sky-300">3.</span> Get measurements — they save automatically
           </li>
         </ol>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-ink-muted">
           Your measurements save as roof sections you can edit below. Measuring again replaces them.
         </p>
       </div>
@@ -202,7 +202,7 @@ export function RoofExtractionPanel({
                 {extracting ? "Measuring…" : "Measure roof"}
               </button>
             </div>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-ink-muted">
               {polygon.length} point{polygon.length === 1 ? "" : "s"} • elevation {preview.baseElevationM}m–
               {preview.topElevationM}m
             </p>
@@ -241,7 +241,7 @@ export function RoofExtractionPanel({
                   </dd>
                 </dl>
                 <div>
-                  <p className="mb-1 text-xs uppercase tracking-wide text-slate-500">Pitch breakdown</p>
+                  <p className="mb-1 text-xs uppercase tracking-wide text-ink-muted">Pitch breakdown</p>
                   <ul className="space-y-1">
                     {result.pitchBreakdown.slice(0, 5).map((row) => (
                       <li key={row.pitch} className="flex justify-between text-xs">
@@ -253,7 +253,7 @@ export function RoofExtractionPanel({
                     ))}
                   </ul>
                 </div>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-ink-muted">
                   {result.sectionsCreated} roof sections saved · {result.diagnostics.trianglesSegmented.toLocaleString()} of{" "}
                   {result.diagnostics.trianglesInRoi.toLocaleString()} mesh triangles in region segmented
                 </p>

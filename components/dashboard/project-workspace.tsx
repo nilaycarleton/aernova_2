@@ -50,7 +50,7 @@ export function ProjectWorkspace({
               }`}
             >
               <span className="block text-sm font-semibold">{t.label}</span>
-              <span className={`mt-0.5 hidden text-xs sm:block ${active ? "text-slate-800" : "text-slate-500"}`}>{t.hint}</span>
+              <span className={`mt-0.5 hidden text-xs sm:block ${active ? "text-slate-800" : "text-ink-muted"}`}>{t.hint}</span>
             </button>
           );
         })}
