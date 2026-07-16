@@ -78,14 +78,14 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
   if (projects.length === 0) {
     return (
       <div className="rounded-3xl border border-dashed border-white/15 p-10 text-center">
-        <p className="text-lg font-medium text-white">Let&apos;s create your first roof project</p>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-400">
+        <p className="text-lg font-medium text-ink-primary">Let&apos;s create your first roof project</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-muted">
           Add the client and address, upload your drone photos, and Aernova builds a 3D model you
           can measure and turn into a quote.
         </p>
         <Link
           href="/projects/new"
-          className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500"
+          className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
         >
           New project
         </Link>
@@ -101,13 +101,13 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by project, client, or address…"
-          className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950/60 px-4 py-2 text-sm text-white placeholder:text-ink-muted focus:border-sky-500/50 focus:outline-none"
+          className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/60 px-4 py-2 text-sm text-ink-primary placeholder:text-ink-muted focus:border-sky-500/50 focus:outline-none"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | "ALL")}
           aria-label="Filter by status"
-          className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-200"
+          className="rounded-xl border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong"
         >
           <option value="ALL">All statuses</option>
           {ALL_STATUSES.map((s) => (
@@ -120,7 +120,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
           value={sort}
           onChange={(e) => setSort(e.target.value as SortKey)}
           aria-label="Sort projects"
-          className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-200"
+          className="rounded-xl border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong"
         >
           <option value="recent">Recently updated</option>
           <option value="name">Name (A–Z)</option>
@@ -133,7 +133,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
       </p>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 p-10 text-center text-slate-400">
+        <div className="rounded-2xl border border-dashed border-hairline p-10 text-center text-ink-muted">
           No projects match your filters.
         </div>
       ) : (
@@ -142,12 +142,12 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
             <div key={project.id} className="relative">
               <Link
                 href={`/projects/${project.id}`}
-                className="block rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:bg-white/10"
+                className="block rounded-2xl border border-hairline bg-surface-raised p-5 transition hover:bg-surface-lifted"
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div className="min-w-0">
-                    <h4 className="truncate text-lg font-semibold text-white">{project.name}</h4>
-                    <p className="mt-1 text-sm text-slate-400">{project.clientName}</p>
+                    <h4 className="truncate text-lg font-semibold text-ink-primary">{project.name}</h4>
+                    <p className="mt-1 text-sm text-ink-muted">{project.clientName}</p>
                     <p className="mt-2 truncate text-sm text-ink-muted">
                       {project.addressLine1}, {project.city}, {project.province}
                     </p>
@@ -161,7 +161,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
                   </span>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-3 pr-20 text-sm text-slate-400">
+                <div className="mt-4 flex flex-wrap gap-3 pr-20 text-sm text-ink-muted">
                   <span>{project.measurements} measurements</span>
                   <span>•</span>
                   <span>{project.issues} issues</span>

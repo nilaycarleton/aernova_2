@@ -69,10 +69,10 @@ function StepBadge({ n, state }: { n: number; state: StepState }) {
     <span
       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
         state === "done"
-          ? "bg-emerald-500/85 text-slate-950"
+          ? "bg-confirm/85 text-ground"
           : state === "current"
-            ? "bg-cyan-400 text-slate-950"
-            : "bg-white/10 text-ink-muted"
+            ? "bg-instrument text-ground"
+            : "bg-surface-lifted text-ink-muted"
       }`}
     >
       {state === "done" ? "✓" : n}
@@ -97,15 +97,15 @@ function StepCard({
     <div
       className={`min-w-0 rounded-3xl border p-6 transition ${
         state === "current"
-          ? "border-cyan-300/25 bg-cyan-300/[0.04]"
-          : "border-white/10 bg-white/5"
+          ? "border-instrument-bright/25 bg-instrument-bright/[0.04]"
+          : "border-hairline bg-surface-raised"
       } ${state === "todo" ? "opacity-60" : ""}`}
     >
       <div className="flex items-center gap-3">
         <StepBadge n={n} state={state} />
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
-          {hint ? <p className="text-sm text-slate-400">{hint}</p> : null}
+          <h3 className="text-lg font-semibold text-ink-primary">{title}</h3>
+          {hint ? <p className="text-sm text-ink-muted">{hint}</p> : null}
         </div>
       </div>
       <div className="mt-5">{children}</div>
@@ -173,9 +173,9 @@ export function PhaseSixWorkflow({
     <section className="min-w-0 max-w-full space-y-5 overflow-hidden">
       <ProcessingJobPoller projectId={projectId} activeJobs={activeJob ? 1 : 0} />
 
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/8 to-white/5 p-6">
-        <h2 className="text-2xl font-semibold text-white">Roof scan</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+      <div className="rounded-3xl border border-hairline bg-gradient-to-br from-white/8 to-white/5 p-6">
+        <h2 className="text-2xl font-semibold text-ink-primary">Roof scan</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">
           Turn your drone photos into a 3D model of the roof, then measure it. Just follow the
           three steps below — we handle the rest.
         </p>
@@ -215,11 +215,11 @@ export function PhaseSixWorkflow({
                   alt={item.fileName ?? "Drone photo of the roof"}
                   loading="lazy"
                   decoding="async"
-                  className="h-16 w-20 shrink-0 rounded-lg border border-white/10 object-cover"
+                  className="h-16 w-20 shrink-0 rounded-lg border border-hairline object-cover"
                 />
               ))}
               {photos.length > filmstrip.length ? (
-                <div className="grid h-16 w-20 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/5 text-xs text-slate-400">
+                <div className="grid h-16 w-20 shrink-0 place-items-center rounded-lg border border-hairline bg-surface-raised text-xs text-ink-muted">
                   +{photos.length - filmstrip.length}
                 </div>
               ) : null}
@@ -242,17 +242,17 @@ export function PhaseSixWorkflow({
         }
       >
         {!hasPhotos ? (
-          <p className="text-sm text-slate-400">Add photos in step 1 first.</p>
+          <p className="text-sm text-ink-muted">Add photos in step 1 first.</p>
         ) : building ? (
-          <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-4">
+          <div className="rounded-2xl border border-instrument-bright/20 bg-instrument-bright/5 p-4">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-white">Building your 3D model…</p>
+              <p className="text-sm font-medium text-ink-primary">Building your 3D model…</p>
               <span className="text-sm text-cyan-100">{progress}%</span>
             </div>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full bg-cyan-300 transition-all" style={{ width: `${progress}%` }} />
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-lifted">
+              <div className="h-full rounded-full bg-instrument-bright transition-all" style={{ width: `${progress}%` }} />
             </div>
-            <p className="mt-3 text-xs leading-5 text-slate-400">
+            <p className="mt-3 text-xs leading-5 text-ink-muted">
               This usually takes 10–30 minutes. You can leave this page and come back — it keeps working.
             </p>
           </div>
@@ -300,8 +300,8 @@ export function PhaseSixWorkflow({
                     : null;
               return glbUrl ? (
                 <div className="mt-6">
-                  <h4 className="mb-1 text-sm font-semibold text-white">Measure on the model</h4>
-                  <p className="mb-3 text-xs text-slate-400">
+                  <h4 className="mb-1 text-sm font-semibold text-ink-primary">Measure on the model</h4>
+                  <p className="mb-3 text-xs text-ink-muted">
                     Pick a tool and click the 3D model to measure distances, roof areas, pitch, and height, or drop
                     markers — all in real-world units.
                   </p>
@@ -316,7 +316,7 @@ export function PhaseSixWorkflow({
                       <input type="hidden" name="projectId" value={projectId} />
                       <SubmitButton
                         pendingText="Building estimate…"
-                        className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-400/20 disabled:opacity-60"
+                        className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 disabled:opacity-60"
                       >
                         Generate estimate from these measurements
                       </SubmitButton>
@@ -325,7 +325,7 @@ export function PhaseSixWorkflow({
                       <input type="hidden" name="projectId" value={projectId} />
                       <SubmitButton
                         pendingText="Saving…"
-                        className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10 disabled:opacity-60"
+                        className="rounded-xl border border-white/15 bg-surface-raised px-4 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-lifted disabled:opacity-60"
                       >
                         Save to project measurements
                       </SubmitButton>
@@ -339,7 +339,7 @@ export function PhaseSixWorkflow({
             })()}
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-ink-muted">
                 Draw a box around the roof in the measurement tool below to get area, pitch, and squares.
               </p>
               <form action={materializeDroneMeasurementsAction}>
@@ -355,19 +355,19 @@ export function PhaseSixWorkflow({
             </div>
           </>
         ) : (
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-ink-muted">
             Once your 3D model is built, you&apos;ll be able to spin it around and measure the roof here.
           </p>
         )}
       </StepCard>
 
       {/* Optional: before / after photos */}
-      <details className="min-w-0 rounded-3xl border border-white/10 bg-white/5">
-        <summary className="cursor-pointer px-6 py-4 text-sm font-medium text-white">
+      <details className="min-w-0 rounded-3xl border border-hairline bg-surface-raised">
+        <summary className="cursor-pointer px-6 py-4 text-sm font-medium text-ink-primary">
           Before &amp; after photos (optional)
         </summary>
-        <div className="border-t border-white/10 p-6">
-          <p className="text-sm text-slate-400">
+        <div className="border-t border-hairline p-6">
+          <p className="text-sm text-ink-muted">
             Create a simple before/after sheet for the homeowner or insurance file.
           </p>
           <form action={createRoofComparisonAction} className="mt-4 grid gap-3 md:grid-cols-2">
@@ -375,23 +375,23 @@ export function PhaseSixWorkflow({
             <input
               name="title"
               placeholder="e.g. Front slope — before and after"
-              className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400 md:col-span-2"
+              className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400 md:col-span-2"
               required
             />
-            <select name="beforeUrl" defaultValue="" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400">
+            <select name="beforeUrl" defaultValue="" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400">
               <option value="">Choose a &quot;before&quot; photo</option>
               {beforeImages.map((item) => (
                 <option key={item.id} value={item.url}>{item.fileName ?? "Before photo"}</option>
               ))}
             </select>
-            <select name="afterUrl" defaultValue="" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400">
+            <select name="afterUrl" defaultValue="" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400">
               <option value="">Choose an &quot;after&quot; photo</option>
               {afterImages.map((item) => (
                 <option key={item.id} value={item.url}>{item.fileName ?? "After photo"}</option>
               ))}
             </select>
-            <textarea name="summary" rows={2} placeholder="Optional note" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400 md:col-span-2" />
-            <button type="submit" className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500 md:col-span-2">
+            <textarea name="summary" rows={2} placeholder="Optional note" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400 md:col-span-2" />
+            <button type="submit" className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue md:col-span-2">
               Create comparison
             </button>
           </form>
@@ -399,17 +399,17 @@ export function PhaseSixWorkflow({
           {comparisons.length > 0 ? (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               {comparisons.map((comparison) => (
-                <div key={comparison.id} className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-                  <p className="font-medium text-white">{comparison.title}</p>
+                <div key={comparison.id} className="rounded-2xl border border-hairline bg-ground/45 p-4">
+                  <p className="font-medium text-ink-primary">{comparison.title}</p>
                   <div className="mt-3 grid grid-cols-2 gap-3">
-                    <div className="aspect-video overflow-hidden rounded-xl bg-slate-950">
+                    <div className="aspect-video overflow-hidden rounded-xl bg-ground">
                       {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt={`Before: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
                     </div>
-                    <div className="aspect-video overflow-hidden rounded-xl bg-slate-950">
+                    <div className="aspect-video overflow-hidden rounded-xl bg-ground">
                       {comparison.afterUrl ? <img src={comparison.afterUrl} alt={`After: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
                     </div>
                   </div>
-                  {comparison.summary ? <p className="mt-3 text-sm leading-6 text-slate-400">{comparison.summary}</p> : null}
+                  {comparison.summary ? <p className="mt-3 text-sm leading-6 text-ink-muted">{comparison.summary}</p> : null}
                 </div>
               ))}
             </div>
@@ -418,20 +418,20 @@ export function PhaseSixWorkflow({
       </details>
 
       {/* Technical details — hidden by default */}
-      <details className="min-w-0 rounded-3xl border border-white/10 bg-white/5">
-        <summary className="cursor-pointer px-6 py-4 text-sm font-medium text-slate-300">
+      <details className="min-w-0 rounded-3xl border border-hairline bg-surface-raised">
+        <summary className="cursor-pointer px-6 py-4 text-sm font-medium text-ink-secondary">
           Technical details
         </summary>
-        <div className="space-y-4 border-t border-white/10 p-6 text-sm">
+        <div className="space-y-4 border-t border-hairline p-6 text-sm">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-slate-400">3D processor:</span>
+            <span className="text-ink-muted">3D processor:</span>
             <span
               className={`rounded-full border px-3 py-1 text-xs ${
                 workerHealth.online
                   ? "border-emerald-300/30 bg-emerald-400/10 text-emerald-100"
                   : workerHealth.configured
                     ? "border-amber-300/30 bg-amber-400/10 text-amber-100"
-                    : "border-slate-300/20 bg-slate-400/10 text-slate-300"
+                    : "border-ink-secondary/20 bg-ink-muted/10 text-ink-secondary"
               }`}
             >
               {workerHealth.online ? "connected" : workerHealth.configured ? "not reachable" : "not set up"}
@@ -440,7 +440,7 @@ export function PhaseSixWorkflow({
               <form action={syncNodeOdmTaskAction} className="ml-auto">
                 <input type="hidden" name="projectId" value={projectId} />
                 <input type="hidden" name="imageryId" value={latestModel.id} />
-                <button type="submit" className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:bg-white/10">
+                <button type="submit" className="rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-ink-strong transition hover:bg-surface-lifted">
                   Refresh status
                 </button>
               </form>
@@ -450,7 +450,7 @@ export function PhaseSixWorkflow({
           {processingJobs.length > 0 ? (
             <div className="grid gap-2 md:grid-cols-2">
               {processingJobs.slice(0, 4).map((job) => (
-                <div key={job.id} className="rounded-xl bg-white/5 p-3 text-xs text-slate-300">
+                <div key={job.id} className="rounded-xl bg-surface-raised p-3 text-xs text-ink-secondary">
                   {job.provider} · {job.status.replaceAll("_", " ").toLowerCase()}
                   {typeof job.progress === "number" ? ` · ${Math.round(job.progress)}%` : ""}
                 </div>
@@ -463,7 +463,7 @@ export function PhaseSixWorkflow({
           {modelReady && latestModel ? (
             <a
               href={`/api/projects/${projectId}/processing/${latestModel.id}/download`}
-              className="inline-flex rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-cyan-100 transition hover:bg-white/10"
+              className="inline-flex rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-cyan-100 transition hover:bg-surface-lifted"
             >
               Download all model files (.zip)
             </a>

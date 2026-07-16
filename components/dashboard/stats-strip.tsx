@@ -23,12 +23,12 @@ export function StatsStrip({
       {cards.map((card) => (
         <div
           key={card.label}
-          className="rounded-2xl border border-white/10 bg-white/5 p-5"
+          className="rounded-2xl border border-hairline bg-surface-raised p-5"
         >
           <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">
             {card.label}
           </p>
-          <p className="mt-2 text-2xl font-semibold text-white">
+          <p className="mt-2 text-2xl font-semibold text-ink-primary">
             {card.value}
           </p>
         </div>

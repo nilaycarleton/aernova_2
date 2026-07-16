@@ -6,7 +6,7 @@ export function MeasurementList({
   measurements: Measurement[];
 }) {
   if (measurements.length === 0) {
-    return <p className="mt-4 text-sm text-slate-400">No measurements yet.</p>;
+    return <p className="mt-4 text-sm text-ink-muted">No measurements yet.</p>;
   }
 
   return (
@@ -14,14 +14,14 @@ export function MeasurementList({
       {measurements.map((measurement) => (
         <div
           key={measurement.id}
-          className="rounded-2xl border border-white/10 bg-slate-950/50 p-4"
+          className="rounded-2xl border border-hairline bg-ground/50 p-4"
         >
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">
                 {measurement.type}
               </p>
-              <p className="mt-1 font-medium text-white">{measurement.label}</p>
+              <p className="mt-1 font-medium text-ink-primary">{measurement.label}</p>
             </div>
 
             <div className="text-right">

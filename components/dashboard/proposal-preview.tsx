@@ -37,9 +37,9 @@ export function ProposalPreview({
 }) {
   if (!proposal) {
     return (
-      <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
-        <p className="text-sm uppercase tracking-[0.18em] text-slate-400">Client-ready preview</p>
-        <p className="mt-3 text-sm text-slate-400">
+      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Client-ready preview</p>
+        <p className="mt-3 text-sm text-ink-muted">
           Save a proposal draft to see the client-facing version here.
         </p>
       </section>
@@ -52,26 +52,26 @@ export function ProposalPreview({
   const legacyLineItems = scope.customLineItems ?? [];
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
-      <p className="text-sm uppercase tracking-[0.18em] text-slate-400">Client-ready preview</p>
-      <h3 className="mt-2 text-lg font-semibold text-white">How the client sees this proposal</h3>
+    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Client-ready preview</p>
+      <h3 className="mt-2 text-lg font-semibold text-ink-primary">How the client sees this proposal</h3>
 
       {/* Light "document" surface so it reads like the printed proposal. */}
-      <article className="mt-5 rounded-2xl bg-white p-8 text-slate-800 shadow-xl">
-        <header className="flex items-start justify-between border-b border-slate-200 pb-4">
+      <article className="mt-5 rounded-2xl bg-paper-document p-8 text-paper-ink-strong shadow-xl">
+        <header className="flex items-start justify-between border-b border-paper-rule pb-4">
           <div>
-            <p className="text-lg font-bold text-slate-900">{companyName}</p>
-            <p className="text-sm text-slate-500">Roofing proposal</p>
+            <p className="text-lg font-bold text-paper-ink">{companyName}</p>
+            <p className="text-sm text-paper-ink-faint">Roofing proposal</p>
           </div>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+          <span className="rounded-full bg-paper px-3 py-1 text-xs font-medium text-paper-ink-muted">
             {proposal.status}
           </span>
         </header>
 
         <div className="mt-5 flex items-baseline justify-between">
-          <h4 className="text-xl font-semibold text-slate-900">{proposal.title}</h4>
+          <h4 className="text-xl font-semibold text-paper-ink">{proposal.title}</h4>
           {typeof proposal.totalAmount === "number" && (
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-paper-ink">
               ${proposal.totalAmount.toLocaleString()}
             </p>
           )}
@@ -79,8 +79,8 @@ export function ProposalPreview({
 
         {scope.plainTextScope && (
           <div className="mt-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Scope of work</p>
-            <p className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">
+            <p className="text-xs font-semibold uppercase tracking-wide text-paper-ink-faint">Scope of work</p>
+            <p className="mt-1 whitespace-pre-line text-sm leading-6 text-paper-ink-body">
               {scope.plainTextScope}
             </p>
           </div>
@@ -88,25 +88,25 @@ export function ProposalPreview({
 
         {lineItems.length > 0 ? (
           <div className="mt-6">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Estimate</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-paper-ink-faint">Estimate</p>
             <table className="mt-2 w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr className="border-b border-paper-rule text-left text-xs uppercase tracking-wide text-paper-ink-faint">
                   <th className="py-2 font-medium">Item</th>
                   <th className="py-2 text-right font-medium">Qty</th>
                   <th className="py-2 text-right font-medium">Unit price</th>
                   <th className="py-2 text-right font-medium">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-paper">
                 {lineItems.map((li, i) => (
                   <tr key={i}>
-                    <td className="py-2 pr-2 text-slate-700">{li.description}</td>
-                    <td className="py-2 text-right tabular-nums text-slate-600">
+                    <td className="py-2 pr-2 text-paper-ink-body">{li.description}</td>
+                    <td className="py-2 text-right tabular-nums text-paper-ink-muted">
                       {li.quantity.toLocaleString()} {li.unit}
                     </td>
-                    <td className="py-2 text-right tabular-nums text-slate-600">${li.unitCost.toLocaleString()}</td>
-                    <td className="py-2 text-right font-medium tabular-nums text-slate-800">${li.amount.toLocaleString()}</td>
+                    <td className="py-2 text-right tabular-nums text-paper-ink-muted">${li.unitCost.toLocaleString()}</td>
+                    <td className="py-2 text-right font-medium tabular-nums text-paper-ink-strong">${li.amount.toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -116,7 +116,7 @@ export function ProposalPreview({
                 <TotalRow label="Subtotal" value={totals.subtotal} />
                 <TotalRow label={`Overhead & profit (${totals.markupPercent}%)`} value={totals.markupAmount} />
                 <TotalRow label={`Tax (${totals.taxPercent}%)`} value={totals.taxAmount} />
-                <div className="flex justify-between border-t border-slate-200 pt-1.5 text-base font-bold text-slate-900">
+                <div className="flex justify-between border-t border-paper-rule pt-1.5 text-base font-bold text-paper-ink">
                   <span>Total</span>
                   <span>${totals.total.toLocaleString()}</span>
                 </div>
@@ -125,10 +125,10 @@ export function ProposalPreview({
           </div>
         ) : legacyLineItems.length > 0 ? (
           <div className="mt-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Line items</p>
-            <ul className="mt-2 divide-y divide-slate-100 border-y border-slate-100">
+            <p className="text-xs font-semibold uppercase tracking-wide text-paper-ink-faint">Line items</p>
+            <ul className="mt-2 divide-y divide-paper border-y border-paper">
               {legacyLineItems.map((item, i) => (
-                <li key={i} className="py-2 text-sm text-slate-700">
+                <li key={i} className="py-2 text-sm text-paper-ink-body">
                   {item}
                 </li>
               ))}
@@ -138,26 +138,26 @@ export function ProposalPreview({
 
         {scope.notes && (
           <div className="mt-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Notes</p>
-            <p className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">{scope.notes}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-paper-ink-faint">Notes</p>
+            <p className="mt-1 whitespace-pre-line text-sm leading-6 text-paper-ink-body">{scope.notes}</p>
           </div>
         )}
 
-        <footer className="mt-8 border-t border-slate-200 pt-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <footer className="mt-8 border-t border-paper-rule pt-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-paper-ink-faint">
             Acceptance
           </p>
           {scope.acceptance?.name ? (
-            <p className="mt-2 text-sm text-slate-700">
+            <p className="mt-2 text-sm text-paper-ink-body">
               Accepted by <span className="font-semibold">{scope.acceptance.name}</span>
               {scope.acceptance.date ? ` on ${scope.acceptance.date}` : ""}
             </p>
           ) : (
             <div className="mt-4 flex flex-wrap gap-10">
-              <div className="min-w-[180px] border-b border-slate-400 pb-1 text-xs text-slate-500">
+              <div className="min-w-[180px] border-b border-paper-ink-faint pb-1 text-xs text-paper-ink-faint">
                 Client signature
               </div>
-              <div className="min-w-[120px] border-b border-slate-400 pb-1 text-xs text-slate-500">
+              <div className="min-w-[120px] border-b border-paper-ink-faint pb-1 text-xs text-paper-ink-faint">
                 Date
               </div>
             </div>

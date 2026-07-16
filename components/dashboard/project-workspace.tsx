@@ -34,7 +34,7 @@ export function ProjectWorkspace({
       <div
         role="tablist"
         aria-label="Project sections"
-        className="sticky top-2 z-20 flex gap-1 rounded-2xl border border-white/10 bg-slate-950/80 p-1 backdrop-blur"
+        className="sticky top-2 z-20 flex gap-1 rounded-2xl border border-hairline bg-ground/80 p-1 backdrop-blur"
       >
         {TABS.map((t) => {
           const active = tab === t.key;
@@ -46,7 +46,7 @@ export function ProjectWorkspace({
               aria-selected={active}
               onClick={() => setTab(t.key)}
               className={`flex-1 rounded-xl px-3 py-2.5 text-center transition sm:px-4 sm:py-3 sm:text-left ${
-                active ? "bg-cyan-400 text-slate-950" : "text-slate-300 hover:bg-white/5"
+                active ? "bg-instrument text-ground" : "text-ink-secondary hover:bg-surface-raised"
               }`}
             >
               <span className="block text-sm font-semibold">{t.label}</span>

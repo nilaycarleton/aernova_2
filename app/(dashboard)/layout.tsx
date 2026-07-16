@@ -14,10 +14,10 @@ export default async function DashboardLayout({
     <div className="grid min-h-screen w-full max-w-full grid-cols-1 overflow-x-hidden lg:grid-cols-[260px_minmax(0,1fr)]">
       <AppSidebar />
       <div className="flex min-h-screen min-w-0 flex-col">
-        <header className="flex h-16 min-w-0 items-center justify-between gap-4 border-b border-white/10 px-4 md:px-6">
+        <header className="flex h-16 min-w-0 items-center justify-between gap-4 border-b border-hairline px-4 md:px-6">
           <div className="min-w-0">
-            <p className="text-sm text-slate-400">Welcome back, {displayName}</p>
-            <h1 className="truncate text-lg font-semibold text-white">{company.name}</h1>
+            <p className="text-sm text-ink-muted">Welcome back, {displayName}</p>
+            <h1 className="truncate text-lg font-semibold text-ink-primary">{company.name}</h1>
           </div>
 
           <div className="flex shrink-0 items-center gap-3">
