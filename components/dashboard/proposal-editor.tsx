@@ -49,17 +49,17 @@ export function ProposalEditor({ projectId, latestProposal }: Props) {
   const draft = parseScope(latestProposal);
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
+    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
+          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
             Proposal Editor
           </p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">
+          <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
             Editable title, scope, notes, and line items
           </h3>
         </div>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-ink-muted">
           Version saved on each draft update
         </p>
       </div>
@@ -69,98 +69,98 @@ export function ProposalEditor({ projectId, latestProposal }: Props) {
         <input type="hidden" name="proposalId" value={latestProposal?.id ?? ""} />
 
         <div>
-          <label htmlFor="proposal-title" className="mb-2 block text-sm text-slate-300">Proposal title</label>
+          <label htmlFor="proposal-title" className="mb-2 block text-sm text-ink-secondary">Proposal title</label>
           <input
             id="proposal-title"
             name="title"
             defaultValue={latestProposal?.title ?? "Roofing proposal"}
-            className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-cyan-400"
+            className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
             required
           />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="proposal-totalAmount" className="mb-2 block text-sm text-slate-300">Total amount</label>
+            <label htmlFor="proposal-totalAmount" className="mb-2 block text-sm text-ink-secondary">Total amount</label>
             <input
               id="proposal-totalAmount"
               name="totalAmount"
               type="number"
               step="0.01"
               defaultValue={latestProposal?.totalAmount ?? ""}
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-cyan-400"
+              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
             />
           </div>
           <div>
-            <label htmlFor="proposal-optionalMarkup" className="mb-2 block text-sm text-slate-300">Optional markup %</label>
+            <label htmlFor="proposal-optionalMarkup" className="mb-2 block text-sm text-ink-secondary">Optional markup %</label>
             <input
               id="proposal-optionalMarkup"
               name="optionalMarkup"
               type="number"
               step="0.01"
               defaultValue={draft.optionalMarkup}
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-cyan-400"
+              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
             />
           </div>
         </div>
 
         <div className="md:col-span-2">
-          <label htmlFor="proposal-scope" className="mb-2 block text-sm text-slate-300">Scope of work</label>
+          <label htmlFor="proposal-scope" className="mb-2 block text-sm text-ink-secondary">Scope of work</label>
           <textarea
             id="proposal-scope"
             name="scope"
             rows={5}
             defaultValue={draft.scope}
-            className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-cyan-400"
+            className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
           />
         </div>
 
         <div>
-          <label htmlFor="proposal-customLineItems" className="mb-2 block text-sm text-slate-300">Custom line items</label>
+          <label htmlFor="proposal-customLineItems" className="mb-2 block text-sm text-ink-secondary">Custom line items</label>
           <textarea
             id="proposal-customLineItems"
             name="customLineItems"
             rows={4}
             defaultValue={draft.customLineItems}
             placeholder="One optional line item per line"
-            className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
+            className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
           />
         </div>
 
         <div>
-          <label htmlFor="proposal-notes" className="mb-2 block text-sm text-slate-300">Proposal notes</label>
+          <label htmlFor="proposal-notes" className="mb-2 block text-sm text-ink-secondary">Proposal notes</label>
           <textarea
             id="proposal-notes"
             name="notes"
             rows={4}
             defaultValue={draft.notes}
             placeholder="Financing notes, exclusions, warranty terms, homeowner notes"
-            className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
+            className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
           />
         </div>
 
-        <div className="md:col-span-2 grid gap-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4 sm:grid-cols-2">
-          <p className="text-sm font-medium text-slate-300 sm:col-span-2">
+        <div className="md:col-span-2 grid gap-4 rounded-2xl border border-hairline bg-ground/40 p-4 sm:grid-cols-2">
+          <p className="text-sm font-medium text-ink-secondary sm:col-span-2">
             Client acceptance (signature section)
           </p>
           <div>
-            <label htmlFor="proposal-acceptedByName" className="mb-2 block text-xs text-slate-400">Accepted by (client name)</label>
+            <label htmlFor="proposal-acceptedByName" className="mb-2 block text-xs text-ink-muted">Accepted by (client name)</label>
             <input
               id="proposal-acceptedByName"
               name="acceptedByName"
               defaultValue={draft.acceptedByName}
               placeholder="Client name as signed"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-cyan-400"
+              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
             />
           </div>
           <div>
-            <label htmlFor="proposal-acceptedDate" className="mb-2 block text-xs text-slate-400">Date accepted</label>
+            <label htmlFor="proposal-acceptedDate" className="mb-2 block text-xs text-ink-muted">Date accepted</label>
             <input
               id="proposal-acceptedDate"
               name="acceptedDate"
               type="date"
               defaultValue={draft.acceptedDate}
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-cyan-400"
+              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
             />
           </div>
         </div>
@@ -168,7 +168,7 @@ export function ProposalEditor({ projectId, latestProposal }: Props) {
         <div className="md:col-span-2">
           <button
             type="submit"
-            className="rounded-xl bg-cyan-500 px-5 py-3 text-sm font-medium text-slate-950 transition hover:bg-cyan-400"
+            className="rounded-xl bg-instrument-deep px-5 py-3 text-sm font-medium text-ground transition hover:bg-instrument"
           >
             Save Proposal Draft
           </button>

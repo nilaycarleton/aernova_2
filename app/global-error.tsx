@@ -20,17 +20,17 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-950 text-white antialiased">
+      <body className="min-h-screen bg-ground text-ink-primary antialiased">
         <main className="flex min-h-screen items-center justify-center p-6">
-          <div className="max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
+          <div className="max-w-md rounded-3xl border border-hairline bg-surface-raised p-8 text-center">
             <h1 className="text-2xl font-semibold">Something went wrong</h1>
-            <p className="mt-3 text-sm text-slate-400">
+            <p className="mt-3 text-sm text-ink-muted">
               {error.message || "An unexpected error occurred."}
             </p>
             <button
               type="button"
               onClick={reset}
-              className="mt-6 rounded-xl border border-white/10 bg-sky-500/20 px-4 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-500/30"
+              className="mt-6 rounded-xl border border-hairline bg-sky-500/20 px-4 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-500/30"
             >
               Try again
             </button>

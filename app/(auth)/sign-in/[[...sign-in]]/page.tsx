@@ -2,7 +2,7 @@ import { SignIn } from "@clerk/nextjs";
 
 export default function SignInPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6">
+    <main className="flex min-h-screen items-center justify-center bg-ground p-6">
       <SignIn signUpUrl="/sign-up" fallbackRedirectUrl="/dashboard" />
     </main>
   );

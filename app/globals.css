@@ -4,35 +4,49 @@
  * Design tokens. The semantic names here are the ones DESIGN.md is written in;
  * prefer them over raw palette utilities (`text-ink-muted`, not `text-slate-400`)
  * so a palette decision can be made in one place instead of across 20+ files.
+ *
+ * Values are OKLCH and match Tailwind v4's own palette exactly, so aliasing a
+ * utility to a token is value-preserving. Do not "simplify" these to the v3 hex
+ * equivalents: v4's cyan-400 is oklch(78.9% 0.154 211.53) = #00d3f2, which is a
+ * visibly different colour from the v3 #22d3ee it superseded.
  */
 @theme {
-  /* Surfaces. Depth is tonal only — see the Two-Layer Rule in DESIGN.md. */
-  --color-ground: #020617;
+  /* Surfaces. Depth is tonal only — see the Two-Layer Rule in DESIGN.md.
+     `ground` carries alpha variants throughout (bg-ground/50, /80, /85). */
+  --color-ground: oklch(12.9% 0.042 264.695); /* = slate-950 */
   --color-surface-raised: rgb(255 255 255 / 0.05);
   --color-surface-lifted: rgb(255 255 255 / 0.1);
   --color-hairline: rgb(255 255 255 / 0.1);
 
-  /* Text. Ink Muted is the contrast floor: 7.87:1 on ground. Nothing dimmer
-     may carry text — anything below it fails WCAG 2.2 AA at our type sizes. */
-  --color-ink-primary: #ffffff;
-  --color-ink-secondary: #cbd5e1;
-  --color-ink-muted: #94a3b8;
+  /* Text. Ink Muted is the contrast floor at 7.66:1 on ground — nothing dimmer
+     may carry text. slate-500 (4.23:1) is below AA at our type sizes. */
+  --color-ink-primary: #fff;
+  --color-ink-strong: oklch(92.9% 0.013 255.508); /* = slate-200 */
+  --color-ink-secondary: oklch(86.9% 0.022 252.894); /* = slate-300 */
+  --color-ink-muted: oklch(70.4% 0.04 256.788); /* = slate-400 */
 
   /* Instrument Cyan is the readout color: measurements and the action that
      produces one. Not a brand flourish — see The Readout Rule. */
-  --color-instrument: #22d3ee;
-  --color-instrument-bright: #67e8f9;
-  --color-instrument-deep: #06b6d4;
+  --color-instrument: oklch(78.9% 0.154 211.53); /* = cyan-400 */
+  --color-instrument-bright: oklch(86.5% 0.127 207.078); /* = cyan-300 */
+  --color-instrument-deep: oklch(71.5% 0.143 215.221); /* = cyan-500 */
 
-  --color-signal-blue: #3b82f6;
-  --color-sky-accent: #38bdf8;
-  --color-confirm: #10b981;
+  --color-signal-blue: oklch(62.3% 0.214 259.815); /* = blue-500 */
+  --color-sky-accent: oklch(74.6% 0.16 232.661); /* = sky-400 */
+  --color-confirm: oklch(69.6% 0.17 162.48); /* = emerald-500 */
 
-  /* Print surface. The (report) route is a document handed to a homeowner,
-     not a screen; it never borrows the dark tokens above. */
-  --color-paper: #f1f5f9;
-  --color-paper-ink: #0f172a;
-  --color-paper-rule: #e2e8f0;
+  /* Print surface. The (report) route is a document handed to a homeowner, not
+     a screen; it never borrows the dark tokens above. Its ink runs darker
+     because slate-400 on white is 2.56:1 — the floor here is paper-ink-faint. */
+  --color-paper-document: #fff;
+  --color-paper: oklch(96.8% 0.007 247.896); /* = slate-100 */
+  --color-paper-inset: oklch(98.4% 0.003 247.858); /* = slate-50 */
+  --color-paper-ink: oklch(20.8% 0.042 265.755); /* = slate-900 */
+  --color-paper-ink-strong: oklch(27.9% 0.041 260.031); /* = slate-800 */
+  --color-paper-ink-body: oklch(37.2% 0.044 257.287); /* = slate-700 */
+  --color-paper-ink-muted: oklch(44.6% 0.043 257.281); /* = slate-600 */
+  --color-paper-ink-faint: oklch(55.4% 0.046 257.417); /* = slate-500, 4.76:1 on white */
+  --color-paper-rule: oklch(92.9% 0.013 255.508); /* = slate-200 */
 }
 
 html,

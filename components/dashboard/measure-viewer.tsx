@@ -123,7 +123,7 @@ function makeLabel(text: string, className: string): CSS2DObject {
 }
 
 const LABEL_CLASS =
-  "pointer-events-none rounded-md border border-white/15 bg-slate-950/85 px-1.5 py-0.5 text-xs font-medium text-white shadow";
+  "pointer-events-none rounded-md border border-white/15 bg-ground/85 px-1.5 py-0.5 text-xs font-medium text-ink-primary shadow";
 
 /**
  * Build the on-model graphics for one measurement (fill/outline/dots/label).
@@ -847,7 +847,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
             type="button"
             onClick={() => startTool(t)}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium capitalize transition ${
-              tool === t ? "bg-cyan-400 text-slate-950" : "border border-white/10 bg-slate-950/50 text-slate-200 hover:text-white"
+              tool === t ? "bg-instrument text-ground" : "border border-hairline bg-ground/50 text-ink-strong hover:text-ink-primary"
             }`}
           >
             {t === "orbit" ? "Move" : TOOL_META[t].name}
@@ -857,7 +857,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           type="button"
           onClick={() => startTool("detect")}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-            tool === "detect" ? "bg-yellow-400 text-slate-950" : "border border-yellow-300/30 bg-yellow-400/10 text-yellow-100 hover:bg-yellow-400/20"
+            tool === "detect" ? "bg-yellow-400 text-ground" : "border border-yellow-300/30 bg-yellow-400/10 text-yellow-100 hover:bg-yellow-400/20"
           }`}
         >
           ✨ Auto-detect roof
@@ -866,7 +866,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           type="button"
           onClick={() => startTool("edit")}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-            tool === "edit" ? "bg-violet-400 text-slate-950" : "border border-violet-300/30 bg-violet-400/10 text-violet-100 hover:bg-violet-400/20"
+            tool === "edit" ? "bg-violet-400 text-ground" : "border border-violet-300/30 bg-violet-400/10 text-violet-100 hover:bg-violet-400/20"
           }`}
         >
           Edit points
@@ -875,7 +875,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           type="button"
           onClick={() => startTool("split")}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-            tool === "split" ? "bg-slate-200 text-slate-950" : "border border-white/15 bg-slate-950/50 text-slate-200 hover:text-white"
+            tool === "split" ? "bg-ink-strong text-ground" : "border border-white/15 bg-ground/50 text-ink-strong hover:text-ink-primary"
           }`}
         >
           Split facet
@@ -885,18 +885,18 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           onClick={runClassify}
           disabled={!hasAreas || classifying}
           title={hasAreas ? "Find ridges, hips, valleys, eaves, and rakes from the facets" : "Draw or auto-detect at least two roof areas first"}
-          className="rounded-lg border border-sky-300/30 bg-sky-400/10 px-3 py-1.5 text-sm font-medium text-sky-100 transition hover:bg-sky-400/20 disabled:opacity-40"
+          className="rounded-lg border border-sky-300/30 bg-sky-accent/10 px-3 py-1.5 text-sm font-medium text-sky-100 transition hover:bg-sky-accent/20 disabled:opacity-40"
         >
           {classifying ? "Finding edges…" : "⚡ Find roof edges"}
         </button>
         <div className="ml-auto flex items-center gap-2">
-          <div className="inline-flex overflow-hidden rounded-lg border border-white/10 text-sm">
+          <div className="inline-flex overflow-hidden rounded-lg border border-hairline text-sm">
             <button
               type="button"
               onClick={undo}
               disabled={!canUndo}
               title="Undo (⌘Z / Ctrl+Z)"
-              className="px-2.5 py-1.5 text-slate-200 transition hover:bg-white/10 disabled:opacity-30"
+              className="px-2.5 py-1.5 text-ink-strong transition hover:bg-surface-lifted disabled:opacity-30"
             >
               ↶ Undo
             </button>
@@ -905,18 +905,18 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
               onClick={redo}
               disabled={!canRedo}
               title="Redo (⌘⇧Z / Ctrl+Shift+Z)"
-              className="border-l border-white/10 px-2.5 py-1.5 text-slate-200 transition hover:bg-white/10 disabled:opacity-30"
+              className="border-l border-hairline px-2.5 py-1.5 text-ink-strong transition hover:bg-surface-lifted disabled:opacity-30"
             >
               Redo ↷
             </button>
           </div>
-          <div className="inline-flex overflow-hidden rounded-lg border border-white/10 text-sm">
+          <div className="inline-flex overflow-hidden rounded-lg border border-hairline text-sm">
             {(["imperial", "metric"] as Units[]).map((u) => (
               <button
                 key={u}
                 type="button"
                 onClick={() => setUnits(u)}
-                className={`px-3 py-1.5 ${units === u ? "bg-white/15 text-white" : "bg-slate-950/50 text-slate-300"}`}
+                className={`px-3 py-1.5 ${units === u ? "bg-white/15 text-ink-primary" : "bg-ground/50 text-ink-secondary"}`}
               >
                 {u === "imperial" ? "ft" : "m"}
               </button>
@@ -927,23 +927,23 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
 
       <div className="grid gap-3 lg:grid-cols-[1fr_240px]">
         <div
-          className="relative min-h-[480px] overflow-hidden rounded-2xl border border-white/10 bg-[#0b1418] sm:min-h-[560px]"
+          className="relative min-h-[480px] overflow-hidden rounded-2xl border border-hairline bg-[#0b1418] sm:min-h-[560px]"
           onPointerEnter={() => (hoveredRef.current = true)}
           onPointerLeave={() => (hoveredRef.current = false)}
         >
           <div ref={hostRef} className="absolute inset-0" />
           {loadState !== "ready" ? (
-            <div className="pointer-events-none absolute inset-x-4 top-4 rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm backdrop-blur">
+            <div className="pointer-events-none absolute inset-x-4 top-4 rounded-xl border border-hairline bg-ground/80 p-3 text-sm backdrop-blur">
               {loadState === "error" ? (
                 <p className="text-rose-200">Couldn&apos;t load the 3D model. {error}</p>
               ) : (
-                <p className="font-medium text-white">Loading your 3D model…</p>
+                <p className="font-medium text-ink-primary">Loading your 3D model…</p>
               )}
             </div>
           ) : null}
           {tool === "detect" ? (
-            <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-xl border border-yellow-300/25 bg-slate-950/85 px-3 py-2 text-sm backdrop-blur">
-              <span className="text-slate-300">
+            <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-xl border border-yellow-300/25 bg-ground/85 px-3 py-2 text-sm backdrop-blur">
+              <span className="text-ink-secondary">
                 {detectError ? (
                   <span className="text-rose-200">{detectError}</span>
                 ) : detecting ? (
@@ -956,22 +956,22 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                 type="button"
                 disabled={draftCount < 3 || detecting}
                 onClick={() => (hostRef.current as (HTMLDivElement & { __detect?: () => void }) | null)?.__detect?.()}
-                className="rounded-lg bg-yellow-400 px-3 py-1 font-medium text-slate-950 disabled:opacity-40"
+                className="rounded-lg bg-yellow-400 px-3 py-1 font-medium text-ground disabled:opacity-40"
               >
                 {detecting ? "Detecting…" : "Detect roof areas"}
               </button>
             </div>
           ) : tool === "edit" ? (
-            <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-violet-300/25 bg-slate-950/85 px-3 py-2 text-sm backdrop-blur">
-              <span className="text-slate-300">
+            <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-violet-300/25 bg-ground/85 px-3 py-2 text-sm backdrop-blur">
+              <span className="text-ink-secondary">
                 {measurements.length === 0
                   ? "Nothing to edit yet — draw a measurement first."
                   : "Drag the white handles to move a point. Drag empty space to rotate."}
               </span>
             </div>
           ) : tool === "split" ? (
-            <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-white/20 bg-slate-950/85 px-3 py-2 text-sm backdrop-blur">
-              <span className="text-slate-300">
+            <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-white/20 bg-ground/85 px-3 py-2 text-sm backdrop-blur">
+              <span className="text-ink-secondary">
                 {splitError ? (
                   <span className="text-rose-200">{splitError}</span>
                 ) : (
@@ -980,8 +980,8 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
               </span>
             </div>
           ) : tool !== "orbit" ? (
-            <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950/85 px-3 py-2 text-sm backdrop-blur">
-              <span className="text-slate-300">
+            <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-xl border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
+              <span className="text-ink-secondary">
                 {tool === "marker"
                   ? "Click a point on the roof to drop a marker."
                   : tool === "height"
@@ -993,7 +993,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                   type="button"
                   disabled={draftCount < activeMin}
                   onClick={() => (hostRef.current as (HTMLDivElement & { __finish?: () => void }) | null)?.__finish?.()}
-                  className="rounded-lg bg-cyan-400 px-3 py-1 font-medium text-slate-950 disabled:opacity-40"
+                  className="rounded-lg bg-instrument px-3 py-1 font-medium text-ground disabled:opacity-40"
                 >
                   Finish
                 </button>
@@ -1002,9 +1002,9 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           ) : null}
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-3">
+        <div className="rounded-2xl border border-hairline bg-ground/40 p-3">
           <div className="mb-2 flex items-center justify-between">
-            <h5 className="text-sm font-semibold text-white">Measurements</h5>
+            <h5 className="text-sm font-semibold text-ink-primary">Measurements</h5>
             {measurements.length > 0 ? (
               <button
                 type="button"
@@ -1013,7 +1013,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                   setMeasurements([]);
                   clearModelMeasurementsAction({ projectId }).catch((e) => console.error("[measure] clear failed", e));
                 }}
-                className="text-xs text-slate-400 hover:text-rose-300"
+                className="text-xs text-ink-muted hover:text-rose-300"
               >
                 Clear all
               </button>
@@ -1024,11 +1024,11 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           ) : (
             <ul className="space-y-1.5">
               {measurements.map((m) => (
-                <li key={m.id} className="rounded-lg bg-white/5 px-2 py-1.5 text-xs">
+                <li key={m.id} className="rounded-lg bg-surface-raised px-2 py-1.5 text-xs">
                   <div className="flex items-center justify-between gap-2">
                     <span className="min-w-0">
-                      <span className="capitalize text-slate-400">{m.type}</span>{" "}
-                      <span className="font-medium text-white">{summarize(m, units)}</span>
+                      <span className="capitalize text-ink-muted">{m.type}</span>{" "}
+                      <span className="font-medium text-ink-primary">{summarize(m, units)}</span>
                     </span>
                     <button
                       type="button"
@@ -1056,7 +1056,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                           console.error("[measure] category failed", err)
                         );
                       }}
-                      className="mt-1.5 w-full rounded bg-slate-900 px-1.5 py-1 text-xs capitalize text-slate-200"
+                      className="mt-1.5 w-full rounded bg-slate-900 px-1.5 py-1 text-xs capitalize text-ink-strong"
                     >
                       <option value="">— roof line type (for estimate) —</option>
                       {LINE_CATEGORIES.map((c) => (
