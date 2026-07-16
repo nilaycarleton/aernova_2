@@ -88,7 +88,7 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
             onChange={(event) => updateSelectedFiles(event.currentTarget.files)}
             required
           />
-          <span className="text-sm uppercase tracking-[0.16em] text-slate-500">Upload photos</span>
+          <span className="text-sm uppercase tracking-[0.16em] text-ink-muted">Upload photos</span>
           <span className="mt-2 text-lg font-semibold text-white">
             {selectedFiles.length > 0
               ? `${selectedFiles.length} photo${selectedFiles.length === 1 ? "" : "s"} selected`
@@ -116,15 +116,15 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
           <option value="BEFORE">Before photo</option>
           <option value="AFTER">After photo</option>
           </select>
-          <input name="altitudeFt" type="number" step="0.01" placeholder="Flight height (ft) — optional" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400" />
+          <input name="altitudeFt" type="number" step="0.01" placeholder="Flight height (ft) — optional" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400" />
           <input name="captureDate" type="date" aria-label="Date taken" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
           <input name="captureTime" type="time" aria-label="Time taken" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
-          <textarea name="notes" rows={2} placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400 sm:col-span-2" />
+          <textarea name="notes" rows={2} placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-ink-muted focus:border-blue-400 sm:col-span-2" />
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs leading-5 text-slate-500">
+        <p className="text-xs leading-5 text-ink-muted">
           Tip: upload the original files straight from the drone — they include location data that makes a better model.
         </p>
         <button

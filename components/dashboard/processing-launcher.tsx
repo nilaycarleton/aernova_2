@@ -109,7 +109,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
           )}
           {readiness.estimate.length > 0 ? (
             <div className="mt-3">
-              <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">
+              <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">
                 Rough estimate (before the real 3D scan)
               </p>
               <div className="mt-2 flex flex-wrap gap-2">

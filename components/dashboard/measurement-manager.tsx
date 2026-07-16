@@ -33,30 +33,33 @@ export function MeasurementManager({ projectId, measurements }: Props) {
           <input type="hidden" name="projectId" value={projectId} />
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Label</label>
+            <label htmlFor="new-measurement-label" className="mb-2 block text-sm text-slate-300">Label</label>
             <input
+              id="new-measurement-label"
               name="label"
               type="text"
               placeholder="Total roof area"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-ink-muted outline-none focus:border-blue-500"
               required
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Display Value</label>
+            <label htmlFor="new-measurement-displayValue" className="mb-2 block text-sm text-slate-300">Display Value</label>
             <input
+              id="new-measurement-displayValue"
               name="displayValue"
               type="text"
               placeholder="3,240 sq ft"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-ink-muted outline-none focus:border-blue-500"
               required
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Type</label>
+            <label htmlFor="new-measurement-type" className="mb-2 block text-sm text-slate-300">Type</label>
             <select
+              id="new-measurement-type"
               name="type"
               defaultValue="AREA"
               className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
@@ -72,8 +75,9 @@ export function MeasurementManager({ projectId, measurements }: Props) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Unit</label>
+            <label htmlFor="new-measurement-unit" className="mb-2 block text-sm text-slate-300">Unit</label>
             <select
+              id="new-measurement-unit"
               name="unit"
               defaultValue="SQFT"
               className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
@@ -86,20 +90,22 @@ export function MeasurementManager({ projectId, measurements }: Props) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Numeric Value</label>
+            <label htmlFor="new-measurement-value" className="mb-2 block text-sm text-slate-300">Numeric Value</label>
             <input
+              id="new-measurement-value"
               name="value"
               type="number"
               step="0.01"
               placeholder="3240"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-ink-muted outline-none focus:border-blue-500"
               required
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Source</label>
+            <label htmlFor="new-measurement-source" className="mb-2 block text-sm text-slate-300">Source</label>
             <select
+              id="new-measurement-source"
               name="source"
               defaultValue="MANUAL"
               className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
@@ -110,19 +116,21 @@ export function MeasurementManager({ projectId, measurements }: Props) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Confidence %</label>
+            <label htmlFor="new-measurement-confidence" className="mb-2 block text-sm text-slate-300">Confidence %</label>
             <input
+              id="new-measurement-confidence"
               name="confidence"
               type="number"
               step="0.01"
               placeholder="92"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white placeholder:text-ink-muted outline-none focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Sort Order</label>
+            <label htmlFor="new-measurement-sortOrder" className="mb-2 block text-sm text-slate-300">Sort Order</label>
             <input
+              id="new-measurement-sortOrder"
               name="sortOrder"
               type="number"
               defaultValue="0"
@@ -196,8 +204,9 @@ export function MeasurementManager({ projectId, measurements }: Props) {
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                   <div>
-                    <label className="mb-2 block text-sm text-slate-300">Label</label>
+                    <label htmlFor={`measurement-${measurement.id}-label`} className="mb-2 block text-sm text-slate-300">Label</label>
                     <input
+                      id={`measurement-${measurement.id}-label`}
                       name="label"
                       defaultValue={measurement.label}
                       className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
@@ -206,8 +215,9 @@ export function MeasurementManager({ projectId, measurements }: Props) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm text-slate-300">Display Value</label>
+                    <label htmlFor={`measurement-${measurement.id}-displayValue`} className="mb-2 block text-sm text-slate-300">Display Value</label>
                     <input
+                      id={`measurement-${measurement.id}-displayValue`}
                       name="displayValue"
                       defaultValue={measurement.displayValue}
                       className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
@@ -216,8 +226,9 @@ export function MeasurementManager({ projectId, measurements }: Props) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm text-slate-300">Type</label>
+                    <label htmlFor={`measurement-${measurement.id}-type`} className="mb-2 block text-sm text-slate-300">Type</label>
                     <select
+                      id={`measurement-${measurement.id}-type`}
                       name="type"
                       defaultValue={measurement.type}
                       className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
@@ -233,8 +244,9 @@ export function MeasurementManager({ projectId, measurements }: Props) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm text-slate-300">Unit</label>
+                    <label htmlFor={`measurement-${measurement.id}-unit`} className="mb-2 block text-sm text-slate-300">Unit</label>
                     <select
+                      id={`measurement-${measurement.id}-unit`}
                       name="unit"
                       defaultValue={measurement.unit}
                       className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
@@ -247,8 +259,9 @@ export function MeasurementManager({ projectId, measurements }: Props) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm text-slate-300">Numeric Value</label>
+                    <label htmlFor={`measurement-${measurement.id}-value`} className="mb-2 block text-sm text-slate-300">Numeric Value</label>
                     <input
+                      id={`measurement-${measurement.id}-value`}
                       name="value"
                       type="number"
                       step="0.01"
@@ -259,8 +272,9 @@ export function MeasurementManager({ projectId, measurements }: Props) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm text-slate-300">Source</label>
+                    <label htmlFor={`measurement-${measurement.id}-source`} className="mb-2 block text-sm text-slate-300">Source</label>
                     <select
+                      id={`measurement-${measurement.id}-source`}
                       name="source"
                       defaultValue={measurement.source}
                       className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-500"
@@ -271,8 +285,9 @@ export function MeasurementManager({ projectId, measurements }: Props) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm text-slate-300">Confidence %</label>
+                    <label htmlFor={`measurement-${measurement.id}-confidence`} className="mb-2 block text-sm text-slate-300">Confidence %</label>
                     <input
+                      id={`measurement-${measurement.id}-confidence`}
                       name="confidence"
                       type="number"
                       step="0.01"
@@ -282,8 +297,9 @@ export function MeasurementManager({ projectId, measurements }: Props) {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm text-slate-300">Sort Order</label>
+                    <label htmlFor={`measurement-${measurement.id}-sortOrder`} className="mb-2 block text-sm text-slate-300">Sort Order</label>
                     <input
+                      id={`measurement-${measurement.id}-sortOrder`}
                       name="sortOrder"
                       type="number"
                       defaultValue={measurement.sortOrder}

@@ -78,7 +78,7 @@ export function PhotoAnnotationStudio({ projectId, photos }: Props) {
   }
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/20">
+    <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
@@ -120,7 +120,13 @@ export function PhotoAnnotationStudio({ projectId, photos }: Props) {
               }`}
             >
               <div className="aspect-video overflow-hidden rounded-xl bg-slate-950">
-                <img src={photo.url} alt="" className="h-full w-full object-cover" />
+                <img
+                  src={photo.url}
+                  alt={photo.caption || photo.locationTag || photo.fileName || "Inspection photo"}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                />
               </div>
               <p className="mt-3 text-sm font-medium text-white">
                 {photo.locationTag || photo.fileName || "Inspection photo"}
@@ -166,7 +172,16 @@ export function PhotoAnnotationStudio({ projectId, photos }: Props) {
             onClick={addAnnotation}
             className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-950"
           >
-            <img src={selectedPhoto.url} alt="" className="block max-h-[620px] w-full object-contain" />
+            <img
+              src={selectedPhoto.url}
+              alt={
+                selectedPhoto.caption ||
+                selectedPhoto.locationTag ||
+                selectedPhoto.fileName ||
+                "Inspection photo being annotated"
+              }
+              className="block max-h-[620px] w-full object-contain"
+            />
             <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               {annotations.map((annotation) => {
                 if (annotation.tool === "circle") {

@@ -18,7 +18,7 @@ export function MeasurementList({
         >
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
+              <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">
                 {measurement.type}
               </p>
               <p className="mt-1 font-medium text-white">{measurement.label}</p>
@@ -28,11 +28,11 @@ export function MeasurementList({
               <p className="text-lg font-semibold text-blue-300">
                 {measurement.displayValue}
               </p>
-              <p className="text-xs text-slate-500">{measurement.unit}</p>
+              <p className="text-xs text-ink-muted">{measurement.unit}</p>
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-500">
+          <div className="mt-3 flex flex-wrap gap-4 text-xs text-ink-muted">
             <span>Source: {measurement.source}</span>
             <span>
               Confidence:{" "}

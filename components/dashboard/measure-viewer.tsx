@@ -123,7 +123,7 @@ function makeLabel(text: string, className: string): CSS2DObject {
 }
 
 const LABEL_CLASS =
-  "pointer-events-none rounded-md border border-white/15 bg-slate-950/85 px-1.5 py-0.5 text-[11px] font-medium text-white shadow";
+  "pointer-events-none rounded-md border border-white/15 bg-slate-950/85 px-1.5 py-0.5 text-xs font-medium text-white shadow";
 
 /**
  * Build the on-model graphics for one measurement (fill/outline/dots/label).
@@ -1020,7 +1020,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
             ) : null}
           </div>
           {measurements.length === 0 ? (
-            <p className="text-xs text-slate-500">Pick a tool and click the model to measure.</p>
+            <p className="text-xs text-ink-muted">Pick a tool and click the model to measure.</p>
           ) : (
             <ul className="space-y-1.5">
               {measurements.map((m) => (
@@ -1039,7 +1039,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                           console.error("[measure] delete failed", e)
                         );
                       }}
-                      className="shrink-0 text-slate-500 hover:text-rose-300"
+                      className="shrink-0 text-ink-muted hover:text-rose-300"
                       aria-label="Delete measurement"
                     >
                       ✕
@@ -1056,7 +1056,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                           console.error("[measure] category failed", err)
                         );
                       }}
-                      className="mt-1.5 w-full rounded bg-slate-900 px-1.5 py-1 text-[11px] capitalize text-slate-200"
+                      className="mt-1.5 w-full rounded bg-slate-900 px-1.5 py-1 text-xs capitalize text-slate-200"
                     >
                       <option value="">— roof line type (for estimate) —</option>
                       {LINE_CATEGORIES.map((c) => (
@@ -1073,7 +1073,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
         </div>
       </div>
 
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-ink-muted">
         {tool === "orbit"
           ? "Drag to rotate · scroll to zoom. Pick a tool to measure directly on the model."
           : "Measurements read in real-world units off the 3D model."}

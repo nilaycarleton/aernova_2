@@ -101,7 +101,7 @@ export function ProjectStatusStepper({
                 </span>
                 <span
                   className={`truncate text-xs font-medium ${
-                    active ? "text-white" : done ? "text-slate-300" : "text-slate-500"
+                    active ? "text-white" : done ? "text-slate-300" : "text-ink-muted"
                   }`}
                 >
                   {STATUS_META[stage].label}

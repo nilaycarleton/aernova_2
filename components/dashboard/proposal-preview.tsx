@@ -79,7 +79,7 @@ export function ProposalPreview({
 
         {scope.plainTextScope && (
           <div className="mt-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Scope of work</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Scope of work</p>
             <p className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">
               {scope.plainTextScope}
             </p>
@@ -88,10 +88,10 @@ export function ProposalPreview({
 
         {lineItems.length > 0 ? (
           <div className="mt-6">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Estimate</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Estimate</p>
             <table className="mt-2 w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-left text-[11px] uppercase tracking-wide text-slate-400">
+                <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
                   <th className="py-2 font-medium">Item</th>
                   <th className="py-2 text-right font-medium">Qty</th>
                   <th className="py-2 text-right font-medium">Unit price</th>
@@ -125,7 +125,7 @@ export function ProposalPreview({
           </div>
         ) : legacyLineItems.length > 0 ? (
           <div className="mt-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Line items</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Line items</p>
             <ul className="mt-2 divide-y divide-slate-100 border-y border-slate-100">
               {legacyLineItems.map((item, i) => (
                 <li key={i} className="py-2 text-sm text-slate-700">
@@ -138,13 +138,13 @@ export function ProposalPreview({
 
         {scope.notes && (
           <div className="mt-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Notes</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Notes</p>
             <p className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">{scope.notes}</p>
           </div>
         )}
 
         <footer className="mt-8 border-t border-slate-200 pt-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
             Acceptance
           </p>
           {scope.acceptance?.name ? (
@@ -154,10 +154,10 @@ export function ProposalPreview({
             </p>
           ) : (
             <div className="mt-4 flex flex-wrap gap-10">
-              <div className="min-w-[180px] border-b border-slate-400 pb-1 text-xs text-slate-400">
+              <div className="min-w-[180px] border-b border-slate-400 pb-1 text-xs text-slate-500">
                 Client signature
               </div>
-              <div className="min-w-[120px] border-b border-slate-400 pb-1 text-xs text-slate-400">
+              <div className="min-w-[120px] border-b border-slate-400 pb-1 text-xs text-slate-500">
                 Date
               </div>
             </div>

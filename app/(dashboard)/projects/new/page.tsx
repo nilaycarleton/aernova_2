@@ -34,36 +34,39 @@ export default function NewProjectPage() {
       >
         <div className="grid gap-6 md:grid-cols-2">
           <div className="md:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-name" className="mb-2 block text-sm font-medium text-slate-300">
               Project Name
             </label>
             <input
+              id="new-project-name"
               name="name"
               type="text"
               placeholder="Maple Street Full Replacement"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-ink-muted focus:border-blue-500"
               required
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-clientName" className="mb-2 block text-sm font-medium text-slate-300">
               Client Name
             </label>
             <input
+              id="new-project-clientName"
               name="clientName"
               type="text"
               placeholder="North Peak Roofing"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-ink-muted focus:border-blue-500"
               required
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-captureSource" className="mb-2 block text-sm font-medium text-slate-300">
               Capture Source
             </label>
             <select
+              id="new-project-captureSource"
               name="captureSource"
               defaultValue="MANUAL"
               className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition focus:border-blue-500"
@@ -74,89 +77,96 @@ export default function NewProjectPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-clientEmail" className="mb-2 block text-sm font-medium text-slate-300">
               Client Email
             </label>
             <input
+              id="new-project-clientEmail"
               name="clientEmail"
               type="email"
               placeholder="client@example.com"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-ink-muted focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-clientPhone" className="mb-2 block text-sm font-medium text-slate-300">
               Client Phone
             </label>
             <input
+              id="new-project-clientPhone"
               name="clientPhone"
               type="text"
               placeholder="555-123-4567"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-ink-muted focus:border-blue-500"
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-addressLine1" className="mb-2 block text-sm font-medium text-slate-300">
               Address
             </label>
             <input
+              id="new-project-addressLine1"
               name="addressLine1"
               type="text"
               placeholder="145 Maple Street"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-ink-muted focus:border-blue-500"
               required
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-city" className="mb-2 block text-sm font-medium text-slate-300">
               City
             </label>
             <input
+              id="new-project-city"
               name="city"
               type="text"
               placeholder="Brampton"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-ink-muted focus:border-blue-500"
               required
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-province" className="mb-2 block text-sm font-medium text-slate-300">
               Province
             </label>
             <input
+              id="new-project-province"
               name="province"
               type="text"
               placeholder="ON"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-ink-muted focus:border-blue-500"
               required
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-postalCode" className="mb-2 block text-sm font-medium text-slate-300">
               Postal Code
             </label>
             <input
+              id="new-project-postalCode"
               name="postalCode"
               type="text"
               placeholder="L6X 0A1"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-ink-muted focus:border-blue-500"
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label htmlFor="new-project-notes" className="mb-2 block text-sm font-medium text-slate-300">
               Notes
             </label>
             <textarea
+              id="new-project-notes"
               name="notes"
               rows={5}
               placeholder="Initial job notes, homeowner context, roof condition summary..."
-              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-ink-muted focus:border-blue-500"
             />
           </div>
         </div>

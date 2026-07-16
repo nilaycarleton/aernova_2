@@ -1,5 +1,40 @@
 @import "tailwindcss";
 
+/**
+ * Design tokens. The semantic names here are the ones DESIGN.md is written in;
+ * prefer them over raw palette utilities (`text-ink-muted`, not `text-slate-400`)
+ * so a palette decision can be made in one place instead of across 20+ files.
+ */
+@theme {
+  /* Surfaces. Depth is tonal only — see the Two-Layer Rule in DESIGN.md. */
+  --color-ground: #020617;
+  --color-surface-raised: rgb(255 255 255 / 0.05);
+  --color-surface-lifted: rgb(255 255 255 / 0.1);
+  --color-hairline: rgb(255 255 255 / 0.1);
+
+  /* Text. Ink Muted is the contrast floor: 7.87:1 on ground. Nothing dimmer
+     may carry text — anything below it fails WCAG 2.2 AA at our type sizes. */
+  --color-ink-primary: #ffffff;
+  --color-ink-secondary: #cbd5e1;
+  --color-ink-muted: #94a3b8;
+
+  /* Instrument Cyan is the readout color: measurements and the action that
+     produces one. Not a brand flourish — see The Readout Rule. */
+  --color-instrument: #22d3ee;
+  --color-instrument-bright: #67e8f9;
+  --color-instrument-deep: #06b6d4;
+
+  --color-signal-blue: #3b82f6;
+  --color-sky-accent: #38bdf8;
+  --color-confirm: #10b981;
+
+  /* Print surface. The (report) route is a document handed to a homeowner,
+     not a screen; it never borrows the dark tokens above. */
+  --color-paper: #f1f5f9;
+  --color-paper-ink: #0f172a;
+  --color-paper-rule: #e2e8f0;
+}
+
 html,
 body {
   height: 100%;
@@ -7,8 +42,8 @@ body {
 }
 
 body {
-  background: #020617;
-  color: white;
+  background: var(--color-ground);
+  color: var(--color-ink-primary);
 }
 
 * {

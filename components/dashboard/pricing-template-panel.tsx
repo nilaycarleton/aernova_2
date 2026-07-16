@@ -26,7 +26,7 @@ export function PricingTemplatePanel() {
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {rows.map(([label, value]) => (
           <div key={label} className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-xs uppercase tracking-[0.14em] text-slate-500">
+            <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">
               {label}
             </p>
             <p className="mt-2 text-lg font-semibold text-white">{value}</p>

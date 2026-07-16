@@ -75,37 +75,37 @@ export function ProposalGeneratorCard({ projectId, proposals }: Props) {
           {parsed?.summary ? (
             <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
               <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Roof area</div>
+                <div className="text-xs uppercase tracking-[0.15em] text-ink-muted">Roof area</div>
                 <div className="mt-2 text-lg font-semibold tabular-nums text-white">
                   {num(parsed.summary.roofAreaSqft, 1) ?? "0"} sq ft
                 </div>
               </div>
               <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Pitch</div>
+                <div className="text-xs uppercase tracking-[0.15em] text-ink-muted">Pitch</div>
                 <div className="mt-2 text-lg font-semibold text-white">
                   {String(parsed.summary.predominantPitch ?? "—")}
                 </div>
               </div>
               <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Waste</div>
+                <div className="text-xs uppercase tracking-[0.15em] text-ink-muted">Waste</div>
                 <div className="mt-2 text-lg font-semibold tabular-nums text-white">
                   {num(parsed.summary.wasteFactorPercent, 0) ?? "0"}%
                 </div>
               </div>
               <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Squares needed</div>
+                <div className="text-xs uppercase tracking-[0.15em] text-ink-muted">Squares needed</div>
                 <div className="mt-2 text-lg font-semibold tabular-nums text-white">
                   {num(parsed.summary.suggestedSquares, 1) ?? "0"}
                 </div>
               </div>
               <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Complexity</div>
+                <div className="text-xs uppercase tracking-[0.15em] text-ink-muted">Complexity</div>
                 <div className="mt-2 text-lg font-semibold capitalize text-white">
                   {String(parsed.summary.complexity ?? "—")}
                 </div>
               </div>
               <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.15em] text-slate-500">Labor factor</div>
+                <div className="text-xs uppercase tracking-[0.15em] text-ink-muted">Labor factor</div>
                 <div className="mt-2 text-lg font-semibold tabular-nums text-white">
                   {num(parsed.summary.laborMultiplier, 2) ?? "—"}x
                 </div>
