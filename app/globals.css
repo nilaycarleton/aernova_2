@@ -49,6 +49,23 @@
   --color-paper-rule: oklch(92.9% 0.013 255.508); /* = slate-200 */
 }
 
+/* Undo-toast countdown bar: drains left-to-right over the grace window so the
+   time-to-commit is visible, not guessed. Duration is set inline per toast. */
+@keyframes undo-countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .undo-countdown-bar {
+    animation: none !important;
+  }
+}
+
 html,
 body {
   height: 100%;
