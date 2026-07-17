@@ -4,6 +4,7 @@ import {
   updateMeasurementAction,
 } from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
 import { DeletableMeasurementList } from "@/components/dashboard/deletable-measurement-list";
+import { MeasurementCreateForm } from "@/components/dashboard/measurement-create-form";
 
 type Props = {
   projectId: string;
@@ -29,124 +30,7 @@ export function MeasurementManager({ projectId, measurements }: Props) {
           Add roof metrics like area, ridge, pitch, waste factor, eaves, valleys, and hips.
         </p>
 
-        <form action={createMeasurementAction} className="mt-6 grid gap-4 md:grid-cols-2">
-          <input type="hidden" name="projectId" value={projectId} />
-
-          <div>
-            <label htmlFor="new-measurement-label" className="mb-2 block text-sm text-ink-secondary">Label</label>
-            <input
-              id="new-measurement-label"
-              name="label"
-              type="text"
-              placeholder="Total roof area"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary placeholder:text-ink-muted outline-none focus:border-signal-blue"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="new-measurement-displayValue" className="mb-2 block text-sm text-ink-secondary">Display Value</label>
-            <input
-              id="new-measurement-displayValue"
-              name="displayValue"
-              type="text"
-              placeholder="3,240 sq ft"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary placeholder:text-ink-muted outline-none focus:border-signal-blue"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="new-measurement-type" className="mb-2 block text-sm text-ink-secondary">Type</label>
-            <select
-              id="new-measurement-type"
-              name="type"
-              defaultValue="AREA"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-            >
-              <option value="AREA">AREA</option>
-              <option value="RIDGE">RIDGE</option>
-              <option value="PITCH">PITCH</option>
-              <option value="WASTE_FACTOR">WASTE_FACTOR</option>
-              <option value="EAVE">EAVE</option>
-              <option value="VALLEY">VALLEY</option>
-              <option value="HIP">HIP</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="new-measurement-unit" className="mb-2 block text-sm text-ink-secondary">Unit</label>
-            <select
-              id="new-measurement-unit"
-              name="unit"
-              defaultValue="SQFT"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-            >
-              <option value="SQFT">SQFT</option>
-              <option value="FT">FT</option>
-              <option value="RATIO">RATIO</option>
-              <option value="PERCENT">PERCENT</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="new-measurement-value" className="mb-2 block text-sm text-ink-secondary">Numeric Value</label>
-            <input
-              id="new-measurement-value"
-              name="value"
-              type="number"
-              step="0.01"
-              placeholder="3240"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary placeholder:text-ink-muted outline-none focus:border-signal-blue"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="new-measurement-source" className="mb-2 block text-sm text-ink-secondary">Source</label>
-            <select
-              id="new-measurement-source"
-              name="source"
-              defaultValue="MANUAL"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-            >
-              <option value="MANUAL">MANUAL</option>
-              <option value="DRONE">DRONE</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="new-measurement-confidence" className="mb-2 block text-sm text-ink-secondary">Confidence %</label>
-            <input
-              id="new-measurement-confidence"
-              name="confidence"
-              type="number"
-              step="0.01"
-              placeholder="92"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary placeholder:text-ink-muted outline-none focus:border-signal-blue"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="new-measurement-sortOrder" className="mb-2 block text-sm text-ink-secondary">Sort Order</label>
-            <input
-              id="new-measurement-sortOrder"
-              name="sortOrder"
-              type="number"
-              defaultValue="0"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-            />
-          </div>
-
-          <div className="md:col-span-2 flex flex-wrap gap-3">
-            <button
-              type="submit"
-              className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
-            >
-              Add Measurement
-            </button>
-          </div>
-        </form>
+        <MeasurementCreateForm projectId={projectId} />
 
         <div className="mt-6">
           <p className="mb-3 text-sm text-ink-muted">

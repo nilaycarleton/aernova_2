@@ -16,13 +16,19 @@ function getOptionalNumber(formData: FormData, key: string) {
   return value;
 }
 
-export async function createRoofSectionAction(formData: FormData) {
+/** Validation is returned, not thrown, so the form and its input survive it. */
+export type SectionFormState = { fieldErrors?: Record<string, string> };
+
+export async function createRoofSectionAction(
+  _prevState: SectionFormState,
+  formData: FormData
+): Promise<SectionFormState> {
   const projectId = getString(formData, "projectId");
   const label = getString(formData, "label");
   const pitchRatio = getString(formData, "pitchRatio");
 
   if (!projectId) throw new Error("Missing projectId");
-  if (!label) throw new Error("Structure or facet label is required");
+  if (!label) return { fieldErrors: { label: "Name this facet or structure." } };
   await requireProjectAccess(projectId);
 
   await prisma.roofSection.create({
@@ -42,6 +48,7 @@ export async function createRoofSectionAction(formData: FormData) {
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}/report`);
+  return {};
 }
 
 export async function updateRoofSectionAction(formData: FormData) {
