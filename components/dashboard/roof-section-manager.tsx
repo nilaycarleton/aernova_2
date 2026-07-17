@@ -1,6 +1,6 @@
 import { RoofSection } from "@prisma/client";
-import { createRoofSectionAction } from "@/app/(dashboard)/projects/[projectId]/section-actions";
 import { DeletableSectionList } from "@/components/dashboard/deletable-section-list";
+import { SectionCreateForm } from "@/components/dashboard/section-create-form";
 import { buildRoofSectionTotals } from "@/lib/roof-intelligence";
 
 type Props = {
@@ -42,68 +42,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
         ))}
       </div>
 
-      <form action={createRoofSectionAction} className="mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
-        <input type="hidden" name="projectId" value={projectId} />
-        <input
-          name="label"
-          placeholder="Garage rear slope"
-          className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument md:col-span-2"
-          required
-        />
-        <input
-          name="pitchRatio"
-          placeholder="6/12"
-          className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-        />
-        <input
-          name="surfaceAreaSqft"
-          type="number"
-          step="0.01"
-          placeholder="Area sq ft"
-          className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-        />
-        <input
-          name="ridgeLengthFt"
-          type="number"
-          step="0.01"
-          placeholder="Ridge ft"
-          className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-        />
-        <input
-          name="hipLengthFt"
-          type="number"
-          step="0.01"
-          placeholder="Hip ft"
-          className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-        />
-        <input
-          name="valleyLengthFt"
-          type="number"
-          step="0.01"
-          placeholder="Valley ft"
-          className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-        />
-        <input
-          name="eaveLengthFt"
-          type="number"
-          step="0.01"
-          placeholder="Eave ft"
-          className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-        />
-        <input
-          name="rakeLengthFt"
-          type="number"
-          step="0.01"
-          placeholder="Rake ft"
-          className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-        />
-        <button
-          type="submit"
-          className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
-        >
-          Add Facet
-        </button>
-      </form>
+      <SectionCreateForm projectId={projectId} />
 
       <div className="mt-6 space-y-4">
         <DeletableSectionList projectId={projectId} sections={sections} />

@@ -8,10 +8,10 @@ import {
 import type { SavedMeasurement } from "@/components/dashboard/measure-viewer";
 import type { ModelMeasurementKind } from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
 import {
-  createRoofComparisonAction,
   materializeDroneMeasurementsAction,
   syncNodeOdmTaskAction,
 } from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
+import { ComparisonCreateForm } from "@/components/dashboard/comparison-create-form";
 import {
   generateEstimateFromMeasurementsAction,
   saveModelMeasurementsToProjectAction,
@@ -370,31 +370,11 @@ export function PhaseSixWorkflow({
           <p className="text-sm text-ink-muted">
             Create a simple before/after sheet for the homeowner or insurance file.
           </p>
-          <form action={createRoofComparisonAction} className="mt-4 grid gap-3 md:grid-cols-2">
-            <input type="hidden" name="projectId" value={projectId} />
-            <input
-              name="title"
-              placeholder="e.g. Front slope — before and after"
-              className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400 md:col-span-2"
-              required
-            />
-            <select name="beforeUrl" defaultValue="" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400">
-              <option value="">Choose a &quot;before&quot; photo</option>
-              {beforeImages.map((item) => (
-                <option key={item.id} value={item.url}>{item.fileName ?? "Before photo"}</option>
-              ))}
-            </select>
-            <select name="afterUrl" defaultValue="" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400">
-              <option value="">Choose an &quot;after&quot; photo</option>
-              {afterImages.map((item) => (
-                <option key={item.id} value={item.url}>{item.fileName ?? "After photo"}</option>
-              ))}
-            </select>
-            <textarea name="summary" rows={2} placeholder="Optional note" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400 md:col-span-2" />
-            <button type="submit" className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue md:col-span-2">
-              Create comparison
-            </button>
-          </form>
+          <ComparisonCreateForm
+            projectId={projectId}
+            beforeImages={beforeImages.map((i) => ({ id: i.id, url: i.url, fileName: i.fileName }))}
+            afterImages={afterImages.map((i) => ({ id: i.id, url: i.url, fileName: i.fileName }))}
+          />
 
           {comparisons.length > 0 ? (
             <div className="mt-6 grid gap-4 md:grid-cols-2">

@@ -1,5 +1,5 @@
 import { Proposal } from "@prisma/client";
-import { saveProposalDraftAction } from "@/app/(dashboard)/projects/[projectId]/proposal-edit-actions";
+import { ProposalDraftForm } from "@/components/dashboard/proposal-draft-form";
 
 type Props = {
   projectId: string;
@@ -64,116 +64,20 @@ export function ProposalEditor({ projectId, latestProposal }: Props) {
         </p>
       </div>
 
-      <form action={saveProposalDraftAction} className="mt-6 grid gap-4 md:grid-cols-2">
-        <input type="hidden" name="projectId" value={projectId} />
-        <input type="hidden" name="proposalId" value={latestProposal?.id ?? ""} />
-
-        <div>
-          <label htmlFor="proposal-title" className="mb-2 block text-sm text-ink-secondary">Proposal title</label>
-          <input
-            id="proposal-title"
-            name="title"
-            defaultValue={latestProposal?.title ?? "Roofing proposal"}
-            className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
-            required
-          />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="proposal-totalAmount" className="mb-2 block text-sm text-ink-secondary">Total amount</label>
-            <input
-              id="proposal-totalAmount"
-              name="totalAmount"
-              type="number"
-              step="0.01"
-              defaultValue={latestProposal?.totalAmount ?? ""}
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
-            />
-          </div>
-          <div>
-            <label htmlFor="proposal-optionalMarkup" className="mb-2 block text-sm text-ink-secondary">Optional markup %</label>
-            <input
-              id="proposal-optionalMarkup"
-              name="optionalMarkup"
-              type="number"
-              step="0.01"
-              defaultValue={draft.optionalMarkup}
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
-            />
-          </div>
-        </div>
-
-        <div className="md:col-span-2">
-          <label htmlFor="proposal-scope" className="mb-2 block text-sm text-ink-secondary">Scope of work</label>
-          <textarea
-            id="proposal-scope"
-            name="scope"
-            rows={5}
-            defaultValue={draft.scope}
-            className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="proposal-customLineItems" className="mb-2 block text-sm text-ink-secondary">Custom line items</label>
-          <textarea
-            id="proposal-customLineItems"
-            name="customLineItems"
-            rows={4}
-            defaultValue={draft.customLineItems}
-            placeholder="One optional line item per line"
-            className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="proposal-notes" className="mb-2 block text-sm text-ink-secondary">Proposal notes</label>
-          <textarea
-            id="proposal-notes"
-            name="notes"
-            rows={4}
-            defaultValue={draft.notes}
-            placeholder="Financing notes, exclusions, warranty terms, homeowner notes"
-            className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-          />
-        </div>
-
-        <div className="md:col-span-2 grid gap-4 rounded-2xl border border-hairline bg-ground/40 p-4 sm:grid-cols-2">
-          <p className="text-sm font-medium text-ink-secondary sm:col-span-2">
-            Client acceptance (signature section)
-          </p>
-          <div>
-            <label htmlFor="proposal-acceptedByName" className="mb-2 block text-xs text-ink-muted">Accepted by (client name)</label>
-            <input
-              id="proposal-acceptedByName"
-              name="acceptedByName"
-              defaultValue={draft.acceptedByName}
-              placeholder="Client name as signed"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument"
-            />
-          </div>
-          <div>
-            <label htmlFor="proposal-acceptedDate" className="mb-2 block text-xs text-ink-muted">Date accepted</label>
-            <input
-              id="proposal-acceptedDate"
-              name="acceptedDate"
-              type="date"
-              defaultValue={draft.acceptedDate}
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-instrument"
-            />
-          </div>
-        </div>
-
-        <div className="md:col-span-2">
-          <button
-            type="submit"
-            className="rounded-xl bg-instrument-deep px-5 py-3 text-sm font-medium text-ground transition hover:bg-instrument"
-          >
-            Save Proposal Draft
-          </button>
-        </div>
-      </form>
+      <ProposalDraftForm
+        initial={{
+          projectId,
+          proposalId: latestProposal?.id ?? "",
+          title: latestProposal?.title ?? "Roofing proposal",
+          totalAmount: latestProposal?.totalAmount?.toString() ?? "",
+          optionalMarkup: draft.optionalMarkup,
+          scope: draft.scope,
+          customLineItems: draft.customLineItems,
+          notes: draft.notes,
+          acceptedByName: draft.acceptedByName ?? "",
+          acceptedDate: draft.acceptedDate ?? "",
+        }}
+      />
     </section>
   );
 }

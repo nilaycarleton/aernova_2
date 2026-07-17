@@ -351,7 +351,13 @@ export async function extractRoofFromMeshAction(
   };
 }
 
-export async function createRoofComparisonAction(formData: FormData) {
+/** Validation is returned, not thrown, so the form survives it. */
+export type ComparisonFormState = { fieldErrors?: Record<string, string> };
+
+export async function createRoofComparisonAction(
+  _prevState: ComparisonFormState,
+  formData: FormData
+): Promise<ComparisonFormState> {
   const projectId = getString(formData, "projectId");
   const title = getString(formData, "title");
   const summary = getString(formData, "summary");
@@ -359,7 +365,7 @@ export async function createRoofComparisonAction(formData: FormData) {
   const afterUrl = getString(formData, "afterUrl");
 
   if (!projectId) throw new Error("Missing projectId");
-  if (!title) throw new Error("Comparison title is required");
+  if (!title) return { fieldErrors: { title: "Give the comparison a title." } };
   await requireProjectAccess(projectId);
 
   await prisma.roofComparison.create({
@@ -379,4 +385,5 @@ export async function createRoofComparisonAction(formData: FormData) {
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}/report`);
+  return {};
 }
