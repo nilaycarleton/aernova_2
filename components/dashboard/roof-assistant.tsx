@@ -11,7 +11,13 @@ const SUGGESTIONS = [
   "Summarize this roof for the homeowner",
 ];
 
-export function RoofAssistant({ projectId }: { projectId: string }) {
+export function RoofAssistant({
+  projectId,
+  onClose,
+}: {
+  projectId: string;
+  onClose?: () => void;
+}) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -83,20 +89,34 @@ export function RoofAssistant({ projectId }: { projectId: string }) {
   };
 
   return (
-    <div className="flex h-[520px] flex-col rounded-2xl border border-hairline bg-surface-raised">
+    <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-hairline px-5 py-3">
         <div>
-          <h3 className="text-sm font-semibold text-ink-primary">Roof assistant</h3>
+          <h3 id="assistant-title" className="text-sm font-semibold text-ink-primary">Roof assistant</h3>
           <p className="text-xs text-ink-primary/50">Grounded in this project&apos;s measurements & estimate</p>
         </div>
-        {messages.length > 0 && (
-          <button
-            onClick={() => setMessages([])}
-            className="rounded-lg px-2 py-1 text-xs text-ink-primary/50 hover:bg-surface-lifted hover:text-ink-primary"
-          >
-            Clear
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {messages.length > 0 && (
+            <button
+              onClick={() => setMessages([])}
+              className="rounded-lg px-2 py-1 text-xs text-ink-primary/50 hover:bg-surface-lifted hover:text-ink-primary"
+            >
+              Clear
+            </button>
+          )}
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close assistant"
+              className="rounded-lg p-1.5 text-ink-primary/60 transition hover:bg-surface-lifted hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
