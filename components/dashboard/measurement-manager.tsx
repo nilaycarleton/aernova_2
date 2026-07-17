@@ -2,8 +2,8 @@ import { Measurement } from "@prisma/client";
 import {
   createMeasurementAction,
   updateMeasurementAction,
-  deleteMeasurementAction,
 } from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
+import { DeletableMeasurementList } from "@/components/dashboard/deletable-measurement-list";
 
 type Props = {
   projectId: string;
@@ -323,35 +323,7 @@ export function MeasurementManager({ projectId, measurements }: Props) {
       </section>
 
       {measurements.length > 0 && (
-        <section className="space-y-3">
-          <h3 className="text-lg font-semibold text-ink-primary">Delete measurements</h3>
-          <div className="space-y-3">
-            {measurements.map((measurement) => (
-              <form
-                key={`delete-${measurement.id}`}
-                action={deleteMeasurementAction}
-                className="flex flex-col gap-3 rounded-2xl border border-red-500/20 bg-red-500/5 p-4 md:flex-row md:items-center md:justify-between"
-              >
-                <input type="hidden" name="measurementId" value={measurement.id} />
-                <input type="hidden" name="projectId" value={projectId} />
-
-                <div>
-                  <p className="font-medium text-ink-primary">{measurement.label}</p>
-                  <p className="text-sm text-ink-muted">
-                    {measurement.displayValue} · {measurement.type}
-                  </p>
-                </div>
-
-                <button
-                  type="submit"
-                  className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition hover:bg-red-500/20"
-                >
-                  Delete
-                </button>
-              </form>
-            ))}
-          </div>
-        </section>
+        <DeletableMeasurementList projectId={projectId} measurements={measurements} />
       )}
     </div>
   );
