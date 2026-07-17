@@ -1,9 +1,6 @@
 import { RoofSection } from "@prisma/client";
-import {
-  createRoofSectionAction,
-  deleteRoofSectionAction,
-  updateRoofSectionAction,
-} from "@/app/(dashboard)/projects/[projectId]/section-actions";
+import { createRoofSectionAction } from "@/app/(dashboard)/projects/[projectId]/section-actions";
+import { DeletableSectionList } from "@/components/dashboard/deletable-section-list";
 import { buildRoofSectionTotals } from "@/lib/roof-intelligence";
 
 type Props = {
@@ -109,106 +106,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
       </form>
 
       <div className="mt-6 space-y-4">
-        {sections.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-hairline p-6 text-sm text-ink-muted">
-            Add each roof plane or detached structure so pitch, area, and line lengths can drive Phase 4 calculations.
-          </div>
-        ) : (
-          sections.map((section) => (
-            <div key={section.id} className="rounded-2xl border border-hairline bg-ground/45 p-4">
-              <form action={updateRoofSectionAction} className="grid gap-3 md:grid-cols-4 xl:grid-cols-9">
-                <input type="hidden" name="projectId" value={projectId} />
-                <input type="hidden" name="sectionId" value={section.id} />
-                <input
-                  name="label"
-                  defaultValue={section.label}
-                  className="rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none focus:border-blue-400 md:col-span-2"
-                  required
-                />
-                <input
-                  name="pitchRatio"
-                  defaultValue={section.pitchRatio ?? ""}
-                  placeholder="Pitch"
-                  className="rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
-                />
-                <input
-                  name="projectedAreaSqft"
-                  type="number"
-                  step="0.01"
-                  defaultValue={section.projectedAreaSqft ?? ""}
-                  placeholder="Projected"
-                  className="rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
-                />
-                <input
-                  name="surfaceAreaSqft"
-                  type="number"
-                  step="0.01"
-                  defaultValue={section.surfaceAreaSqft ?? ""}
-                  placeholder="Surface"
-                  className="rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
-                />
-                <input
-                  name="ridgeLengthFt"
-                  type="number"
-                  step="0.01"
-                  defaultValue={section.ridgeLengthFt ?? ""}
-                  placeholder="Ridge"
-                  className="rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
-                />
-                <input
-                  name="hipLengthFt"
-                  type="number"
-                  step="0.01"
-                  defaultValue={section.hipLengthFt ?? ""}
-                  placeholder="Hip"
-                  className="rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
-                />
-                <input
-                  name="valleyLengthFt"
-                  type="number"
-                  step="0.01"
-                  defaultValue={section.valleyLengthFt ?? ""}
-                  placeholder="Valley"
-                  className="rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
-                />
-                <input
-                  name="eaveLengthFt"
-                  type="number"
-                  step="0.01"
-                  defaultValue={section.eaveLengthFt ?? ""}
-                  placeholder="Eave"
-                  className="rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
-                />
-                <input
-                  name="rakeLengthFt"
-                  type="number"
-                  step="0.01"
-                  defaultValue={section.rakeLengthFt ?? ""}
-                  placeholder="Rake"
-                  className="rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
-                />
-                <div className="flex gap-2 md:col-span-4 xl:col-span-9">
-                  <button
-                    type="submit"
-                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
-                  >
-                    Save Facet
-                  </button>
-                </div>
-              </form>
-              <form action={deleteRoofSectionAction} className="mt-3">
-                <input type="hidden" name="projectId" value={projectId} />
-                <input type="hidden" name="sectionId" value={section.id} />
-                <button
-                  type="submit"
-                  className="rounded-xl border border-rose-400/25 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-200 transition hover:bg-rose-500/20"
-                >
-                  Delete Facet
-                </button>
-              </form>
-            </div>
-          ))
-        )}
+        <DeletableSectionList projectId={projectId} sections={sections} />
       </div>
     </section>
   );
