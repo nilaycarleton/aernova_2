@@ -167,39 +167,39 @@ export function ModelMeasurementViewer({ modelPackage, previewUrl }: Props) {
   return (
     <div className="min-w-0">
       {glbUrl && topDownUrl ? (
-        <div className="mb-3 inline-flex rounded-xl border border-white/10 bg-slate-950/50 p-1 text-sm">
+        <div className="mb-3 inline-flex rounded-xl border border-hairline bg-ground/50 p-1 text-sm">
           <button
             type="button"
             onClick={() => setView("model")}
-            className={`rounded-lg px-3 py-1.5 font-medium transition ${view === "model" ? "bg-cyan-400 text-slate-950" : "text-slate-300 hover:text-white"}`}
+            className={`rounded-lg px-3 py-1.5 font-medium transition ${view === "model" ? "bg-instrument text-ground" : "text-ink-secondary hover:text-ink-primary"}`}
           >
             3D model
           </button>
           <button
             type="button"
             onClick={() => setView("top")}
-            className={`rounded-lg px-3 py-1.5 font-medium transition ${view === "top" ? "bg-cyan-400 text-slate-950" : "text-slate-300 hover:text-white"}`}
+            className={`rounded-lg px-3 py-1.5 font-medium transition ${view === "top" ? "bg-instrument text-ground" : "text-ink-secondary hover:text-ink-primary"}`}
           >
             Top-down photo
           </button>
         </div>
       ) : null}
 
-      <div className="relative min-h-[480px] overflow-hidden rounded-2xl border border-white/10 bg-[#0b1418] sm:min-h-[560px]">
+      <div className="relative min-h-[480px] overflow-hidden rounded-2xl border border-hairline bg-[#0b1418] sm:min-h-[560px]">
         {view === "top" && topDownUrl ? (
           <img src={topDownUrl} alt="Top-down view of the roof" className="h-full w-full object-contain" />
         ) : glbUrl ? (
           <>
             <div ref={hostRef} className="absolute inset-0" />
             {loadState !== "ready" ? (
-              <div className="pointer-events-none absolute inset-x-4 top-4 rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm text-slate-200 backdrop-blur">
+              <div className="pointer-events-none absolute inset-x-4 top-4 rounded-xl border border-hairline bg-ground/80 p-3 text-sm text-ink-strong backdrop-blur">
                 {loadState === "error" ? (
                   <p className="text-rose-200">Couldn&apos;t load the 3D model. {error}</p>
                 ) : (
                   <>
-                    <p className="font-medium text-white">Loading your 3D model… {progress}%</p>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                      <div className="h-full rounded-full bg-cyan-300 transition-all" style={{ width: `${progress}%` }} />
+                    <p className="font-medium text-ink-primary">Loading your 3D model… {progress}%</p>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-lifted">
+                      <div className="h-full rounded-full bg-instrument-bright transition-all" style={{ width: `${progress}%` }} />
                     </div>
                   </>
                 )}
@@ -208,12 +208,13 @@ export function ModelMeasurementViewer({ modelPackage, previewUrl }: Props) {
           </>
         ) : (
           <div className="absolute inset-0 grid place-items-center p-8 text-center">
+            {/* Decorative backdrop behind the empty-state message; alt="" is intentional. */}
             {previewUrl ? (
               <img src={previewUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
             ) : null}
             <div className="relative">
-              <p className="text-lg font-medium text-white">Your 3D roof model will appear here</p>
-              <p className="mt-2 max-w-sm text-sm text-slate-400">
+              <p className="text-lg font-medium text-ink-primary">Your 3D roof model will appear here</p>
+              <p className="mt-2 max-w-sm text-sm text-ink-muted">
                 Build the model in step 2, then come back to spin it around and measure the roof.
               </p>
             </div>
@@ -222,7 +223,7 @@ export function ModelMeasurementViewer({ modelPackage, previewUrl }: Props) {
       </div>
 
       {glbUrl && view === "model" ? (
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-ink-muted">
           Drag to rotate · scroll to zoom. Use the measurement tool below to measure the roof.
         </p>
       ) : null}

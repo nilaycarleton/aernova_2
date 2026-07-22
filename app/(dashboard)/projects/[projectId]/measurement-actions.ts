@@ -40,6 +40,30 @@ const allowedSources = new Set([
   "DRONE",
 ]);
 
+/**
+ * useActionState wrapper for the free-text create form: it returns validation
+ * as state (so typed input survives) instead of letting createMeasurementAction
+ * throw and unmount the form. The template quick-add buttons keep calling
+ * createMeasurementAction directly — their label/value are fixed, never empty,
+ * so they never hit this path.
+ */
+export type MeasurementFormState = { fieldErrors?: Record<string, string> };
+
+export async function createMeasurementWithState(
+  _prevState: MeasurementFormState,
+  formData: FormData
+): Promise<MeasurementFormState> {
+  const label = String(formData.get("label") ?? "").trim();
+  const displayValue = String(formData.get("displayValue") ?? "").trim();
+  const fieldErrors: Record<string, string> = {};
+  if (!label) fieldErrors.label = "Name this measurement.";
+  if (!displayValue) fieldErrors.displayValue = "Add the value to show, like “3,240 sq ft”.";
+  if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
+
+  await createMeasurementAction(formData);
+  return {};
+}
+
 export async function createMeasurementAction(formData: FormData) {
   const projectId = getString(formData, "projectId");
   const label = getString(formData, "label");
