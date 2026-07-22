@@ -32,6 +32,7 @@
   --color-instrument-deep: oklch(71.5% 0.143 215.221); /* = cyan-500 */
 
   --color-signal-blue: oklch(62.3% 0.214 259.815); /* = blue-500 */
+  --color-signal-blue-deep: oklch(54.6% 0.245 262.881); /* = blue-600; white text clears 4.5:1 */
   --color-sky-accent: oklch(74.6% 0.16 232.661); /* = sky-400 */
   --color-confirm: oklch(69.6% 0.17 162.48); /* = emerald-500 */
 

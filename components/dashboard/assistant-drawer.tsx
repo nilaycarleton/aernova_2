@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { RoofAssistant } from "@/components/dashboard/roof-assistant";
+import { AiSummary } from "@/components/dashboard/ai-summary";
 
 /**
  * The roof assistant lives in a slide-over drawer, not inline. It used to sit as
@@ -76,7 +77,10 @@ export function AssistantDrawer({ projectId }: { projectId: string }) {
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <RoofAssistant projectId={projectId} onClose={close} />
+        <AiSummary projectId={projectId} />
+        <div className="min-h-0 flex-1">
+          <RoofAssistant projectId={projectId} onClose={close} />
+        </div>
       </div>
     </>
   );

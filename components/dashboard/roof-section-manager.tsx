@@ -13,21 +13,7 @@ export function RoofSectionManager({ projectId, sections }: Props) {
 
   return (
     <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
-      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-            Roof sections
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
-            Structures and roof facets
-          </h3>
-        </div>
-        <p className="text-sm text-ink-muted">
-          Editable facets for main house, garage, sheds, additions, and detached structures
-        </p>
-      </div>
-
-      <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {[
           ["Facet count", totals.facetCount.toString()],
           ["Surface area", `${totals.totalAreaSqft.toLocaleString()} sq ft`],

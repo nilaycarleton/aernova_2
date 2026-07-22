@@ -143,7 +143,7 @@ export function RoofAssistant({
               <div
                 className={
                   m.role === "user"
-                    ? "max-w-[85%] rounded-2xl rounded-br-sm bg-blue-600 px-3.5 py-2 text-sm text-ink-primary"
+                    ? "max-w-[85%] rounded-2xl rounded-br-sm bg-signal-blue-deep px-3.5 py-2 text-sm text-ink-primary"
                     : "max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-hairline bg-surface-raised px-3.5 py-2 text-sm text-ink-primary/90"
                 }
               >
@@ -167,7 +167,7 @@ export function RoofAssistant({
           <button
             onClick={() => send(input)}
             disabled={busy || !input.trim()}
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-ink-primary hover:bg-signal-blue disabled:opacity-40"
+            className="rounded-xl bg-signal-blue-deep px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:opacity-40"
           >
             {busy ? "…" : "Send"}
           </button>
