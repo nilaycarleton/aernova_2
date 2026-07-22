@@ -63,7 +63,7 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
   }
 
   return (
-    <form ref={formRef} onSubmit={submitUpload} className="mt-6 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
+    <form ref={formRef} onSubmit={submitUpload} className="mt-6 rounded-2xl border border-hairline bg-ground/35 p-3">
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_420px]">
         <label
           onDragOver={(event) => {
@@ -74,8 +74,8 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
           onDrop={handleDrop}
           className={`flex min-h-32 cursor-pointer flex-col justify-center rounded-2xl border border-dashed p-4 transition ${
             isDragActive
-              ? "border-cyan-300/70 bg-cyan-300/10"
-              : "border-white/15 bg-slate-950/45 hover:border-cyan-300/35 hover:bg-slate-950/65"
+              ? "border-instrument-bright/70 bg-instrument-bright/10"
+              : "border-white/15 bg-ground/45 hover:border-instrument-bright/35 hover:bg-ground/65"
           }`}
         >
           <input
@@ -88,16 +88,16 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
             onChange={(event) => updateSelectedFiles(event.currentTarget.files)}
             required
           />
-          <span className="text-sm uppercase tracking-[0.16em] text-slate-500">Upload photos</span>
-          <span className="mt-2 text-lg font-semibold text-white">
+          <span className="text-sm uppercase tracking-[0.16em] text-ink-muted">Upload photos</span>
+          <span className="mt-2 text-lg font-semibold text-ink-primary">
             {selectedFiles.length > 0
               ? `${selectedFiles.length} photo${selectedFiles.length === 1 ? "" : "s"} selected`
               : "Drop your drone photos here"}
           </span>
-          <span className="mt-1 max-w-xl text-sm leading-6 text-slate-400">
+          <span className="mt-1 max-w-xl text-sm leading-6 text-ink-muted">
             Add all the photos from your drone flight at once. The details on the right apply to every photo you select.
           </span>
-          <span className="mt-3 inline-flex w-fit rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500">
+          <span className="mt-3 inline-flex w-fit rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue">
             Choose files
           </span>
           {selectedFiles.length > 0 ? (
@@ -109,28 +109,28 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <select name="type" defaultValue="DRONE" aria-label="Photo type" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400">
+          <select name="type" defaultValue="DRONE" aria-label="Photo type" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400">
           <option value="DRONE">Drone photo</option>
           <option value="ORTHOMOSAIC">Top-down map</option>
           <option value="MODEL">3D model</option>
           <option value="BEFORE">Before photo</option>
           <option value="AFTER">After photo</option>
           </select>
-          <input name="altitudeFt" type="number" step="0.01" placeholder="Flight height (ft) — optional" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400" />
-          <input name="captureDate" type="date" aria-label="Date taken" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
-          <input name="captureTime" type="time" aria-label="Time taken" className="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none focus:border-blue-400" />
-          <textarea name="notes" rows={2} placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400 sm:col-span-2" />
+          <input name="altitudeFt" type="number" step="0.01" placeholder="Flight height (ft) — optional" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400" />
+          <input name="captureDate" type="date" aria-label="Date taken" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400" />
+          <input name="captureTime" type="time" aria-label="Time taken" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400" />
+          <textarea name="notes" rows={2} placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400 sm:col-span-2" />
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs leading-5 text-slate-500">
+        <p className="text-xs leading-5 text-ink-muted">
           Tip: upload the original files straight from the drone — they include location data that makes a better model.
         </p>
         <button
           type="submit"
           disabled={isUploading || isPending}
-          className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isUploading ? "Uploading..." : isPending ? "Refreshing..." : "Upload photos"}
         </button>

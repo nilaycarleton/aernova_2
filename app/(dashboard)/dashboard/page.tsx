@@ -39,16 +39,16 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-w-0 space-y-8">
-      <section className="min-w-0 rounded-3xl border border-white/10 bg-white/5 p-6">
+      <section className="min-w-0 rounded-3xl border border-hairline bg-surface-raised p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
-            <p className="text-sm uppercase tracking-[0.2em] text-slate-400">
+            <p className="text-sm uppercase tracking-[0.2em] text-ink-muted">
               Dashboard
             </p>
-            <h2 className="mt-2 break-words text-3xl font-semibold text-white">
+            <h2 className="mt-2 break-words text-3xl font-semibold text-ink-primary">
               Roofing workflow command center
             </h2>
-            <p className="mt-3 max-w-2xl text-slate-400">
+            <p className="mt-3 max-w-2xl text-ink-muted">
               Track measurements, inspection issues, quote readiness, and client
               proposal progress from one place.
             </p>
@@ -56,7 +56,7 @@ export default async function DashboardPage() {
 
           <Link
             href="/projects/new"
-            className="shrink-0 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-500"
+            className="shrink-0 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
           >
             New Project
           </Link>
@@ -74,8 +74,8 @@ export default async function DashboardPage() {
 
       <section className="space-y-4">
         <div>
-          <h3 className="text-xl font-semibold text-white">Projects</h3>
-          <p className="text-sm text-slate-400">
+          <h3 className="text-xl font-semibold text-ink-primary">Projects</h3>
+          <p className="text-sm text-ink-muted">
             Search, filter, and sort jobs across your roofing workspace
           </p>
         </div>

@@ -13,12 +13,12 @@ const navItems = [
 
 export function AppSidebar() {
   return (
-    <aside className="min-w-0 border-r border-white/10 bg-slate-900/60 p-4">
-      <div className="mb-8 rounded-xl border border-white/10 bg-white/5 p-4">
-        <div className="text-xl font-semibold tracking-wide text-white">
+    <aside className="min-w-0 border-r border-hairline bg-slate-900/60 p-4">
+      <div className="mb-8 rounded-xl border border-hairline bg-surface-raised p-4">
+        <div className="text-xl font-semibold tracking-wide text-ink-primary">
           Aernova
         </div>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm text-ink-muted">
           Roofing intelligence platform
         </p>
       </div>
@@ -28,7 +28,7 @@ export function AppSidebar() {
           <Link
             key={item.href + item.label}
             href={item.href}
-            className="block rounded-lg px-4 py-3 text-slate-300 transition hover:bg-white/5 hover:text-white"
+            className="block rounded-lg px-4 py-3 text-ink-secondary transition hover:bg-surface-raised hover:text-ink-primary"
           >
             {item.label}
           </Link>

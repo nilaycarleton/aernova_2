@@ -133,25 +133,25 @@ export function RoofExtractionPanel({
   };
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+    <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
       <div className="flex flex-col gap-2">
-        <h3 className="text-lg font-semibold text-white">Measure your roof</h3>
-        <p className="text-sm text-slate-400">
+        <h3 className="text-lg font-semibold text-ink-primary">Measure your roof</h3>
+        <p className="text-sm text-ink-muted">
           Draw a box around the roof and we&apos;ll calculate the real area, slope, and number of
           squares — measured straight from the 3D model, not guessed.
         </p>
-        <ol className="mt-1 grid gap-1 text-xs text-slate-400 sm:grid-cols-3">
-          <li className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
+        <ol className="mt-1 grid gap-1 text-xs text-ink-muted sm:grid-cols-3">
+          <li className="rounded-lg border border-hairline bg-ground/40 px-3 py-2">
             <span className="font-semibold text-sky-300">1.</span> Load the 3D roof
           </li>
-          <li className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
+          <li className="rounded-lg border border-hairline bg-ground/40 px-3 py-2">
             <span className="font-semibold text-sky-300">2.</span> Draw a box around the roof
           </li>
-          <li className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
+          <li className="rounded-lg border border-hairline bg-ground/40 px-3 py-2">
             <span className="font-semibold text-sky-300">3.</span> Get measurements — they save automatically
           </li>
         </ol>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-ink-muted">
           Your measurements save as roof sections you can edit below. Measuring again replaces them.
         </p>
       </div>
@@ -161,7 +161,7 @@ export function RoofExtractionPanel({
           type="button"
           onClick={loadPreview}
           disabled={loadingPreview}
-          className="mt-4 rounded-xl border border-white/10 bg-sky-500/20 px-4 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-500/30 disabled:opacity-50"
+          className="mt-4 rounded-xl border border-hairline bg-sky-500/20 px-4 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-500/30 disabled:opacity-50"
         >
           {loadingPreview ? "Loading…" : "Load the 3D roof"}
         </button>
@@ -173,7 +173,7 @@ export function RoofExtractionPanel({
             <canvas
               ref={canvasRef}
               onClick={handleCanvasClick}
-              className="w-full max-w-full cursor-crosshair rounded-2xl border border-white/10"
+              className="w-full max-w-full cursor-crosshair rounded-2xl border border-hairline"
               style={{ imageRendering: "pixelated", aspectRatio: `${preview.width} / ${preview.height}` }}
             />
             <div className="mt-3 flex flex-wrap gap-2">
@@ -181,7 +181,7 @@ export function RoofExtractionPanel({
                 type="button"
                 onClick={() => setPolygon((p) => p.slice(0, -1))}
                 disabled={polygon.length === 0 || extracting}
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:bg-white/10 disabled:opacity-40"
+                className="rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-ink-strong transition hover:bg-surface-lifted disabled:opacity-40"
               >
                 Undo point
               </button>
@@ -189,7 +189,7 @@ export function RoofExtractionPanel({
                 type="button"
                 onClick={() => setPolygon([])}
                 disabled={polygon.length === 0 || extracting}
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:bg-white/10 disabled:opacity-40"
+                className="rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-ink-strong transition hover:bg-surface-lifted disabled:opacity-40"
               >
                 Clear region
               </button>
@@ -197,40 +197,40 @@ export function RoofExtractionPanel({
                 type="button"
                 onClick={runExtraction}
                 disabled={polygon.length < 3 || extracting}
-                className="rounded-lg border border-white/10 bg-emerald-500/20 px-3 py-1.5 text-xs font-medium text-emerald-100 transition hover:bg-emerald-500/30 disabled:opacity-40"
+                className="rounded-lg border border-hairline bg-confirm/20 px-3 py-1.5 text-xs font-medium text-emerald-100 transition hover:bg-confirm/30 disabled:opacity-40"
               >
                 {extracting ? "Measuring…" : "Measure roof"}
               </button>
             </div>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-ink-muted">
               {polygon.length} point{polygon.length === 1 ? "" : "s"} • elevation {preview.baseElevationM}m–
               {preview.topElevationM}m
             </p>
           </div>
 
-          <div className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+          <div className="min-w-0 rounded-2xl border border-hairline bg-ground/40 p-4">
             {!result && !error && (
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-ink-muted">
                 Draw a box around the roof, then measure. The results flow straight into your quote
                 and report.
               </p>
             )}
             {error && <p className="text-sm text-rose-300">{error}</p>}
             {result && (
-              <div className="space-y-3 text-sm text-slate-200">
-                <p className="font-medium text-white">Measurements ready</p>
+              <div className="space-y-3 text-sm text-ink-strong">
+                <p className="font-medium text-ink-primary">Measurements ready</p>
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <dt className="text-slate-400">Roof faces</dt>
+                  <dt className="text-ink-muted">Roof faces</dt>
                   <dd className="text-right">{result.facetCount}</dd>
-                  <dt className="text-slate-400">Surface area</dt>
+                  <dt className="text-ink-muted">Surface area</dt>
                   <dd className="text-right">{result.totalSurfaceAreaSqft.toLocaleString()} ft²</dd>
-                  <dt className="text-slate-400">Footprint</dt>
+                  <dt className="text-ink-muted">Footprint</dt>
                   <dd className="text-right">{result.totalProjectedAreaSqft.toLocaleString()} ft²</dd>
-                  <dt className="text-slate-400">Squares</dt>
+                  <dt className="text-ink-muted">Squares</dt>
                   <dd className="text-right">{result.roofSquares}</dd>
-                  <dt className="text-slate-400">Main pitch</dt>
+                  <dt className="text-ink-muted">Main pitch</dt>
                   <dd className="text-right">{result.predominantPitchRatio}</dd>
-                  <dt className="text-slate-400">Detail captured</dt>
+                  <dt className="text-ink-muted">Detail captured</dt>
                   <dd className="text-right">
                     {result.diagnostics.trianglesInRoi > 0
                       ? Math.round(
@@ -241,19 +241,19 @@ export function RoofExtractionPanel({
                   </dd>
                 </dl>
                 <div>
-                  <p className="mb-1 text-xs uppercase tracking-wide text-slate-500">Pitch breakdown</p>
+                  <p className="mb-1 text-xs uppercase tracking-wide text-ink-muted">Pitch breakdown</p>
                   <ul className="space-y-1">
                     {result.pitchBreakdown.slice(0, 5).map((row) => (
                       <li key={row.pitch} className="flex justify-between text-xs">
-                        <span className="text-slate-300">{row.pitch}</span>
-                        <span className="text-slate-400">
+                        <span className="text-ink-secondary">{row.pitch}</span>
+                        <span className="text-ink-muted">
                           {row.areaSqft.toLocaleString()} ft² ({row.percent}%)
                         </span>
                       </li>
                     ))}
                   </ul>
                 </div>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-ink-muted">
                   {result.sectionsCreated} roof sections saved · {result.diagnostics.trianglesSegmented.toLocaleString()} of{" "}
                   {result.diagnostics.trianglesInRoi.toLocaleString()} mesh triangles in region segmented
                 </p>

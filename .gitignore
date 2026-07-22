@@ -42,6 +42,18 @@ public/uploads/
 # Claude Code local state (worktrees, local settings)
 .claude/
 
+# graphify knowledge-graph output (generated; contains absolute machine paths)
+graphify-out/
+
+# impeccable per-session hook cache (local state, not project source)
+.impeccable/hook.cache.json
+
+# impeccable's vendored copy for GitHub Copilot (2.3MB of tooling, reinstallable
+# with `npx impeccable install`). PRODUCT.md / DESIGN.md / .impeccable/design.json
+# are the checked-in design context; this is just the engine.
+.github/skills/
+.github/hooks/
+
 # vercel
 .vercel
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { MeasurementManager } from "@/components/dashboard/measurement-manager";
 import { ProposalGeneratorCard } from "@/components/dashboard/proposal-generator-card";
 import { AiSummary } from "@/components/dashboard/ai-summary";
-import { RoofAssistant } from "@/components/dashboard/roof-assistant";
+import { AssistantDrawer } from "@/components/dashboard/assistant-drawer";
 import { ProjectIntelligence } from "@/components/dashboard/project-intelligence";
 import { RoofSectionManager } from "@/components/dashboard/roof-section-manager";
 import { InspectionWorkflow } from "@/components/dashboard/inspection-workflow";
@@ -81,21 +81,21 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="min-w-0 space-y-8">
-      <section className="min-w-0 rounded-3xl border border-white/10 bg-white/5 p-6">
+      <section className="min-w-0 rounded-3xl border border-hairline bg-surface-raised p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0">
-            <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
+            <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
               Project
             </p>
-            <h2 className="mt-2 break-words text-3xl font-semibold text-white">
+            <h2 className="mt-2 break-words text-3xl font-semibold text-ink-primary">
               {project.name}
             </h2>
-            <p className="mt-2 break-words text-slate-400">
+            <p className="mt-2 break-words text-ink-muted">
               {project.clientName} • {project.addressLine1}, {project.city}, {project.province}
             </p>
           </div>
 
-          <div className="shrink-0 rounded-2xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-300">
+          <div className="shrink-0 rounded-2xl border border-hairline bg-ground/50 p-4 text-sm text-ink-secondary">
             <p>Status: {statusLabel(project.status)}</p>
             <p className="mt-2">
               Quote: {latestProposal ? `$${latestProposal.totalAmount?.toLocaleString() ?? 0}` : "None yet"}
@@ -103,7 +103,7 @@ export default async function ProjectDetailPage({
           </div>
           <Link
             href={`/projects/${project.id}/report`}
-            className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+            className="shrink-0 rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
           >
             Open Printable Report
           </Link>
@@ -113,8 +113,6 @@ export default async function ProjectDetailPage({
       <ProjectStatusStepper projectId={project.id} status={project.status} />
 
       <AiSummary projectId={project.id} />
-
-      <RoofAssistant projectId={project.id} />
 
       <ProjectWorkspace
         initialTab={initialTab}
@@ -156,6 +154,8 @@ export default async function ProjectDetailPage({
           </>
         }
       />
+
+      <AssistantDrawer projectId={project.id} />
     </div>
   );
 }

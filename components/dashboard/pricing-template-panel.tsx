@@ -16,20 +16,20 @@ const rows = [
 
 export function PricingTemplatePanel() {
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
-      <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
+    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
         Pricing Template
       </p>
-      <h3 className="mt-2 text-2xl font-semibold text-white">
+      <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
         Company defaults used by proposal generation
       </h3>
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {rows.map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-xs uppercase tracking-[0.14em] text-slate-500">
+          <div key={label} className="rounded-2xl border border-hairline bg-ground/50 p-4">
+            <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">
               {label}
             </p>
-            <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+            <p className="mt-2 text-lg font-semibold text-ink-primary">{value}</p>
           </div>
         ))}
       </div>
