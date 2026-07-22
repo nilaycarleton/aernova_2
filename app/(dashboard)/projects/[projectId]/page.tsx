@@ -4,7 +4,6 @@ import { requireCompanyContext } from "@/lib/auth";
 import Link from "next/link";
 import { MeasurementManager } from "@/components/dashboard/measurement-manager";
 import { ProposalGeneratorCard } from "@/components/dashboard/proposal-generator-card";
-import { AiSummary } from "@/components/dashboard/ai-summary";
 import { AssistantDrawer } from "@/components/dashboard/assistant-drawer";
 import { ProjectIntelligence } from "@/components/dashboard/project-intelligence";
 import { RoofSectionManager } from "@/components/dashboard/roof-section-manager";
@@ -16,6 +15,7 @@ import { RoofExtractionPanel } from "@/components/dashboard/roof-extraction-pane
 import { ProjectStatusStepper } from "@/components/dashboard/project-status-stepper";
 import { ProposalPreview } from "@/components/dashboard/proposal-preview";
 import { ProjectWorkspace } from "@/components/dashboard/project-workspace";
+import { DisclosurePanel } from "@/components/dashboard/disclosure-panel";
 import { getNodeOdmWorkerHealth } from "@/lib/nodeodm-client";
 import { getModelTaskUuid } from "@/lib/roof-extraction-service";
 import { statusLabel } from "@/lib/project-status";
@@ -112,8 +112,6 @@ export default async function ProjectDetailPage({
 
       <ProjectStatusStepper projectId={project.id} status={project.status} />
 
-      <AiSummary projectId={project.id} />
-
       <ProjectWorkspace
         initialTab={initialTab}
         inspect={
@@ -133,16 +131,41 @@ export default async function ProjectDetailPage({
               comparisons={project.comparisons}
               modelMeasurements={project.modelMeasurements}
             />
-            {extractableModel && (
-              <RoofExtractionPanel
-                projectId={project.id}
-                imageryId={extractableModel.id}
-                modelLabel={extractableModel.fileName ?? "Roof 3D model"}
-              />
-            )}
-            <RoofSectionManager projectId={project.id} sections={project.sections} />
-            <MeasurementManager projectId={project.id} measurements={project.measurements} />
+
             <ProjectIntelligence measurements={project.measurements} sections={project.sections} />
+
+            {/* The hands-on tools wait behind disclosure so the workflow and the
+                numbers lead. Each opens itself once it has work in it. */}
+            <DisclosurePanel
+              title="Structures & facets"
+              hint="Add or edit roof planes and detached structures by hand"
+              count={project.sections.length}
+              defaultOpen={project.sections.length > 0}
+            >
+              <RoofSectionManager projectId={project.id} sections={project.sections} />
+            </DisclosurePanel>
+
+            <DisclosurePanel
+              title="Measurements"
+              hint="Add or edit roof metrics by hand — area, ridge, pitch, and more"
+              count={project.measurements.length}
+              defaultOpen={project.measurements.length > 0}
+            >
+              <MeasurementManager projectId={project.id} measurements={project.measurements} />
+            </DisclosurePanel>
+
+            {extractableModel && (
+              <DisclosurePanel
+                title="Roof extraction"
+                hint="Advanced — trace the roof outline on the 3D model to pull measurements"
+              >
+                <RoofExtractionPanel
+                  projectId={project.id}
+                  imageryId={extractableModel.id}
+                  modelLabel={extractableModel.fileName ?? "Roof 3D model"}
+                />
+              </DisclosurePanel>
+            )}
           </>
         }
         quote={
