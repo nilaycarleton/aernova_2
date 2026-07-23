@@ -52,10 +52,7 @@ export function ProposalEditor({ projectId, latestProposal }: Props) {
     <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-            Proposal Editor
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
+          <h3 className="text-2xl font-semibold text-ink-primary">
             Editable title, scope, notes, and line items
           </h3>
         </div>

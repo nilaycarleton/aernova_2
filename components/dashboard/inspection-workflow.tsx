@@ -39,10 +39,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
       <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-              Inspection
-            </p>
-            <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
+            <h3 className="text-2xl font-semibold text-ink-primary">
               Photo evidence, annotations, and issue tracking
             </h3>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
@@ -71,10 +68,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-            Photo Upload
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
+          <h3 className="text-2xl font-semibold text-ink-primary">
             Add site photos
           </h3>
 
@@ -126,10 +120,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
         </div>
 
         <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-            Roof Issue Management
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
+          <h3 className="text-2xl font-semibold text-ink-primary">
             Record structured inspection issues
           </h3>
 

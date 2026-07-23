@@ -14,9 +14,9 @@
   /* Surfaces. Depth is tonal only — see the Two-Layer Rule in DESIGN.md.
      `ground` carries alpha variants throughout (bg-ground/50, /80, /85). */
   --color-ground: oklch(12.9% 0.042 264.695); /* = slate-950 */
-  --color-surface-raised: rgb(255 255 255 / 0.05);
-  --color-surface-lifted: rgb(255 255 255 / 0.1);
-  --color-hairline: rgb(255 255 255 / 0.1);
+  --color-surface-raised: rgb(255 255 255 / 0.07);
+  --color-surface-lifted: rgb(255 255 255 / 0.13);
+  --color-hairline: rgb(255 255 255 / 0.14);
 
   /* Text. Ink Muted is the contrast floor at 7.66:1 on ground — nothing dimmer
      may carry text. slate-500 (4.23:1) is below AA at our type sizes. */

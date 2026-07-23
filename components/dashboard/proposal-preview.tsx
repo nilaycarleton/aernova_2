@@ -53,8 +53,7 @@ export function ProposalPreview({
 
   return (
     <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
-      <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Client-ready preview</p>
-      <h3 className="mt-2 text-lg font-semibold text-ink-primary">How the client sees this proposal</h3>
+      <h3 className="text-lg font-semibold text-ink-primary">How the client sees this proposal</h3>
 
       {/* Light "document" surface so it reads like the printed proposal. */}
       <article className="mt-5 rounded-2xl bg-paper-document p-8 text-paper-ink-strong shadow-xl">

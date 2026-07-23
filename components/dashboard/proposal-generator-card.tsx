@@ -38,10 +38,7 @@ export function ProposalGeneratorCard({ projectId, proposals, hasMeasurements }:
     <section className="space-y-4 rounded-3xl border border-hairline bg-surface-raised p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-            Quote
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
+          <h3 className="text-2xl font-semibold text-ink-primary">
             Create the client quote
           </h3>
           <p className="mt-2 max-w-3xl text-sm text-ink-muted">
