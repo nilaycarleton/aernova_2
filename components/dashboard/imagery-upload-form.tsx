@@ -97,7 +97,7 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
           <span className="mt-1 max-w-xl text-sm leading-6 text-ink-muted">
             Add all the photos from your drone flight at once. The details on the right apply to every photo you select.
           </span>
-          <span className="mt-3 inline-flex w-fit rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue">
+          <span className="mt-3 inline-flex w-fit rounded-xl bg-signal-blue-deep px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue">
             Choose files
           </span>
           {selectedFiles.length > 0 ? (
@@ -130,7 +130,7 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
         <button
           type="submit"
           disabled={isUploading || isPending}
-          className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isUploading ? "Uploading..." : isPending ? "Refreshing..." : "Upload photos"}
         </button>

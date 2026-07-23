@@ -159,7 +159,7 @@ export function PhotoAnnotationStudio({ projectId, photos }: Props) {
               <input type="hidden" name="annotationsJson" value={JSON.stringify(annotations)} />
               <button
                 type="submit"
-                className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
+                className="rounded-2xl bg-signal-blue-deep px-4 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
               >
                 Save Markup
               </button>

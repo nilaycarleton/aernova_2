@@ -85,7 +85,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               type="file"
               accept="image/*"
               capture="environment"
-              className="block w-full rounded-2xl border border-dashed border-white/15 bg-ground/50 px-4 py-5 text-sm text-ink-secondary file:mr-4 file:rounded-xl file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink-primary"
+              className="block w-full rounded-2xl border border-dashed border-white/15 bg-ground/50 px-4 py-5 text-sm text-ink-secondary file:mr-4 file:rounded-xl file:border-0 file:bg-signal-blue-deep file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink-primary"
               required
             />
             <p className="text-xs text-ink-muted">
@@ -118,7 +118,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
             />
             <button
               type="submit"
-              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
+              className="rounded-2xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
             >
               Upload Photo
             </button>
@@ -209,7 +209,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
             />
             <button
               type="submit"
-              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
+              className="rounded-2xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
             >
               Add Issue
             </button>
