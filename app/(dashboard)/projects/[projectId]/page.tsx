@@ -176,7 +176,11 @@ export default async function ProjectDetailPage({
         }
         quote={
           <>
-            <ProposalGeneratorCard projectId={project.id} proposals={project.proposals} />
+            <ProposalGeneratorCard
+              projectId={project.id}
+              proposals={project.proposals}
+              hasMeasurements={project.measurements.length > 0 || project.modelMeasurements.length > 0}
+            />
             <ProposalEditor projectId={project.id} latestProposal={latestProposal ?? null} />
             <ProposalPreview companyName={company.name} proposal={latestProposal ?? null} />
             <PricingTemplatePanel />
