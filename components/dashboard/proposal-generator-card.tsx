@@ -1,9 +1,12 @@
+import Link from "next/link";
 import { Proposal } from "@prisma/client";
 import { generateProposalAction } from "@/app/(dashboard)/projects/[projectId]/proposal-actions";
 
 type Props = {
   projectId: string;
   proposals: Proposal[];
+  /** Whether the project has any roof measurements to build a quote from. */
+  hasMeasurements: boolean;
 };
 
 // Format a possibly-float summary value for display (e.g. 3664.1000000000004 ->
@@ -14,7 +17,7 @@ function num(value: unknown, decimals = 1) {
   return n.toLocaleString(undefined, { maximumFractionDigits: decimals });
 }
 
-export function ProposalGeneratorCard({ projectId, proposals }: Props) {
+export function ProposalGeneratorCard({ projectId, proposals, hasMeasurements }: Props) {
   const latest = proposals[0];
 
   let parsed: null | {
@@ -47,15 +50,20 @@ export function ProposalGeneratorCard({ projectId, proposals }: Props) {
           </p>
         </div>
 
-        <form action={generateProposalAction}>
-          <input type="hidden" name="projectId" value={projectId} />
-          <button
-            type="submit"
-            className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
-          >
-            Create quote
-          </button>
-        </form>
+        {/* The quote is built from measurements, so the action only appears once
+            there are some. With none, the empty state below points to Scan &
+            measure instead of offering a button that would build a hollow quote. */}
+        {hasMeasurements || latest ? (
+          <form action={generateProposalAction}>
+            <input type="hidden" name="projectId" value={projectId} />
+            <button
+              type="submit"
+              className="rounded-xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+            >
+              {latest ? "Rebuild quote" : "Create quote"}
+            </button>
+          </form>
+        ) : null}
       </div>
 
       {latest ? (
@@ -131,9 +139,26 @@ export function ProposalGeneratorCard({ projectId, proposals }: Props) {
             </div>
           ) : null}
         </div>
-      ) : (
+      ) : hasMeasurements ? (
         <div className="rounded-2xl border border-dashed border-hairline p-8 text-ink-muted">
           No quote yet. Create one from your roof measurements.
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-hairline p-8">
+          <p className="font-medium text-ink-secondary">Measure the roof first</p>
+          <p className="mt-1 max-w-md text-sm leading-6 text-ink-muted">
+            A quote is built from your roof measurements — area, pitch, and squares. Add them in
+            Scan &amp; measure, then come back here to build the priced quote.
+          </p>
+          <Link
+            href={`/projects/${projectId}?tab=scan`}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+          >
+            Go to Scan &amp; measure
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </Link>
         </div>
       )}
     </section>
