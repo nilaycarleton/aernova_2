@@ -65,7 +65,7 @@ export function ComparisonCreateForm({
       />
       <SubmitButton
         pendingText="Creating..."
-        className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:opacity-40 md:col-span-2"
+        className="rounded-2xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:opacity-40 md:col-span-2"
       >
         Create comparison
       </SubmitButton>

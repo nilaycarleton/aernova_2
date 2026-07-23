@@ -85,7 +85,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
         </p>
         <Link
           href="/projects/new"
-          className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
+          className="mt-5 inline-flex rounded-xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
         >
           New project
         </Link>
