@@ -36,6 +36,23 @@ export function FieldError({ fieldId, message }: { fieldId: string; message?: st
   );
 }
 
+/**
+ * A form-level error banner for a failed save (network/server), as opposed to
+ * field validation. It names the problem and promises the typing survived, so
+ * the roofer can just try again — the same contract as returned field errors.
+ */
+export function FormError({ message }: { message?: string }) {
+  if (!message) return null;
+  return (
+    <div
+      role="alert"
+      className="mb-4 rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"
+    >
+      {message} Nothing you typed has been lost.
+    </div>
+  );
+}
+
 /** The reassurance banner: names the count and promises nothing was lost. */
 export function FormErrorSummary({ count, noun = "job" }: { count: number; noun?: string }) {
   if (count < 1) return null;

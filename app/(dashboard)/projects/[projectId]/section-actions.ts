@@ -16,8 +16,12 @@ function getOptionalNumber(formData: FormData, key: string) {
   return value;
 }
 
-/** Validation is returned, not thrown, so the form and its input survive it. */
-export type SectionFormState = { fieldErrors?: Record<string, string> };
+/**
+ * Validation and save failures are returned, not thrown, so the form and its
+ * input survive both: `fieldErrors` for per-field problems, `formError` for a
+ * failed save the roofer can retry.
+ */
+export type SectionFormState = { fieldErrors?: Record<string, string>; formError?: string };
 
 export async function createRoofSectionAction(
   _prevState: SectionFormState,
@@ -25,30 +29,36 @@ export async function createRoofSectionAction(
 ): Promise<SectionFormState> {
   const projectId = getString(formData, "projectId");
   const label = getString(formData, "label");
-  const pitchRatio = getString(formData, "pitchRatio");
 
-  if (!projectId) throw new Error("Missing projectId");
+  if (!projectId) return { formError: "Something went wrong. Reload the page and try again." };
   if (!label) return { fieldErrors: { label: "Name this facet or structure." } };
-  await requireProjectAccess(projectId);
 
-  await prisma.roofSection.create({
-    data: {
-      projectId,
-      label,
-      source: "manual",
-      pitchRatio: pitchRatio || null,
-      surfaceAreaSqft: getOptionalNumber(formData, "surfaceAreaSqft"),
-      ridgeLengthFt: getOptionalNumber(formData, "ridgeLengthFt"),
-      hipLengthFt: getOptionalNumber(formData, "hipLengthFt"),
-      valleyLengthFt: getOptionalNumber(formData, "valleyLengthFt"),
-      eaveLengthFt: getOptionalNumber(formData, "eaveLengthFt"),
-      rakeLengthFt: getOptionalNumber(formData, "rakeLengthFt"),
-    },
-  });
+  try {
+    await requireProjectAccess(projectId);
+    const pitchRatio = getString(formData, "pitchRatio");
 
-  revalidatePath(`/projects/${projectId}`);
-  revalidatePath(`/projects/${projectId}/report`);
-  return {};
+    await prisma.roofSection.create({
+      data: {
+        projectId,
+        label,
+        source: "manual",
+        pitchRatio: pitchRatio || null,
+        surfaceAreaSqft: getOptionalNumber(formData, "surfaceAreaSqft"),
+        ridgeLengthFt: getOptionalNumber(formData, "ridgeLengthFt"),
+        hipLengthFt: getOptionalNumber(formData, "hipLengthFt"),
+        valleyLengthFt: getOptionalNumber(formData, "valleyLengthFt"),
+        eaveLengthFt: getOptionalNumber(formData, "eaveLengthFt"),
+        rakeLengthFt: getOptionalNumber(formData, "rakeLengthFt"),
+      },
+    });
+
+    revalidatePath(`/projects/${projectId}`);
+    revalidatePath(`/projects/${projectId}/report`);
+    return {};
+  } catch {
+    // A bad number or a DB/network hiccup — keep the roofer's input and let them retry.
+    return { formError: "Couldn't save this facet. Please try again." };
+  }
 }
 
 export async function updateRoofSectionAction(formData: FormData) {
