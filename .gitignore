@@ -57,6 +57,10 @@ graphify-out/
 # vercel
 .vercel
 
+# vercel-labs/agent-skills (installed via `npx skills add`, reinstallable)
+.agents/
+skills-lock.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -30,16 +30,16 @@ export function SectionCreateForm({ projectId }: { projectId: string }) {
         />
         <FieldError fieldId="section-label" message={labelError} />
       </div>
-      <input name="pitchRatio" placeholder="6/12" className={NUM} />
-      <input name="surfaceAreaSqft" type="number" step="0.01" placeholder="Area sq ft" className={NUM} />
-      <input name="ridgeLengthFt" type="number" step="0.01" placeholder="Ridge ft" className={NUM} />
-      <input name="hipLengthFt" type="number" step="0.01" placeholder="Hip ft" className={NUM} />
-      <input name="valleyLengthFt" type="number" step="0.01" placeholder="Valley ft" className={NUM} />
-      <input name="eaveLengthFt" type="number" step="0.01" placeholder="Eave ft" className={NUM} />
-      <input name="rakeLengthFt" type="number" step="0.01" placeholder="Rake ft" className={NUM} />
+      <input name="pitchRatio" aria-label="Pitch ratio" placeholder="6/12" className={NUM} />
+      <input name="surfaceAreaSqft" type="number" step="0.01" aria-label="Surface area, square feet" placeholder="Area sq ft" className={NUM} />
+      <input name="ridgeLengthFt" type="number" step="0.01" aria-label="Ridge length, feet" placeholder="Ridge ft" className={NUM} />
+      <input name="hipLengthFt" type="number" step="0.01" aria-label="Hip length, feet" placeholder="Hip ft" className={NUM} />
+      <input name="valleyLengthFt" type="number" step="0.01" aria-label="Valley length, feet" placeholder="Valley ft" className={NUM} />
+      <input name="eaveLengthFt" type="number" step="0.01" aria-label="Eave length, feet" placeholder="Eave ft" className={NUM} />
+      <input name="rakeLengthFt" type="number" step="0.01" aria-label="Rake length, feet" placeholder="Rake ft" className={NUM} />
       <SubmitButton
-        pendingText="Adding..."
-        className="rounded-xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+        pendingText="Adding…"
+        className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
       >
         Add Facet
       </SubmitButton>

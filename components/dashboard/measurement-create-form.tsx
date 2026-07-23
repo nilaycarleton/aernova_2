@@ -119,8 +119,8 @@ export function MeasurementCreateForm({ projectId }: { projectId: string }) {
 
       <div className="md:col-span-2 flex flex-wrap gap-3">
         <SubmitButton
-          pendingText="Adding..."
-          className="rounded-xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+          pendingText="Adding…"
+          className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Add Measurement
         </SubmitButton>

@@ -1,17 +1,35 @@
 import { defaultPricingTemplate } from "@/lib/pricing-template";
 
-const rows = [
-  ["Shingle bundle", `$${defaultPricingTemplate.shingleBundleCost}`],
-  ["Underlayment roll", `$${defaultPricingTemplate.underlaymentRollCost}`],
-  ["Ridge cap bundle", `$${defaultPricingTemplate.ridgeCapBundleCost}`],
-  ["Starter bundle", `$${defaultPricingTemplate.starterBundleCost}`],
-  ["Drip edge", `$${defaultPricingTemplate.dripEdgeCostPerFt}/ft`],
-  ["Labor simple", `$${defaultPricingTemplate.laborRateSimple}/sq ft`],
-  ["Labor normal", `$${defaultPricingTemplate.laborRateNormal}/sq ft`],
-  ["Labor complex", `$${defaultPricingTemplate.laborRateComplex}/sq ft`],
-  ["Disposal", `$${defaultPricingTemplate.disposalFee}`],
-  ["Markup", `${defaultPricingTemplate.markupPercent}%`],
-  ["Tax rate", `${defaultPricingTemplate.taxRatePercent}%`],
+// Grouped like a real price sheet, not 11 identical boxes — materials, labor,
+// and the rates that ride on top of them read as three ledgers, so the eye can
+// scan a column instead of hunting a grid.
+const groups: { heading: string; rows: [string, string][] }[] = [
+  {
+    heading: "Materials",
+    rows: [
+      ["Shingle bundle", `$${defaultPricingTemplate.shingleBundleCost}`],
+      ["Underlayment roll", `$${defaultPricingTemplate.underlaymentRollCost}`],
+      ["Ridge cap bundle", `$${defaultPricingTemplate.ridgeCapBundleCost}`],
+      ["Starter bundle", `$${defaultPricingTemplate.starterBundleCost}`],
+      ["Drip edge", `$${defaultPricingTemplate.dripEdgeCostPerFt}/ft`],
+    ],
+  },
+  {
+    heading: "Labor",
+    rows: [
+      ["Simple", `$${defaultPricingTemplate.laborRateSimple}/sq ft`],
+      ["Normal", `$${defaultPricingTemplate.laborRateNormal}/sq ft`],
+      ["Complex", `$${defaultPricingTemplate.laborRateComplex}/sq ft`],
+    ],
+  },
+  {
+    heading: "Fees & rates",
+    rows: [
+      ["Disposal", `$${defaultPricingTemplate.disposalFee}`],
+      ["Markup", `${defaultPricingTemplate.markupPercent}%`],
+      ["Tax rate", `${defaultPricingTemplate.taxRatePercent}%`],
+    ],
+  },
 ];
 
 export function PricingTemplatePanel() {
@@ -23,13 +41,25 @@ export function PricingTemplatePanel() {
       <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
         Company defaults used by proposal generation
       </h3>
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {rows.map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-hairline bg-ground/50 p-4">
+      <div className="mt-6 grid gap-x-10 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+        {groups.map((group) => (
+          <div key={group.heading}>
             <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">
-              {label}
+              {group.heading}
             </p>
-            <p className="mt-2 text-lg font-semibold text-ink-primary">{value}</p>
+            <dl className="mt-2">
+              {group.rows.map(([label, value]) => (
+                <div
+                  key={label}
+                  className="flex items-baseline justify-between gap-4 border-b border-hairline py-2.5 last:border-b-0"
+                >
+                  <dt className="text-sm text-ink-secondary">{label}</dt>
+                  <dd className="text-sm font-semibold tabular-nums text-ink-primary">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
         ))}
       </div>

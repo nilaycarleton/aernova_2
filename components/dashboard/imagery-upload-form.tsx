@@ -97,7 +97,7 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
           <span className="mt-1 max-w-xl text-sm leading-6 text-ink-muted">
             Add all the photos from your drone flight at once. The details on the right apply to every photo you select.
           </span>
-          <span className="mt-3 inline-flex w-fit rounded-xl bg-signal-blue-deep px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue">
+          <span className="mt-3 inline-flex w-fit rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20">
             Choose files
           </span>
           {selectedFiles.length > 0 ? (
@@ -116,10 +116,10 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
           <option value="BEFORE">Before photo</option>
           <option value="AFTER">After photo</option>
           </select>
-          <input name="altitudeFt" type="number" step="0.01" placeholder="Flight height (ft) — optional" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400" />
+          <input name="altitudeFt" type="number" step="0.01" aria-label="Flight height, feet" placeholder="Flight height (ft) — optional" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400" />
           <input name="captureDate" type="date" aria-label="Date taken" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400" />
           <input name="captureTime" type="time" aria-label="Time taken" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400" />
-          <textarea name="notes" rows={2} placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400 sm:col-span-2" />
+          <textarea name="notes" rows={2} aria-label="Photo note" placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400 sm:col-span-2" />
         </div>
       </div>
 
@@ -130,13 +130,17 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
         <button
           type="submit"
           disabled={isUploading || isPending}
-          className="rounded-2xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2xl bg-instrument px-5 py-3 text-sm font-semibold text-ground transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isUploading ? "Uploading..." : isPending ? "Refreshing..." : "Upload photos"}
+          {isUploading ? "Uploading…" : isPending ? "Refreshing…" : "Upload photos"}
         </button>
       </div>
-      {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
-      {success ? <p className="mt-3 text-sm text-emerald-300">{success}</p> : null}
+      <p role="alert" className="mt-3 text-sm text-rose-300 empty:mt-0">
+        {error}
+      </p>
+      <p aria-live="polite" className="mt-3 text-sm text-emerald-300 empty:mt-0">
+        {success}
+      </p>
     </form>
   );
 }

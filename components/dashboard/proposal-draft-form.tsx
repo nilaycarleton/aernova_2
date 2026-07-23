@@ -136,8 +136,8 @@ export function ProposalDraftForm({ initial }: { initial: ProposalDraftInitial }
 
       <div className="md:col-span-2">
         <SubmitButton
-          pendingText="Saving..."
-          className="rounded-xl bg-instrument-deep px-5 py-3 text-sm font-medium text-ground transition hover:bg-instrument disabled:opacity-40"
+          pendingText="Saving…"
+          className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-ground transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Save Proposal Draft
         </SubmitButton>
