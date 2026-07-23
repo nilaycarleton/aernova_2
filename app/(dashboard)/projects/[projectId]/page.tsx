@@ -18,7 +18,6 @@ import { ProjectWorkspace } from "@/components/dashboard/project-workspace";
 import { DisclosurePanel } from "@/components/dashboard/disclosure-panel";
 import { getNodeOdmWorkerHealth } from "@/lib/nodeodm-client";
 import { getModelTaskUuid } from "@/lib/roof-extraction-service";
-import { statusLabel } from "@/lib/project-status";
 
 export default async function ProjectDetailPage({
   params,
@@ -95,11 +94,18 @@ export default async function ProjectDetailPage({
             </p>
           </div>
 
-          <div className="shrink-0 rounded-2xl border border-hairline bg-ground/50 p-4 text-sm text-ink-secondary">
-            <p>Status: {statusLabel(project.status)}</p>
-            <p className="mt-2">
-              Quote: {latestProposal ? `$${latestProposal.totalAmount?.toLocaleString() ?? 0}` : "None yet"}
-            </p>
+          {/* Status lives in the stepper below; the header carries only what the
+              stepper doesn't — the quote figure (the number a contractor stakes a
+              bid on, so it's legible, not a caption) and the report link. */}
+          <div className="shrink-0 rounded-2xl border border-hairline bg-ground/50 px-5 py-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-ink-muted">Quote</p>
+            {latestProposal ? (
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-ink-primary">
+                ${latestProposal.totalAmount?.toLocaleString() ?? 0}
+              </p>
+            ) : (
+              <p className="mt-1 text-sm text-ink-muted">None yet</p>
+            )}
           </div>
           <Link
             href={`/projects/${project.id}/report`}
