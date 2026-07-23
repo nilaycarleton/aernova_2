@@ -35,12 +35,12 @@ const groups: { heading: string; rows: [string, string][] }[] = [
 export function PricingTemplatePanel() {
   return (
     <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
-      <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-        Pricing Template
-      </p>
-      <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
-        Company defaults used by proposal generation
+      <h3 className="text-2xl font-semibold text-ink-primary">
+        Company pricing defaults
       </h3>
+      <p className="mt-1 text-sm text-ink-muted">
+        Used by proposal generation
+      </p>
       <div className="mt-6 grid gap-x-10 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
         {groups.map((group) => (
           <div key={group.heading}>

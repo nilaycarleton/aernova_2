@@ -3,9 +3,9 @@ name: Aernova
 description: Roof measurement, inspection, and proposal platform for roofing contractors.
 colors:
   ground: "#020618"
-  surface-raised: "#ffffff0d"
-  surface-lifted: "#ffffff1a"
-  hairline: "#ffffff1a"
+  surface-raised: "#ffffff12"
+  surface-lifted: "#ffffff21"
+  hairline: "#ffffff24"
   ink-primary: "#ffffff"
   ink-strong: "#e2e8f0"
   ink-secondary: "#cad5e2"
@@ -118,7 +118,7 @@ components:
 
 A field notebook is the least precious object on a job site and the most trusted. It is plain, durable, and legible in any light. Nobody admires it; everybody relies on it. Its virtue is that a measurement written in it can be read back six months later without ambiguity. Aernova's interface answers to that standard: the numbers are the content, and everything around them is there to keep them readable.
 
-The system is dark and flat. A near-black navy ground (`#020618`) carries translucent white panels that layer without ever casting a shadow. Separation comes from a single hairline rule (`#ffffff1a`) and from tone — not from depth effects, gradients, or glow. This is the notebook's discipline expressed in a dark surface: ruled lines and plain paper, nothing embossed. Corners are generously soft (12–16px) so the system reads as unhurried rather than engineered.
+The system is dark and flat. A near-black navy ground (`#020618`) carries translucent white panels that layer without ever casting a shadow. Separation comes from a single hairline rule (`#ffffff24`) and from tone — not from depth effects, gradients, or glow. This is the notebook's discipline expressed in a dark surface: ruled lines and plain paper, nothing embossed. Corners are generously soft (12–16px) so the system reads as unhurried rather than engineered.
 
 What this system rejects, in PRODUCT.md's words, is **CAD and engineering complexity**: exposed technical controls, dense parameter panels, and the vocabulary of the pipeline surfaced into the UI. Aernova performs photogrammetry and shows a roofer a number. The interface's job is to make that number plain, never to advertise the machinery that produced it.
 
@@ -126,7 +126,7 @@ The notebook metaphor carries one non-negotiable consequence: **legibility is no
 
 **Key Characteristics:**
 - Flat by doctrine — depth from tonal layering, never shadow
-- One hairline rule (`#ffffff1a`) does all structural separation
+- One hairline rule (`#ffffff24`) does all structural separation
 - Small, dense, workmanlike type (14px body) — but never at the cost of contrast
 - Cyan reserved for measurement truth, not decoration
 - Soft radii (12–16px) to keep a technical product feeling unhurried
@@ -149,9 +149,9 @@ A near-black navy ground, translucent white for structure, and exactly one accen
 
 ### Neutral
 - **Ground** (`#020618`): The page. Every dashboard surface starts here.
-- **Surface Raised** (`#ffffff0d` (white at 5%)): The default panel. This is the workhorse container fill.
-- **Surface Lifted** (`#ffffff1a`, white at 10%): One step up — nested panels, hovered rows, active list items. The only elevation move the system has.
-- **Hairline** (`#ffffff1a`, white at 10%): Every border in the product. One rule, one weight, no exceptions.
+- **Surface Raised** (`#ffffff12` (white at 7%)): The default panel. This is the workhorse container fill.
+- **Surface Lifted** (`#ffffff21`, white at 13%): One step up — nested panels, hovered rows, active list items. The only elevation move the system has.
+- **Hairline** (`#ffffff24`, white at 14%): Every border in the product. One rule, one weight, no exceptions.
 - **Ink Primary** (`#ffffff`): Headings and any number a contractor will act on.
 - **Ink Secondary** (`#cad5e2`): Body copy. The default reading color.
 - **Ink Muted** (`#90a1b9`): Labels, metadata, timestamps, units. The floor — nothing dimmer than this carries text.
@@ -190,7 +190,7 @@ A near-black navy ground, translucent white for structure, and exactly one accen
 
 ## 4. Elevation
 
-**This system has no shadows.** That is doctrine, not an omission. Depth is expressed entirely through tonal layering: the ground (`#020618`) receives a 5% white panel, which may receive a 10% white panel, and each is separated by a hairline. There are exactly two levels, and there is no third.
+**This system has no shadows.** That is doctrine, not an omission. Depth is expressed entirely through tonal layering: the ground (`#020618`) receives a 7% white panel, which may receive a 13% white panel, and each is separated by a hairline. There are exactly two levels, and there is no third.
 
 Shadow is prohibited on the dark surface. A shadow under a *translucent* panel on a near-black ground produces smudge, not depth — it reads as the glassmorphism the product has no business borrowing.
 
@@ -221,9 +221,9 @@ The exception is an **opaque paper surface**: the client-ready proposal preview 
 
 ### Cards / Containers
 - **Corner Style:** 16px (`rounded-2xl`) for panels; 24px for the outermost workspace shells.
-- **Background:** Surface Raised (5% white). Nested content may go to Surface Lifted (10%).
+- **Background:** Surface Raised (7% white). Nested content may go to Surface Lifted (13%).
 - **Shadow Strategy:** None. See Elevation.
-- **Border:** The hairline (`#ffffff1a`), 1px, always.
+- **Border:** The hairline (`#ffffff24`), 1px, always.
 - **Internal Padding:** 24px standard, 16px for dense or nested panels.
 
 ### Inputs / Fields
@@ -241,8 +241,8 @@ The Three.js roof viewer is the product's signature surface and the one place te
 
 ### Do:
 - **Do** use Instrument Cyan (`#00d2ef`) only for measurement truth and the primary action that advances the job — The Readout Rule.
-- **Do** express every border as the 1px hairline (`#ffffff1a`) at one weight.
-- **Do** build depth from the two-layer tonal scale (5% → 10% white) and nothing else.
+- **Do** express every border as the 1px hairline (`#ffffff24`) at one weight.
+- **Do** build depth from the two-layer tonal scale (7% → 13% white) and nothing else.
 - **Do** keep body copy at 14px / Ink Secondary (`#cad5e2`) and treat `#90a1b9` as the absolute dimmest text on screen.
 - **Do** separate a label from its value with weight and color, never a third font size.
 - **Do** state units and confidence plainly next to any measurement — PRODUCT.md: *"a number presented with false precision is a liability the contractor absorbs, not us."*
