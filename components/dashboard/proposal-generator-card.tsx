@@ -58,7 +58,7 @@ export function ProposalGeneratorCard({ projectId, proposals, hasMeasurements }:
             <input type="hidden" name="projectId" value={projectId} />
             <button
               type="submit"
-              className="rounded-xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+              className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-ground transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {latest ? "Rebuild quote" : "Create quote"}
             </button>
@@ -75,16 +75,21 @@ export function ProposalGeneratorCard({ projectId, proposals, hasMeasurements }:
                 Latest draft quote
               </p>
             </div>
-            <div className="rounded-full bg-confirm/10 px-4 py-2 text-sm text-emerald-300">
-              ${latest.totalAmount?.toLocaleString() ?? "0"}
+            <div className="text-left md:text-right">
+              <div className="text-xs uppercase tracking-[0.15em] text-ink-muted">
+                Quote total
+              </div>
+              <div className="mt-1 text-3xl font-semibold tabular-nums text-instrument-bright">
+                ${latest.totalAmount?.toLocaleString() ?? "0"}
+              </div>
             </div>
           </div>
 
           {parsed?.summary ? (
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
-              <div className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-4">
-                <div className="text-xs uppercase tracking-[0.15em] text-ink-muted">Roof area</div>
-                <div className="mt-2 text-lg font-semibold tabular-nums text-ink-primary">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="min-w-0 rounded-2xl border border-instrument/25 bg-instrument/5 p-4">
+                <div className="text-xs uppercase tracking-[0.15em] text-instrument-bright">Roof area</div>
+                <div className="mt-2 text-2xl font-semibold tabular-nums text-instrument-bright">
                   {num(parsed.summary.roofAreaSqft, 1) ?? "0"} sq ft
                 </div>
               </div>

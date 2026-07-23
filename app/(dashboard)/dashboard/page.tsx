@@ -56,7 +56,7 @@ export default async function DashboardPage() {
 
           <Link
             href="/projects/new"
-            className="shrink-0 rounded-xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
+            className="shrink-0 rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-ground transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             New Project
           </Link>

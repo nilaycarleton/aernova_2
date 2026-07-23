@@ -53,18 +53,18 @@ export function SectionEditForm({
           />
           <FieldError fieldId={labelId} message={labelError} />
         </div>
-        <input name="pitchRatio" defaultValue={section.pitchRatio ?? ""} placeholder="Pitch" className={FIELD} />
-        <input name="projectedAreaSqft" type="number" step="0.01" defaultValue={section.projectedAreaSqft ?? ""} placeholder="Projected" className={FIELD} />
-        <input name="surfaceAreaSqft" type="number" step="0.01" defaultValue={section.surfaceAreaSqft ?? ""} placeholder="Surface" className={FIELD} />
-        <input name="ridgeLengthFt" type="number" step="0.01" defaultValue={section.ridgeLengthFt ?? ""} placeholder="Ridge" className={FIELD} />
-        <input name="hipLengthFt" type="number" step="0.01" defaultValue={section.hipLengthFt ?? ""} placeholder="Hip" className={FIELD} />
-        <input name="valleyLengthFt" type="number" step="0.01" defaultValue={section.valleyLengthFt ?? ""} placeholder="Valley" className={FIELD} />
-        <input name="eaveLengthFt" type="number" step="0.01" defaultValue={section.eaveLengthFt ?? ""} placeholder="Eave" className={FIELD} />
-        <input name="rakeLengthFt" type="number" step="0.01" defaultValue={section.rakeLengthFt ?? ""} placeholder="Rake" className={FIELD} />
+        <input name="pitchRatio" aria-label="Pitch ratio" defaultValue={section.pitchRatio ?? ""} placeholder="Pitch" className={FIELD} />
+        <input name="projectedAreaSqft" type="number" step="0.01" aria-label="Projected area, square feet" defaultValue={section.projectedAreaSqft ?? ""} placeholder="Projected" className={FIELD} />
+        <input name="surfaceAreaSqft" type="number" step="0.01" aria-label="Surface area, square feet" defaultValue={section.surfaceAreaSqft ?? ""} placeholder="Surface" className={FIELD} />
+        <input name="ridgeLengthFt" type="number" step="0.01" aria-label="Ridge length, feet" defaultValue={section.ridgeLengthFt ?? ""} placeholder="Ridge" className={FIELD} />
+        <input name="hipLengthFt" type="number" step="0.01" aria-label="Hip length, feet" defaultValue={section.hipLengthFt ?? ""} placeholder="Hip" className={FIELD} />
+        <input name="valleyLengthFt" type="number" step="0.01" aria-label="Valley length, feet" defaultValue={section.valleyLengthFt ?? ""} placeholder="Valley" className={FIELD} />
+        <input name="eaveLengthFt" type="number" step="0.01" aria-label="Eave length, feet" defaultValue={section.eaveLengthFt ?? ""} placeholder="Eave" className={FIELD} />
+        <input name="rakeLengthFt" type="number" step="0.01" aria-label="Rake length, feet" defaultValue={section.rakeLengthFt ?? ""} placeholder="Rake" className={FIELD} />
         <div className="flex gap-2 md:col-span-4 xl:col-span-9">
           <SubmitButton
-            pendingText="Saving..."
-            className="rounded-xl bg-signal-blue-deep px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+            pendingText="Saving…"
+            className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
           >
             Save Facet
           </SubmitButton>

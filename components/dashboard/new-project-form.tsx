@@ -112,7 +112,9 @@ export function NewProjectForm() {
           <input
             id="new-project-clientPhone"
             name="clientPhone"
-            type="text"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
             placeholder="555-123-4567"
             className={fieldClass()}
           />
@@ -190,7 +192,7 @@ export function NewProjectForm() {
             id="new-project-notes"
             name="notes"
             rows={5}
-            placeholder="Initial job notes, homeowner context, roof condition summary..."
+            placeholder="Initial job notes, homeowner context, roof condition summary…"
             className={fieldClass()}
           />
         </div>
@@ -198,8 +200,8 @@ export function NewProjectForm() {
 
       <div className="mt-8 flex flex-wrap gap-3">
         <SubmitButton
-          pendingText="Creating..."
-          className="rounded-xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:opacity-40"
+          pendingText="Creating…"
+          className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-ground transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Create Project
         </SubmitButton>
