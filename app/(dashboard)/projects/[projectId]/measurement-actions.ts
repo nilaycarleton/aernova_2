@@ -108,6 +108,30 @@ export async function createMeasurementAction(formData: FormData) {
   revalidatePath(`/projects/${projectId}`);
 }
 
+/**
+ * useActionState wrapper for the inline measurement edit form: validation and
+ * save failures come back as state so the roofer's edits survive in the
+ * still-mounted form, the same recovery contract as createMeasurementWithState.
+ */
+export async function updateMeasurementWithState(
+  _prevState: MeasurementFormState,
+  formData: FormData
+): Promise<MeasurementFormState> {
+  const label = String(formData.get("label") ?? "").trim();
+  const displayValue = String(formData.get("displayValue") ?? "").trim();
+  const fieldErrors: Record<string, string> = {};
+  if (!label) fieldErrors.label = "Name this measurement.";
+  if (!displayValue) fieldErrors.displayValue = "Add the value to show, like “3,240 sq ft”.";
+  if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
+
+  try {
+    await updateMeasurementAction(formData);
+    return {};
+  } catch {
+    return { formError: "Couldn't save your changes. Please try again." };
+  }
+}
+
 export async function updateMeasurementAction(formData: FormData) {
   const measurementId = getString(formData, "measurementId");
   const projectId = getString(formData, "projectId");

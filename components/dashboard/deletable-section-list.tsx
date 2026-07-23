@@ -2,15 +2,10 @@
 
 import { useState } from "react";
 import type { RoofSection } from "@prisma/client";
-import {
-  deleteRoofSectionAction,
-  updateRoofSectionAction,
-} from "@/app/(dashboard)/projects/[projectId]/section-actions";
+import { deleteRoofSectionAction } from "@/app/(dashboard)/projects/[projectId]/section-actions";
 import { useUndoToast } from "@/components/dashboard/undo-toast";
 import { BulkActionBar } from "@/components/dashboard/bulk-action-bar";
-
-const FIELD =
-  "rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400";
+import { SectionEditForm } from "@/components/dashboard/section-edit-form";
 
 /**
  * The roof-facet list, made undoable. Delete hides the whole card immediately
@@ -127,27 +122,7 @@ export function DeletableSectionList({
 
       {visible.map((section) => (
         <div key={section.id} className="rounded-2xl border border-hairline bg-ground/45 p-4">
-          <form action={updateRoofSectionAction} className="grid gap-3 md:grid-cols-4 xl:grid-cols-9">
-            <input type="hidden" name="projectId" value={projectId} />
-            <input type="hidden" name="sectionId" value={section.id} />
-            <input name="label" defaultValue={section.label} className={`${FIELD} md:col-span-2`} required />
-            <input name="pitchRatio" defaultValue={section.pitchRatio ?? ""} placeholder="Pitch" className={FIELD} />
-            <input name="projectedAreaSqft" type="number" step="0.01" defaultValue={section.projectedAreaSqft ?? ""} placeholder="Projected" className={FIELD} />
-            <input name="surfaceAreaSqft" type="number" step="0.01" defaultValue={section.surfaceAreaSqft ?? ""} placeholder="Surface" className={FIELD} />
-            <input name="ridgeLengthFt" type="number" step="0.01" defaultValue={section.ridgeLengthFt ?? ""} placeholder="Ridge" className={FIELD} />
-            <input name="hipLengthFt" type="number" step="0.01" defaultValue={section.hipLengthFt ?? ""} placeholder="Hip" className={FIELD} />
-            <input name="valleyLengthFt" type="number" step="0.01" defaultValue={section.valleyLengthFt ?? ""} placeholder="Valley" className={FIELD} />
-            <input name="eaveLengthFt" type="number" step="0.01" defaultValue={section.eaveLengthFt ?? ""} placeholder="Eave" className={FIELD} />
-            <input name="rakeLengthFt" type="number" step="0.01" defaultValue={section.rakeLengthFt ?? ""} placeholder="Rake" className={FIELD} />
-            <div className="flex gap-2 md:col-span-4 xl:col-span-9">
-              <button
-                type="submit"
-                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
-              >
-                Save Facet
-              </button>
-            </div>
-          </form>
+          <SectionEditForm projectId={projectId} section={section} />
           <div className="mt-3 flex items-center gap-4">
             <label className="flex items-center gap-2 text-sm text-ink-muted">
               <input

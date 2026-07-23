@@ -1,10 +1,8 @@
 import { Measurement } from "@prisma/client";
-import {
-  createMeasurementAction,
-  updateMeasurementAction,
-} from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
+import { createMeasurementAction } from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
 import { DeletableMeasurementList } from "@/components/dashboard/deletable-measurement-list";
 import { MeasurementCreateForm } from "@/components/dashboard/measurement-create-form";
+import { MeasurementEditForm } from "@/components/dashboard/measurement-edit-form";
 
 type Props = {
   projectId: string;
@@ -78,129 +76,7 @@ export function MeasurementManager({ projectId, measurements }: Props) {
         ) : (
           <div className="space-y-4">
             {measurements.map((measurement) => (
-              <form
-                key={measurement.id}
-                action={updateMeasurementAction}
-                className="rounded-3xl border border-hairline bg-surface-raised p-5"
-              >
-                <input type="hidden" name="measurementId" value={measurement.id} />
-                <input type="hidden" name="projectId" value={projectId} />
-
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-label`} className="mb-2 block text-sm text-ink-secondary">Label</label>
-                    <input
-                      id={`measurement-${measurement.id}-label`}
-                      name="label"
-                      defaultValue={measurement.label}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-displayValue`} className="mb-2 block text-sm text-ink-secondary">Display Value</label>
-                    <input
-                      id={`measurement-${measurement.id}-displayValue`}
-                      name="displayValue"
-                      defaultValue={measurement.displayValue}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-type`} className="mb-2 block text-sm text-ink-secondary">Type</label>
-                    <select
-                      id={`measurement-${measurement.id}-type`}
-                      name="type"
-                      defaultValue={measurement.type}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    >
-                      <option value="AREA">AREA</option>
-                      <option value="RIDGE">RIDGE</option>
-                      <option value="PITCH">PITCH</option>
-                      <option value="WASTE_FACTOR">WASTE_FACTOR</option>
-                      <option value="EAVE">EAVE</option>
-                      <option value="VALLEY">VALLEY</option>
-                      <option value="HIP">HIP</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-unit`} className="mb-2 block text-sm text-ink-secondary">Unit</label>
-                    <select
-                      id={`measurement-${measurement.id}-unit`}
-                      name="unit"
-                      defaultValue={measurement.unit}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    >
-                      <option value="SQFT">SQFT</option>
-                      <option value="FT">FT</option>
-                      <option value="RATIO">RATIO</option>
-                      <option value="PERCENT">PERCENT</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-value`} className="mb-2 block text-sm text-ink-secondary">Numeric Value</label>
-                    <input
-                      id={`measurement-${measurement.id}-value`}
-                      name="value"
-                      type="number"
-                      step="0.01"
-                      defaultValue={measurement.value}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-source`} className="mb-2 block text-sm text-ink-secondary">Source</label>
-                    <select
-                      id={`measurement-${measurement.id}-source`}
-                      name="source"
-                      defaultValue={measurement.source}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    >
-                      <option value="MANUAL">MANUAL</option>
-                      <option value="DRONE">DRONE</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-confidence`} className="mb-2 block text-sm text-ink-secondary">Confidence %</label>
-                    <input
-                      id={`measurement-${measurement.id}-confidence`}
-                      name="confidence"
-                      type="number"
-                      step="0.01"
-                      defaultValue={measurement.confidence ?? ""}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-sortOrder`} className="mb-2 block text-sm text-ink-secondary">Sort Order</label>
-                    <input
-                      id={`measurement-${measurement.id}-sortOrder`}
-                      name="sortOrder"
-                      type="number"
-                      defaultValue={measurement.sortOrder}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <button
-                    type="submit"
-                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
+              <MeasurementEditForm key={measurement.id} projectId={projectId} measurement={measurement} />
             ))}
           </div>
         )}
