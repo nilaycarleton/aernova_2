@@ -93,6 +93,25 @@ export async function updateRoofSectionAction(formData: FormData) {
   revalidatePath(`/projects/${projectId}/report`);
 }
 
+/**
+ * useActionState wrapper for the inline facet edit form: validation and save
+ * failures come back as state so the roofer's edits survive in the still-mounted
+ * form, the same recovery contract as createRoofSectionAction.
+ */
+export async function updateRoofSectionWithState(
+  _prevState: SectionFormState,
+  formData: FormData
+): Promise<SectionFormState> {
+  const label = getString(formData, "label");
+  if (!label) return { fieldErrors: { label: "Name this facet or structure." } };
+  try {
+    await updateRoofSectionAction(formData);
+    return {};
+  } catch {
+    return { formError: "Couldn't save your changes. Please try again." };
+  }
+}
+
 export async function deleteRoofSectionAction(formData: FormData) {
   const projectId = getString(formData, "projectId");
   const sectionId = getString(formData, "sectionId");
