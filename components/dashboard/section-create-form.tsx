@@ -6,7 +6,7 @@ import {
   type SectionFormState,
 } from "@/app/(dashboard)/projects/[projectId]/section-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
-import { FieldError, errorAttrs } from "@/components/dashboard/form-feedback";
+import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
 
 const NUM =
   "rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument";
@@ -16,6 +16,8 @@ export function SectionCreateForm({ projectId }: { projectId: string }) {
   const labelError = state.fieldErrors?.label;
 
   return (
+    <>
+    <FormError message={state.formError} />
     <form action={formAction} className="mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
       <input type="hidden" name="projectId" value={projectId} />
       <div className="md:col-span-2">
@@ -37,10 +39,11 @@ export function SectionCreateForm({ projectId }: { projectId: string }) {
       <input name="rakeLengthFt" type="number" step="0.01" placeholder="Rake ft" className={NUM} />
       <SubmitButton
         pendingText="Adding..."
-        className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:opacity-40"
+        className="rounded-xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
       >
         Add Facet
       </SubmitButton>
     </form>
+    </>
   );
 }

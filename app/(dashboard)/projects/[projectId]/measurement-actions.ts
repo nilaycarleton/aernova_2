@@ -47,7 +47,7 @@ const allowedSources = new Set([
  * createMeasurementAction directly — their label/value are fixed, never empty,
  * so they never hit this path.
  */
-export type MeasurementFormState = { fieldErrors?: Record<string, string> };
+export type MeasurementFormState = { fieldErrors?: Record<string, string>; formError?: string };
 
 export async function createMeasurementWithState(
   _prevState: MeasurementFormState,
@@ -60,8 +60,13 @@ export async function createMeasurementWithState(
   if (!displayValue) fieldErrors.displayValue = "Add the value to show, like “3,240 sq ft”.";
   if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
 
-  await createMeasurementAction(formData);
-  return {};
+  try {
+    await createMeasurementAction(formData);
+    return {};
+  } catch {
+    // A bad number or a DB/network hiccup — keep the roofer's input and let them retry.
+    return { formError: "Couldn't save this measurement. Please try again." };
+  }
 }
 
 export async function createMeasurementAction(formData: FormData) {

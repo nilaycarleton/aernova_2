@@ -6,7 +6,7 @@ import {
   type MeasurementFormState,
 } from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
-import { FieldError, errorAttrs } from "@/components/dashboard/form-feedback";
+import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
 
 const SELECT =
   "w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue";
@@ -23,6 +23,8 @@ export function MeasurementCreateForm({ projectId }: { projectId: string }) {
   const errors = state.fieldErrors ?? {};
 
   return (
+    <>
+    <FormError message={state.formError} />
     <form action={formAction} className="mt-6 grid gap-4 md:grid-cols-2">
       <input type="hidden" name="projectId" value={projectId} />
 
@@ -118,11 +120,12 @@ export function MeasurementCreateForm({ projectId }: { projectId: string }) {
       <div className="md:col-span-2 flex flex-wrap gap-3">
         <SubmitButton
           pendingText="Adding..."
-          className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:opacity-40"
+          className="rounded-xl bg-signal-blue-deep px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Add Measurement
         </SubmitButton>
       </div>
     </form>
+    </>
   );
 }
