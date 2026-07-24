@@ -62,7 +62,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
               type="button"
               onClick={runPreview}
               disabled={isPreviewing}
-              className="rounded-xl border border-instrument-bright/30 bg-instrument-bright/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-instrument-bright/20 disabled:opacity-50"
+              className="rounded-xl border border-instrument-bright/30 bg-instrument-bright/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument-bright/20 disabled:opacity-50"
             >
               {isPreviewing ? "Checking…" : "Check my photos (free)"}
             </button>
@@ -70,7 +70,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
               disabled={blockSubmit}
               title={blockSubmit ? readiness?.blockingReason ?? undefined : undefined}
               pendingText="Starting…"
-              className="rounded-xl bg-instrument-deep px-4 py-2 text-sm font-medium text-ground transition hover:bg-instrument disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-instrument-deep px-4 py-2 text-sm font-medium text-on-accent transition hover:bg-instrument disabled:cursor-not-allowed disabled:opacity-50"
             >
               {workerConfigured ? "Build 3D model" : "Build preview model"}
             </SubmitButton>
@@ -79,7 +79,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
       </form>
 
       {previewError ? (
-        <p className="mt-3 rounded-xl border border-rose-300/20 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+        <p className="mt-3 rounded-xl border border-danger/25 bg-danger/10 px-3 py-2 text-xs text-danger-fg">
           {previewError}
         </p>
       ) : null}
@@ -88,8 +88,8 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
         <div
           className={`mt-3 rounded-2xl border p-3 ${
             readiness.ready
-              ? "border-emerald-300/25 bg-emerald-400/10"
-              : "border-amber-300/25 bg-amber-400/10"
+              ? "border-confirm/25 bg-confirm/10"
+              : "border-caution/25 bg-caution/10"
           }`}
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -101,9 +101,9 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
             </span>
           </div>
           {readiness.blockingReason ? (
-            <p className="mt-2 text-xs leading-5 text-amber-100">{readiness.blockingReason}</p>
+            <p className="mt-2 text-xs leading-5 text-caution-fg">{readiness.blockingReason}</p>
           ) : (
-            <p className="mt-2 text-xs leading-5 text-emerald-100">
+            <p className="mt-2 text-xs leading-5 text-confirm-fg">
               Your photos look good. Click &quot;Build 3D model&quot; when you&apos;re ready — that&apos;s the step that starts the build.
             </p>
           )}

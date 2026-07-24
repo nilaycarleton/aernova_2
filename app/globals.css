@@ -3,42 +3,77 @@
 /**
  * Design tokens. The semantic names here are the ones DESIGN.md is written in;
  * prefer them over raw palette utilities (`text-ink-muted`, not `text-slate-400`)
- * so a palette decision can be made in one place instead of across 20+ files.
+ * so a palette decision can be made in one place instead of across 40+ files.
  *
- * Values are OKLCH and match Tailwind v4's own palette exactly, so aliasing a
- * utility to a token is value-preserving. Do not "simplify" these to the v3 hex
- * equivalents: v4's cyan-400 is oklch(78.9% 0.154 211.53) = #00d3f2, which is a
- * visibly different colour from the v3 #22d3ee it superseded.
+ * TWO THEMES, ONE HERO. Instrument Cyan is the readout colour in both light and
+ * dark — it never flips. Everything *around* it does: the ground is a deep Ink
+ * Navy in dark, a cool paper-grey in light. Amber is the one warm signal, held
+ * in reserve for attention/caution and nothing else. See DESIGN.md.
+ *
+ * How the flip works: `@theme` below carries the DARK values (the home base).
+ * Utilities compile to `var(--color-*)`, so re-declaring those custom properties
+ * under a theme selector re-skins the whole app with no per-component work. The
+ * light values live once in `--l-*` sources and are activated by two thin
+ * mapping blocks: system-preference (when the user hasn't chosen) and an
+ * explicit `[data-theme="light"]` override. Paper tokens never flip — the
+ * (report) route is a printed document, not a screen.
+ *
+ * Values are OKLCH and match Tailwind v4's own palette where a v4 utility is
+ * being aliased, so the swap is value-preserving. Do not "simplify" these to v3
+ * hex: v4's cyan-400 is oklch(78.9% 0.154 211.53) = #00d3f2, visibly different
+ * from the v3 #22d3ee it superseded.
  */
 @theme {
-  /* Surfaces. Depth is tonal only — see the Two-Layer Rule in DESIGN.md.
-     `ground` carries alpha variants throughout (bg-ground/50, /80, /85). */
-  --color-ground: oklch(12.9% 0.042 264.695); /* = slate-950 */
-  --color-surface-raised: rgb(255 255 255 / 0.07);
-  --color-surface-lifted: rgb(255 255 255 / 0.13);
-  --color-hairline: rgb(255 255 255 / 0.14);
+  /* --- Surfaces (DARK / home base). Depth is tonal only — the Two-Layer Rule.
+     Panels are a navy-tinted white film, not neutral white, so the ground reads
+     as one cohesive Ink Navy field. `ground` carries alpha variants throughout
+     (bg-ground/50, /80, /85) as scrims. */
+  --color-ground: oklch(12.5% 0.05 264); /* Ink Navy — deeper, bluer than slate-950 */
+  --color-surface-raised: rgb(216 227 255 / 0.07); /* navy-tinted white, 7% */
+  --color-surface-lifted: rgb(216 227 255 / 0.13); /* one step up: nested / hover / active */
+  --color-hairline: rgb(216 227 255 / 0.14); /* the one structural border */
+  --color-surface-sidebar: oklch(15.5% 0.05 264); /* the sidebar's second neutral layer */
 
-  /* Text. Ink Muted is the contrast floor at 7.66:1 on ground — nothing dimmer
-     may carry text. slate-500 (4.23:1) is below AA at our type sizes. */
+  /* --- Text. Ink Muted is the contrast floor at ~7.6:1 on ground — nothing
+     dimmer may carry text. On-Accent is the constant dark ink that rides on
+     bright accents (cyan/amber/emerald buttons); it never flips. */
   --color-ink-primary: #fff;
-  --color-ink-strong: oklch(92.9% 0.013 255.508); /* = slate-200 */
-  --color-ink-secondary: oklch(86.9% 0.022 252.894); /* = slate-300 */
-  --color-ink-muted: oklch(70.4% 0.04 256.788); /* = slate-400 */
+  --color-ink-strong: oklch(93% 0.02 258);
+  --color-ink-secondary: oklch(87% 0.028 262); /* body — cool Ink Navy tint (#cdd6ea family) */
+  --color-ink-muted: oklch(70.4% 0.045 258);
+  --color-on-accent: oklch(13% 0.05 264); /* dark ink on bright accents — constant */
 
-  /* Instrument Cyan is the readout color: measurements and the action that
-     produces one. Not a brand flourish — see The Readout Rule. */
+  /* --- Instrument Cyan: the readout colour. Measurements and the action that
+     produces one. The one hero, identical in both themes — see The Readout Rule.
+     `-fg` is readable cyan text on a cyan tint (pale on dark, deep on light). */
   --color-instrument: oklch(78.9% 0.154 211.53); /* = cyan-400 */
   --color-instrument-bright: oklch(86.5% 0.127 207.078); /* = cyan-300 */
   --color-instrument-deep: oklch(71.5% 0.143 215.221); /* = cyan-500 */
+  --color-instrument-fg: oklch(89% 0.09 205);
 
+  /* --- Signal Blue: structural emphasis in the 3D viewer and input focus.
+     Reads on both grounds, so it doesn't flip. */
   --color-signal-blue: oklch(62.3% 0.214 259.815); /* = blue-500 */
-  --color-signal-blue-deep: oklch(54.6% 0.245 262.881); /* = blue-600; white text clears 4.5:1 */
+  --color-signal-blue-deep: oklch(54.6% 0.245 262.881); /* = blue-600 */
   --color-sky-accent: oklch(74.6% 0.16 232.661); /* = sky-400 */
-  --color-confirm: oklch(69.6% 0.17 162.48); /* = emerald-500 */
 
-  /* Print surface. The (report) route is a document handed to a homeowner, not
-     a screen; it never borrows the dark tokens above. Its ink runs darker
-     because slate-400 on white is 2.56:1 — the floor here is paper-ink-faint. */
+  /* --- Semantic status. Each status keeps one saturated base (for `bg-x/10`
+     tints and `border-x/25` rules, which composite fine on either ground) plus
+     an `-fg` text colour that flips per theme. Caution (amber) is the one warm
+     signal — attention only, never a measurement, never an error. */
+  --color-confirm: oklch(69.6% 0.17 162.48); /* = emerald-500 — terminal success */
+  --color-confirm-fg: oklch(90% 0.11 165);
+  --color-caution: oklch(80% 0.15 78); /* Amber (#ffb020) — attention / caution only */
+  --color-caution-fg: oklch(90% 0.08 88);
+  --color-danger: oklch(63.7% 0.234 25.3); /* rose/red-500 — error / destructive */
+  --color-danger-fg: oklch(87% 0.06 15);
+  --color-info: oklch(68.5% 0.169 237); /* sky-500 — neutral informational state */
+  --color-info-fg: oklch(88% 0.07 232);
+
+  /* --- Print surface. The (report) route is a document handed to a homeowner,
+     not a screen; it never borrows the tokens above and never flips with theme.
+     Its ink runs darker because slate-400 on white is 2.56:1 — the floor here is
+     paper-ink-faint. */
   --color-paper-document: #fff;
   --color-paper: oklch(96.8% 0.007 247.896); /* = slate-100 */
   --color-paper-inset: oklch(98.4% 0.003 247.858); /* = slate-50 */
@@ -48,6 +83,127 @@
   --color-paper-ink-muted: oklch(44.6% 0.043 257.281); /* = slate-600 */
   --color-paper-ink-faint: oklch(55.4% 0.046 257.417); /* = slate-500, 4.76:1 on white */
   --color-paper-rule: oklch(92.9% 0.013 255.508); /* = slate-200 */
+}
+
+/**
+ * LIGHT THEME. Dark is the home base above; light is the daylight variant a
+ * contractor on a bright roof can read. Source values live here once; the two
+ * blocks below activate them. Only what must change is listed — the hero cyan,
+ * signal blue, and status base hues are constant across themes.
+ */
+:root {
+  color-scheme: dark;
+
+  --l-ground: oklch(95.5% 0.01 255); /* cool paper-grey field */
+  --l-surface-raised: oklch(100% 0 0); /* white panels lift off the grey ground */
+  --l-surface-lifted: oklch(96.5% 0.012 256); /* nested / hover: a faint cool wash */
+  --l-hairline: rgb(15 23 43 / 0.12); /* Ink Navy at 12% — the one border, inverted */
+  --l-surface-sidebar: oklch(93.5% 0.012 255); /* sidebar sits a touch cooler than content */
+
+  --l-ink-primary: oklch(21% 0.04 265); /* deep Ink Navy headings */
+  --l-ink-strong: oklch(28% 0.041 260);
+  --l-ink-secondary: oklch(37% 0.044 257); /* body */
+  --l-ink-muted: oklch(45% 0.043 257); /* contrast floor on the light ground (~4.7:1) */
+
+  --l-instrument-fg: oklch(44% 0.125 224); /* deep cyan text on a cyan tint — dark enough for small labels on a near-white tint (~5:1) */
+  --l-confirm-fg: oklch(45% 0.12 162);
+  --l-caution-fg: oklch(47% 0.11 70);
+  --l-danger-fg: oklch(50% 0.19 25);
+  --l-info-fg: oklch(47% 0.13 235);
+}
+
+/* The light-value mapping. Kept UNLAYERED and at `:root[...]`/`:not(...)`
+   specificity (0,2,0) so it wins over Tailwind's `@theme` `:root` defaults
+   (0,1,0) whether those land layered or not. An explicit `[data-theme="light"]`
+   override and the system-preference block share the same mapping. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-ground: var(--l-ground);
+  --color-surface-raised: var(--l-surface-raised);
+  --color-surface-lifted: var(--l-surface-lifted);
+  --color-hairline: var(--l-hairline);
+  --color-surface-sidebar: var(--l-surface-sidebar);
+  --color-ink-primary: var(--l-ink-primary);
+  --color-ink-strong: var(--l-ink-strong);
+  --color-ink-secondary: var(--l-ink-secondary);
+  --color-ink-muted: var(--l-ink-muted);
+  --color-instrument-fg: var(--l-instrument-fg);
+  --color-confirm-fg: var(--l-confirm-fg);
+  --color-caution-fg: var(--l-caution-fg);
+  --color-danger-fg: var(--l-danger-fg);
+  --color-info-fg: var(--l-info-fg);
+}
+
+/* System preference wins only when the user hasn't made an explicit choice.
+   `:not([data-theme="dark"])` lets a user on a light OS force dark with no third
+   block: the @theme dark defaults simply remain. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --color-ground: var(--l-ground);
+    --color-surface-raised: var(--l-surface-raised);
+    --color-surface-lifted: var(--l-surface-lifted);
+    --color-hairline: var(--l-hairline);
+    --color-surface-sidebar: var(--l-surface-sidebar);
+    --color-ink-primary: var(--l-ink-primary);
+    --color-ink-strong: var(--l-ink-strong);
+    --color-ink-secondary: var(--l-ink-secondary);
+    --color-ink-muted: var(--l-ink-muted);
+    --color-instrument-fg: var(--l-instrument-fg);
+    --color-confirm-fg: var(--l-confirm-fg);
+    --color-caution-fg: var(--l-caution-fg);
+    --color-danger-fg: var(--l-danger-fg);
+    --color-info-fg: var(--l-info-fg);
+  }
+}
+
+/**
+ * Locally-dark surface. The 3D measure viewer is the signature instrument
+ * surface: the model renders on a dark canvas, overlays sit on that canvas, and
+ * measurement chrome is tuned for a dark ground. It stays dark in BOTH app
+ * themes — in light mode it reads as a dark instrument panel embedded in the
+ * page, the way a map or media surface does. This re-forces the dark token
+ * values on the subtree so nothing flips underneath it. Constant, never themed.
+ */
+.surface-dark {
+  color-scheme: dark;
+  --color-ground: oklch(12.5% 0.05 264);
+  --color-surface-raised: rgb(216 227 255 / 0.07);
+  --color-surface-lifted: rgb(216 227 255 / 0.13);
+  --color-hairline: rgb(216 227 255 / 0.14);
+  --color-ink-primary: #fff;
+  --color-ink-strong: oklch(93% 0.02 258);
+  --color-ink-secondary: oklch(87% 0.028 262);
+  --color-ink-muted: oklch(70.4% 0.045 258);
+  --color-instrument-fg: oklch(89% 0.09 205);
+  --color-confirm-fg: oklch(90% 0.11 165);
+  --color-caution-fg: oklch(90% 0.08 88);
+  --color-danger-fg: oklch(87% 0.06 15);
+  --color-info-fg: oklch(88% 0.07 232);
+}
+
+/**
+ * Locally-light surface. The (report) route is a printed document and must read
+ * light regardless of the app's theme. It is nested under the root layout (so it
+ * cannot own an <html> with its own data-theme), so it re-forces the light token
+ * values on its subtree instead. Constant, never themed.
+ */
+.surface-light {
+  color-scheme: light;
+  --color-ground: var(--l-ground);
+  --color-surface-raised: var(--l-surface-raised);
+  --color-surface-lifted: var(--l-surface-lifted);
+  --color-hairline: var(--l-hairline);
+  --color-surface-sidebar: var(--l-surface-sidebar);
+  --color-ink-primary: var(--l-ink-primary);
+  --color-ink-strong: var(--l-ink-strong);
+  --color-ink-secondary: var(--l-ink-secondary);
+  --color-ink-muted: var(--l-ink-muted);
+  --color-instrument-fg: var(--l-instrument-fg);
+  --color-confirm-fg: var(--l-confirm-fg);
+  --color-caution-fg: var(--l-caution-fg);
+  --color-danger-fg: var(--l-danger-fg);
+  --color-info-fg: var(--l-info-fg);
 }
 
 /* Undo-toast countdown bar: drains left-to-right over the grace window so the

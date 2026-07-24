@@ -13,7 +13,7 @@ const FIELD =
 
 /** Border turns rose when this field has an error. */
 function cls(error?: string) {
-  return `${FIELD} ${error ? "border-rose-400 focus:border-rose-300" : "border-hairline focus:border-instrument"}`;
+  return `${FIELD} ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-instrument"}`;
 }
 
 /** All-primitive props so the parent can stay a server component holding Prisma data. */
@@ -137,7 +137,7 @@ export function ProposalDraftForm({ initial }: { initial: ProposalDraftInitial }
       <div className="md:col-span-2">
         <SubmitButton
           pendingText="Saving…"
-          className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-ground transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
+          className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-on-accent transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Save Proposal Draft
         </SubmitButton>

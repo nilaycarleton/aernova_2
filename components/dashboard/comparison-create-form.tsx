@@ -11,7 +11,7 @@ import { FieldError, errorAttrs } from "@/components/dashboard/form-feedback";
 type PhotoOption = { id: string; url: string; fileName: string | null };
 
 const SELECT =
-  "rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400";
+  "rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue";
 
 export function ComparisonCreateForm({
   projectId,
@@ -35,7 +35,7 @@ export function ComparisonCreateForm({
         <input
           name="title"
           placeholder="e.g. Front slope — before and after"
-          className={`w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted ${titleError ? "border-rose-400 focus:border-rose-300" : "border-hairline focus:border-blue-400"}`}
+          className={`w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted ${titleError ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`}
           required
           {...errorAttrs("comparison-title", titleError)}
         />
@@ -61,11 +61,11 @@ export function ComparisonCreateForm({
         name="summary"
         rows={2}
         placeholder="Optional note"
-        className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400 md:col-span-2"
+        className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue md:col-span-2"
       />
       <SubmitButton
         pendingText="Creating…"
-        className="rounded-2xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40 md:col-span-2"
+        className="rounded-2xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40 md:col-span-2"
       >
         Create comparison
       </SubmitButton>

@@ -96,7 +96,7 @@ export function PhotoAnnotationStudio({ projectId, photos }: Props) {
               onClick={() => setTool(mode)}
               className={`rounded-2xl border px-4 py-2 text-sm capitalize transition ${
                 tool === mode
-                  ? "border-blue-400/40 bg-signal-blue/15 text-blue-200"
+                  ? "border-signal-blue/40 bg-signal-blue/15 text-info-fg"
                   : "border-hairline bg-ground/50 text-ink-secondary hover:bg-surface-lifted"
               }`}
             >
@@ -115,7 +115,7 @@ export function PhotoAnnotationStudio({ projectId, photos }: Props) {
               onClick={() => setSelectedPhotoId(photo.id)}
               className={`w-full rounded-2xl border p-3 text-left transition ${
                 selectedPhoto.id === photo.id
-                  ? "border-blue-400/40 bg-signal-blue/10"
+                  ? "border-signal-blue/40 bg-signal-blue/10"
                   : "border-hairline bg-ground/40 hover:bg-surface-lifted"
               }`}
             >
@@ -143,7 +143,7 @@ export function PhotoAnnotationStudio({ projectId, photos }: Props) {
             <input
               value={label}
               onChange={(event) => setLabel(event.target.value)}
-              className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400"
+              className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
               placeholder="Annotation label"
             />
             <button
@@ -159,7 +159,7 @@ export function PhotoAnnotationStudio({ projectId, photos }: Props) {
               <input type="hidden" name="annotationsJson" value={JSON.stringify(annotations)} />
               <button
                 type="submit"
-                className="rounded-2xl border border-instrument-bright/30 bg-instrument/10 px-4 py-3 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+                className="rounded-2xl border border-instrument-bright/30 bg-instrument/10 px-4 py-3 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
               >
                 Save Markup
               </button>

@@ -39,10 +39,10 @@ export function StatsStrip({
       </div>
 
       <div className="flex flex-col justify-between rounded-2xl border border-instrument/25 bg-instrument/5 p-5">
-        <p className="text-xs uppercase tracking-[0.16em] text-instrument-bright">
+        <p className="text-xs uppercase tracking-[0.16em] text-instrument-fg">
           Proposal Value
         </p>
-        <p className="mt-2 text-4xl font-semibold tabular-nums text-instrument-bright">
+        <p className="mt-2 text-4xl font-semibold tabular-nums text-instrument-fg">
           ${totalValue.toLocaleString()}
         </p>
       </div>

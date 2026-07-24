@@ -123,7 +123,7 @@ function makeLabel(text: string, className: string): CSS2DObject {
 }
 
 const LABEL_CLASS =
-  "pointer-events-none rounded-md border border-white/15 bg-ground/85 px-1.5 py-0.5 text-xs font-medium text-ink-primary shadow";
+  "pointer-events-none rounded-md border border-hairline bg-ground/85 px-1.5 py-0.5 text-xs font-medium text-ink-primary shadow";
 
 /**
  * Build the on-model graphics for one measurement (fill/outline/dots/label).
@@ -839,7 +839,9 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   };
 
   return (
-    <div className="min-w-0">
+    // Signature instrument surface: stays dark in both app themes — see
+    // `.surface-dark` in globals.css.
+    <div className="surface-dark min-w-0">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         {(["orbit", "distance", "area", "height", "marker"] as const).map((t) => (
           <button
@@ -847,7 +849,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
             type="button"
             onClick={() => startTool(t)}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium capitalize transition ${
-              tool === t ? "bg-instrument text-ground" : "border border-hairline bg-ground/50 text-ink-strong hover:text-ink-primary"
+              tool === t ? "bg-instrument text-on-accent" : "border border-hairline bg-ground/50 text-ink-strong hover:text-ink-primary"
             }`}
           >
             {t === "orbit" ? "Move" : TOOL_META[t].name}
@@ -857,7 +859,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           type="button"
           onClick={() => startTool("detect")}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-            tool === "detect" ? "bg-yellow-400 text-ground" : "border border-yellow-300/30 bg-yellow-400/10 text-yellow-100 hover:bg-yellow-400/20"
+            tool === "detect" ? "bg-yellow-400 text-on-accent" : "border border-yellow-300/30 bg-yellow-400/10 text-yellow-100 hover:bg-yellow-400/20"
           }`}
         >
           ✨ Auto-detect roof
@@ -866,7 +868,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           type="button"
           onClick={() => startTool("edit")}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-            tool === "edit" ? "bg-violet-400 text-ground" : "border border-violet-300/30 bg-violet-400/10 text-violet-100 hover:bg-violet-400/20"
+            tool === "edit" ? "bg-violet-400 text-on-accent" : "border border-violet-300/30 bg-violet-400/10 text-violet-100 hover:bg-violet-400/20"
           }`}
         >
           Edit points
@@ -875,7 +877,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           type="button"
           onClick={() => startTool("split")}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-            tool === "split" ? "bg-ink-strong text-ground" : "border border-white/15 bg-ground/50 text-ink-strong hover:text-ink-primary"
+            tool === "split" ? "bg-ink-strong text-on-accent" : "border border-hairline bg-ground/50 text-ink-strong hover:text-ink-primary"
           }`}
         >
           Split facet
@@ -916,7 +918,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                 key={u}
                 type="button"
                 onClick={() => setUnits(u)}
-                className={`px-3 py-1.5 ${units === u ? "bg-white/15 text-ink-primary" : "bg-ground/50 text-ink-secondary"}`}
+                className={`px-3 py-1.5 ${units === u ? "bg-surface-lifted text-ink-primary" : "bg-ground/50 text-ink-secondary"}`}
               >
                 {u === "imperial" ? "ft" : "m"}
               </button>
@@ -956,7 +958,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                 type="button"
                 disabled={draftCount < 3 || detecting}
                 onClick={() => (hostRef.current as (HTMLDivElement & { __detect?: () => void }) | null)?.__detect?.()}
-                className="rounded-lg bg-yellow-400 px-3 py-1 font-medium text-ground disabled:opacity-40"
+                className="rounded-lg bg-yellow-400 px-3 py-1 font-medium text-on-accent disabled:opacity-40"
               >
                 {detecting ? "Detecting…" : "Detect roof areas"}
               </button>
@@ -970,7 +972,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
               </span>
             </div>
           ) : tool === "split" ? (
-            <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-white/20 bg-ground/85 px-3 py-2 text-sm backdrop-blur">
+            <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
               <span className="text-ink-secondary">
                 {splitError ? (
                   <span className="text-rose-200">{splitError}</span>
@@ -993,7 +995,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                   type="button"
                   disabled={draftCount < activeMin}
                   onClick={() => (hostRef.current as (HTMLDivElement & { __finish?: () => void }) | null)?.__finish?.()}
-                  className="rounded-lg bg-instrument px-3 py-1 font-medium text-ground disabled:opacity-40"
+                  className="rounded-lg bg-instrument px-3 py-1 font-medium text-on-accent disabled:opacity-40"
                 >
                   Finish
                 </button>
@@ -1056,7 +1058,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                           console.error("[measure] category failed", err)
                         );
                       }}
-                      className="mt-1.5 w-full rounded bg-slate-900 px-1.5 py-1 text-xs capitalize text-ink-strong"
+                      className="mt-1.5 w-full rounded bg-surface-lifted px-1.5 py-1 text-xs capitalize text-ink-strong"
                     >
                       <option value="">— roof line type (for estimate) —</option>
                       {LINE_CATEGORIES.map((c) => (

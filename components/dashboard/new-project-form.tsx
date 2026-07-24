@@ -10,14 +10,14 @@ const FIELD =
 
 /** Red stroke on the field itself, so the problem is visible without reading. */
 function fieldClass(error?: string) {
-  return `${FIELD} ${error ? "border-rose-400 focus:border-rose-300" : "border-hairline focus:border-signal-blue"}`;
+  return `${FIELD} ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`;
 }
 
 /** Paired with the stroke: colour alone never carries the message (WCAG 1.4.1). */
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
-    <p id={id} className="mt-2 text-xs text-rose-200">
+    <p id={id} className="mt-2 text-xs text-danger-fg">
       {message}
     </p>
   );
@@ -33,7 +33,7 @@ export function NewProjectForm() {
       {errorCount > 0 ? (
         <div
           role="alert"
-          className="mb-6 rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"
+          className="mb-6 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
         >
           {errorCount === 1
             ? "One thing needs fixing before we can save this job."
@@ -201,7 +201,7 @@ export function NewProjectForm() {
       <div className="mt-8 flex flex-wrap gap-3">
         <SubmitButton
           pendingText="Creating…"
-          className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-ground transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
+          className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-on-accent transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Create Project
         </SubmitButton>

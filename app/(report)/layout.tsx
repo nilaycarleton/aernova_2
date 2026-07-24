@@ -11,11 +11,13 @@ export default function ReportLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // The report is a printed document, not the app. It is nested under the root
+  // layout (which already owns <html>/<body>), so it must NOT render its own —
+  // that produced a nested-<html> hydration error. Instead it forces the light
+  // paper surface on its subtree via `.surface-light`, regardless of app theme.
   return (
-    <html lang="en">
-      <body className="bg-paper text-paper-ink antialiased">
-        {children}
-      </body>
-    </html>
+    <div className="surface-light min-h-screen bg-paper text-paper-ink antialiased">
+      {children}
+    </div>
   );
 }

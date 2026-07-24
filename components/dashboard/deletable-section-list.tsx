@@ -137,7 +137,7 @@ export function DeletableSectionList({
             <button
               type="button"
               onClick={() => requestDelete(section)}
-              className="rounded-xl border border-rose-400/25 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-200 transition hover:bg-rose-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-400"
+              className="rounded-xl border border-danger/25 bg-danger/10 px-4 py-2 text-sm font-medium text-danger-fg transition hover:bg-danger/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-danger"
             >
               Delete Facet
             </button>

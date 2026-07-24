@@ -25,7 +25,7 @@ export function MeasurementList({
             </div>
 
             <div className="text-right">
-              <p className="text-lg font-semibold text-blue-300">
+              <p className="text-lg font-semibold text-info-fg">
                 {measurement.displayValue}
               </p>
               <p className="text-xs text-ink-muted">{measurement.unit}</p>

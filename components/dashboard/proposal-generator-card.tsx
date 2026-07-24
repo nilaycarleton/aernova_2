@@ -55,7 +55,7 @@ export function ProposalGeneratorCard({ projectId, proposals, hasMeasurements }:
             <input type="hidden" name="projectId" value={projectId} />
             <button
               type="submit"
-              className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-ground transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-on-accent transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {latest ? "Rebuild quote" : "Create quote"}
             </button>
@@ -76,7 +76,7 @@ export function ProposalGeneratorCard({ projectId, proposals, hasMeasurements }:
               <div className="text-xs uppercase tracking-[0.15em] text-ink-muted">
                 Quote total
               </div>
-              <div className="mt-1 text-3xl font-semibold tabular-nums text-instrument-bright">
+              <div className="mt-1 text-3xl font-semibold tabular-nums text-instrument-fg">
                 ${latest.totalAmount?.toLocaleString() ?? "0"}
               </div>
             </div>
@@ -85,8 +85,8 @@ export function ProposalGeneratorCard({ projectId, proposals, hasMeasurements }:
           {parsed?.summary ? (
             <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               <div className="min-w-0 rounded-2xl border border-instrument/25 bg-instrument/5 p-4">
-                <div className="text-xs uppercase tracking-[0.15em] text-instrument-bright">Roof area</div>
-                <div className="mt-2 text-2xl font-semibold tabular-nums text-instrument-bright">
+                <div className="text-xs uppercase tracking-[0.15em] text-instrument-fg">Roof area</div>
+                <div className="mt-2 text-2xl font-semibold tabular-nums text-instrument-fg">
                   {num(parsed.summary.roofAreaSqft, 1) ?? "0"} sq ft
                 </div>
               </div>
