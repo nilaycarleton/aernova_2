@@ -100,7 +100,7 @@ export default async function ProjectDetailPage({
           <div className="shrink-0 rounded-2xl border border-hairline bg-ground/50 px-5 py-4">
             <p className="text-xs uppercase tracking-[0.18em] text-ink-muted">Quote</p>
             {latestProposal ? (
-              <p className="mt-1 text-2xl font-semibold tabular-nums text-ink-primary">
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-instrument-fg">
                 ${latestProposal.totalAmount?.toLocaleString() ?? 0}
               </p>
             ) : (

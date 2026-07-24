@@ -28,45 +28,49 @@ export function OperationsOverview({ projects }: Props) {
   const margin = totalEstimated > 0 ? Math.round((grossProfit / totalEstimated) * 100) : 0;
 
   return (
-    <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-      <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-          Job Management
-        </p>
-        <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
-          Pipeline board
-        </h3>
+    // Pipeline board and CRM are the two working lists — paired as balanced
+    // columns so their bottoms align. Profit Tracking is a summary, not a list,
+    // so it drops to a full-width strip below rather than stacking under CRM and
+    // leaving the pipeline column short with dead space beside it.
+    <div className="space-y-6">
+      <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
+            Job Management
+          </p>
+          <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
+            Pipeline board
+          </h3>
 
-        <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {pipeline.map((status) => {
-            const statusProjects = projects.filter((project) => project.status === status);
-            return (
-              <div key={status} className="rounded-2xl border border-hairline bg-ground/50 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium text-ink-primary">
-                    {status.replaceAll("_", " ")}
-                  </p>
-                  <span className="rounded-full bg-instrument-deep/10 px-2.5 py-1 text-xs text-instrument-fg">
-                    {statusProjects.length}
-                  </span>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {pipeline.map((status) => {
+              const statusProjects = projects.filter((project) => project.status === status);
+              return (
+                <div key={status} className="rounded-2xl border border-hairline bg-ground/50 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-ink-primary">
+                      {status.replaceAll("_", " ")}
+                    </p>
+                    <span className="rounded-full bg-instrument-deep/10 px-2.5 py-1 text-xs text-instrument-fg">
+                      {statusProjects.length}
+                    </span>
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {statusProjects.slice(0, 2).map((project) => (
+                      <div key={project.id} className="rounded-xl bg-surface-raised p-3 text-sm text-ink-secondary">
+                        {project.name}
+                      </div>
+                    ))}
+                    {statusProjects.length === 0 ? (
+                      <p className="text-sm text-ink-muted">No jobs</p>
+                    ) : null}
+                  </div>
                 </div>
-                <div className="mt-4 space-y-2">
-                  {statusProjects.slice(0, 2).map((project) => (
-                    <div key={project.id} className="rounded-xl bg-surface-raised p-3 text-sm text-ink-secondary">
-                      {project.name}
-                    </div>
-                  ))}
-                  {statusProjects.length === 0 ? (
-                    <p className="text-sm text-ink-muted">No jobs</p>
-                  ) : null}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-6">
         <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
           <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
             CRM & Scheduling
@@ -82,23 +86,27 @@ export function OperationsOverview({ projects }: Props) {
             ))}
           </div>
         </div>
+      </section>
 
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-            Profit Tracking
-          </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-ground/50 p-4">
-              <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Revenue</p>
-              <p className="mt-2 text-xl font-semibold text-ink-primary">${totalEstimated.toLocaleString()}</p>
-            </div>
-            <div className="rounded-2xl bg-ground/50 p-4">
-              <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Gross Margin</p>
-              <p className="mt-2 text-xl font-semibold text-ink-primary">{margin}%</p>
-            </div>
+      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
+          Profit Tracking
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl bg-ground/50 p-4">
+            <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Revenue</p>
+            <p className="mt-2 text-xl font-semibold tabular-nums text-ink-primary">${totalEstimated.toLocaleString()}</p>
+          </div>
+          <div className="rounded-2xl bg-ground/50 p-4">
+            <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Gross Profit</p>
+            <p className="mt-2 text-xl font-semibold tabular-nums text-ink-primary">${grossProfit.toLocaleString()}</p>
+          </div>
+          <div className="rounded-2xl bg-ground/50 p-4">
+            <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Gross Margin</p>
+            <p className="mt-2 text-xl font-semibold tabular-nums text-ink-primary">{margin}%</p>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

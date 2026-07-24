@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireCompanyContext } from "@/lib/auth";
 import { ProjectsBrowser } from "@/components/dashboard/projects-browser";
-import { StatsStrip } from "@/components/dashboard/stats-strip";
+import { DashboardCommandBand } from "@/components/dashboard/dashboard-command-band";
 import { OperationsOverview } from "@/components/dashboard/operations-overview";
 
 export default async function DashboardPage() {
@@ -39,31 +38,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-w-0 space-y-8">
-      <section className="min-w-0 rounded-3xl border border-hairline bg-surface-raised p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="min-w-0">
-            <p className="text-sm uppercase tracking-[0.2em] text-ink-muted">
-              Dashboard
-            </p>
-            <h2 className="mt-2 break-words text-3xl font-semibold text-ink-primary">
-              Roofing workflow command center
-            </h2>
-            <p className="mt-3 max-w-2xl text-ink-muted">
-              Track measurements, inspection issues, quote readiness, and client
-              proposal progress from one place.
-            </p>
-          </div>
-
-          <Link
-            href="/projects/new"
-            className="shrink-0 rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-on-accent transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-          >
-            New Project
-          </Link>
-        </div>
-      </section>
-
-      <StatsStrip
+      <DashboardCommandBand
         totalProjects={totalProjects}
         readyForQuote={readyForQuote}
         quoted={quoted}
