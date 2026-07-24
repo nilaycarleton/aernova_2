@@ -165,20 +165,21 @@ export function ModelMeasurementViewer({ modelPackage, previewUrl }: Props) {
   }, [glbUrl, view]);
 
   return (
-    <div className="min-w-0">
+    // Live 3D model surface — stays dark in both app themes (see `.surface-dark`).
+    <div className="surface-dark min-w-0">
       {glbUrl && topDownUrl ? (
         <div className="mb-3 inline-flex rounded-xl border border-hairline bg-ground/50 p-1 text-sm">
           <button
             type="button"
             onClick={() => setView("model")}
-            className={`rounded-lg px-3 py-1.5 font-medium transition ${view === "model" ? "bg-instrument text-ground" : "text-ink-secondary hover:text-ink-primary"}`}
+            className={`rounded-lg px-3 py-1.5 font-medium transition ${view === "model" ? "bg-instrument text-on-accent" : "text-ink-secondary hover:text-ink-primary"}`}
           >
             3D model
           </button>
           <button
             type="button"
             onClick={() => setView("top")}
-            className={`rounded-lg px-3 py-1.5 font-medium transition ${view === "top" ? "bg-instrument text-ground" : "text-ink-secondary hover:text-ink-primary"}`}
+            className={`rounded-lg px-3 py-1.5 font-medium transition ${view === "top" ? "bg-instrument text-on-accent" : "text-ink-secondary hover:text-ink-primary"}`}
           >
             Top-down photo
           </button>
@@ -194,7 +195,7 @@ export function ModelMeasurementViewer({ modelPackage, previewUrl }: Props) {
             {loadState !== "ready" ? (
               <div className="pointer-events-none absolute inset-x-4 top-4 rounded-xl border border-hairline bg-ground/80 p-3 text-sm text-ink-strong backdrop-blur">
                 {loadState === "error" ? (
-                  <p className="text-rose-200">Couldn&apos;t load the 3D model. {error}</p>
+                  <p className="text-danger-fg">Couldn&apos;t load the 3D model. {error}</p>
                 ) : (
                   <>
                     <p className="font-medium text-ink-primary">Loading your 3D model… {progress}%</p>

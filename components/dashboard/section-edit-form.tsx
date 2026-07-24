@@ -45,7 +45,7 @@ export function SectionEditForm({
             aria-label="Facet name"
             className={
               labelError
-                ? "w-full rounded-xl border border-rose-400 bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none focus:border-rose-300"
+                ? "w-full rounded-xl border border-danger bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none focus:border-danger"
                 : FIELD
             }
             required
@@ -64,7 +64,7 @@ export function SectionEditForm({
         <div className="flex gap-2 md:col-span-4 xl:col-span-9">
           <SubmitButton
             pendingText="Saving…"
-            className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+            className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
           >
             Save Facet
           </SubmitButton>

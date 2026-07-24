@@ -1,5 +1,6 @@
 import { UserButton } from "@clerk/nextjs";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 import { UndoToastProvider } from "@/components/dashboard/undo-toast";
 import { requireCompanyContext } from "@/lib/auth";
 
@@ -23,6 +24,7 @@ export default async function DashboardLayout({
             </div>
 
             <div className="flex shrink-0 items-center gap-3">
+              <ThemeToggle />
               <UserButton />
             </div>
           </header>

@@ -39,7 +39,7 @@ export function BulkActionBar({
         <button
           type="button"
           onClick={onDelete}
-          className="rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-1.5 text-sm font-medium text-rose-200 transition hover:bg-rose-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-400"
+          className="rounded-lg border border-danger/25 bg-danger/10 px-3 py-1.5 text-sm font-medium text-danger-fg transition hover:bg-danger/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-danger"
         >
           Delete selected
         </button>

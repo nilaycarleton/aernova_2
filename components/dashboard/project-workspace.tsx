@@ -97,11 +97,11 @@ export function ProjectWorkspace({
               tabIndex={active ? 0 : -1}
               onClick={() => selectTab(t.key)}
               className={`flex-1 rounded-xl px-3 py-3 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument sm:px-4 sm:text-left ${
-                active ? "bg-instrument text-ground" : "text-ink-secondary hover:bg-surface-raised"
+                active ? "bg-instrument text-on-accent" : "text-ink-secondary hover:bg-surface-raised"
               }`}
             >
               <span className="block text-sm font-semibold">{t.label}</span>
-              <span className={`mt-0.5 text-xs ${active ? "text-ground" : "text-ink-muted"}`}>{t.hint}</span>
+              <span className={`mt-0.5 text-xs ${active ? "text-on-accent" : "text-ink-muted"}`}>{t.hint}</span>
             </button>
           );
         })}

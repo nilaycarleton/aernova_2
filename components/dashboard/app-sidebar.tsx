@@ -13,7 +13,7 @@ const navItems = [
 
 export function AppSidebar() {
   return (
-    <aside className="min-w-0 border-r border-hairline bg-slate-900/60 p-4">
+    <aside className="min-w-0 border-r border-hairline bg-surface-sidebar p-4">
       <div className="mb-8 rounded-xl border border-hairline bg-surface-raised p-4">
         <div className="text-xl font-semibold tracking-wide text-ink-primary">
           Aernova

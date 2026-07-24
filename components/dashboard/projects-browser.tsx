@@ -25,7 +25,7 @@ function DeleteProjectButton({ projectId, projectName }: { projectId: string; pr
       <input type="hidden" name="projectId" value={projectId} />
       <SubmitButton
         pendingText="Deleting…"
-        className="rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-1.5 text-xs font-medium text-rose-200 transition hover:bg-rose-500/20 disabled:opacity-60"
+        className="rounded-lg border border-danger/25 bg-danger/10 px-3 py-1.5 text-xs font-medium text-danger-fg transition hover:bg-danger/20 disabled:opacity-60"
       >
         Delete
       </SubmitButton>
@@ -77,7 +77,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
 
   if (projects.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-white/15 p-10 text-center">
+      <div className="rounded-3xl border border-dashed border-hairline p-10 text-center">
         <p className="text-lg font-medium text-ink-primary">Let&apos;s create your first roof project</p>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-muted">
           Add the client and address, upload your drone photos, and Aernova builds a 3D model you
@@ -85,7 +85,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
         </p>
         <Link
           href="/projects/new"
-          className="mt-5 inline-flex rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-ground transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="mt-5 inline-flex rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-on-accent transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           New project
         </Link>
@@ -101,7 +101,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by project, client, or address…"
-          className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/60 px-4 py-2 text-sm text-ink-primary placeholder:text-ink-muted focus:border-sky-500/50 focus:outline-none"
+          className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/60 px-4 py-2 text-sm text-ink-primary placeholder:text-ink-muted focus:border-signal-blue/50 focus:outline-none"
         />
         <select
           value={statusFilter}
@@ -171,7 +171,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
 
                 <div className="mt-3 flex items-center gap-2 text-sm">
                   <span className="text-ink-muted">Next:</span>
-                  <span className="font-medium text-cyan-100">{STATUS_META[project.status].nextStep}</span>
+                  <span className="font-medium text-instrument-fg">{STATUS_META[project.status].nextStep}</span>
                 </div>
               </Link>
               <DeleteProjectButton projectId={project.id} projectName={project.name} />

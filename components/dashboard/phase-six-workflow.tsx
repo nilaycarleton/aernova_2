@@ -69,9 +69,9 @@ function StepBadge({ n, state }: { n: number; state: StepState }) {
     <span
       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
         state === "done"
-          ? "bg-confirm/85 text-ground"
+          ? "bg-confirm/85 text-on-accent"
           : state === "current"
-            ? "bg-instrument text-ground"
+            ? "bg-instrument text-on-accent"
             : "bg-surface-lifted text-ink-muted"
       }`}
     >
@@ -173,7 +173,7 @@ export function PhaseSixWorkflow({
     <section className="min-w-0 max-w-full space-y-5 overflow-hidden">
       <ProcessingJobPoller projectId={projectId} activeJobs={activeJob ? 1 : 0} />
 
-      <div className="rounded-3xl border border-hairline bg-gradient-to-br from-white/8 to-white/5 p-6">
+      <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
         <h2 className="text-2xl font-semibold text-ink-primary">Roof scan</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">
           Turn your drone photos into a 3D model of the roof, then measure it. Just follow the
@@ -195,10 +195,10 @@ export function PhaseSixWorkflow({
             <div
               className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
                 qualityTone === "good"
-                  ? "border-emerald-300/25 bg-emerald-400/10 text-emerald-100"
+                  ? "border-confirm/25 bg-confirm/10 text-confirm-fg"
                   : qualityTone === "ok"
-                    ? "border-amber-300/25 bg-amber-400/10 text-amber-100"
-                    : "border-rose-300/25 bg-rose-500/10 text-rose-100"
+                    ? "border-caution/25 bg-caution/10 text-caution-fg"
+                    : "border-danger/25 bg-danger/10 text-danger-fg"
               }`}
             >
               <p className="font-medium">{qualityMessage}</p>
@@ -247,7 +247,7 @@ export function PhaseSixWorkflow({
           <div className="rounded-2xl border border-instrument-bright/20 bg-instrument-bright/5 p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-ink-primary">Building your 3D model…</p>
-              <span className="text-sm text-cyan-100">{progress}%</span>
+              <span className="text-sm text-instrument-fg">{progress}%</span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-lifted">
               <div className="h-full rounded-full bg-instrument-bright transition-all" style={{ width: `${progress}%` }} />
@@ -257,13 +257,13 @@ export function PhaseSixWorkflow({
             </p>
           </div>
         ) : modelReady ? (
-          <div className="rounded-2xl border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+          <div className="rounded-2xl border border-confirm/25 bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
             3D model ready. Review it in step 3 below.
           </div>
         ) : (
           <>
             {failed ? (
-              <p className="mb-3 rounded-2xl border border-rose-300/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+              <p className="mb-3 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg">
                 The last attempt needs another look — try building again{workerHealth.online ? "" : " once the processor is connected"}.
               </p>
             ) : null}
@@ -316,7 +316,7 @@ export function PhaseSixWorkflow({
                       <input type="hidden" name="projectId" value={projectId} />
                       <SubmitButton
                         pendingText="Building estimate…"
-                        className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 disabled:opacity-60"
+                        className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 disabled:opacity-60"
                       >
                         Generate estimate from these measurements
                       </SubmitButton>
@@ -325,7 +325,7 @@ export function PhaseSixWorkflow({
                       <input type="hidden" name="projectId" value={projectId} />
                       <SubmitButton
                         pendingText="Saving…"
-                        className="rounded-xl border border-white/15 bg-surface-raised px-4 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-lifted disabled:opacity-60"
+                        className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-lifted disabled:opacity-60"
                       >
                         Save to project measurements
                       </SubmitButton>
@@ -347,7 +347,7 @@ export function PhaseSixWorkflow({
                 <input type="hidden" name="imageryId" value={latestModel.id} />
                 <SubmitButton
                   pendingText="Saving…"
-                  className="rounded-xl border border-emerald-300/30 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-400/20 disabled:opacity-60"
+                  className="rounded-xl border border-confirm/25 bg-confirm/10 px-4 py-2 text-sm font-medium text-confirm-fg transition hover:bg-confirm/20 disabled:opacity-60"
                 >
                   Save measurements to this project
                 </SubmitButton>
@@ -408,9 +408,9 @@ export function PhaseSixWorkflow({
             <span
               className={`rounded-full border px-3 py-1 text-xs ${
                 workerHealth.online
-                  ? "border-emerald-300/30 bg-emerald-400/10 text-emerald-100"
+                  ? "border-confirm/25 bg-confirm/10 text-confirm-fg"
                   : workerHealth.configured
-                    ? "border-amber-300/30 bg-amber-400/10 text-amber-100"
+                    ? "border-caution/25 bg-caution/10 text-caution-fg"
                     : "border-ink-secondary/20 bg-ink-muted/10 text-ink-secondary"
               }`}
             >
@@ -443,7 +443,7 @@ export function PhaseSixWorkflow({
           {modelReady && latestModel ? (
             <a
               href={`/api/projects/${projectId}/processing/${latestModel.id}/download`}
-              className="inline-flex rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-cyan-100 transition hover:bg-surface-lifted"
+              className="inline-flex rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-instrument-fg transition hover:bg-surface-lifted"
             >
               Download all model files (.zip)
             </a>

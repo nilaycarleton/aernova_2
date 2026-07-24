@@ -14,7 +14,7 @@ const SELECT =
 
 function textCls(error?: string) {
   return `w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none ${
-    error ? "border-rose-400 focus:border-rose-300" : "border-hairline focus:border-signal-blue"
+    error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"
   }`;
 }
 
@@ -122,7 +122,7 @@ export function MeasurementEditForm({
         <div className="mt-5 flex flex-wrap gap-3">
           <SubmitButton
             pendingText="Saving…"
-            className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+            className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
           >
             Save Changes
           </SubmitButton>

@@ -12,7 +12,7 @@ const SELECT =
   "w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue";
 
 function textCls(error?: string) {
-  return `w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary placeholder:text-ink-muted outline-none ${error ? "border-rose-400 focus:border-rose-300" : "border-hairline focus:border-signal-blue"}`;
+  return `w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary placeholder:text-ink-muted outline-none ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`;
 }
 
 export function MeasurementCreateForm({ projectId }: { projectId: string }) {
@@ -120,7 +120,7 @@ export function MeasurementCreateForm({ projectId }: { projectId: string }) {
       <div className="md:col-span-2 flex flex-wrap gap-3">
         <SubmitButton
           pendingText="Adding…"
-          className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+          className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Add Measurement
         </SubmitButton>

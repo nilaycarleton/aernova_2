@@ -109,7 +109,7 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
                 <button
                   type="button"
                   onClick={() => handleUndo(toast)}
-                  className="shrink-0 rounded-lg px-2 py-1 text-sm font-semibold text-instrument-bright transition hover:bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+                  className="shrink-0 rounded-lg px-2 py-1 text-sm font-semibold text-instrument-fg transition hover:bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
                 >
                   Undo
                 </button>

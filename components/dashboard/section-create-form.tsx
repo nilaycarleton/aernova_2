@@ -24,7 +24,7 @@ export function SectionCreateForm({ projectId }: { projectId: string }) {
         <input
           name="label"
           placeholder="Garage rear slope"
-          className={`w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted ${labelError ? "border-rose-400 focus:border-rose-300" : "border-hairline focus:border-instrument"}`}
+          className={`w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted ${labelError ? "border-danger focus:border-danger" : "border-hairline focus:border-instrument"}`}
           required
           {...errorAttrs("section-label", labelError)}
         />
@@ -39,7 +39,7 @@ export function SectionCreateForm({ projectId }: { projectId: string }) {
       <input name="rakeLengthFt" type="number" step="0.01" aria-label="Rake length, feet" placeholder="Rake ft" className={NUM} />
       <SubmitButton
         pendingText="Adding…"
-        className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+        className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
       >
         Add Facet
       </SubmitButton>

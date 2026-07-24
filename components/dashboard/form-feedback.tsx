@@ -14,7 +14,7 @@ const FIELD_BASE =
 /** Field classes with an error-aware border. Pass the field's error, if any. */
 export function fieldClass(error?: string, extra = "") {
   const border = error
-    ? "border-rose-400 focus:border-rose-300"
+    ? "border-danger focus:border-danger"
     : "border-hairline focus:border-signal-blue";
   return `${FIELD_BASE} ${border} ${extra}`.trim();
 }
@@ -30,7 +30,7 @@ export function errorAttrs(fieldId: string, error?: string) {
 export function FieldError({ fieldId, message }: { fieldId: string; message?: string }) {
   if (!message) return null;
   return (
-    <p id={`${fieldId}-error`} className="mt-2 text-xs text-rose-200">
+    <p id={`${fieldId}-error`} className="mt-2 text-xs text-danger-fg">
       {message}
     </p>
   );
@@ -46,7 +46,7 @@ export function FormError({ message }: { message?: string }) {
   return (
     <div
       role="alert"
-      className="mb-4 rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"
+      className="mb-4 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
     >
       {message} Nothing you typed has been lost.
     </div>
@@ -59,7 +59,7 @@ export function FormErrorSummary({ count, noun = "job" }: { count: number; noun?
   return (
     <div
       role="alert"
-      className="mb-6 rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"
+      className="mb-6 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
     >
       {count === 1
         ? `One thing needs fixing before we can save this ${noun}.`
