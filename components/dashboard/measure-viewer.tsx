@@ -212,6 +212,9 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   const [detectError, setDetectError] = useState("");
   const [classifying, setClassifying] = useState(false);
   const [splitError, setSplitError] = useState("");
+  // Hand-measuring tools wait behind "More tools" so Auto-detect + Edit points —
+  // the path a roofer actually follows — lead. See the scan-tab redesign.
+  const [showAdvanced, setShowAdvanced] = useState(false);
   // Undo/redo: snapshots of the measurement list. historyVersion re-renders the buttons.
   const undoStackRef = useRef<Measurement[][]>([]);
   const redoStackRef = useRef<Measurement[][]>([]);
@@ -820,6 +823,16 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     setTool(t);
   };
 
+  // Collapsing "More tools" while a hand tool is active would strand its bottom
+  // overlay, so fall back to Move first.
+  const ADVANCED_TOOLS: Tool[] = ["distance", "area", "height", "marker", "split"];
+  const toggleAdvanced = () => {
+    setShowAdvanced((open) => {
+      if (open && ADVANCED_TOOLS.includes(toolRef.current)) startTool("orbit");
+      return !open;
+    });
+  };
+
   const hasAreas = measurements.filter((m) => m.type === "area").length >= 2;
   const runClassify = async () => {
     setClassifying(true);
@@ -842,89 +855,117 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     // Signature instrument surface: stays dark in both app themes — see
     // `.surface-dark` in globals.css.
     <div className="surface-dark min-w-0">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        {(["orbit", "distance", "area", "height", "marker"] as const).map((t) => (
+      <div className="mb-3 space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
-            key={t}
             type="button"
-            onClick={() => startTool(t)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium capitalize transition ${
-              tool === t ? "bg-instrument text-on-accent" : "border border-hairline bg-ground/50 text-ink-strong hover:text-ink-primary"
+            onClick={() => startTool("orbit")}
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              tool === "orbit" ? "bg-instrument text-on-accent" : "border border-hairline bg-ground/50 text-ink-strong hover:text-ink-primary"
             }`}
           >
-            {t === "orbit" ? "Move" : TOOL_META[t].name}
+            Move
           </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => startTool("detect")}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-            tool === "detect" ? "bg-yellow-400 text-on-accent" : "border border-yellow-300/30 bg-yellow-400/10 text-yellow-100 hover:bg-yellow-400/20"
-          }`}
-        >
-          ✨ Auto-detect roof
-        </button>
-        <button
-          type="button"
-          onClick={() => startTool("edit")}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-            tool === "edit" ? "bg-violet-400 text-on-accent" : "border border-violet-300/30 bg-violet-400/10 text-violet-100 hover:bg-violet-400/20"
-          }`}
-        >
-          Edit points
-        </button>
-        <button
-          type="button"
-          onClick={() => startTool("split")}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-            tool === "split" ? "bg-ink-strong text-on-accent" : "border border-hairline bg-ground/50 text-ink-strong hover:text-ink-primary"
-          }`}
-        >
-          Split facet
-        </button>
-        <button
-          type="button"
-          onClick={runClassify}
-          disabled={!hasAreas || classifying}
-          title={hasAreas ? "Find ridges, hips, valleys, eaves, and rakes from the facets" : "Draw or auto-detect at least two roof areas first"}
-          className="rounded-lg border border-sky-300/30 bg-sky-accent/10 px-3 py-1.5 text-sm font-medium text-sky-100 transition hover:bg-sky-accent/20 disabled:opacity-40"
-        >
-          {classifying ? "Finding edges…" : "⚡ Find roof edges"}
-        </button>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="inline-flex overflow-hidden rounded-lg border border-hairline text-sm">
-            <button
-              type="button"
-              onClick={undo}
-              disabled={!canUndo}
-              title="Undo (⌘Z / Ctrl+Z)"
-              className="px-2.5 py-1.5 text-ink-strong transition hover:bg-surface-lifted disabled:opacity-30"
-            >
-              ↶ Undo
-            </button>
-            <button
-              type="button"
-              onClick={redo}
-              disabled={!canRedo}
-              title="Redo (⌘⇧Z / Ctrl+Shift+Z)"
-              className="border-l border-hairline px-2.5 py-1.5 text-ink-strong transition hover:bg-surface-lifted disabled:opacity-30"
-            >
-              Redo ↷
-            </button>
-          </div>
-          <div className="inline-flex overflow-hidden rounded-lg border border-hairline text-sm">
-            {(["imperial", "metric"] as Units[]).map((u) => (
+          <button
+            type="button"
+            onClick={() => startTool("detect")}
+            className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+              tool === "detect" ? "bg-yellow-400 text-on-accent" : "border border-yellow-300/30 bg-yellow-400/10 text-yellow-100 hover:bg-yellow-400/20"
+            }`}
+          >
+            ✨ Auto-detect roof
+          </button>
+          <button
+            type="button"
+            onClick={() => startTool("edit")}
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              tool === "edit" ? "bg-violet-400 text-on-accent" : "border border-violet-300/30 bg-violet-400/10 text-violet-100 hover:bg-violet-400/20"
+            }`}
+          >
+            Edit points
+          </button>
+          <button
+            type="button"
+            onClick={toggleAdvanced}
+            aria-expanded={showAdvanced}
+            className="rounded-lg border border-hairline bg-ground/50 px-3 py-1.5 text-sm font-medium text-ink-secondary transition hover:text-ink-primary"
+          >
+            {showAdvanced ? "Hide tools" : "More tools"}
+          </button>
+
+          <div className="ml-auto flex items-center gap-2">
+            <div className="inline-flex overflow-hidden rounded-lg border border-hairline text-sm">
               <button
-                key={u}
                 type="button"
-                onClick={() => setUnits(u)}
-                className={`px-3 py-1.5 ${units === u ? "bg-surface-lifted text-ink-primary" : "bg-ground/50 text-ink-secondary"}`}
+                onClick={undo}
+                disabled={!canUndo}
+                title="Undo (⌘Z / Ctrl+Z)"
+                className="px-2.5 py-1.5 text-ink-strong transition hover:bg-surface-lifted disabled:opacity-30"
               >
-                {u === "imperial" ? "ft" : "m"}
+                ↶ Undo
               </button>
-            ))}
+              <button
+                type="button"
+                onClick={redo}
+                disabled={!canRedo}
+                title="Redo (⌘⇧Z / Ctrl+Shift+Z)"
+                className="border-l border-hairline px-2.5 py-1.5 text-ink-strong transition hover:bg-surface-lifted disabled:opacity-30"
+              >
+                Redo ↷
+              </button>
+            </div>
+            <div className="inline-flex overflow-hidden rounded-lg border border-hairline text-sm">
+              {(["imperial", "metric"] as Units[]).map((u) => (
+                <button
+                  key={u}
+                  type="button"
+                  onClick={() => setUnits(u)}
+                  className={`px-3 py-1.5 ${units === u ? "bg-surface-lifted text-ink-primary" : "bg-ground/50 text-ink-secondary"}`}
+                >
+                  {u === "imperial" ? "ft" : "m"}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
+
+        {showAdvanced ? (
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-hairline bg-ground/40 p-2">
+            <span className="px-1 text-xs font-medium uppercase tracking-wide text-ink-muted">
+              Measure by hand
+            </span>
+            {(["distance", "area", "height", "marker"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => startTool(t)}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                  tool === t ? "bg-instrument text-on-accent" : "border border-hairline bg-ground/50 text-ink-strong hover:text-ink-primary"
+                }`}
+              >
+                {TOOL_META[t].name}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => startTool("split")}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                tool === "split" ? "bg-ink-strong text-on-accent" : "border border-hairline bg-ground/50 text-ink-strong hover:text-ink-primary"
+              }`}
+            >
+              Split roof face
+            </button>
+            <button
+              type="button"
+              onClick={runClassify}
+              disabled={!hasAreas || classifying}
+              title={hasAreas ? "Find ridges, hips, valleys, eaves, and rakes from the roof faces" : "Auto-detect or draw at least two roof faces first"}
+              className="rounded-lg border border-sky-300/30 bg-sky-accent/10 px-3 py-1.5 text-sm font-medium text-sky-100 transition hover:bg-sky-accent/20 disabled:opacity-40"
+            >
+              {classifying ? "Finding edges…" : "⚡ Find roof edges"}
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="grid gap-3 lg:grid-cols-[1fr_240px]">
@@ -1022,7 +1063,9 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
             ) : null}
           </div>
           {measurements.length === 0 ? (
-            <p className="text-xs text-ink-muted">Pick a tool and click the model to measure.</p>
+            <p className="text-xs text-ink-muted">
+              Your roof faces show up here. Start with ✨ Auto-detect roof above.
+            </p>
           ) : (
             <ul className="space-y-1.5">
               {measurements.map((m) => (
@@ -1077,8 +1120,8 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
 
       <p className="mt-2 text-xs text-ink-muted">
         {tool === "orbit"
-          ? "Drag to rotate · scroll to zoom. Pick a tool to measure directly on the model."
-          : "Measurements read in real-world units off the 3D model."}
+          ? "Start with ✨ Auto-detect roof — box your roof and it finds the faces for you. Then Edit points to nudge any that look off. Drag to rotate · scroll to zoom."
+          : "Measurements read in real-world units straight off the 3D roof."}
       </p>
     </div>
   );

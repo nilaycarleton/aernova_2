@@ -143,8 +143,8 @@ export default async function ProjectDetailPage({
             {/* The hands-on tools wait behind disclosure so the workflow and the
                 numbers lead. Each opens itself once it has work in it. */}
             <DisclosurePanel
-              title="Structures & facets"
-              hint="Add or edit roof planes and detached structures by hand"
+              title="Roof faces & structures"
+              hint="Adjust roof faces or add a detached structure (garage, shed) by hand"
               count={project.sections.length}
               defaultOpen={project.sections.length > 0}
             >
@@ -152,8 +152,8 @@ export default async function ProjectDetailPage({
             </DisclosurePanel>
 
             <DisclosurePanel
-              title="Measurements"
-              hint="Add or edit roof metrics by hand — area, ridge, pitch, and more"
+              title="Measurements by hand"
+              hint="Type or fix a roof measurement yourself — area, ridge, pitch, and more"
               count={project.measurements.length}
               defaultOpen={project.measurements.length > 0}
             >
@@ -162,8 +162,8 @@ export default async function ProjectDetailPage({
 
             {extractableModel && (
               <DisclosurePanel
-                title="Roof extraction"
-                hint="Advanced — trace the roof outline on the 3D model to pull measurements"
+                title="Trace the roof outline"
+                hint="Advanced — draw the roof outline on the 3D model to pull measurements"
               >
                 <RoofExtractionPanel
                   projectId={project.id}

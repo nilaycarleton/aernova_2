@@ -7,10 +7,6 @@ import {
 } from "@prisma/client";
 import type { SavedMeasurement } from "@/components/dashboard/measure-viewer";
 import type { ModelMeasurementKind } from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
-import {
-  materializeDroneMeasurementsAction,
-  syncNodeOdmTaskAction,
-} from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
 import { ComparisonCreateForm } from "@/components/dashboard/comparison-create-form";
 import {
   generateEstimateFromMeasurementsAction,
@@ -47,12 +43,6 @@ function metadataObject(value: unknown) {
 function hasLocation(item: ProjectImagery) {
   const metadata = metadataObject(item.metadataJson);
   return Boolean(metadata.gps || metadata.latitude || metadata.longitude);
-}
-
-function nodeOdmTaskUuid(value: unknown) {
-  const metadata = metadataObject(value);
-  if (typeof metadata.nodeOdmTaskUuid === "string") return metadata.nodeOdmTaskUuid;
-  return typeof metadata.nodeOdxTaskUuid === "string" ? metadata.nodeOdxTaskUuid : "";
 }
 
 function isActiveJob(job: ProcessingJob) {
@@ -164,7 +154,6 @@ export function PhaseSixWorkflow({
     : modelReady
       ? 100
       : 0;
-  const buildTaskUuid = latestModel ? nodeOdmTaskUuid(latestModel.metadataJson) : "";
   const beforeImages = imagery.filter((item) => item.type === "BEFORE");
   const afterImages = imagery.filter((item) => item.type === "AFTER");
   const filmstrip = photos.slice(0, 24);
@@ -300,10 +289,11 @@ export function PhaseSixWorkflow({
                     : null;
               return glbUrl ? (
                 <div className="mt-6">
-                  <h4 className="mb-1 text-sm font-semibold text-ink-primary">Measure on the model</h4>
+                  <h4 className="mb-1 text-sm font-semibold text-ink-primary">Map your roof</h4>
                   <p className="mb-3 text-xs text-ink-muted">
-                    Pick a tool and click the 3D model to measure distances, roof areas, pitch, and height, or drop
-                    markers — all in real-world units.
+                    Hit ✨ Auto-detect roof, box your roof, and it finds the faces and their pitch for you.
+                    Nudge any that look off with Edit points. Need to measure something by hand? It&apos;s all
+                    under More tools.
                   </p>
                   <MeasureViewer
                     glbUrl={glbUrl}
@@ -311,14 +301,17 @@ export function PhaseSixWorkflow({
                     modelImageryId={latestModel.id}
                     initialMeasurements={savedMeasurements}
                   />
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                  {/* Two real next steps once the roof is mapped: turn the faces
+                      into a priced quote now, or just save them to the project to
+                      return to later. Both act on what the roofer drew/detected. */}
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
                     <form action={generateEstimateFromMeasurementsAction}>
                       <input type="hidden" name="projectId" value={projectId} />
                       <SubmitButton
-                        pendingText="Building estimate…"
+                        pendingText="Building quote…"
                         className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 disabled:opacity-60"
                       >
-                        Generate estimate from these measurements
+                        Build the quote
                       </SubmitButton>
                     </form>
                     <form action={saveModelMeasurementsToProjectAction}>
@@ -327,32 +320,16 @@ export function PhaseSixWorkflow({
                         pendingText="Saving…"
                         className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-lifted disabled:opacity-60"
                       >
-                        Save to project measurements
+                        Save to the project
                       </SubmitButton>
                     </form>
                     <span className="text-xs text-ink-muted">
-                      Build a priced proposal, or roll these up into the project&apos;s measurements list.
+                      Build a priced quote now, or just save these to the project to come back to later.
                     </span>
                   </div>
                 </div>
               ) : null;
             })()}
-
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-ink-muted">
-                Draw a box around the roof in the measurement tool below to get area, pitch, and squares.
-              </p>
-              <form action={materializeDroneMeasurementsAction}>
-                <input type="hidden" name="projectId" value={projectId} />
-                <input type="hidden" name="imageryId" value={latestModel.id} />
-                <SubmitButton
-                  pendingText="Saving…"
-                  className="rounded-xl border border-confirm/25 bg-confirm/10 px-4 py-2 text-sm font-medium text-confirm-fg transition hover:bg-confirm/20 disabled:opacity-60"
-                >
-                  Save measurements to this project
-                </SubmitButton>
-              </form>
-            </div>
           </>
         ) : (
           <p className="text-sm text-ink-muted">
@@ -397,59 +374,6 @@ export function PhaseSixWorkflow({
         </div>
       </details>
 
-      {/* Technical details — hidden by default */}
-      <details className="min-w-0 rounded-3xl border border-hairline bg-surface-raised">
-        <summary className="cursor-pointer px-6 py-4 text-sm font-medium text-ink-secondary">
-          Technical details
-        </summary>
-        <div className="space-y-4 border-t border-hairline p-6 text-sm">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-ink-muted">3D processor:</span>
-            <span
-              className={`rounded-full border px-3 py-1 text-xs ${
-                workerHealth.online
-                  ? "border-confirm/25 bg-confirm/10 text-confirm-fg"
-                  : workerHealth.configured
-                    ? "border-caution/25 bg-caution/10 text-caution-fg"
-                    : "border-ink-secondary/20 bg-ink-muted/10 text-ink-secondary"
-              }`}
-            >
-              {workerHealth.online ? "connected" : workerHealth.configured ? "not reachable" : "not set up"}
-            </span>
-            {latestModel && buildTaskUuid ? (
-              <form action={syncNodeOdmTaskAction} className="ml-auto">
-                <input type="hidden" name="projectId" value={projectId} />
-                <input type="hidden" name="imageryId" value={latestModel.id} />
-                <button type="submit" className="rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-ink-strong transition hover:bg-surface-lifted">
-                  Refresh status
-                </button>
-              </form>
-            ) : null}
-          </div>
-
-          {processingJobs.length > 0 ? (
-            <div className="grid gap-2 md:grid-cols-2">
-              {processingJobs.slice(0, 4).map((job) => (
-                <div key={job.id} className="rounded-xl bg-surface-raised p-3 text-xs text-ink-secondary">
-                  {job.provider} · {job.status.replaceAll("_", " ").toLowerCase()}
-                  {typeof job.progress === "number" ? ` · ${Math.round(job.progress)}%` : ""}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-ink-muted">No processing jobs yet.</p>
-          )}
-
-          {modelReady && latestModel ? (
-            <a
-              href={`/api/projects/${projectId}/processing/${latestModel.id}/download`}
-              className="inline-flex rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-instrument-fg transition hover:bg-surface-lifted"
-            >
-              Download all model files (.zip)
-            </a>
-          ) : null}
-        </div>
-      </details>
     </section>
   );
 }
