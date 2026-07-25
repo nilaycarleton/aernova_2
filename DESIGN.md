@@ -183,7 +183,7 @@ Each status keeps one saturated **base** (for `bg-x/10` tints and `border-x/25` 
 
 Cyan used to mean the primary *action* as well. That was the flaw: when one colour marks both "this is the truth" and "this is the button," neither reads as special, and the eye can't use cyan to find anything. The number is the product; the button is chrome. So **actions are never cyan.** A primary action is a high-contrast `ink-primary` fill labelled in `ground` — the two are inverses and flip together, so the inversion reads as "clickable" in both themes. A secondary action is a hairline outline on `surface-raised`. Navigation, active tabs, status pills, step badges, and counts are *state*, not readings: they separate by tone, never by cyan.
 
-Two sanctioned exceptions, both invisible at rest: **focus rings** (`focus:border-instrument`, `outline-instrument`) and the **drag-active drop zone**. Neither competes, because neither is painted until the user acts.
+Two sanctioned exceptions, both invisible at rest: the **button focus outline** (`outline-instrument`) and the **drag-active drop zone**. Neither competes, because neither is painted until the user acts. Note that an *input's* focus border is Signal Blue, not cyan — see Inputs / Fields. Cyan on a resting input border would claim the field is a reading.
 
 **One cyan figure per surface.** If two cyan numbers are visible at once, one of them is losing — decide which is the reading the contractor acts on, and neutralise the other.
 

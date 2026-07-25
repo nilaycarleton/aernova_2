@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-23T00:00:00.000Z",
+  "generatedAt": "2026-07-25T18:45:59.609Z",
   "title": "Design System: Aernova",
   "extensions": {
     "colorMeta": {
@@ -9,167 +9,401 @@
         "displayName": "Ground (Ink Navy)",
         "canonical": "oklch(12.5% 0.05 264)",
         "note": "Dark home base. Flips to oklch(95.5% 0.01 255) cool paper-grey in light theme.",
-        "tonalRamp": ["#04091f", "#0b1230", "#151d3e", "#2a3556", "#45526f", "#68758f", "#9aa6bf", "#cdd6ea"]
+        "tonalRamp": [
+          "#04091f",
+          "#0b1230",
+          "#151d3e",
+          "#2a3556",
+          "#45526f",
+          "#68758f",
+          "#9aa6bf",
+          "#cdd6ea"
+        ]
       },
       "surface-raised": {
         "role": "neutral",
         "displayName": "Surface Raised",
         "canonical": "rgb(216 227 255 / 0.07)",
         "note": "Navy-tinted white film on dark; opaque white on light.",
-        "tonalRamp": ["#d8e3ff12", "#d8e3ff1f", "#d8e3ff2b", "#d8e3ff40", "#d8e3ff59", "#d8e3ff80", "#d8e3ffb3", "#ffffff"]
+        "tonalRamp": [
+          "#d8e3ff12",
+          "#d8e3ff1f",
+          "#d8e3ff2b",
+          "#d8e3ff40",
+          "#d8e3ff59",
+          "#d8e3ff80",
+          "#d8e3ffb3",
+          "#ffffff"
+        ]
       },
       "surface-lifted": {
         "role": "neutral",
         "displayName": "Surface Lifted",
         "canonical": "rgb(216 227 255 / 0.13)",
         "note": "Nested / hover / active. Faint cool-grey wash on light.",
-        "tonalRamp": ["#d8e3ff12", "#d8e3ff21", "#d8e3ff33", "#d8e3ff4d", "#d8e3ff66", "#d8e3ff8c", "#d8e3ffbf", "#ffffff"]
+        "tonalRamp": [
+          "#d8e3ff12",
+          "#d8e3ff21",
+          "#d8e3ff33",
+          "#d8e3ff4d",
+          "#d8e3ff66",
+          "#d8e3ff8c",
+          "#d8e3ffbf",
+          "#ffffff"
+        ]
       },
       "surface-sidebar": {
         "role": "neutral",
         "displayName": "Surface Sidebar",
         "canonical": "oklch(15.5% 0.05 264)",
         "note": "The sidebar's second neutral layer. oklch(93.5% 0.012 255) on light.",
-        "tonalRamp": ["#0a1128", "#111a36", "#1c2647", "#334063", "#4e5c7d", "#71809b", "#a1adc4", "#d4dcee"]
+        "tonalRamp": [
+          "#0a1128",
+          "#111a36",
+          "#1c2647",
+          "#334063",
+          "#4e5c7d",
+          "#71809b",
+          "#a1adc4",
+          "#d4dcee"
+        ]
       },
       "hairline": {
         "role": "neutral",
         "displayName": "Hairline",
         "canonical": "rgb(216 227 255 / 0.14)",
         "note": "The one border. White-alpha on dark, Ink-Navy-alpha (rgb 15 23 43 / 0.12) on light.",
-        "tonalRamp": ["#d8e3ff0d", "#d8e3ff1a", "#d8e3ff24", "#d8e3ff33", "#d8e3ff4d", "#d8e3ff66", "#d8e3ff99", "#d8e3ffcc"]
+        "tonalRamp": [
+          "#d8e3ff0d",
+          "#d8e3ff1a",
+          "#d8e3ff24",
+          "#d8e3ff33",
+          "#d8e3ff4d",
+          "#d8e3ff66",
+          "#d8e3ff99",
+          "#d8e3ffcc"
+        ]
       },
       "ink-primary": {
         "role": "neutral",
         "displayName": "Ink Primary",
         "canonical": "#ffffff",
         "note": "Headings and any number a contractor acts on. Flips to oklch(21% 0.04 265) on light.",
-        "tonalRamp": ["#0f172b", "#1d293d", "#314158", "#45556c", "#62748e", "#90a1b9", "#cad5e2", "#ffffff"]
+        "tonalRamp": [
+          "#0f172b",
+          "#1d293d",
+          "#314158",
+          "#45556c",
+          "#62748e",
+          "#90a1b9",
+          "#cad5e2",
+          "#ffffff"
+        ]
       },
       "ink-secondary": {
         "role": "neutral",
         "displayName": "Ink Secondary",
         "canonical": "oklch(87% 0.028 262)",
         "note": "Body copy. Deep Ink Navy (oklch(37% 0.044 257)) on light.",
-        "tonalRamp": ["#111a2e", "#20304c", "#33475f", "#48607a", "#647d97", "#8aa0bb", "#b5c3d9", "#e2e9f5"]
+        "tonalRamp": [
+          "#111a2e",
+          "#20304c",
+          "#33475f",
+          "#48607a",
+          "#647d97",
+          "#8aa0bb",
+          "#b5c3d9",
+          "#e2e9f5"
+        ]
       },
       "ink-muted": {
         "role": "neutral",
         "displayName": "Ink Muted",
         "canonical": "oklch(70.4% 0.045 258)",
         "note": "The contrast floor. ~7.6:1 on dark ground, ~4.7:1 on light. Nothing dimmer carries text.",
-        "tonalRamp": ["#1a2438", "#2b3850", "#3f4f68", "#556680", "#6d8099", "#8b9db6", "#adbbcf", "#d4dce9"]
+        "tonalRamp": [
+          "#1a2438",
+          "#2b3850",
+          "#3f4f68",
+          "#556680",
+          "#6d8099",
+          "#8b9db6",
+          "#adbbcf",
+          "#d4dce9"
+        ]
       },
       "on-accent": {
         "role": "neutral",
         "displayName": "On-Accent",
         "canonical": "oklch(13% 0.05 264)",
         "note": "Constant dark ink on bright accents (cyan/amber/emerald buttons). Never flips.",
-        "tonalRamp": ["#04091f", "#0b1230", "#151d3e", "#2a3556", "#45526f", "#68758f", "#9aa6bf", "#cdd6ea"]
+        "tonalRamp": [
+          "#04091f",
+          "#0b1230",
+          "#151d3e",
+          "#2a3556",
+          "#45526f",
+          "#68758f",
+          "#9aa6bf",
+          "#cdd6ea"
+        ]
       },
       "instrument": {
         "role": "primary",
         "displayName": "Instrument Cyan",
         "canonical": "oklch(78.9% 0.154 211.53)",
         "note": "The readout colour. Identical in both themes.",
-        "tonalRamp": ["#083b45", "#0a5666", "#0b7488", "#0d9cb6", "#00b7d7", "#00d3f2", "#53eafd", "#a9f4fe"]
+        "tonalRamp": [
+          "#083b45",
+          "#0a5666",
+          "#0b7488",
+          "#0d9cb6",
+          "#00b7d7",
+          "#00d3f2",
+          "#53eafd",
+          "#a9f4fe"
+        ]
       },
       "instrument-bright": {
         "role": "primary",
         "displayName": "Instrument Cyan Bright",
         "canonical": "oklch(86.5% 0.127 207.078)",
-        "tonalRamp": ["#0a4653", "#0c6274", "#0e8399", "#12a6c1", "#2cc6e0", "#53eafd", "#8cf1fe", "#c6f8ff"]
+        "tonalRamp": [
+          "#0a4653",
+          "#0c6274",
+          "#0e8399",
+          "#12a6c1",
+          "#2cc6e0",
+          "#53eafd",
+          "#8cf1fe",
+          "#c6f8ff"
+        ]
       },
       "instrument-deep": {
         "role": "primary",
         "displayName": "Instrument Cyan Deep",
         "canonical": "oklch(71.5% 0.143 215.221)",
-        "tonalRamp": ["#073640", "#0a5060", "#0c6d83", "#0e8ba6", "#11a1c0", "#00b7d7", "#3fd3ec", "#8ce6f6"]
+        "tonalRamp": [
+          "#073640",
+          "#0a5060",
+          "#0c6d83",
+          "#0e8ba6",
+          "#11a1c0",
+          "#00b7d7",
+          "#3fd3ec",
+          "#8ce6f6"
+        ]
       },
       "instrument-fg": {
         "role": "primary",
         "displayName": "Instrument Foreground",
         "canonical": "oklch(89% 0.09 205)",
         "note": "Readable cyan text on a cyan tint. Pale in dark, deep (oklch(44% 0.125 224), ~5:1 on a cyan tint) in light.",
-        "tonalRamp": ["#0a4a58", "#0d6f82", "#11889f", "#3aa9bf", "#6fc6d8", "#9ddceb", "#c2ebf4", "#e2f7fb"]
+        "tonalRamp": [
+          "#0a4a58",
+          "#0d6f82",
+          "#11889f",
+          "#3aa9bf",
+          "#6fc6d8",
+          "#9ddceb",
+          "#c2ebf4",
+          "#e2f7fb"
+        ]
       },
       "signal-blue": {
         "role": "secondary",
         "displayName": "Signal Blue",
         "canonical": "oklch(62.3% 0.214 259.815)",
         "note": "3D viewer overlays and input focus. Does not flip.",
-        "tonalRamp": ["#0f1e52", "#152c7a", "#1b3aa3", "#2249cc", "#3080ff", "#5b9bff", "#8bbaff", "#c0d7ff"]
+        "tonalRamp": [
+          "#0f1e52",
+          "#152c7a",
+          "#1b3aa3",
+          "#2249cc",
+          "#3080ff",
+          "#5b9bff",
+          "#8bbaff",
+          "#c0d7ff"
+        ]
       },
       "sky-accent": {
         "role": "secondary",
         "displayName": "Sky Accent",
         "canonical": "oklch(74.6% 0.16 232.661)",
-        "tonalRamp": ["#083a52", "#0a5474", "#0c7099", "#0f8cbf", "#00bcfe", "#4fcdff", "#8adcff", "#c4eeff"]
+        "tonalRamp": [
+          "#083a52",
+          "#0a5474",
+          "#0c7099",
+          "#0f8cbf",
+          "#00bcfe",
+          "#4fcdff",
+          "#8adcff",
+          "#c4eeff"
+        ]
       },
       "confirm": {
         "role": "tertiary",
         "displayName": "Confirm Green",
         "canonical": "oklch(69.6% 0.17 162.48)",
         "note": "Terminal success only. -fg text pale (oklch(90% 0.11 165)) in dark, deep in light.",
-        "tonalRamp": ["#053325", "#074a37", "#09644b", "#0b8062", "#00bb7f", "#34d29a", "#7ce4c1", "#c0f2e0"]
+        "tonalRamp": [
+          "#053325",
+          "#074a37",
+          "#09644b",
+          "#0b8062",
+          "#00bb7f",
+          "#34d29a",
+          "#7ce4c1",
+          "#c0f2e0"
+        ]
       },
       "caution": {
         "role": "tertiary",
         "displayName": "Amber / Caution",
         "canonical": "oklch(80% 0.15 78)",
         "note": "The one warm signal. Attention/caution only — never a measurement, error, or decoration.",
-        "tonalRamp": ["#3d2a05", "#5a3f07", "#7e5809", "#a6740b", "#d99a10", "#ffb020", "#ffc85a", "#ffe0a0"]
+        "tonalRamp": [
+          "#3d2a05",
+          "#5a3f07",
+          "#7e5809",
+          "#a6740b",
+          "#d99a10",
+          "#ffb020",
+          "#ffc85a",
+          "#ffe0a0"
+        ]
       },
       "danger": {
         "role": "tertiary",
         "displayName": "Danger",
         "canonical": "oklch(63.7% 0.234 25.3)",
         "note": "Errors and destructive actions. -fg pale rose in dark, deep red in light.",
-        "tonalRamp": ["#440d12", "#63131b", "#881a25", "#b32232", "#e23b4a", "#f56b78", "#f89aa3", "#fbc7cc"]
+        "tonalRamp": [
+          "#440d12",
+          "#63131b",
+          "#881a25",
+          "#b32232",
+          "#e23b4a",
+          "#f56b78",
+          "#f89aa3",
+          "#fbc7cc"
+        ]
       },
       "info": {
         "role": "tertiary",
         "displayName": "Info",
         "canonical": "oklch(68.5% 0.169 237)",
         "note": "Neutral informational states and non-measurement status badges.",
-        "tonalRamp": ["#08324a", "#0a4a6c", "#0c6491", "#0f80b6", "#1f9fdb", "#54bdf0", "#8ad4f7", "#c4e9fb"]
+        "tonalRamp": [
+          "#08324a",
+          "#0a4a6c",
+          "#0c6491",
+          "#0f80b6",
+          "#1f9fdb",
+          "#54bdf0",
+          "#8ad4f7",
+          "#c4e9fb"
+        ]
       },
       "paper": {
         "role": "neutral",
         "displayName": "Paper (report surface)",
         "canonical": "oklch(96.8% 0.007 247.896)",
         "note": "The (report) route. Pinned to light; never flips with app theme.",
-        "tonalRamp": ["#0f172b", "#1d293d", "#314158", "#45556c", "#62748e", "#90a1b9", "#e2e8f0", "#ffffff"]
+        "tonalRamp": [
+          "#0f172b",
+          "#1d293d",
+          "#314158",
+          "#45556c",
+          "#62748e",
+          "#90a1b9",
+          "#e2e8f0",
+          "#ffffff"
+        ]
+      },
+      "paper-rule-strong": {
+        "role": "neutral",
+        "displayName": "Paper Rule Strong (total line)",
+        "canonical": "oklch(86.9% 0.022 252.894)",
+        "note": "The one heavier rule a document draws, above a total. Paper rules at three weights: paper between table rows, paper-rule at section edges, this above a total. Two on one page means one is wrong.",
+        "tonalRamp": [
+          "#0f172b",
+          "#1d293d",
+          "#314158",
+          "#45556c",
+          "#62748e",
+          "#90a1b9",
+          "#cad5e2",
+          "#ffffff"
+        ]
       }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "Page and workspace titles. One per screen." },
-      "headline": { "displayName": "Headline", "purpose": "Section headings inside a panel." },
-      "title": { "displayName": "Title", "purpose": "Panel headers, control labels, column heads. Weight, not size, over body." },
-      "body": { "displayName": "Body", "purpose": "The workhorse reading size. 65–75ch max for prose." },
-      "label": { "displayName": "Label", "purpose": "Metadata, units, badges. The only place uppercase is allowed." }
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page and workspace titles. One per screen."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings inside a panel."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Panel headers, control labels, column heads. Weight, not size, over body."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "The workhorse reading size. 65–75ch max for prose."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Metadata, units, badges. The only place uppercase is allowed."
+      }
     },
     "shadows": [
-      { "name": "none", "value": "none", "purpose": "Default. The system is flat; depth is tonal. Prohibited on any translucent surface." },
-      { "name": "paper-document", "value": "0 10px 40px rgb(2 6 24 / 0.28)", "purpose": "Only the opaque proposal document earns a paper-on-a-desk shadow." }
+      {
+        "name": "none",
+        "value": "none",
+        "purpose": "Default. The system is flat; depth is tonal. Prohibited on any translucent surface."
+      },
+      {
+        "name": "paper-document",
+        "value": "0 10px 40px rgb(2 6 24 / 0.28)",
+        "purpose": "Only the opaque proposal document earns a paper-on-a-desk shadow."
+      }
     ],
     "motion": [
-      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for state transitions." },
-      { "name": "duration-state", "value": "150ms", "purpose": "Hover / focus / theme feedback. Users are in flow; no choreography." }
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Default easing for state transitions."
+      },
+      {
+        "name": "duration-state",
+        "value": "150ms",
+        "purpose": "Hover / focus / theme feedback. Users are in flow; no choreography."
+      }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "lg", "value": "1024px", "note": "Sidebar becomes a fixed 260px column at lg." }
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px",
+        "note": "Sidebar becomes a fixed 260px column at lg."
+      }
     ]
   },
   "components": [
     {
-      "name": "Primary Button (Hero)",
+      "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one action per surface that advances the job. Brightest object on screen; constant dark ink in both themes.",
-      "html": "<button class=\"ds-btn-primary\">Create quote</button>",
-      "css": ".ds-btn-primary { background: oklch(78.9% 0.154 211.53); color: oklch(13% 0.05 264); border: none; border-radius: 8px; padding: 8px 12px; font-size: 14px; font-weight: 600; line-height: 20px; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: oklch(86.5% 0.127 207.078); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(78.9% 0.154 211.53); outline-offset: 2px; }"
+      "description": "The one action per surface that advances the job. A high-contrast ink/ground inversion, not cyan — cyan is reserved for readings. Both tokens flip together, so the inversion holds in either theme (20.3:1 dark, 15.6:1 light).",
+      "html": "<button class=\"ds-btn-primary\">Rebuild quote</button>",
+      "css": ".ds-btn-primary { background: var(--color-ink-primary, #fff); color: var(--color-ground, oklch(12.5% 0.05 264)); border: none; border-radius: 12px; padding: 12px 20px; font-size: 14px; font-weight: 600; line-height: 20px; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: var(--color-ink-secondary, oklch(87% 0.028 262)); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-instrument, oklch(78.9% 0.154 211.53)); outline-offset: 2px; }"
     },
     {
       "name": "Quiet Button",
@@ -196,10 +430,10 @@
       "css": ".ds-panel { background: rgb(216 227 255 / 0.07); border: 1px solid rgb(216 227 255 / 0.14); border-radius: 16px; padding: 24px; } .ds-panel-title { margin: 0 0 8px; font-size: 18px; font-weight: 600; color: #fff; } .ds-panel-body { margin: 0; font-size: 14px; line-height: 20px; color: oklch(87% 0.028 262); }"
     },
     {
-      "name": "Status Chip",
+      "name": "Severity Chip",
       "kind": "chip",
       "refersTo": "chip",
-      "description": "Read-only status carrier from the quartet. Shown here as caution/amber; swap the base + -fg token for confirm, danger, or info.",
+      "description": "Inspection issue severity, from the semantic quartet. Shown as caution/amber; swap the base + -fg token for confirm, danger, or info. Distinct from the pipeline status pill, which is tonal.",
       "html": "<span class=\"ds-status-chip\">Needs another look</span>",
       "css": ".ds-status-chip { display: inline-flex; align-items: center; border-radius: 9999px; padding: 4px 10px; font-size: 12px; font-weight: 500; letter-spacing: 0.025em; background: color-mix(in oklab, oklch(80% 0.15 78) 10%, transparent); border: 1px solid color-mix(in oklab, oklch(80% 0.15 78) 25%, transparent); color: oklch(90% 0.08 88); }"
     },
@@ -218,6 +452,14 @@
       "description": "Sidebar row on the surface-sidebar layer. Ink Secondary at rest, Ink Primary + Surface Lifted fill when active. No accent stripe.",
       "html": "<a class=\"ds-nav-item ds-nav-item--active\">Measurements</a>",
       "css": ".ds-nav-item { display: block; border-radius: 8px; padding: 12px 16px; font-size: 14px; color: oklch(87% 0.028 262); text-decoration: none; transition: background 150ms, color 150ms; } .ds-nav-item:hover { background: rgb(216 227 255 / 0.07); color: #fff; } .ds-nav-item--active { background: rgb(216 227 255 / 0.13); color: #fff; }"
+    },
+    {
+      "name": "Pipeline Status Pill",
+      "kind": "chip",
+      "refersTo": "chip-status",
+      "description": "Where a job stands. State reads tonally, never in colour — these were nine raw palette hues (slate, sky, amber, emerald, blue, indigo, violet, teal) that never flipped with theme and competed with the one cyan figure. Three tiers now: in-flight (shown), done (confirm), archived (ink-muted). The stage name is what tells them apart.",
+      "html": "<span class=\"ds-status-pill\">Ready for quote</span>",
+      "css": ".ds-status-pill { display: inline-flex; align-items: center; border-radius: 9999px; padding: 4px 12px; font-size: 12px; font-weight: 500; background: var(--color-surface-lifted, rgb(216 227 255 / 0.13)); color: var(--color-ink-secondary, oklch(87% 0.028 262)); }"
     }
   ],
   "narrative": {
@@ -232,20 +474,69 @@
       "Soft radii (12–16px) to keep a technical product feeling unhurried"
     ],
     "rules": [
-      { "name": "The Readout Rule", "body": "Instrument Cyan means 'a measurement or the action that produces one,' and it is identical in both themes. Never a brand flourish, link colour, or decoration.", "section": "colors" },
-      { "name": "The One Warm Note Rule", "body": "Amber is the system's only warm colour, and it means attention/caution and nothing else — never a measurement, error, success, or decoration.", "section": "colors" },
-      { "name": "The Constant-On-Accent Rule", "body": "Text on a bright accent uses on-accent (constant dark), never ground. ground flips near-white in light mode; a button labelled in ground would vanish on its own cyan.", "section": "colors" },
-      { "name": "The Ink Floor Rule", "body": "Ink Muted is the dimmest colour permitted to carry text, measured against whichever ground is active. Route every text colour through the ink-* tokens; the codebase is clean of raw slate-500.", "section": "colors" },
-      { "name": "The One Rule Rule", "body": "All structural separation uses the hairline at one weight. No 2px borders, no colored stripes, no accent bars. More emphasis than a hairline means spacing or tone.", "section": "colors" },
-      { "name": "The Weight-Not-Size Rule", "body": "Hierarchy between a label and its value is carried by weight and colour, not size. The one exception is a single hero number that may size up in cyan to lead its panel.", "section": "typography" },
-      { "name": "The Uppercase Confinement Rule", "body": "Uppercase is a 12px label treatment only. A measurement, heading, or sentence is never uppercased.", "section": "typography" },
-      { "name": "The Two-Layer Rule", "body": "Ground → raised → lifted is the entire elevation vocabulary, in either theme. A third layer means the layout is too nested.", "section": "elevation" },
-      { "name": "The Dark-Instrument Rule", "body": "The live 3D viewers stay dark in both themes via a scoped .surface-dark block. The model renders on a dark canvas; a light control bar over it would strand its own tool colours.", "section": "elevation" },
-      { "name": "The Scrim Rule", "body": "Blur is permitted only where unpredictable content sits underneath, always paired with an opaque scrim. On the ground, blur is prohibited.", "section": "elevation" },
-      { "name": "The Anti-Pattern Test", "body": "If a panel appears to float above the page rather than sit on it, the treatment is wrong. Surfaces rest; they do not hover.", "section": "elevation" }
+      {
+        "name": "The Readout Rule",
+        "body": "Instrument Cyan means 'this is a reading' — a number, or the direct visual encoding of one (a progress bar, a pitch-distribution bar). Nothing else, and identical in both themes. It used to mean the primary action as well; that was the flaw, because when one colour marks both the truth and the button, neither reads as special. Actions are never cyan. Two sanctioned exceptions, both invisible at rest: the button focus outline and the drag-active drop zone.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Warm Note Rule",
+        "body": "Amber is the system's only warm colour, and it means attention/caution and nothing else — never a measurement, error, success, or decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Constant-On-Accent Rule",
+        "body": "Text on a bright accent uses on-accent (constant dark), never ground. ground flips near-white in light mode; a button labelled in ground would vanish on its own cyan.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Floor Rule",
+        "body": "Ink Muted is the dimmest colour permitted to carry text, measured against whichever ground is active. Route every text colour through the ink-* tokens; the codebase is clean of raw slate-500.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Rule Rule",
+        "body": "All structural separation uses the hairline at one weight. No 2px borders, no colored stripes, no accent bars. More emphasis than a hairline means spacing or tone.",
+        "section": "colors"
+      },
+      {
+        "name": "The Weight-Not-Size Rule",
+        "body": "Hierarchy between a label and its value is carried by weight and colour, not size. The one exception is a single hero number that may size up in cyan to lead its panel.",
+        "section": "typography"
+      },
+      {
+        "name": "The Uppercase Confinement Rule",
+        "body": "Uppercase is a 12px label treatment only. A measurement, heading, or sentence is never uppercased.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two-Layer Rule",
+        "body": "Ground → raised → lifted is the entire elevation vocabulary, in either theme. A third layer means the layout is too nested.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Dark-Instrument Rule",
+        "body": "The live 3D viewers stay dark in both themes via a scoped .surface-dark block. The model renders on a dark canvas; a light control bar over it would strand its own tool colours.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Scrim Rule",
+        "body": "Blur is permitted only where unpredictable content sits underneath, always paired with an opaque scrim. On the ground, blur is prohibited.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Anti-Pattern Test",
+        "body": "If a panel appears to float above the page rather than sit on it, the treatment is wrong. Surfaces rest; they do not hover.",
+        "section": "elevation"
+      },
+      {
+        "name": "The One Figure Rule",
+        "body": "One cyan figure per surface. If two cyan numbers are visible at once, one of them is losing — decide which reading the contractor acts on, and neutralise the other.",
+        "section": "colors"
+      }
     ],
     "dos": [
-      "Do use Instrument Cyan only for measurement truth and the primary action — and keep it identical in both themes.",
+      "Do use Instrument Cyan only for readings — a number or the direct visual encoding of one — and keep it identical in both themes.",
       "Do reserve Amber for attention and caution alone.",
       "Do label bright-accent buttons with on-accent, never ground.",
       "Do route every colour through a semantic token so a theme swap needs no per-component work.",
@@ -268,7 +559,9 @@
       "Don't uppercase anything larger than a 12px label.",
       "Don't use a colored left-border stripe or a border heavier than 1px to emphasize a panel.",
       "Don't let Confirm Green mean 'in progress.' It means done, and only done.",
-      "Don't introduce a webfont without a deliberate reason."
+      "Don't introduce a webfont without a deliberate reason.",
+      "Don't put cyan on an action, a tab, a status pill, a step badge, or a count. Those are state; they separate by tone. Primary actions are an ink-primary/ground inversion.",
+      "Don't reach for paper-rule-strong as decoration. It marks the line above a total and nothing else."
     ]
   }
 }

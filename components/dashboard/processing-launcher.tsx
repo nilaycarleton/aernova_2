@@ -42,12 +42,12 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
           <input
             name="label"
             defaultValue="Roof 3D model"
-            className="rounded-xl border border-hairline bg-ground/60 px-4 py-3 text-ink-primary outline-none focus:border-instrument-bright"
+            className="rounded-xl border border-hairline bg-ground/60 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
           />
           <select
             name="quality"
             defaultValue="standard"
-            className="rounded-xl border border-hairline bg-ground/60 px-4 py-3 text-ink-primary outline-none focus:border-instrument-bright"
+            className="rounded-xl border border-hairline bg-ground/60 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
           >
             <option value="standard">Standard quality</option>
             <option value="high">High quality (slower)</option>

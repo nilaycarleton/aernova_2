@@ -39,7 +39,7 @@ export function MeasurementManager({ projectId, measurements }: Props) {
               <form
                 key={item.label}
                 action={createMeasurementAction}
-                className="rounded-2xl border border-hairline bg-ground/40 p-4 text-left transition hover:border-signal-blue/40 hover:bg-ground/60"
+                className="rounded-2xl border border-hairline bg-ground/40 p-4 text-left transition hover:bg-surface-lifted"
               >
                 <input type="hidden" name="projectId" value={projectId} />
                 <input type="hidden" name="label" value={item.label} />
