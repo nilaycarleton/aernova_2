@@ -135,7 +135,8 @@ function buildMeasurementGraphics(
   m: Measurement,
   color: number,
   units: Units,
-  resolution: [number, number]
+  resolution: [number, number],
+  showLabel: boolean
 ): { group: THREE.Group; mats: LineMaterial[] } {
   const group = new THREE.Group();
   const mats: LineMaterial[] = [];
@@ -167,9 +168,11 @@ function buildMeasurementGraphics(
     addOutline(local, 3);
   }
 
-  const label = makeLabel(summarize(m, units), LABEL_CLASS);
-  label.position.copy(local[Math.floor((local.length - 1) / 2)] ?? local[0]);
-  group.add(label);
+  if (showLabel) {
+    const label = makeLabel(summarize(m, units), LABEL_CLASS);
+    label.position.copy(local[Math.floor((local.length - 1) / 2)] ?? local[0]);
+    group.add(label);
+  }
   return { group, mats };
 }
 
@@ -193,6 +196,10 @@ function disposeAndClear(group: THREE.Group) {
 
 export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasurements = [] }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
+  // Full-screen overlay + its auto-hiding chrome (toolbar + measurements list).
+  const outerRef = useRef<HTMLDivElement>(null);
+  const controlsTimerRef = useRef<number | null>(null);
+  const hoveringChromeRef = useRef(false);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState("");
   const [tool, setTool] = useState<Tool>("orbit");
@@ -215,6 +222,16 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   // Hand-measuring tools wait behind "More tools" so Auto-detect + Edit points —
   // the path a roofer actually follows — lead. See the scan-tab redesign.
   const [showAdvanced, setShowAdvanced] = useState(false);
+  // Per-face value labels ("381 ft² · 3.8 sq · 4/12") can crowd a busy roof, so
+  // they can be hidden — but always come back while editing points, when you need
+  // to see what a nudge does to the number.
+  const [hideLabels, setHideLabels] = useState(false);
+  // Fill-the-browser mode for close viewing/editing. A CSS overlay (not the native
+  // Fullscreen API) keeps the canvas mounted and the toolbar usable; Esc exits.
+  const [fullscreen, setFullscreen] = useState(false);
+  // In full screen the chrome auto-hides (YouTube-style): visible on mouse move,
+  // gone after a short idle so the model owns the screen.
+  const [controlsVisible, setControlsVisible] = useState(true);
   // Undo/redo: snapshots of the measurement list. historyVersion re-renders the buttons.
   const undoStackRef = useRef<Measurement[][]>([]);
   const redoStackRef = useRef<Measurement[][]>([]);
@@ -245,6 +262,10 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   toolRef.current = tool;
   unitsRef.current = units;
   measurementsRef.current = measurements;
+
+  // Labels show when not hidden, and always while editing (you need the number
+  // to judge a nudge). Derived so the commit effect rebuilds only when it flips.
+  const labelsVisible = hideLabels ? tool === "edit" : true;
 
   // ---- Scene lifecycle (mount once per model) -------------------------------
   useEffect(() => {
@@ -546,7 +567,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       disposeAndClear(dd);
       const updated: Measurement = { ...base, points: base.points.map((p, i) => (i === drag.index ? point : p)) };
       const color = colorMapRef.current.get(drag.id) ?? TOOL_META.area.color;
-      dd.add(buildMeasurementGraphics(updated, color, unitsRef.current, sizeRef.current).group);
+      dd.add(buildMeasurementGraphics(updated, color, unitsRef.current, sizeRef.current, true).group);
     };
     const onPointerUp = (event: PointerEvent) => {
       activePointers.delete(event.pointerId);
@@ -685,7 +706,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     for (const m of measurements) {
       const color = colorForMeasurement(m, m.type === "area" ? areaIndex++ : 0);
       colorMapRef.current.set(m.id, color);
-      const { group: g, mats } = buildMeasurementGraphics(m, color, units, resolution);
+      const { group: g, mats } = buildMeasurementGraphics(m, color, units, resolution, labelsVisible);
       committed.add(g);
       committedMapRef.current.set(m.id, g);
       lineMatsRef.current.push(...mats);
@@ -702,7 +723,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       });
       lineMatsRef.current = [];
     };
-  }, [measurements, units, loadState]);
+  }, [measurements, units, loadState, labelsVisible]);
 
   // Keep the imperative draft readout in sync when units toggle mid-draw.
   useEffect(() => {
@@ -814,6 +835,60 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Esc leaves full screen.
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [fullscreen]);
+
+  const scheduleHideControls = () => {
+    if (controlsTimerRef.current) window.clearTimeout(controlsTimerRef.current);
+    controlsTimerRef.current = window.setTimeout(() => {
+      // Never hide out from under a pointer that's parked on the controls.
+      if (!hoveringChromeRef.current) setControlsVisible(false);
+    }, 2500);
+  };
+  const revealControls = () => {
+    setControlsVisible(true);
+    scheduleHideControls();
+  };
+
+  // Reveal chrome on mouse move while full screen; idle hides it. (Visibility is
+  // reset when the toggle runs, so this effect only wires up the listener/timer.)
+  useEffect(() => {
+    if (!fullscreen) return;
+    scheduleHideControls();
+    const el = outerRef.current;
+    const onMove = () => revealControls();
+    el?.addEventListener("mousemove", onMove);
+    return () => {
+      el?.removeEventListener("mousemove", onMove);
+      if (controlsTimerRef.current) window.clearTimeout(controlsTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fullscreen]);
+
+  const toggleFullscreen = () => {
+    setControlsVisible(true);
+    setFullscreen((open) => !open);
+  };
+
+  const chromeHidden = fullscreen && !controlsVisible;
+  const keepChrome = {
+    onMouseEnter: () => {
+      hoveringChromeRef.current = true;
+      setControlsVisible(true);
+    },
+    onMouseLeave: () => {
+      hoveringChromeRef.current = false;
+      scheduleHideControls();
+    },
+  };
+
   const startTool = (t: Tool) => {
     draftPtsRef.current = [];
     setDraftCount(0);
@@ -853,9 +928,23 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
 
   return (
     // Signature instrument surface: stays dark in both app themes — see
-    // `.surface-dark` in globals.css.
-    <div className="surface-dark min-w-0">
-      <div className="mb-3 space-y-2">
+    // `.surface-dark` in globals.css. In full screen it becomes a fixed overlay
+    // filling the browser; the canvas stays mounted and the ResizeObserver resizes
+    // the renderer to match.
+    <div
+      ref={outerRef}
+      className={`surface-dark min-w-0 ${fullscreen ? "fixed inset-0 z-50 bg-ground" : ""}`}
+    >
+      <div
+        {...(fullscreen ? keepChrome : {})}
+        className={
+          fullscreen
+            ? `absolute inset-x-0 top-0 z-30 space-y-2 bg-gradient-to-b from-ground/95 via-ground/70 to-transparent p-3 transition-all duration-300 ${
+                chromeHidden ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+              }`
+            : "mb-3 space-y-2"
+        }
+      >
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -894,6 +983,24 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           </button>
 
           <div className="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setHideLabels((v) => !v)}
+              aria-pressed={hideLabels}
+              title={hideLabels ? "Show the value on each roof face" : "Hide the value labels (they return while editing)"}
+              className="rounded-lg border border-hairline bg-ground/50 px-3 py-1.5 text-sm font-medium text-ink-secondary transition hover:text-ink-primary"
+            >
+              {hideLabels ? "Show labels" : "Hide labels"}
+            </button>
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              aria-pressed={fullscreen}
+              title={fullscreen ? "Exit full screen (Esc)" : "Fill the browser for close viewing and editing"}
+              className="rounded-lg border border-hairline bg-ground/50 px-3 py-1.5 text-sm font-medium text-ink-secondary transition hover:text-ink-primary"
+            >
+              {fullscreen ? "Exit full screen" : "Full screen"}
+            </button>
             <div className="inline-flex overflow-hidden rounded-lg border border-hairline text-sm">
               <button
                 type="button"
@@ -968,9 +1075,13 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
         ) : null}
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-[1fr_240px]">
+      <div className={fullscreen ? "" : "grid gap-3 lg:grid-cols-[1fr_240px]"}>
         <div
-          className="relative min-h-[480px] overflow-hidden rounded-2xl border border-hairline bg-[#0b1418] sm:min-h-[560px]"
+          className={
+            fullscreen
+              ? "absolute inset-0 overflow-hidden bg-[#0b1418]"
+              : "relative min-h-[480px] overflow-hidden rounded-2xl border border-hairline bg-[#0b1418] sm:min-h-[560px]"
+          }
           onPointerEnter={() => (hoveredRef.current = true)}
           onPointerLeave={() => (hoveredRef.current = false)}
         >
@@ -1045,7 +1156,16 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
           ) : null}
         </div>
 
-        <div className="rounded-2xl border border-hairline bg-ground/40 p-3">
+        <div
+          {...(fullscreen ? keepChrome : {})}
+          className={
+            fullscreen
+              ? `absolute right-3 top-20 z-30 max-h-[70vh] w-64 overflow-auto rounded-2xl border border-hairline bg-ground/85 p-3 backdrop-blur transition-all duration-300 ${
+                  chromeHidden ? "translate-x-4 opacity-0" : "translate-x-0 opacity-100"
+                }`
+              : "rounded-2xl border border-hairline bg-ground/40 p-3"
+          }
+        >
           <div className="mb-2 flex items-center justify-between">
             <h5 className="text-sm font-semibold text-ink-primary">Measurements</h5>
             {measurements.length > 0 ? (
@@ -1118,7 +1238,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
         </div>
       </div>
 
-      <p className="mt-2 text-xs text-ink-muted">
+      <p className={`mt-2 text-xs text-ink-muted ${fullscreen ? "hidden" : ""}`}>
         {tool === "orbit"
           ? "Start with ✨ Auto-detect roof — box your roof and it finds the faces for you. Then Edit points to nudge any that look off. Drag to rotate · scroll to zoom."
           : "Measurements read in real-world units straight off the 3D roof."}
