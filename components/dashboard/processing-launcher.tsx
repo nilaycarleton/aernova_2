@@ -35,7 +35,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
   const blockSubmit = workerConfigured && readiness !== null && !readiness.ready;
 
   return (
-    <div className="mt-5 rounded-2xl border border-instrument-bright/15 bg-instrument-bright/5 p-4">
+    <div className="mt-5 rounded-2xl border border-hairline bg-surface-lifted p-4">
       <form action={processPhotogrammetryModelAction}>
         <input type="hidden" name="projectId" value={projectId} />
         <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
@@ -62,7 +62,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
               type="button"
               onClick={runPreview}
               disabled={isPreviewing}
-              className="rounded-xl border border-instrument-bright/30 bg-instrument-bright/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument-bright/20 disabled:opacity-50"
+              className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-50"
             >
               {isPreviewing ? "Checking…" : "Check my photos (free)"}
             </button>
@@ -70,7 +70,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
               disabled={blockSubmit}
               title={blockSubmit ? readiness?.blockingReason ?? undefined : undefined}
               pendingText="Starting…"
-              className="rounded-xl bg-instrument-deep px-4 py-2 text-sm font-medium text-on-accent transition hover:bg-instrument disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-ink-primary px-4 py-2 text-sm font-medium text-ground transition hover:bg-ink-secondary disabled:cursor-not-allowed disabled:opacity-50"
             >
               {workerConfigured ? "Build 3D model" : "Build preview model"}
             </SubmitButton>

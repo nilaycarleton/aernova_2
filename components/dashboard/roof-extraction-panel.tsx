@@ -161,7 +161,7 @@ export function RoofExtractionPanel({
           type="button"
           onClick={loadPreview}
           disabled={loadingPreview}
-          className="mt-4 rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
+          className="mt-4 rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
         >
           {loadingPreview ? "Loading…" : "Load the 3D roof"}
         </button>

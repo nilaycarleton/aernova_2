@@ -64,13 +64,13 @@ function PhotoDropZone({ name, label }: { name: string; label: string }) {
         <>
           {/* Local preview of the chosen file; alt="" is intentional (decorative). */}
           <img src={preview} alt="" className="h-20 w-full rounded-lg object-cover" />
-          <span className="max-w-full truncate text-xs text-instrument-fg">{fileName}</span>
+          <span className="max-w-full truncate text-xs text-ink-secondary">{fileName}</span>
           <span className="text-xs text-ink-muted">Click or drop to replace</span>
         </>
       ) : (
         <>
           <span className="text-xs uppercase tracking-[0.16em] text-ink-muted">{label} photo</span>
-          <span className="inline-flex rounded-lg border border-instrument-bright/30 bg-instrument/10 px-3 py-1.5 text-sm font-medium text-instrument-fg">
+          <span className="inline-flex rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-sm font-medium text-ink-primary">
             Upload photo
           </span>
           <span className="text-xs text-ink-muted">or drop a file</span>
@@ -136,7 +136,7 @@ export function ComparisonCreateForm({ projectId }: { projectId: string }) {
       <button
         type="submit"
         disabled={saving || isPending}
-        className="rounded-2xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40 md:col-span-2"
+        className="rounded-2xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40 md:col-span-2"
       >
         {saving ? "Creating…" : isPending ? "Refreshing…" : "Create comparison"}
       </button>

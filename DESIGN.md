@@ -179,7 +179,13 @@ Each status keeps one saturated **base** (for `bg-x/10` tints and `border-x/25` 
 
 ### Named Rules
 
-**The Readout Rule.** Instrument Cyan means "this is a measurement or the action that produces one." It is never a brand flourish, never a link colour, never a decorative highlight — and it is identical in both themes. If cyan appears next to something a contractor cannot read a number off of or click to advance the job, it is misused.
+**The Readout Rule.** Instrument Cyan means **"this is a reading"** — a number, or the direct visual encoding of one (a progress bar, a pitch-distribution bar). Nothing else. It is never a brand flourish, never a link colour, never a decorative highlight — and it is identical in both themes. If cyan appears on something a contractor cannot read a number off of, it is misused.
+
+Cyan used to mean the primary *action* as well. That was the flaw: when one colour marks both "this is the truth" and "this is the button," neither reads as special, and the eye can't use cyan to find anything. The number is the product; the button is chrome. So **actions are never cyan.** A primary action is a high-contrast `ink-primary` fill labelled in `ground` — the two are inverses and flip together, so the inversion reads as "clickable" in both themes. A secondary action is a hairline outline on `surface-raised`. Navigation, active tabs, status pills, step badges, and counts are *state*, not readings: they separate by tone, never by cyan.
+
+Two sanctioned exceptions, both invisible at rest: **focus rings** (`focus:border-instrument`, `outline-instrument`) and the **drag-active drop zone**. Neither competes, because neither is painted until the user acts.
+
+**One cyan figure per surface.** If two cyan numbers are visible at once, one of them is losing — decide which is the reading the contractor acts on, and neutralise the other.
 
 **The One Warm Note Rule.** Amber is the system's only warm colour, and it means *attention/caution* and nothing else. It is never a measurement (that is cyan), never an error (that is danger/red), never a success (that is confirm/green), and never decoration. One warm note, used sparingly, is why it reads as a signal.
 
@@ -265,7 +271,8 @@ The Three.js roof viewer is the product's signature surface and the one place te
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** use Instrument Cyan only for measurement truth and the primary action that advances the job — The Readout Rule — and keep it identical in both themes.
+- **Do** use Instrument Cyan only for readings — a number or the direct visual encoding of one — The Readout Rule — and keep it identical in both themes.
+- **Don't** put cyan on an action, a tab, a status pill, a step badge, or a count. Those are state; they separate by tone. Primary actions are an `ink-primary`/`ground` inversion.
 - **Do** reserve Amber for attention and caution alone — The One Warm Note Rule.
 - **Do** label bright-accent buttons with `on-accent`, never `ground` — The Constant-On-Accent Rule.
 - **Do** route every colour through a semantic token (`ink-*`, `surface-*`, `danger`, `caution`, `confirm`, `info`) so a theme swap needs no per-component work.

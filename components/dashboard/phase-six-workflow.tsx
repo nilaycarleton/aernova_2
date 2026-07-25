@@ -60,7 +60,7 @@ function StepBadge({ n, state }: { n: number; state: StepState }) {
         state === "done"
           ? "bg-confirm/85 text-on-accent"
           : state === "current"
-            ? "bg-instrument text-on-accent"
+            ? "bg-ink-primary text-ground"
             : "bg-surface-lifted text-ink-muted"
       }`}
     >
@@ -86,7 +86,7 @@ function StepCard({
     <div
       className={`min-w-0 rounded-3xl border p-6 transition ${
         state === "current"
-          ? "border-instrument-bright/25 bg-instrument-bright/[0.04]"
+          ? "border-hairline bg-surface-lifted"
           : "border-hairline bg-surface-raised"
       } ${state === "todo" ? "opacity-60" : ""}`}
     >
@@ -230,7 +230,7 @@ export function PhaseSixWorkflow({
         {!hasPhotos ? (
           <p className="text-sm text-ink-muted">Add photos in step 1 first.</p>
         ) : building ? (
-          <div className="rounded-2xl border border-instrument-bright/20 bg-instrument-bright/5 p-4">
+          <div className="rounded-2xl border border-hairline bg-surface-lifted p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-ink-primary">Building your 3D model…</p>
               <span className="text-sm text-instrument-fg">{progress}%</span>
@@ -299,7 +299,7 @@ export function PhaseSixWorkflow({
                       <input type="hidden" name="projectId" value={projectId} />
                       <SubmitButton
                         pendingText="Building quote…"
-                        className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 disabled:opacity-60"
+                        className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
                       >
                         Build the quote
                       </SubmitButton>
