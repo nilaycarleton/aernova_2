@@ -85,7 +85,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
         </p>
         <Link
           href="/projects/new"
-          className="mt-5 inline-flex rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-on-accent transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="mt-5 inline-flex rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           New project
         </Link>
@@ -171,7 +171,7 @@ export function ProjectsBrowser({ projects }: { projects: BrowserProject[] }) {
 
                 <div className="mt-3 flex items-center gap-2 text-sm">
                   <span className="text-ink-muted">Next:</span>
-                  <span className="font-medium text-instrument-fg">{STATUS_META[project.status].nextStep}</span>
+                  <span className="font-medium text-ink-primary">{STATUS_META[project.status].nextStep}</span>
                 </div>
               </Link>
               <DeleteProjectButton projectId={project.id} projectName={project.name} />

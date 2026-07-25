@@ -201,7 +201,7 @@ export function NewProjectForm() {
       <div className="mt-8 flex flex-wrap gap-3">
         <SubmitButton
           pendingText="Creating…"
-          className="rounded-xl bg-instrument px-5 py-3 text-sm font-semibold text-on-accent transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
+          className="rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Create Project
         </SubmitButton>

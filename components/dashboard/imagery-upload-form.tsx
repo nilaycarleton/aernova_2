@@ -97,11 +97,11 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
           <span className="mt-1 max-w-xl text-sm leading-6 text-ink-muted">
             Add all the photos from your drone flight at once. The details on the right apply to every photo you select.
           </span>
-          <span className="mt-3 inline-flex w-fit rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20">
+          <span className="mt-3 inline-flex w-fit rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted">
             Choose files
           </span>
           {selectedFiles.length > 0 ? (
-            <span className="mt-3 max-w-full truncate text-xs text-instrument-fg">
+            <span className="mt-3 max-w-full truncate text-xs text-ink-secondary">
               {selectedFiles.slice(0, 3).map((file) => file.name).join(", ")}
               {selectedFiles.length > 3 ? `, +${selectedFiles.length - 3} more` : ""}
             </span>
@@ -130,7 +130,7 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
         <button
           type="submit"
           disabled={isUploading || isPending}
-          className="rounded-2xl bg-instrument px-5 py-3 text-sm font-semibold text-on-accent transition hover:bg-instrument-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isUploading ? "Uploading…" : isPending ? "Refreshing…" : "Upload photos"}
         </button>

@@ -17,6 +17,21 @@ export const STATUS_FLOW: ProjectStatus[] = [
 
 export const ALL_STATUSES: ProjectStatus[] = [...STATUS_FLOW, ProjectStatus.ARCHIVED];
 
+/**
+ * Where a job stands is *state*, not a measurement — so it reads tonally rather
+ * than in colour. These used to be nine raw palette hues (slate, sky, amber,
+ * emerald, blue, indigo, violet, teal), which had three problems: raw utilities
+ * don't flip with theme, amber is reserved for caution alone, and a nine-colour
+ * rainbow competes with the one cyan figure a contractor is meant to find.
+ *
+ * Three tiers carry everything the rainbow did: in-flight, done, and put away.
+ * The stage's *name* is already on the pill, so colour was never what told them
+ * apart — it only added noise.
+ */
+const IN_FLIGHT = "text-ink-secondary bg-surface-lifted";
+const COMPLETE = "text-confirm-fg bg-confirm/10";
+const ARCHIVED_BADGE = "text-ink-muted bg-surface-lifted";
+
 type StatusMeta = {
   label: string;
   /** What this stage means and what the contractor should do next. */
@@ -27,8 +42,6 @@ type StatusMeta = {
   advanceLabel: string;
   /** Tailwind classes for a status badge. */
   badge: string;
-  /** Tailwind classes for the stepper dot when this is the current stage. */
-  dot: string;
 };
 
 export const STATUS_META: Record<ProjectStatus, StatusMeta> = {
@@ -37,72 +50,63 @@ export const STATUS_META: Record<ProjectStatus, StatusMeta> = {
     description: "New opportunity. Confirm client details, then book an inspection.",
     nextStep: "Start an inspection",
     advanceLabel: "Start inspection",
-    badge: "text-slate-300 bg-slate-500/10",
-    dot: "bg-slate-400",
+    badge: IN_FLIGHT,
   },
   INSPECTION: {
     label: "Inspection",
     description: "Capture drone imagery and photos, and log any roof issues.",
     nextStep: "Add drone photos & log issues",
     advanceLabel: "Send to processing",
-    badge: "text-sky-300 bg-sky-500/10",
-    dot: "bg-sky-400",
+    badge: IN_FLIGHT,
   },
   PROCESSING: {
     label: "Processing",
     description: "Building the 3D model and extracting roof measurements.",
     nextStep: "Building the 3D model…",
     advanceLabel: "Measurements ready",
-    badge: "text-amber-300 bg-amber-500/10",
-    dot: "bg-amber-400",
+    badge: IN_FLIGHT,
   },
   READY_FOR_QUOTE: {
     label: "Ready for quote",
     description: "Measurements are in. Build the proposal for the client.",
     nextStep: "Build the quote",
     advanceLabel: "Mark quoted",
-    badge: "text-emerald-300 bg-emerald-500/10",
-    dot: "bg-emerald-400",
+    badge: IN_FLIGHT,
   },
   QUOTED: {
     label: "Quoted",
     description: "Proposal sent. Follow up and confirm approval.",
     nextStep: "Follow up with the client",
     advanceLabel: "Schedule job",
-    badge: "text-blue-300 bg-blue-500/10",
-    dot: "bg-blue-400",
+    badge: IN_FLIGHT,
   },
   SCHEDULED: {
     label: "Scheduled",
     description: "Job is booked. Assign the crew and prepare materials.",
     nextStep: "Prep the crew & materials",
     advanceLabel: "Start work",
-    badge: "text-indigo-300 bg-indigo-500/10",
-    dot: "bg-indigo-400",
+    badge: IN_FLIGHT,
   },
   IN_PROGRESS: {
     label: "In progress",
     description: "Crew is on site. Track progress to completion.",
     nextStep: "Track the job to completion",
     advanceLabel: "Mark completed",
-    badge: "text-violet-300 bg-violet-500/10",
-    dot: "bg-violet-400",
+    badge: IN_FLIGHT,
   },
   COMPLETED: {
     label: "Completed",
     description: "Job finished. Capture after photos and close out.",
     nextStep: "Add after photos & close out",
     advanceLabel: "Completed",
-    badge: "text-teal-300 bg-teal-500/10",
-    dot: "bg-teal-400",
+    badge: COMPLETE,
   },
   ARCHIVED: {
     label: "Archived",
     description: "Project is archived and hidden from the active pipeline.",
     nextStep: "Archived",
     advanceLabel: "Archived",
-    badge: "text-slate-400 bg-slate-600/20",
-    dot: "bg-slate-500",
+    badge: ARCHIVED_BADGE,
   },
 };
 
@@ -111,7 +115,7 @@ export function statusLabel(status: ProjectStatus) {
 }
 
 export function statusBadgeClass(status: ProjectStatus) {
-  return STATUS_META[status]?.badge ?? "text-slate-300 bg-slate-500/10";
+  return STATUS_META[status]?.badge ?? IN_FLIGHT;
 }
 
 /** The next stage in the flow, or null if at the end / off-flow (ARCHIVED). */

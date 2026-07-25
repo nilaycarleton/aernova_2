@@ -79,7 +79,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               type="file"
               accept="image/*"
               capture="environment"
-              className="block w-full rounded-2xl border border-dashed border-hairline bg-ground/50 px-4 py-5 text-sm text-ink-secondary file:mr-4 file:rounded-xl file:border-0 file:bg-instrument/15 file:px-4 file:py-2 file:text-sm file:font-medium file:text-instrument-fg"
+              className="block w-full rounded-2xl border border-dashed border-hairline bg-ground/50 px-4 py-5 text-sm text-ink-secondary file:mr-4 file:rounded-xl file:border-0 file:bg-surface-lifted file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink-primary"
               required
             />
             <p className="text-xs text-ink-muted">
@@ -112,7 +112,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
             />
             <button
               type="submit"
-              className="rounded-2xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+              className="rounded-2xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
             >
               Upload Photo
             </button>
@@ -200,7 +200,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
             />
             <button
               type="submit"
-              className="rounded-2xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+              className="rounded-2xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
             >
               Add Issue
             </button>

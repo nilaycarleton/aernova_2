@@ -51,7 +51,7 @@ export function ProjectStatusStepper({
               type="button"
               onClick={() => setStatus(next)}
               disabled={pending}
-              className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
+              className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
             >
               {pending ? "Saving…" : STATUS_META[status].advanceLabel}
             </button>
@@ -91,7 +91,7 @@ export function ProjectStatusStepper({
                 <span
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                     active
-                      ? `${STATUS_META[stage].dot} text-on-accent`
+                      ? "bg-ink-primary text-ground"
                       : done
                         ? "bg-confirm/80 text-on-accent"
                         : "bg-surface-lifted text-ink-muted"

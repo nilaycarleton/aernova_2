@@ -167,7 +167,7 @@ export function RoofAssistant({
           <button
             onClick={() => send(input)}
             disabled={busy || !input.trim()}
-            className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+            className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
           >
             {busy ? "…" : "Send"}
           </button>

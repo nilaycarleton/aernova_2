@@ -51,7 +51,7 @@ export function OperationsOverview({ projects }: Props) {
                     <p className="text-sm font-medium text-ink-primary">
                       {status.replaceAll("_", " ")}
                     </p>
-                    <span className="rounded-full bg-instrument-deep/10 px-2.5 py-1 text-xs text-instrument-fg">
+                    <span className="rounded-full bg-surface-lifted px-2.5 py-1 text-xs text-ink-secondary">
                       {statusProjects.length}
                     </span>
                   </div>
