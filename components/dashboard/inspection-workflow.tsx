@@ -1,9 +1,11 @@
 import { PhotoAsset, RoofIssue } from "@prisma/client";
 import { createRoofIssueAction } from "@/app/(dashboard)/projects/[projectId]/issue-actions";
 import {
+  deleteInspectionPhotoAction,
   updateInspectionPhotoAction,
   uploadInspectionPhotoAction,
 } from "@/app/(dashboard)/projects/[projectId]/photo-actions";
+import { DeletableItem } from "@/components/dashboard/deletable-item";
 import { PhotoAnnotationStudio } from "@/components/dashboard/photo-annotation-studio";
 
 type Props = {
@@ -230,8 +232,18 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               </div>
             ) : (
               photos.map((photo) => (
-                <form
+                /* The card is itself the update form, so the delete wraps it
+                   rather than sitting inside — a second submit control in the
+                   same form would race the save. */
+                <DeletableItem
                   key={photo.id}
+                  projectId={projectId}
+                  itemId={photo.id}
+                  idField="photoId"
+                  label="Photo"
+                  deleteAction={deleteInspectionPhotoAction}
+                >
+                <form
                   action={updateInspectionPhotoAction}
                   className="rounded-2xl border border-hairline bg-ground/50 p-3"
                 >
@@ -278,6 +290,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                     Save Photo Details
                   </button>
                 </form>
+                </DeletableItem>
               ))
             )}
           </div>

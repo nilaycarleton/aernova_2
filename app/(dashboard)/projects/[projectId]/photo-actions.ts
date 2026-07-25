@@ -5,7 +5,7 @@ import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { storage } from "@/lib/storage";
+import { keyFromUrl, storage } from "@/lib/storage";
 import { requireProjectAccess } from "@/lib/auth";
 
 function getString(formData: FormData, key: string) {
@@ -99,6 +99,38 @@ export async function savePhotoAnnotationsAction(formData: FormData) {
     },
   });
   if (updated.count === 0) throw new Error("Photo not found");
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/projects/${projectId}/report`);
+}
+
+/**
+ * Remove one inspection photo and its stored bytes. A roofer who uploads the
+ * wrong picture had no way to take it back, and the photo library feeds the
+ * report a homeowner reads — so this has to reach storage, not just the row.
+ * Storage cleanup is best-effort so a missing file can't make a photo permanent.
+ */
+export async function deleteInspectionPhotoAction(formData: FormData) {
+  const projectId = getString(formData, "projectId");
+  const photoId = getString(formData, "photoId");
+
+  if (!projectId) throw new Error("Missing projectId");
+  if (!photoId) throw new Error("Missing photoId");
+  await requireProjectAccess(projectId);
+
+  const photo = await prisma.photoAsset.findFirst({
+    where: { id: photoId, projectId },
+    select: { id: true, url: true },
+  });
+  if (!photo) throw new Error("Photo not found");
+
+  await prisma.photoAsset.delete({ where: { id: photo.id } });
+
+  try {
+    await storage.delete(keyFromUrl(photo.url));
+  } catch {
+    // Already gone, or the driver lost it. The row is what the UI reads.
+  }
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}/report`);

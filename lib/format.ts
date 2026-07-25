@@ -56,6 +56,54 @@ export function measurementTypeLabel(value: string) {
   return MEASUREMENT_TYPE[value] ?? sentenceCase(value);
 }
 
+const MEASUREMENT_UNIT: Record<string, string> = {
+  SQFT: "sq ft",
+  FT: "ft",
+  DEGREES: "degrees",
+  RATIO: "pitch ratio (x/12)",
+  COUNT: "count",
+  PERCENT: "%",
+  SQUARES: "squares",
+};
+
+const MEASUREMENT_SOURCE: Record<string, string> = {
+  MANUAL: "Measured by hand",
+  DRONE: "From the 3D model",
+};
+
+export function measurementUnitLabel(value: string) {
+  return MEASUREMENT_UNIT[value] ?? sentenceCase(value);
+}
+
+export function measurementSourceLabel(value: string) {
+  return MEASUREMENT_SOURCE[value] ?? sentenceCase(value);
+}
+
+/**
+ * The option lists both measurement forms render. Shared because they were
+ * duplicated in two files with the enum name as the visible label — the roofer
+ * picking a metric saw "WASTE_FACTOR" and "SQFT". The `value` stays the enum
+ * (it is the form contract the server action parses); only the label changes.
+ */
+function options(values: string[], label: (value: string) => string) {
+  return values.map((value) => ({ value, label: label(value) }));
+}
+
+export const MEASUREMENT_TYPE_OPTIONS = options(
+  ["AREA", "RIDGE", "PITCH", "WASTE_FACTOR", "EAVE", "VALLEY", "HIP"],
+  measurementTypeLabel
+);
+
+export const MEASUREMENT_UNIT_OPTIONS = options(
+  ["SQFT", "FT", "RATIO", "PERCENT"],
+  measurementUnitLabel
+);
+
+export const MEASUREMENT_SOURCE_OPTIONS = options(
+  ["MANUAL", "DRONE"],
+  measurementSourceLabel
+);
+
 /** Project lifecycle labels live with the flow itself — see lib/project-status. */
 export function enumLabel(value: string) {
   return sentenceCase(value);

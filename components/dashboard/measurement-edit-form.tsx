@@ -8,6 +8,11 @@ import {
 } from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
+import {
+  MEASUREMENT_SOURCE_OPTIONS,
+  MEASUREMENT_TYPE_OPTIONS,
+  MEASUREMENT_UNIT_OPTIONS,
+} from "@/lib/format";
 
 const SELECT =
   "w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue";
@@ -75,23 +80,22 @@ export function MeasurementEditForm({
           <div>
             <label htmlFor={`${base}-type`} className="mb-2 block text-sm text-ink-secondary">Type</label>
             <select id={`${base}-type`} name="type" defaultValue={measurement.type} className={SELECT}>
-              <option value="AREA">AREA</option>
-              <option value="RIDGE">RIDGE</option>
-              <option value="PITCH">PITCH</option>
-              <option value="WASTE_FACTOR">WASTE_FACTOR</option>
-              <option value="EAVE">EAVE</option>
-              <option value="VALLEY">VALLEY</option>
-              <option value="HIP">HIP</option>
+              {MEASUREMENT_TYPE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
             </select>
           </div>
 
           <div>
             <label htmlFor={`${base}-unit`} className="mb-2 block text-sm text-ink-secondary">Unit</label>
             <select id={`${base}-unit`} name="unit" defaultValue={measurement.unit} className={SELECT}>
-              <option value="SQFT">SQFT</option>
-              <option value="FT">FT</option>
-              <option value="RATIO">RATIO</option>
-              <option value="PERCENT">PERCENT</option>
+              {MEASUREMENT_UNIT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -103,8 +107,11 @@ export function MeasurementEditForm({
           <div>
             <label htmlFor={`${base}-source`} className="mb-2 block text-sm text-ink-secondary">Source</label>
             <select id={`${base}-source`} name="source" defaultValue={measurement.source} className={SELECT}>
-              <option value="MANUAL">MANUAL</option>
-              <option value="DRONE">DRONE</option>
+              {MEASUREMENT_SOURCE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
             </select>
           </div>
 

@@ -5,7 +5,7 @@ import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { ImageryType, Prisma, ProcessingStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { storage } from "@/lib/storage";
+import { keyFromUrl, storage } from "@/lib/storage";
 import { buildPhotogrammetryModelPackage } from "@/lib/photogrammetry-pipeline";
 import { isNodeOdmConfigured } from "@/lib/nodeodm-client";
 import { requireProjectAccess } from "@/lib/auth";
@@ -354,3 +354,53 @@ export async function extractRoofFromMeshAction(
 // Creating a before/after comparison (with its photo uploads) now lives in the
 // route handler app/api/projects/[projectId]/comparisons/route.ts, so the photos
 // aren't capped by the 1 MB Server Action body limit.
+
+/**
+ * Remove a before/after sheet, the two photos it was built from, and their
+ * stored bytes. Creating a comparison also records BEFORE/AFTER project imagery
+ * (see app/api/.../comparisons/route.ts) so the photos land in the library —
+ * deleting only the sheet would leave those two photos loose in the report with
+ * nothing explaining them. Storage cleanup is best-effort: a missing file must
+ * not strand the database rows, or the sheet becomes undeletable.
+ */
+export async function deleteComparisonAction(formData: FormData) {
+  const projectId = getString(formData, "projectId");
+  const comparisonId = getString(formData, "comparisonId");
+
+  if (!projectId) throw new Error("Missing projectId");
+  if (!comparisonId) throw new Error("Missing comparisonId");
+  await requireProjectAccess(projectId);
+
+  const comparison = await prisma.roofComparison.findFirst({
+    where: { id: comparisonId, projectId },
+    select: { id: true, beforeUrl: true, afterUrl: true },
+  });
+  if (!comparison) throw new Error("Comparison not found");
+
+  const urls = [comparison.beforeUrl, comparison.afterUrl].filter(
+    (url): url is string => Boolean(url)
+  );
+
+  // Delete the sheet first: it is the row the UI is waiting on, and orphaned
+  // imagery is recoverable where a half-deleted sheet is not.
+  await prisma.roofComparison.delete({ where: { id: comparison.id } });
+
+  if (urls.length > 0) {
+    await prisma.projectImagery.deleteMany({
+      where: { projectId, url: { in: urls } },
+    });
+
+    await Promise.all(
+      urls.map(async (url) => {
+        try {
+          await storage.delete(keyFromUrl(url));
+        } catch {
+          // Already gone, or the driver lost it. The rows are what the UI reads.
+        }
+      })
+    );
+  }
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/projects/${projectId}/report`);
+}

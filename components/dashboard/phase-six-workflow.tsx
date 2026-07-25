@@ -8,6 +8,8 @@ import {
 import type { SavedMeasurement } from "@/components/dashboard/measure-viewer";
 import type { ModelMeasurementKind } from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
 import { ComparisonCreateForm } from "@/components/dashboard/comparison-create-form";
+import { DeletableItem } from "@/components/dashboard/deletable-item";
+import { deleteComparisonAction } from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
 import {
   generateEstimateFromMeasurementsAction,
   saveModelMeasurementsToProjectAction,
@@ -346,16 +348,24 @@ export function PhaseSixWorkflow({
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               {comparisons.map((comparison) => (
                 <div key={comparison.id} className="rounded-2xl border border-hairline bg-ground/45 p-4">
-                  <p className="font-medium text-ink-primary">{comparison.title}</p>
-                  <div className="mt-3 grid grid-cols-2 gap-3">
-                    <div className="aspect-video overflow-hidden rounded-xl bg-ground">
-                      {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt={`Before: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
+                  <DeletableItem
+                    projectId={projectId}
+                    itemId={comparison.id}
+                    idField="comparisonId"
+                    label="Before & after sheet"
+                    deleteAction={deleteComparisonAction}
+                  >
+                    <p className="font-medium text-ink-primary">{comparison.title}</p>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div className="aspect-video overflow-hidden rounded-xl bg-ground">
+                        {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt={`Before: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
+                      </div>
+                      <div className="aspect-video overflow-hidden rounded-xl bg-ground">
+                        {comparison.afterUrl ? <img src={comparison.afterUrl} alt={`After: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
+                      </div>
                     </div>
-                    <div className="aspect-video overflow-hidden rounded-xl bg-ground">
-                      {comparison.afterUrl ? <img src={comparison.afterUrl} alt={`After: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
-                    </div>
-                  </div>
-                  {comparison.summary ? <p className="mt-3 text-sm leading-6 text-ink-muted">{comparison.summary}</p> : null}
+                    {comparison.summary ? <p className="mt-3 text-sm leading-6 text-ink-muted">{comparison.summary}</p> : null}
+                  </DeletableItem>
                 </div>
               ))}
             </div>
