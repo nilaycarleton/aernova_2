@@ -149,7 +149,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
         </h1>
         <button
           onClick={() => window.print()}
-          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+          className="rounded-xl bg-paper-ink px-4 py-2 text-sm font-medium text-paper-document transition hover:bg-paper-ink-body"
         >
           Print / Save as PDF
         </button>
@@ -275,7 +275,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
               </thead>
               <tbody>
                 {report.lineItems.map((li, i) => (
-                  <tr key={i} className="border-b border-slate-100">
+                  <tr key={i} className="border-b border-paper">
                     <td className="px-3 py-2">{li.description}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{li.quantity.toLocaleString()} {li.unit}</td>
                     <td className="px-3 py-2 text-right tabular-nums">${li.unitCost.toLocaleString()}</td>
@@ -289,7 +289,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
                 <div className="flex justify-between text-paper-ink-muted"><span>Subtotal</span><span>${report.totals.subtotal.toLocaleString()}</span></div>
                 <div className="flex justify-between text-paper-ink-muted"><span>Overhead &amp; profit ({report.totals.markupPercent}%)</span><span>${report.totals.markupAmount.toLocaleString()}</span></div>
                 <div className="flex justify-between text-paper-ink-muted"><span>Tax ({report.totals.taxPercent}%)</span><span>${report.totals.taxAmount.toLocaleString()}</span></div>
-                <div className="flex justify-between border-t border-slate-300 pt-1.5 text-base font-bold"><span>Total</span><span>${report.totals.total.toLocaleString()}</span></div>
+                <div className="flex justify-between border-t border-paper-rule-strong pt-1.5 text-base font-bold"><span>Total</span><span>${report.totals.total.toLocaleString()}</span></div>
               </div>
             )}
           </div>
@@ -317,7 +317,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
               </thead>
               <tbody>
                 {report.sections.map((section) => (
-                  <tr key={section.id} className="border-b border-slate-100">
+                  <tr key={section.id} className="border-b border-paper">
                     <td className="px-3 py-3">{section.label}</td>
                     <td className="px-3 py-3">{section.pitchRatio ?? "—"}</td>
                     <td className="px-3 py-3">{section.surfaceAreaSqft ?? "—"}</td>
