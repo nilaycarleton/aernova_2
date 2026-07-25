@@ -13,7 +13,7 @@ const FIELD =
 
 /** Border turns rose when this field has an error. */
 function cls(error?: string) {
-  return `${FIELD} ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-instrument"}`;
+  return `${FIELD} ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`;
 }
 
 /** All-primitive props so the parent can stay a server component holding Prisma data. */

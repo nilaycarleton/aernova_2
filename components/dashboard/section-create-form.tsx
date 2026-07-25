@@ -9,7 +9,7 @@ import { SubmitButton } from "@/components/dashboard/submit-button";
 import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
 
 const NUM =
-  "rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument";
+  "rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue";
 
 export function SectionCreateForm({ projectId }: { projectId: string }) {
   const [state, formAction] = useActionState<SectionFormState, FormData>(createRoofSectionAction, {});
@@ -24,7 +24,7 @@ export function SectionCreateForm({ projectId }: { projectId: string }) {
         <input
           name="label"
           placeholder="Garage rear slope"
-          className={`w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted ${labelError ? "border-danger focus:border-danger" : "border-hairline focus:border-instrument"}`}
+          className={`w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted ${labelError ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`}
           required
           {...errorAttrs("section-label", labelError)}
         />

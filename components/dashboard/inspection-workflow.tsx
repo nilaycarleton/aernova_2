@@ -34,36 +34,33 @@ function issueTone(severity: string) {
 }
 
 export function InspectionWorkflow({ projectId, issues, photos }: Props) {
+  const urgentCount = issues.filter((issue) =>
+    ["HIGH", "CRITICAL"].includes(issue.severity)
+  ).length;
+
+  const tally = [
+    `${photos.length} photo${photos.length === 1 ? "" : "s"}`,
+    `${issues.length} issue${issues.length === 1 ? "" : "s"}`,
+    urgentCount > 0 ? `${urgentCount} urgent` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <section className="space-y-6">
       <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h3 className="text-2xl font-semibold text-ink-primary">
-              Photo evidence, annotations, and issue tracking
-            </h3>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
-              Upload site photos, group them by slope or location, mark damage with circles, arrows, and labels,
-              then generate homeowner-friendly report evidence.
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3">
-              <p className="text-lg font-semibold text-ink-primary">{photos.length}</p>
-              <p className="text-xs text-ink-muted">Photos</p>
-            </div>
-            <div className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3">
-              <p className="text-lg font-semibold text-ink-primary">{issues.length}</p>
-              <p className="text-xs text-ink-muted">Issues</p>
-            </div>
-            <div className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3">
-              <p className="text-lg font-semibold text-ink-primary">
-                {issues.filter((issue) => ["HIGH", "CRITICAL"].includes(issue.severity)).length}
-              </p>
-              <p className="text-xs text-ink-muted">Urgent</p>
-            </div>
-          </div>
-        </div>
+        <h3 className="text-2xl font-semibold text-ink-primary">
+          Photo evidence, annotations, and issue tracking
+        </h3>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
+          Upload site photos, group them by slope or location, mark damage with circles, arrows, and labels,
+          then generate homeowner-friendly report evidence.
+        </p>
+        {/* Said the way a roofer would say it, rather than as three identical
+            tiles. A count you only read is a phrase, not a card — the same shape
+            the dashboard opens with. Urgent is dropped when it's zero: "0 urgent"
+            invents a worry the job doesn't have. */}
+        <p className="mt-3 text-sm text-ink-secondary">{tally}</p>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
@@ -136,7 +133,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                   <input type="hidden" name="severity" value="MEDIUM" />
                   <button
                     type="submit"
-                    className="rounded-full border border-hairline bg-ground/50 px-3 py-1.5 text-xs font-medium text-ink-strong transition hover:border-signal-blue/40 hover:bg-signal-blue/10 hover:text-info-fg"
+                    className="rounded-full border border-hairline bg-ground/50 px-3 py-1.5 text-xs font-medium text-ink-strong transition hover:bg-surface-lifted hover:text-ink-primary"
                   >
                     + {issueType}
                   </button>
@@ -330,7 +327,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                     {linkedPhotos.length ? (
                       <div className="mt-4 flex flex-wrap gap-2">
                         {linkedPhotos.map((photo) => (
-                          <span key={photo.id} className="rounded-full bg-signal-blue/10 px-3 py-1 text-xs text-info-fg">
+                          <span key={photo.id} className="rounded-full bg-surface-lifted px-3 py-1 text-xs text-ink-secondary">
                             Linked photo: {photo.locationTag ?? photo.fileName ?? "Evidence"}
                           </span>
                         ))}

@@ -14,6 +14,29 @@ function pctLabel(percent: number) {
   return `${Math.max(percent, 4)}%`;
 }
 
+function Row({
+  label,
+  value,
+  capitalize,
+}: {
+  label: string;
+  value: string;
+  capitalize?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 border-b border-hairline py-2.5">
+      <dt className="text-sm text-ink-secondary">{label}</dt>
+      <dd
+        className={`text-sm font-semibold tabular-nums text-ink-primary${
+          capitalize ? " capitalize" : ""
+        }`}
+      >
+        {value}
+      </dd>
+    </div>
+  );
+}
+
 export function ProjectIntelligence({ measurements, sections }: Props) {
   const pitchRows = buildPitchBreakdown(sections);
   const waste = buildWasteRecommendation(measurements, sections);
@@ -77,71 +100,29 @@ export function ProjectIntelligence({ measurements, sections }: Props) {
           </div>
           <div className="h-3 overflow-hidden rounded-full bg-ground/70">
             <div
-              className="h-full rounded-full bg-signal-blue"
+              className="h-full rounded-full bg-instrument"
               style={{ width: `${Math.max(waste.complexityScore, 4)}%` }}
             />
           </div>
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-hairline bg-ground/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
-              Measured
-            </p>
-            <p className="mt-2 text-xl font-semibold text-ink-primary">
-              {waste.measuredSquares.toFixed(2)}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-hairline bg-ground/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
-              Suggested
-            </p>
-            <p className="mt-2 text-xl font-semibold text-ink-primary">
-              {waste.suggestedSquares.toFixed(2)}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-hairline bg-ground/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
-              Waste
-            </p>
-            <p className="mt-2 text-xl font-semibold text-ink-primary">
-              {waste.measuredWaste ?? waste.recommendedWaste}%
-            </p>
-          </div>
-        </div>
+        {/* Six read-only figures, so six rows rather than six boxes. Squares are
+            grouped apart from how the estimate was arrived at, because the first
+            three are what a roofer orders against and the last three are why. */}
+        <dl className="mt-6 grid gap-x-10 sm:grid-cols-2">
+          <Row label="Measured squares" value={waste.measuredSquares.toFixed(2)} />
+          <Row label="Suggested squares" value={waste.suggestedSquares.toFixed(2)} />
+          <Row label="Waste" value={`${waste.measuredWaste ?? waste.recommendedWaste}%`} />
+          <Row label="Measured from" value={waste.areaSource} capitalize />
+          <Row label="Total edge length" value={`${waste.totalLineLengthFt.toLocaleString()} ft`} />
+          <Row label="Labor factor" value={`${waste.laborMultiplier.toFixed(2)}x`} />
+        </dl>
 
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-hairline bg-ground/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
-              Area Source
-            </p>
-            <p className="mt-2 text-lg font-semibold capitalize text-ink-primary">
-              {waste.areaSource}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-hairline bg-ground/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
-              Line Density
-            </p>
-            <p className="mt-2 text-lg font-semibold text-ink-primary">
-              {waste.totalLineLengthFt.toLocaleString()} ft
-            </p>
-          </div>
-          <div className="rounded-2xl border border-hairline bg-ground/50 p-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-ink-muted">
-              Labor Factor
-            </p>
-            <p className="mt-2 text-lg font-semibold text-ink-primary">
-              {waste.laborMultiplier.toFixed(2)}x
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-5 rounded-2xl border border-hairline bg-ground/40 p-4 text-sm leading-6 text-ink-secondary">
+        <p className="mt-5 border-t border-hairline pt-4 text-sm leading-6 text-ink-secondary">
           Suggested waste is based on {waste.reasons.join(", ")}. Facet totals include{" "}
           {totals.facetCount} sections, {totals.valleyLengthFt.toLocaleString()} ft valleys, and{" "}
           {totals.hipLengthFt.toLocaleString()} ft hips.
-        </div>
+        </p>
       </div>
     </section>
   );
