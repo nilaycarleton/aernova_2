@@ -1,4 +1,5 @@
-import { Project, Proposal } from "@prisma/client";
+import { Project, ProjectStatus, Proposal } from "@prisma/client";
+import { statusLabel } from "@/lib/project-status";
 
 type ProjectWithProposals = Project & {
   proposals: Proposal[];
@@ -8,13 +9,16 @@ type Props = {
   projects: ProjectWithProposals[];
 };
 
-const pipeline = [
-  "INSPECTION",
-  "READY_FOR_QUOTE",
-  "QUOTED",
-  "SCHEDULED",
-  "IN_PROGRESS",
-  "COMPLETED",
+// The board's columns: the flow minus Lead (not yet work) and Archived (put
+// away). Typed against the enum rather than loose strings, so renaming a stage
+// in the schema fails the build instead of quietly rendering an empty column.
+const pipeline: ProjectStatus[] = [
+  ProjectStatus.INSPECTION,
+  ProjectStatus.READY_FOR_QUOTE,
+  ProjectStatus.QUOTED,
+  ProjectStatus.SCHEDULED,
+  ProjectStatus.IN_PROGRESS,
+  ProjectStatus.COMPLETED,
 ];
 
 export function OperationsOverview({ projects }: Props) {
@@ -49,7 +53,7 @@ export function OperationsOverview({ projects }: Props) {
                 <div key={status} className="rounded-2xl border border-hairline bg-ground/50 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-medium text-ink-primary">
-                      {status.replaceAll("_", " ")}
+                      {statusLabel(status)}
                     </p>
                     <span className="rounded-full bg-surface-lifted px-2.5 py-1 text-xs text-ink-secondary">
                       {statusProjects.length}

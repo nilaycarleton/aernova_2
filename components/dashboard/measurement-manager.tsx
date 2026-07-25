@@ -30,17 +30,19 @@ export function MeasurementManager({ projectId, measurements }: Props) {
 
         <MeasurementCreateForm projectId={projectId} />
 
+        {/* Seven starter metrics, so seven rows — the last identical card grid in
+            the app. The label already says what the metric is, so the row shows
+            only the starter value beside it; the old tiles also printed the raw
+            enums ("3,240 sq ft · AREA · SQFT"), which is the exact vocabulary
+            PRODUCT.md keeps off the screen. Each row is the submit control, so
+            the whole width is the click target. */}
         <div className="mt-6">
-          <p className="mb-3 text-sm text-ink-muted">
+          <p className="mb-1 text-sm text-ink-muted">
             Quick add — one click drops in a starter metric you can edit below
           </p>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div>
             {measurementTemplates.map((item) => (
-              <form
-                key={item.label}
-                action={createMeasurementAction}
-                className="rounded-2xl border border-hairline bg-ground/40 p-4 text-left transition hover:bg-surface-lifted"
-              >
+              <form key={item.label} action={createMeasurementAction}>
                 <input type="hidden" name="projectId" value={projectId} />
                 <input type="hidden" name="label" value={item.label} />
                 <input type="hidden" name="displayValue" value={item.displayValue} />
@@ -48,12 +50,19 @@ export function MeasurementManager({ projectId, measurements }: Props) {
                 <input type="hidden" name="unit" value={item.unit} />
                 <input type="hidden" name="value" value={item.value} />
                 <input type="hidden" name="source" value="MANUAL" />
-                <button type="submit" className="w-full text-left">
-                  <p className="font-medium text-ink-primary">{item.label}</p>
-                  <p className="mt-1 text-sm text-ink-muted">
-                    {item.displayValue} · {item.type} · {item.unit}
-                  </p>
-                  <p className="mt-2 text-xs font-medium text-info-fg">+ Add this metric</p>
+                <button
+                  type="submit"
+                  className="group flex w-full items-baseline justify-between gap-4 border-b border-hairline py-3 text-left transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+                >
+                  <span className="text-sm text-ink-secondary">{item.label}</span>
+                  <span className="flex shrink-0 items-baseline gap-4">
+                    <span className="text-sm font-semibold tabular-nums text-ink-primary">
+                      {item.displayValue}
+                    </span>
+                    <span className="text-xs font-medium text-ink-muted group-hover:text-ink-primary">
+                      Add
+                    </span>
+                  </span>
                 </button>
               </form>
             ))}

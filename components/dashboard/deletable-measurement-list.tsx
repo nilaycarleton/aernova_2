@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Measurement } from "@prisma/client";
 import { deleteMeasurementAction } from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
+import { measurementTypeLabel } from "@/lib/format";
 import { useUndoToast } from "@/components/dashboard/undo-toast";
 import { BulkActionBar } from "@/components/dashboard/bulk-action-bar";
 
@@ -135,7 +136,7 @@ export function DeletableMeasurementList({
               <span className="min-w-0">
                 <span className="block font-medium text-ink-primary">{measurement.label}</span>
                 <span className="block text-sm text-ink-muted">
-                  {measurement.displayValue} · {measurement.type}
+                  {measurement.displayValue} · {measurementTypeLabel(measurement.type)}
                 </span>
               </span>
             </label>

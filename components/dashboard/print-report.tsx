@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  enumLabel,
+  imageryTypeLabel,
+  processingStatusLabel,
+} from "@/lib/format";
+
 type ReportVm = {
   cover: {
     title: string;
@@ -174,7 +180,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
             <div className="mt-2"><span className="font-semibold">Client:</span> {report.cover.clientName}</div>
             <div className="mt-2"><span className="font-semibold">Address:</span> {report.cover.address}</div>
             <div className="mt-2"><span className="font-semibold">Capture Source:</span> {report.cover.captureSource}</div>
-            <div className="mt-2"><span className="font-semibold">Status:</span> {report.cover.status.replaceAll("_", " ")}</div>
+            <div className="mt-2"><span className="font-semibold">Status:</span> {enumLabel(report.cover.status)}</div>
           </div>
         </div>
       </section>
@@ -471,8 +477,8 @@ export function PrintReport({ report }: { report: ReportVm }) {
                     className="h-16 w-20 rounded-lg object-cover"
                   />
                   <div>
-                    <div className="font-semibold text-paper-ink">{item.fileName ?? item.type}</div>
-                    <div>{item.type} · {item.status.replaceAll("_", " ")} · {item.altitudeFt ? `${item.altitudeFt} ft` : "No altitude"}</div>
+                    <div className="font-semibold text-paper-ink">{item.fileName ?? imageryTypeLabel(item.type)}</div>
+                    <div>{imageryTypeLabel(item.type)} · {processingStatusLabel(item.status)} · {item.altitudeFt ? `${item.altitudeFt} ft` : "No altitude"}</div>
                     {item.notes ? <div className="mt-1 text-paper-ink-muted">{item.notes}</div> : null}
                   </div>
                 </div>
