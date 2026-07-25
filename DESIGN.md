@@ -36,6 +36,7 @@ colors:
   paper-ink-muted: "oklch(44.6% 0.043 257.281)"
   paper-ink-faint: "oklch(55.4% 0.046 257.417)"
   paper-rule: "oklch(92.9% 0.013 255.508)"
+  paper-rule-strong: "oklch(86.9% 0.022 252.894)"
 typography:
   display:
     fontFamily: "ui-sans-serif, system-ui, sans-serif"
@@ -174,6 +175,7 @@ Each status keeps one saturated **base** (for `bg-x/10` tints and `border-x/25` 
 
 ### Print
 - **Paper** / **Paper Ink** / **Paper Rule** (the `paper-*` family): The `(report)` route is a deliberate light surface with its own `<html>` root, pinned to light regardless of app theme. A proposal gets printed and handed to a homeowner; it is a document, not a screen. The `paper-*` tokens **never flip** and the dark/light app tokens never cross into it.
+- **Three rule weights, because a document is not a screen.** Where the app separates with exactly one hairline, paper rules at three weights, and the weight carries meaning: `paper` between table rows (the lightest — rows are a list, not a set of boxes), `paper-rule` at section edges and table headers, and `paper-rule-strong` in one place only — the line above a total. An invoice draws that line heavier because the number under it is what the homeowner signs. Never reach for `paper-rule-strong` for decoration; if two of them appear on one page, one of them is wrong.
 
 ### Named Rules
 

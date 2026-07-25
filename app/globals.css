@@ -83,6 +83,10 @@
   --color-paper-ink-muted: oklch(44.6% 0.043 257.281); /* = slate-600 */
   --color-paper-ink-faint: oklch(55.4% 0.046 257.417); /* = slate-500, 4.76:1 on white */
   --color-paper-rule: oklch(92.9% 0.013 255.508); /* = slate-200 */
+  /* A document rules at more than one weight: hairline between table rows,
+     paper-rule for section edges, and this above a total — the one line an
+     invoice draws heavier because the number under it is the point. */
+  --color-paper-rule-strong: oklch(86.9% 0.022 252.894); /* = slate-300 */
 }
 
 /**

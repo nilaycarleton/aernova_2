@@ -12,7 +12,7 @@ type ParsedScope = {
 
 function TotalRow({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex justify-between text-slate-600">
+    <div className="flex justify-between text-paper-ink-muted">
       <span>{label}</span>
       <span>${value.toLocaleString()}</span>
     </div>
@@ -115,7 +115,7 @@ export function ProposalPreview({
                 <TotalRow label="Subtotal" value={totals.subtotal} />
                 <TotalRow label={`Overhead & profit (${totals.markupPercent}%)`} value={totals.markupAmount} />
                 <TotalRow label={`Tax (${totals.taxPercent}%)`} value={totals.taxAmount} />
-                <div className="flex justify-between border-t border-paper-rule pt-1.5 text-base font-bold text-paper-ink">
+                <div className="flex justify-between border-t border-paper-rule-strong pt-1.5 text-base font-bold text-paper-ink">
                   <span>Total</span>
                   <span>${totals.total.toLocaleString()}</span>
                 </div>
