@@ -13,7 +13,6 @@ import {
   saveModelMeasurementsToProjectAction,
 } from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
 import { ImageryUploadForm } from "@/components/dashboard/imagery-upload-form";
-import { ModelMeasurementViewer } from "@/components/dashboard/model-measurement-viewer";
 import { MeasureViewer } from "@/components/dashboard/measure-viewer";
 import { ProcessingJobPoller } from "@/components/dashboard/processing-job-poller";
 import { ProcessingLauncher } from "@/components/dashboard/processing-launcher";
@@ -154,8 +153,6 @@ export function PhaseSixWorkflow({
     : modelReady
       ? 100
       : 0;
-  const beforeImages = imagery.filter((item) => item.type === "BEFORE");
-  const afterImages = imagery.filter((item) => item.type === "AFTER");
   const filmstrip = photos.slice(0, 24);
 
   return (
@@ -273,27 +270,20 @@ export function PhaseSixWorkflow({
         hint={modelReady ? "Explore the 3D model and pull measurements" : "Available once your 3D model is ready"}
       >
         {modelReady && latestModel && modelPackage ? (
-          <>
-            <ModelMeasurementViewer
-              modelPackage={modelPackage}
-              previewUrl={modelPackage.previewUrl ?? photos[0]?.url ?? null}
-              sourceImageCount={photos.length}
-            />
-
-            {(() => {
-              const glbUrl =
-                modelPackage.assets.viewerGlb?.startsWith("/")
-                  ? modelPackage.assets.viewerGlb
-                  : modelPackage.assets.texturedModelGlb?.startsWith("/")
-                    ? modelPackage.assets.texturedModelGlb
-                    : null;
-              return glbUrl ? (
-                <div className="mt-6">
+          (() => {
+            const glbUrl =
+              modelPackage.assets.viewerGlb?.startsWith("/")
+                ? modelPackage.assets.viewerGlb
+                : modelPackage.assets.texturedModelGlb?.startsWith("/")
+                  ? modelPackage.assets.texturedModelGlb
+                  : null;
+            return glbUrl ? (
+                <div>
                   <h4 className="mb-1 text-sm font-semibold text-ink-primary">Map your roof</h4>
                   <p className="mb-3 text-xs text-ink-muted">
-                    Hit ✨ Auto-detect roof, box your roof, and it finds the faces and their pitch for you.
-                    Nudge any that look off with Edit points. Need to measure something by hand? It&apos;s all
-                    under More tools.
+                    Drag to rotate, scroll to zoom — or use Full screen for a closer look. Then hit ✨ Auto-detect
+                    roof, box your roof, and it finds the faces and their pitch for you. Nudge any that look off with
+                    Edit points. Need to measure something by hand? It&apos;s all under More tools.
                   </p>
                   <MeasureViewer
                     glbUrl={glbUrl}
@@ -328,9 +318,12 @@ export function PhaseSixWorkflow({
                     </span>
                   </div>
                 </div>
-              ) : null;
-            })()}
-          </>
+            ) : (
+              <p className="text-sm text-ink-muted">
+                Your 3D model is ready — the roof view is still preparing. Refresh in a moment.
+              </p>
+            );
+          })()
         ) : (
           <p className="text-sm text-ink-muted">
             Once your 3D model is built, you&apos;ll be able to spin it around and measure the roof here.
@@ -347,11 +340,7 @@ export function PhaseSixWorkflow({
           <p className="text-sm text-ink-muted">
             Create a simple before/after sheet for the homeowner or insurance file.
           </p>
-          <ComparisonCreateForm
-            projectId={projectId}
-            beforeImages={beforeImages.map((i) => ({ id: i.id, url: i.url, fileName: i.fileName }))}
-            afterImages={afterImages.map((i) => ({ id: i.id, url: i.url, fileName: i.fileName }))}
-          />
+          <ComparisonCreateForm projectId={projectId} />
 
           {comparisons.length > 0 ? (
             <div className="mt-6 grid gap-4 md:grid-cols-2">

@@ -1,74 +1,151 @@
 "use client";
 
-import { useActionState } from "react";
-import {
-  createRoofComparisonAction,
-  type ComparisonFormState,
-} from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
-import { SubmitButton } from "@/components/dashboard/submit-button";
-import { FieldError, errorAttrs } from "@/components/dashboard/form-feedback";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
-type PhotoOption = { id: string; url: string; fileName: string | null };
+/**
+ * One compact drag-drop tile for a single photo. Mirrors the drone uploader's drop
+ * behaviour (set the dropped file on the hidden input via DataTransfer) at a
+ * smaller scale, and shows a thumbnail once a photo is chosen.
+ */
+function PhotoDropZone({ name, label }: { name: string; label: string }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const urlRef = useRef<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [drag, setDrag] = useState(false);
 
-const SELECT =
-  "rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue";
+  function choose(file: File | null) {
+    if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+    urlRef.current = file ? URL.createObjectURL(file) : null;
+    setPreview(urlRef.current);
+    setFileName(file?.name ?? null);
+  }
 
-export function ComparisonCreateForm({
-  projectId,
-  beforeImages,
-  afterImages,
-}: {
-  projectId: string;
-  beforeImages: PhotoOption[];
-  afterImages: PhotoOption[];
-}) {
-  const [state, formAction] = useActionState<ComparisonFormState, FormData>(
-    createRoofComparisonAction,
-    {}
-  );
-  const titleError = state.fieldErrors?.title;
+  // Release the last object URL when the tile unmounts.
+  useEffect(() => () => {
+    if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+  }, []);
+
+  function onDrop(event: React.DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setDrag(false);
+    const image = Array.from(event.dataTransfer.files).find((file) => file.type.startsWith("image/"));
+    if (!image || !inputRef.current) return;
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(image);
+    inputRef.current.files = dataTransfer.files;
+    choose(image);
+  }
 
   return (
-    <form action={formAction} className="mt-4 grid gap-3 md:grid-cols-2">
-      <input type="hidden" name="projectId" value={projectId} />
+    <label
+      onDragOver={(event) => {
+        event.preventDefault();
+        setDrag(true);
+      }}
+      onDragLeave={() => setDrag(false)}
+      onDrop={onDrop}
+      className={`flex min-h-28 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed p-4 text-center transition ${
+        drag
+          ? "border-instrument-bright/70 bg-instrument-bright/10"
+          : "border-hairline bg-ground/45 hover:border-instrument-bright/35 hover:bg-ground/65"
+      }`}
+    >
+      <input
+        ref={inputRef}
+        name={name}
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        onChange={(event) => choose(event.currentTarget.files?.[0] ?? null)}
+      />
+      {preview ? (
+        <>
+          {/* Local preview of the chosen file; alt="" is intentional (decorative). */}
+          <img src={preview} alt="" className="h-20 w-full rounded-lg object-cover" />
+          <span className="max-w-full truncate text-xs text-instrument-fg">{fileName}</span>
+          <span className="text-xs text-ink-muted">Click or drop to replace</span>
+        </>
+      ) : (
+        <>
+          <span className="text-xs uppercase tracking-[0.16em] text-ink-muted">{label} photo</span>
+          <span className="inline-flex rounded-lg border border-instrument-bright/30 bg-instrument/10 px-3 py-1.5 text-sm font-medium text-instrument-fg">
+            Upload photo
+          </span>
+          <span className="text-xs text-ink-muted">or drop a file</span>
+        </>
+      )}
+    </label>
+  );
+}
+
+export function ComparisonCreateForm({ projectId }: { projectId: string }) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  // Posts to the comparisons route handler (not a Server Action) so the two
+  // photos aren't capped by the 1 MB Server Action body limit.
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+    setSaving(true);
+
+    const formData = new FormData(event.currentTarget);
+    const response = await fetch(`/api/projects/${projectId}/comparisons`, {
+      method: "POST",
+      body: formData,
+    });
+    const payload = (await response.json().catch(() => ({}))) as { error?: string };
+
+    if (!response.ok) {
+      setError(payload.error ?? "Could not create the comparison");
+      setSaving(false);
+      return;
+    }
+
+    formRef.current?.reset();
+    setSuccess("Comparison created");
+    setSaving(false);
+    startTransition(() => router.refresh());
+  }
+
+  return (
+    <form ref={formRef} onSubmit={submit} className="mt-4 grid gap-3 md:grid-cols-2">
       <div className="md:col-span-2">
         <input
           name="title"
           placeholder="e.g. Front slope — before and after"
-          className={`w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted ${titleError ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`}
+          className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
           required
-          {...errorAttrs("comparison-title", titleError)}
         />
-        <FieldError fieldId="comparison-title" message={titleError} />
       </div>
-      <select name="beforeUrl" defaultValue="" className={SELECT}>
-        <option value="">Choose a &quot;before&quot; photo</option>
-        {beforeImages.map((item) => (
-          <option key={item.id} value={item.url}>
-            {item.fileName ?? "Before photo"}
-          </option>
-        ))}
-      </select>
-      <select name="afterUrl" defaultValue="" className={SELECT}>
-        <option value="">Choose an &quot;after&quot; photo</option>
-        {afterImages.map((item) => (
-          <option key={item.id} value={item.url}>
-            {item.fileName ?? "After photo"}
-          </option>
-        ))}
-      </select>
+      <PhotoDropZone name="beforeImage" label="Before" />
+      <PhotoDropZone name="afterImage" label="After" />
       <textarea
         name="summary"
         rows={2}
         placeholder="Optional note"
         className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue md:col-span-2"
       />
-      <SubmitButton
-        pendingText="Creating…"
+      <button
+        type="submit"
+        disabled={saving || isPending}
         className="rounded-2xl border border-instrument-bright/30 bg-instrument/10 px-5 py-3 text-sm font-medium text-instrument-fg transition hover:bg-instrument/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40 md:col-span-2"
       >
-        Create comparison
-      </SubmitButton>
+        {saving ? "Creating…" : isPending ? "Refreshing…" : "Create comparison"}
+      </button>
+      <p role="alert" className="text-sm text-danger-fg empty:hidden md:col-span-2">
+        {error}
+      </p>
+      <p aria-live="polite" className="text-sm text-confirm-fg empty:hidden md:col-span-2">
+        {success}
+      </p>
     </form>
   );
 }

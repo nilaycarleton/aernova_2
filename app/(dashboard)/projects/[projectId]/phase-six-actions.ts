@@ -351,39 +351,6 @@ export async function extractRoofFromMeshAction(
   };
 }
 
-/** Validation is returned, not thrown, so the form survives it. */
-export type ComparisonFormState = { fieldErrors?: Record<string, string> };
-
-export async function createRoofComparisonAction(
-  _prevState: ComparisonFormState,
-  formData: FormData
-): Promise<ComparisonFormState> {
-  const projectId = getString(formData, "projectId");
-  const title = getString(formData, "title");
-  const summary = getString(formData, "summary");
-  const beforeUrl = getString(formData, "beforeUrl");
-  const afterUrl = getString(formData, "afterUrl");
-
-  if (!projectId) throw new Error("Missing projectId");
-  if (!title) return { fieldErrors: { title: "Give the comparison a title." } };
-  await requireProjectAccess(projectId);
-
-  await prisma.roofComparison.create({
-    data: {
-      projectId,
-      title,
-      beforeUrl: beforeUrl || null,
-      afterUrl: afterUrl || null,
-      summary: summary || null,
-      differencesJson: [
-        "Pre-job photo evidence captured",
-        "Post-job comparison pending or ready for client sheet",
-        "Use this sheet for inspection comparison and completion documentation",
-      ],
-    },
-  });
-
-  revalidatePath(`/projects/${projectId}`);
-  revalidatePath(`/projects/${projectId}/report`);
-  return {};
-}
+// Creating a before/after comparison (with its photo uploads) now lives in the
+// route handler app/api/projects/[projectId]/comparisons/route.ts, so the photos
+// aren't capped by the 1 MB Server Action body limit.
