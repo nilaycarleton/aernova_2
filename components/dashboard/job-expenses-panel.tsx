@@ -24,12 +24,22 @@ export type JobExpenseRow = {
   loggedBy: string;
 };
 
+/**
+ * `incurredAt` is stored as UTC midnight of the calendar day the `<input
+ * type="date">` collected — no time of day was ever meant, same convention
+ * `lib/schedule/day.ts` documents for an all-day visit. Formatting it in the
+ * browser's local zone would roll it back a day for anyone west of UTC (the
+ * live check caught exactly this: picking Aug 5 rendered back as Aug 4), so
+ * this reads the UTC calendar parts back out rather than letting
+ * `toLocaleDateString` reinterpret the instant in local time.
+ */
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-CA", {
+  return new Intl.DateTimeFormat("en-CA", {
     year: "numeric",
     month: "short",
     day: "numeric",
-  });
+    timeZone: "UTC",
+  }).format(new Date(iso));
 }
 
 /**

@@ -1531,6 +1531,19 @@ not a stored column, so turning one on later needs no migration.
     (`manageJobCosts`) so a salesperson can read the variance but not write to
     it. 9 tests in `tests/job-costing.test.ts`.
 
+    **The live check caught a real bug before ship (2026-08-05).** Picking
+    Aug 5 in the date field rendered back as "Aug 4" on the logged row.
+    `incurredAt` is stored as UTC midnight of the calendar day the `<input
+    type="date">` collected — no time of day was ever meant, same convention
+    `lib/schedule/day.ts` documents for an all-day visit — but the panel's
+    `formatDate` ran it through `toLocaleDateString`, which reinterprets the
+    instant in the *browser's* local zone and rolls a UTC-midnight date back
+    a day for anyone west of UTC. Fixed by reading the UTC calendar parts
+    back out (`Intl.DateTimeFormat` with `timeZone: "UTC"`) instead of
+    letting the browser's zone reinterpret it — verified live: entering,
+    reading back, and deleting a labour entry all now show the date that was
+    actually picked.
+
 47. ✅ **Two new report pages** (2026-08-05) — `/reports/revenue` and
     `/reports/aged-receivables`, joined to the existing win-rate report by a
     new `ReportsNav` sub-nav rather than three unrelated sidebar entries; the
