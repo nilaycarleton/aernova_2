@@ -172,6 +172,8 @@ enum VisitKind {
 enum CaptureSource {
   DRONE
   MANUAL
+  /** Item 49 — drafted from a photo by lib/ai/capture.ts, then saved as-is or edited. */
+  AI_CAPTURE
 }
 
 enum MeasurementType {
@@ -910,19 +912,32 @@ model JobExpense {
  * Rows are only written after a call is allowed through.
  */
 model AiUsageEvent {
-  id        String   @id @default(cuid())
-  jobId     String   @map("projectId")
+  id    String  @id @default(cuid())
+  /**
+   * Item 49 made this nullable: AI capture runs *before* a job exists, so
+   * there is nothing to key a capture call against. Every chat/summary event
+   * still gets one; only "capture" events leave it null.
+   */
+  jobId String? @map("projectId")
+  /**
+   * Item 49's other half of the same problem — capture needs a scope to rate
+   * limit against, and a company is the only thing that exists at that point.
+   * Null for chat/summary, set only for "capture".
+   */
+  companyId String?
   // Clerk-backed User id. Kept as a plain indexed column rather than a relation
   // so the usage record survives a user being removed.
   userId    String
-  kind      String // "chat" | "summary"
+  kind      String // "chat" | "summary" | "capture"
   createdAt DateTime @default(now())
 
-  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job Job? @relation(fields: [jobId], references: [id], onDelete: SetNull)
 
-  // Serve the two limiter queries: per-project rolling day, per-user burst.
+  // Serve the three limiter queries: per-project rolling day, per-user burst,
+  // per-company rolling day (capture, which has no project yet).
   @@index([jobId, createdAt])
   @@index([userId, createdAt])
+  @@index([companyId, createdAt])
 }
 
 // An interactive measurement drawn directly on the 3D model (WebODM-style):

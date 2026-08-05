@@ -27,6 +27,101 @@ export type NewJobState = {
   values?: Record<string, string>;
 };
 
+export type NewJobInput = {
+  companyId: string;
+  createdById: string;
+  name: string;
+  clientId: string;
+  clientName: string;
+  clientIsBusiness: boolean;
+  clientEmail: string;
+  clientPhone: string;
+  leadSource: string;
+  addressLine1: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  notes: string;
+  captureSource: CaptureSource;
+};
+
+/**
+ * The actual creation, pulled out of the form action so `/jobs/capture`
+ * (item 49) can create a job the same way `/jobs/new` does — resolve or
+ * create the client, resolve the property, assign a job number — without a
+ * second copy of that logic. `createJobAction` below is now a thin wrapper:
+ * validate the form, call this, redirect. Any caller that needs to do more
+ * before redirecting (item 49 also drafts a quote) calls this directly and
+ * owns its own redirect.
+ */
+export async function createJobRecord(input: NewJobInput) {
+  const nameParts = splitTypedName(input.clientName, input.clientIsBusiness);
+  let resolvedClientId: string;
+
+  if (input.clientId) {
+    const chosen = await prisma.client.findFirst({
+      where: { id: input.clientId, companyId: input.companyId },
+      select: { id: true },
+    });
+    if (!chosen) throw new Error("Client not found");
+    resolvedClientId = chosen.id;
+    await fillClientContactGaps(resolvedClientId, {
+      email: input.clientEmail,
+      phone: input.clientPhone,
+    });
+  } else {
+    resolvedClientId = await createClient({
+      companyId: input.companyId,
+      ...nameParts,
+      email: input.clientEmail,
+      phone: input.clientPhone,
+      leadSource: input.leadSource,
+    });
+  }
+
+  const propertyId = await resolveProperty(input.companyId, resolvedClientId, {
+    addressLine1: input.addressLine1,
+    city: input.city,
+    province: input.province,
+    postalCode: input.postalCode,
+  });
+
+  const client = await prisma.client.findUniqueOrThrow({
+    where: { id: resolvedClientId },
+    select: { displayName: true, email: true, phone: true },
+  });
+
+  return withJobNumber(input.companyId, (jobNumber) =>
+    prisma.job.create({
+      data: {
+        companyId: input.companyId,
+        createdById: input.createdById,
+        clientId: resolvedClientId,
+        propertyId,
+        jobNumber,
+        // Named from the client when nobody typed a title. Resolved at write
+        // time rather than at read time so the name is stable: renaming the
+        // client later must not silently rename every job they ever had.
+        name: jobDisplayName(input.name, client.displayName, jobNumber),
+        status: JobStatus.LEAD,
+        captureSource: input.captureSource,
+        notes: input.notes || null,
+        // Deprecated columns, still dual-written for one release so a rollback
+        // reads a complete job. Read off the client rather than the form now:
+        // picking an existing client means the form carries no name at all.
+        clientName: client.displayName || clientDisplayName(nameParts),
+        clientEmail: client.email,
+        clientPhone: client.phone,
+        addressLine1: input.addressLine1,
+        city: input.city,
+        province: input.province,
+        postalCode: input.postalCode || null,
+        country: "Canada",
+      },
+    })
+  );
+}
+
 export async function createJobAction(
   _prevState: NewJobState,
   formData: FormData
@@ -69,78 +164,28 @@ export async function createJobAction(
     return { fieldErrors, values };
   }
 
-  const allowedSources = new Set(["DRONE", "MANUAL"]);
+  const allowedSources = new Set(["DRONE", "MANUAL", "AI_CAPTURE"]);
   const captureSource = allowedSources.has(captureSourceRaw)
     ? (captureSourceRaw as CaptureSource)
     : CaptureSource.MANUAL;
 
-  const nameParts = splitTypedName(clientName, clientIsBusiness);
-  let resolvedClientId: string;
-
-  if (clientId) {
-    // An id that arrived in a form post proves nothing on its own. Confirm it
-    // is this company's before a job is hung off it.
-    const chosen = await prisma.client.findFirst({
-      where: { id: clientId, companyId: company.id },
-      select: { id: true },
-    });
-    if (!chosen) throw new Error("Client not found");
-    resolvedClientId = chosen.id;
-    await fillClientContactGaps(resolvedClientId, { email: clientEmail, phone: clientPhone });
-  } else {
-    // "Someone new" was chosen with any matching clients on screen, so this is
-    // an answer rather than an oversight. Re-running the match here and asking
-    // again would be overruling the person who just answered.
-    resolvedClientId = await createClient({
-      companyId: company.id,
-      ...nameParts,
-      email: clientEmail,
-      phone: clientPhone,
-      leadSource,
-    });
-  }
-
-  const propertyId = await resolveProperty(company.id, resolvedClientId, {
+  const job = await createJobRecord({
+    companyId: company.id,
+    createdById: user.id,
+    name,
+    clientId,
+    clientName,
+    clientIsBusiness,
+    clientEmail,
+    clientPhone,
+    leadSource,
     addressLine1,
     city,
     province,
     postalCode,
+    notes,
+    captureSource,
   });
-
-  const client = await prisma.client.findUniqueOrThrow({
-    where: { id: resolvedClientId },
-    select: { displayName: true, email: true, phone: true },
-  });
-
-  const job = await withJobNumber(company.id, (jobNumber) =>
-    prisma.job.create({
-      data: {
-        companyId: company.id,
-        createdById: user.id,
-        clientId: resolvedClientId,
-        propertyId,
-        jobNumber,
-        // Named from the client when nobody typed a title. Resolved at write
-        // time rather than at read time so the name is stable: renaming the
-        // client later must not silently rename every job they ever had.
-        name: jobDisplayName(name, client.displayName, jobNumber),
-        status: JobStatus.LEAD,
-        captureSource,
-        notes: notes || null,
-        // Deprecated columns, still dual-written for one release so a rollback
-        // reads a complete job. Read off the client rather than the form now:
-        // picking an existing client means the form carries no name at all.
-        clientName: client.displayName || clientDisplayName(nameParts),
-        clientEmail: client.email,
-        clientPhone: client.phone,
-        addressLine1,
-        city,
-        province,
-        postalCode: postalCode || null,
-        country: "Canada",
-      },
-    })
-  );
 
   redirect(`/jobs/${job.id}`);
 }
