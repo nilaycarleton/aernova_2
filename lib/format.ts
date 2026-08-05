@@ -5,7 +5,7 @@ export function currency(value: number | null | undefined) {
 /**
  * Database enums are not words a roofer would say, and `replaceAll("_", " ")`
  * doesn't fix that — it just turns READY_FOR_QUOTE into shouting. Every enum that
- * reaches a screen (or the printed proposal a homeowner reads) comes through here
+ * reaches a screen (or the printed quote a homeowner reads) comes through here
  * first. Unknown values fall back to sentence case rather than throwing, so a new
  * enum member degrades to something readable instead of blank.
  */
@@ -104,7 +104,7 @@ export const MEASUREMENT_SOURCE_OPTIONS = options(
   measurementSourceLabel
 );
 
-/** Project lifecycle labels live with the flow itself — see lib/project-status. */
+/** Job lifecycle labels live with the flow itself — see lib/job-status. */
 export function enumLabel(value: string) {
   return sentenceCase(value);
 }

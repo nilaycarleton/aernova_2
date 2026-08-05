@@ -1,15 +1,15 @@
 import { PhotoAsset, RoofIssue } from "@prisma/client";
-import { createRoofIssueAction } from "@/app/(dashboard)/projects/[projectId]/issue-actions";
+import { createRoofIssueAction } from "@/app/(dashboard)/jobs/[jobId]/issue-actions";
 import {
   deleteInspectionPhotoAction,
   updateInspectionPhotoAction,
   uploadInspectionPhotoAction,
-} from "@/app/(dashboard)/projects/[projectId]/photo-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/photo-actions";
 import { DeletableItem } from "@/components/dashboard/deletable-item";
 import { PhotoAnnotationStudio } from "@/components/dashboard/photo-annotation-studio";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   issues: RoofIssue[];
   photos: PhotoAsset[];
 };
@@ -35,7 +35,7 @@ function issueTone(severity: string) {
   }
 }
 
-export function InspectionWorkflow({ projectId, issues, photos }: Props) {
+export function InspectionWorkflow({ jobId, issues, photos }: Props) {
   const urgentCount = issues.filter((issue) =>
     ["HIGH", "CRITICAL"].includes(issue.severity)
   ).length;
@@ -72,7 +72,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
           </h3>
 
           <form action={uploadInspectionPhotoAction} className="mt-6 space-y-4">
-            <input type="hidden" name="projectId" value={projectId} />
+            <input type="hidden" name="jobId" value={jobId} />
             <input
               name="photo"
               type="file"
@@ -130,7 +130,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
             <div className="flex flex-wrap gap-2">
               {issueTypes.slice(0, 4).map((issueType) => (
                 <form key={issueType} action={createRoofIssueAction}>
-                  <input type="hidden" name="projectId" value={projectId} />
+                  <input type="hidden" name="jobId" value={jobId} />
                   <input type="hidden" name="title" value={issueType} />
                   <input type="hidden" name="severity" value="MEDIUM" />
                   <button
@@ -145,7 +145,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
           </div>
 
           <form action={createRoofIssueAction} className="mt-4 space-y-4">
-            <input type="hidden" name="projectId" value={projectId} />
+            <input type="hidden" name="jobId" value={jobId} />
             <select
               name="title"
               defaultValue="Missing shingles"
@@ -207,7 +207,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
         </div>
       </div>
 
-      <PhotoAnnotationStudio projectId={projectId} photos={photos} />
+      <PhotoAnnotationStudio jobId={jobId} photos={photos} />
 
       <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
         <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
@@ -237,7 +237,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                    same form would race the save. */
                 <DeletableItem
                   key={photo.id}
-                  projectId={projectId}
+                  jobId={jobId}
                   itemId={photo.id}
                   idField="photoId"
                   label="Photo"
@@ -247,7 +247,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                   action={updateInspectionPhotoAction}
                   className="rounded-2xl border border-hairline bg-ground/50 p-3"
                 >
-                  <input type="hidden" name="projectId" value={projectId} />
+                  <input type="hidden" name="jobId" value={jobId} />
                   <input type="hidden" name="photoId" value={photo.id} />
                   <div className="aspect-video overflow-hidden rounded-xl bg-ground">
                     <img

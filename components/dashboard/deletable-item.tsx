@@ -16,14 +16,14 @@ import { useUndoToast } from "@/components/dashboard/undo-toast";
  * bytes can't be restored, so they must never leave before the window does.
  */
 export function DeletableItem({
-  projectId,
+  jobId,
   itemId,
   idField,
   label,
   deleteAction,
   children,
 }: {
-  projectId: string;
+  jobId: string;
   itemId: string;
   /** The form field the action reads the id from, e.g. "comparisonId". */
   idField: string;
@@ -47,7 +47,7 @@ export function DeletableItem({
       onUndo: () => setHidden(false),
       onCommit: () => {
         const formData = new FormData();
-        formData.set("projectId", projectId);
+        formData.set("jobId", jobId);
         formData.set(idField, itemId);
         startTransition(async () => {
           try {

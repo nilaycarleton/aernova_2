@@ -1,4 +1,4 @@
-import { Measurement, Project, RoofSection } from "@prisma/client";
+import { Measurement, Job, RoofSection } from "@prisma/client";
 import { defaultPricingTemplate } from "@/lib/pricing-template";
 import {
   buildRoofSectionTotals,
@@ -89,7 +89,7 @@ function roundUpSquaresToThird(areaSqft: number) {
 }
 
 export function generateRoofingReport(
-  project: Project,
+  job: Job,
   measurements: Measurement[],
   sectionsInput: RoofSection[] = []
 ): GeneratedReport {
@@ -246,7 +246,7 @@ export function generateRoofingReport(
   ];
 
   return {
-    title: `${project.name} – Roofing Report & Proposal`,
+    title: `${job.name} – Roofing Report & Quote`,
     totalAmount: roundMoney(totalAmount),
     lineItems,
     totals,

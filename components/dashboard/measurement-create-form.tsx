@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import {
   createMeasurementWithState,
   type MeasurementFormState,
-} from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/measurement-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
 import {
@@ -20,7 +20,7 @@ function textCls(error?: string) {
   return `w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary placeholder:text-ink-muted outline-none ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`;
 }
 
-export function MeasurementCreateForm({ projectId }: { projectId: string }) {
+export function MeasurementCreateForm({ jobId }: { jobId: string }) {
   const [state, formAction] = useActionState<MeasurementFormState, FormData>(
     createMeasurementWithState,
     {}
@@ -31,7 +31,7 @@ export function MeasurementCreateForm({ projectId }: { projectId: string }) {
     <>
     <FormError message={state.formError} />
     <form action={formAction} className="mt-6 grid gap-4 md:grid-cols-2">
-      <input type="hidden" name="projectId" value={projectId} />
+      <input type="hidden" name="jobId" value={jobId} />
 
       <div>
         <label htmlFor="new-measurement-label" className="mb-2 block text-sm text-ink-secondary">Label</label>

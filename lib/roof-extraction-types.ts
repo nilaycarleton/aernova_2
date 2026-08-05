@@ -27,7 +27,7 @@ export type PlanPreview = {
 //
 // A facet's editable/renderable geometry is stored in RoofSection.geometryJson
 // as a versioned RoofFacetGeometry. Coordinates are mesh metres, z-up — the
-// SAME frame the extractor works in — so a stored polygon re-projects onto the
+// SAME frame the extractor works in — so a stored polygon re-jobs onto the
 // 3D model exactly, and a viewer pick (matrixWorld^-1 -> metres) can edit it.
 // ---------------------------------------------------------------------------
 

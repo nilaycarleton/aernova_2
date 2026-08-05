@@ -31,7 +31,7 @@ import {
   updateModelMeasurementCategoryAction,
   type LineCategory,
   type ModelMeasurementKind,
-} from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/model-measurement-actions";
 import {
   distance,
   formatArea,
@@ -82,7 +82,7 @@ export type SavedMeasurement = {
 
 type Props = {
   glbUrl: string;
-  projectId: string;
+  jobId: string;
   modelImageryId: string;
   initialMeasurements?: SavedMeasurement[];
 };
@@ -194,7 +194,7 @@ function disposeAndClear(group: THREE.Group) {
   group.clear();
 }
 
-export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasurements = [] }: Props) {
+export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasurements = [] }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   // Full-screen overlay + its auto-hiding chrome (toolbar + measurements list).
   const outerRef = useRef<HTMLDivElement>(null);
@@ -448,7 +448,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       snapshotRef.current();
       setMeasurements((prev) => [...prev, { id, type: active, points, label }]);
       // Persist optimistically; drop the row again if the server rejects it.
-      saveModelMeasurementAction({ id, projectId, kind: active, points, label }).catch((e) => {
+      saveModelMeasurementAction({ id, jobId, kind: active, points, label }).catch((e) => {
         console.error("[measure] save failed", e);
         setMeasurements((prev) => prev.filter((m) => m.id !== id));
       });
@@ -485,9 +485,9 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       const b: Measurement = { id: crypto.randomUUID(), type: "area", points: halves[1] };
       snapshotRef.current();
       setMeasurements((prev) => [...prev.filter((x) => x.id !== removedId), a, b]);
-      deleteModelMeasurementAction({ projectId, id: removedId }).catch((e) => console.error("[measure] split delete failed", e));
+      deleteModelMeasurementAction({ jobId, id: removedId }).catch((e) => console.error("[measure] split delete failed", e));
       for (const half of [a, b]) {
-        saveModelMeasurementAction({ id: half.id, projectId, kind: "area", points: half.points, label: null, category: null }).catch((e) =>
+        saveModelMeasurementAction({ id: half.id, jobId, kind: "area", points: half.points, label: null, category: null }).catch((e) =>
           console.error("[measure] split save failed", e)
         );
       }
@@ -596,7 +596,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       // Editing the geometry invalidates the server's cached area — clear it so the
       // label recomputes from the (now hand-edited, simple) polygon.
       setMeasurements((prev) => prev.map((m) => (m.id === drag.id ? { ...m, points, areaSqft: null } : m)));
-      saveModelMeasurementAction({ id: drag.id, projectId, kind: base.type, points, label: base.label, category: base.category, areaSqft: null }).catch(
+      saveModelMeasurementAction({ id: drag.id, jobId, kind: base.type, points, label: base.label, category: base.category, areaSqft: null }).catch(
         (e) => console.error("[measure] edit save failed", e)
       );
     };
@@ -611,7 +611,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
       setDetectError("");
       try {
         const facets = await autoDetectRoofFacetsAction({
-          projectId,
+          jobId,
           imageryId: modelImageryId,
           roiPolygon: roi.map((p) => ({ x: p[0], y: p[1] })),
         });
@@ -790,7 +790,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   // ---- Undo/redo -----------------------------------------------------------
   const reconcile = (list: Measurement[]) => {
     replaceModelMeasurementsAction({
-      projectId,
+      jobId,
       measurements: list.map((m) => ({ id: m.id, kind: m.type, points: m.points, label: m.label ?? null, category: m.category ?? null, areaSqft: m.areaSqft ?? null })),
     }).catch((e) => console.error("[measure] reconcile failed", e));
   };
@@ -912,7 +912,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
   const runClassify = async () => {
     setClassifying(true);
     try {
-      const lines = await classifyRoofEdgesAction({ projectId });
+      const lines = await classifyRoofEdgesAction({ jobId });
       snapshotRef.current();
       // Drop any prior auto-classified edges from view, then add the fresh set.
       setMeasurements((prev) => [
@@ -1174,7 +1174,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                 onClick={() => {
                   snapshot();
                   setMeasurements([]);
-                  clearModelMeasurementsAction({ projectId }).catch((e) => console.error("[measure] clear failed", e));
+                  clearModelMeasurementsAction({ jobId }).catch((e) => console.error("[measure] clear failed", e));
                 }}
                 className="text-xs text-ink-muted hover:text-rose-300"
               >
@@ -1200,7 +1200,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                       onClick={() => {
                         snapshot();
                         setMeasurements((prev) => prev.filter((x) => x.id !== m.id));
-                        deleteModelMeasurementAction({ projectId, id: m.id }).catch((e) =>
+                        deleteModelMeasurementAction({ jobId, id: m.id }).catch((e) =>
                           console.error("[measure] delete failed", e)
                         );
                       }}
@@ -1217,7 +1217,7 @@ export function MeasureViewer({ glbUrl, projectId, modelImageryId, initialMeasur
                         const category = (e.target.value || null) as LineCategory | null;
                         snapshot();
                         setMeasurements((prev) => prev.map((x) => (x.id === m.id ? { ...x, category } : x)));
-                        updateModelMeasurementCategoryAction({ projectId, id: m.id, category }).catch((err) =>
+                        updateModelMeasurementCategoryAction({ jobId, id: m.id, category }).catch((err) =>
                           console.error("[measure] category failed", err)
                         );
                       }}

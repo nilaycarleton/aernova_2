@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Aernova",
-  description: "Roof measurement, inspection, and proposal platform",
+  description: "Jobs, quotes and clients for trades contractors",
 };
 
 export default function RootLayout({

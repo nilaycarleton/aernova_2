@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { savePhotoAnnotationsAction } from "@/app/(dashboard)/projects/[projectId]/photo-actions";
+import { savePhotoAnnotationsAction } from "@/app/(dashboard)/jobs/[jobId]/photo-actions";
 
 type Annotation =
   | { id: string; tool: "circle"; x: number; y: number; r: number; label: string }
@@ -18,7 +18,7 @@ type Photo = {
 };
 
 type Props = {
-  projectId: string;
+  jobId: string;
   photos: Photo[];
 };
 
@@ -31,7 +31,7 @@ function parseAnnotations(value: unknown): Annotation[] {
   });
 }
 
-export function PhotoAnnotationStudio({ projectId, photos }: Props) {
+export function PhotoAnnotationStudio({ jobId, photos }: Props) {
   const [selectedPhotoId, setSelectedPhotoId] = useState(photos[0]?.id ?? "");
   const [tool, setTool] = useState<Annotation["tool"]>("circle");
   const [label, setLabel] = useState("Damage");
@@ -154,7 +154,7 @@ export function PhotoAnnotationStudio({ projectId, photos }: Props) {
               Undo Last
             </button>
             <form action={savePhotoAnnotationsAction}>
-              <input type="hidden" name="projectId" value={projectId} />
+              <input type="hidden" name="jobId" value={jobId} />
               <input type="hidden" name="photoId" value={selectedPhoto.id} />
               <input type="hidden" name="annotationsJson" value={JSON.stringify(annotations)} />
               <button

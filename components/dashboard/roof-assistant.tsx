@@ -12,10 +12,10 @@ const SUGGESTIONS = [
 ];
 
 export function RoofAssistant({
-  projectId,
+  jobId,
   onClose,
 }: {
-  projectId: string;
+  jobId: string;
   onClose?: () => void;
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -37,7 +37,7 @@ export function RoofAssistant({
     setBusy(true);
 
     try {
-      const res = await fetch(`/api/projects/${projectId}/chat`, {
+      const res = await fetch(`/api/jobs/${jobId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history }),
@@ -93,7 +93,7 @@ export function RoofAssistant({
       <div className="flex items-center justify-between border-b border-hairline px-5 py-3">
         <div>
           <h3 id="assistant-title" className="text-sm font-semibold text-ink-primary">Roof assistant</h3>
-          <p className="text-xs text-ink-primary/50">Grounded in this project&apos;s measurements & estimate</p>
+          <p className="text-xs text-ink-primary/50">Grounded in this job&apos;s measurements & estimate</p>
         </div>
         <div className="flex items-center gap-1">
           {messages.length > 0 && (

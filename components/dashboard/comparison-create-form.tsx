@@ -80,7 +80,7 @@ function PhotoDropZone({ name, label }: { name: string; label: string }) {
   );
 }
 
-export function ComparisonCreateForm({ projectId }: { projectId: string }) {
+export function ComparisonCreateForm({ jobId }: { jobId: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const [error, setError] = useState("");
@@ -97,7 +97,7 @@ export function ComparisonCreateForm({ projectId }: { projectId: string }) {
     setSaving(true);
 
     const formData = new FormData(event.currentTarget);
-    const response = await fetch(`/api/projects/${projectId}/comparisons`, {
+    const response = await fetch(`/api/jobs/${jobId}/comparisons`, {
       method: "POST",
       body: formData,
     });

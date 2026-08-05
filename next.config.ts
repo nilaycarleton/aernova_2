@@ -4,6 +4,22 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+
+  /**
+   * `/projects` became `/jobs` when the domain model split. Permanent because
+   * the old path is genuinely gone, and a contractor who bookmarked a job or
+   * pasted its link into a text message should land on it rather than a 404 —
+   * the link is how they find the work, not a convenience.
+   */
+  async redirects() {
+    return [
+      // Phase 2 gave /jobs a real index page, so the bare path finally points
+      // at the noun it renamed to rather than at the dashboard.
+      { source: "/projects", destination: "/jobs", permanent: true },
+      { source: "/projects/:path*", destination: "/jobs/:path*", permanent: true },
+      { source: "/api/projects/:path*", destination: "/api/jobs/:path*", permanent: true },
+    ];
+  },
 };
 
 // Source maps upload only when a Sentry auth token + org/project are present,

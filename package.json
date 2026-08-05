@@ -16,6 +16,9 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "node prisma/seed.mjs",
+    "db:backfill-money": "node --env-file=.env --experimental-strip-types prisma/backfill-money.ts",
+    "db:backfill-domain": "node --env-file=.env --experimental-strip-types prisma/backfill-domain.ts",
+    "db:seed-catalog": "node --env-file=.env --experimental-strip-types prisma/seed-catalog.ts",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "import:photos": "node --env-file=.env --experimental-strip-types prisma/import-photos.ts",
     "nodeodm": "scripts/nodeodm.sh"
@@ -33,6 +36,8 @@
     "prisma": "^6.19.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.18.1",
+    "stripe": "^22.4.0",
     "three": "^0.184.0",
     "three-mesh-bvh": "^0.9.10"
   },

@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 /**
- * A plain-language recap of where a project stands, generated on demand. It
+ * A plain-language recap of where a job stands, generated on demand. It
  * lives at the top of the assistant drawer — a helper, not a stage of the job —
  * so it never sits between the contractor and the roof (PRODUCT.md: "calm is a
- * function of sequence"). The copy stays in the trade's language: "Project
+ * function of sequence"). The copy stays in the trade's language: "Job
  * overview", not "AI summary".
  *
  * Collapsed by default so the drawer opens on the chat; Generate expands it.
@@ -17,7 +17,7 @@ type State =
   | { status: "ready"; summary: string }
   | { status: "error"; message: string };
 
-export function AiSummary({ projectId }: { projectId: string }) {
+export function AiSummary({ jobId }: { jobId: string }) {
   const [state, setState] = useState<State>({ status: "idle" });
   const [open, setOpen] = useState(false);
 
@@ -25,7 +25,7 @@ export function AiSummary({ projectId }: { projectId: string }) {
     setOpen(true);
     setState({ status: "loading" });
     try {
-      const res = await fetch(`/api/projects/${projectId}/ai`, {
+      const res = await fetch(`/api/jobs/${jobId}/ai`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "summarize_project" }),
@@ -60,7 +60,7 @@ export function AiSummary({ projectId }: { projectId: string }) {
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          aria-controls="project-overview-body"
+          aria-controls="job-overview-body"
           className="flex min-w-0 flex-1 items-center gap-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
         >
           <svg
@@ -80,9 +80,9 @@ export function AiSummary({ projectId }: { projectId: string }) {
             <path d="m9 18 6-6-6-6" />
           </svg>
           <span className="min-w-0">
-            <span className="block text-sm font-semibold text-ink-primary">Project overview</span>
+            <span className="block text-sm font-semibold text-ink-primary">Job overview</span>
             <span className="block text-xs text-ink-primary/50">
-              A plain-language recap of where this project stands
+              A plain-language recap of where this job stands
             </span>
           </span>
         </button>
@@ -97,7 +97,7 @@ export function AiSummary({ projectId }: { projectId: string }) {
         </button>
       </div>
 
-      <div id="project-overview-body" hidden={!open} className="max-h-48 overflow-y-auto px-5 pb-4">
+      <div id="job-overview-body" hidden={!open} className="max-h-48 overflow-y-auto px-5 pb-4">
         {state.status === "idle" && (
           <p className="text-sm text-ink-primary/60">
             No overview yet. Generate a quick recap you can read straight to a homeowner.

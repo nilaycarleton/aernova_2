@@ -39,7 +39,7 @@ export function PricingTemplatePanel() {
         Company pricing defaults
       </h3>
       <p className="mt-1 text-sm text-ink-muted">
-        Used by proposal generation
+        Used by quote generation
       </p>
       <div className="mt-6 grid gap-x-10 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
         {groups.map((group) => (

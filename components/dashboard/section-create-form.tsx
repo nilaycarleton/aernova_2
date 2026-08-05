@@ -4,14 +4,14 @@ import { useActionState } from "react";
 import {
   createRoofSectionAction,
   type SectionFormState,
-} from "@/app/(dashboard)/projects/[projectId]/section-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/section-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
 
 const NUM =
   "rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue";
 
-export function SectionCreateForm({ projectId }: { projectId: string }) {
+export function SectionCreateForm({ jobId }: { jobId: string }) {
   const [state, formAction] = useActionState<SectionFormState, FormData>(createRoofSectionAction, {});
   const labelError = state.fieldErrors?.label;
 
@@ -19,7 +19,7 @@ export function SectionCreateForm({ projectId }: { projectId: string }) {
     <>
     <FormError message={state.formError} />
     <form action={formAction} className="mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
-      <input type="hidden" name="projectId" value={projectId} />
+      <input type="hidden" name="jobId" value={jobId} />
       <div className="md:col-span-2">
         <input
           name="label"
