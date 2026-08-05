@@ -1,11 +1,11 @@
 import { Measurement } from "@prisma/client";
-import { createMeasurementAction } from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
+import { createMeasurementAction } from "@/app/(dashboard)/jobs/[jobId]/measurement-actions";
 import { DeletableMeasurementList } from "@/components/dashboard/deletable-measurement-list";
 import { MeasurementCreateForm } from "@/components/dashboard/measurement-create-form";
 import { MeasurementEditForm } from "@/components/dashboard/measurement-edit-form";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   measurements: Measurement[];
 };
 
@@ -19,7 +19,7 @@ const measurementTemplates = [
   { label: "Total hip length", type: "HIP", unit: "FT", displayValue: "34 ft", value: "34" },
 ];
 
-export function MeasurementManager({ projectId, measurements }: Props) {
+export function MeasurementManager({ jobId, measurements }: Props) {
   return (
     <div className="space-y-8">
       <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
@@ -28,7 +28,7 @@ export function MeasurementManager({ projectId, measurements }: Props) {
           Add roof metrics like area, ridge, pitch, waste factor, eaves, valleys, and hips.
         </p>
 
-        <MeasurementCreateForm projectId={projectId} />
+        <MeasurementCreateForm jobId={jobId} />
 
         {/* Seven starter metrics, so seven rows — the last identical card grid in
             the app. The label already says what the metric is, so the row shows
@@ -43,7 +43,7 @@ export function MeasurementManager({ projectId, measurements }: Props) {
           <div>
             {measurementTemplates.map((item) => (
               <form key={item.label} action={createMeasurementAction}>
-                <input type="hidden" name="projectId" value={projectId} />
+                <input type="hidden" name="jobId" value={jobId} />
                 <input type="hidden" name="label" value={item.label} />
                 <input type="hidden" name="displayValue" value={item.displayValue} />
                 <input type="hidden" name="type" value={item.type} />
@@ -74,7 +74,7 @@ export function MeasurementManager({ projectId, measurements }: Props) {
         <div>
           <h3 className="text-xl font-semibold text-ink-primary">Existing measurements</h3>
           <p className="mt-2 text-sm text-ink-muted">
-            Update or remove roof metrics for this project.
+            Update or remove roof metrics for this job.
           </p>
         </div>
 
@@ -85,14 +85,14 @@ export function MeasurementManager({ projectId, measurements }: Props) {
         ) : (
           <div className="space-y-4">
             {measurements.map((measurement) => (
-              <MeasurementEditForm key={measurement.id} projectId={projectId} measurement={measurement} />
+              <MeasurementEditForm key={measurement.id} jobId={jobId} measurement={measurement} />
             ))}
           </div>
         )}
       </section>
 
       {measurements.length > 0 && (
-        <DeletableMeasurementList projectId={projectId} measurements={measurements} />
+        <DeletableMeasurementList jobId={jobId} measurements={measurements} />
       )}
     </div>
   );

@@ -5,7 +5,7 @@ import type { Measurement } from "@prisma/client";
 import {
   updateMeasurementWithState,
   type MeasurementFormState,
-} from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/measurement-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
 import {
@@ -30,10 +30,10 @@ function textCls(error?: string) {
  * form.
  */
 export function MeasurementEditForm({
-  projectId,
+  jobId,
   measurement,
 }: {
-  projectId: string;
+  jobId: string;
   measurement: Measurement;
 }) {
   const [state, formAction] = useActionState<MeasurementFormState, FormData>(
@@ -48,7 +48,7 @@ export function MeasurementEditForm({
       <FormError message={state.formError} />
       <form action={formAction} className="rounded-3xl border border-hairline bg-surface-raised p-5">
         <input type="hidden" name="measurementId" value={measurement.id} />
-        <input type="hidden" name="projectId" value={projectId} />
+        <input type="hidden" name="jobId" value={jobId} />
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div>

@@ -1,5 +1,5 @@
 /**
- * Import a folder of drone photos into a new project so the full 3D pipeline can
+ * Import a folder of drone photos into a new job so the full 3D pipeline can
  * be run end-to-end without clicking through the upload UI.
  *
  * Run (Node loads .env and strips TS types):
@@ -7,7 +7,7 @@
  * or:
  *   npm run import:photos -- "/path/to/photos"
  *
- * The project is attached to OWNER_EMAIL's company (default admin@aernova.ca) so
+ * The job is attached to OWNER_EMAIL's company (default admin@aernova.ca) so
  * it shows up for the signed-in user; if that user/company doesn't exist yet it
  * provisions a fallback workspace. Each photo is stored via the same storage
  * driver and metadata extractor the upload action uses.
@@ -67,7 +67,7 @@ async function main() {
 
   const { user, company } = await resolveCompany();
 
-  const project = await prisma.project.create({
+  const job = await prisma.job.create({
     data: {
       companyId: company.id,
       createdById: user.id,
@@ -88,7 +88,7 @@ async function main() {
   for (const [index, name] of files.entries()) {
     const bytes = readFileSync(path.join(PHOTO_DIR, name));
     const storedName = `${randomUUID()}${path.extname(name).toLowerCase() || ".jpg"}`;
-    const { url } = await storage.put(`imagery/${project.id}/${storedName}`, bytes, "image/jpeg");
+    const { url } = await storage.put(`imagery/${job.id}/${storedName}`, bytes, "image/jpeg");
     const meta = parseDroneImageMetadata(bytes, name);
 
     const metadataJson = {
@@ -107,7 +107,7 @@ async function main() {
 
     await prisma.projectImagery.create({
       data: {
-        projectId: project.id,
+        jobId: job.id,
         type: "DRONE",
         status: "UPLOADED",
         url,
@@ -127,13 +127,13 @@ async function main() {
 
   console.log(`\n✅ Imported ${files.length} photos`);
   console.log(`   Company:  ${company.name} (${company.id})`);
-  console.log(`   Project:  ${project.name} → /projects/${project.id}`);
+  console.log(`   Job:  ${job.name} → /jobs/${job.id}`);
   console.log(`   Geotags:  ${geotagged}/${files.length}`);
   console.log(`   Capture QA: score ${qa.score} — ${qa.label}`);
 
   // Hands-off step 3: auto-submit to NodeODM when a worker is reachable.
   if (process.env.IMPORT_ONLY === "1") {
-    console.log(`\nIMPORT_ONLY set — skipping processing. Open the project and Queue 3D Processing when ready.`);
+    console.log(`\nIMPORT_ONLY set — skipping processing. Open the job and Queue 3D Processing when ready.`);
     return;
   }
   if (!isNodeOdmConfigured()) {
@@ -147,9 +147,9 @@ async function main() {
   }
 
   try {
-    const { taskUuid } = await queueNodeOdmReconstruction(project.id, project.name, "standard");
+    const { taskUuid } = await queueNodeOdmReconstruction(job.id, job.name, "standard");
     console.log(`\n🚀 Submitted to NodeODM — task ${taskUuid}`);
-    console.log(`   Watch progress: open /projects/${project.id} (auto-polls), or POST /api/projects/${project.id}/processing/sync`);
+    console.log(`   Watch progress: open /jobs/${job.id} (auto-polls), or POST /api/jobs/${job.id}/processing/sync`);
   } catch (error) {
     console.log(`\n⚠️  Import succeeded but processing submit failed: ${error instanceof Error ? error.message : error}`);
     console.log(`   Fix the issue and Queue 3D Processing from the UI.`);

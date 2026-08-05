@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { RoofSection } from "@prisma/client";
-import { deleteRoofSectionAction } from "@/app/(dashboard)/projects/[projectId]/section-actions";
+import { deleteRoofSectionAction } from "@/app/(dashboard)/jobs/[jobId]/section-actions";
 import { useUndoToast } from "@/components/dashboard/undo-toast";
 import { BulkActionBar } from "@/components/dashboard/bulk-action-bar";
 import { SectionEditForm } from "@/components/dashboard/section-edit-form";
@@ -14,10 +14,10 @@ import { SectionEditForm } from "@/components/dashboard/section-edit-form";
  * delete needs client deferral.
  */
 export function DeletableSectionList({
-  projectId,
+  jobId,
   sections,
 }: {
-  projectId: string;
+  jobId: string;
   sections: RoofSection[];
 }) {
   const { show } = useUndoToast();
@@ -66,7 +66,7 @@ export function DeletableSectionList({
       onCommit: () => {
         for (const id of ids) {
           const formData = new FormData();
-          formData.set("projectId", projectId);
+          formData.set("jobId", jobId);
           formData.set("sectionId", id);
           void deleteRoofSectionAction(formData).catch((error) =>
             console.error("[section] delete failed", error)
@@ -122,7 +122,7 @@ export function DeletableSectionList({
 
       {visible.map((section) => (
         <div key={section.id} className="rounded-2xl border border-hairline bg-ground/45 p-4">
-          <SectionEditForm projectId={projectId} section={section} />
+          <SectionEditForm jobId={jobId} section={section} />
           <div className="mt-3 flex items-center gap-4">
             <label className="flex items-center gap-2 text-sm text-ink-muted">
               <input

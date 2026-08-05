@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Measurement } from "@prisma/client";
-import { deleteMeasurementAction } from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
+import { deleteMeasurementAction } from "@/app/(dashboard)/jobs/[jobId]/measurement-actions";
 import { measurementTypeLabel } from "@/lib/format";
 import { useUndoToast } from "@/components/dashboard/undo-toast";
 import { BulkActionBar } from "@/components/dashboard/bulk-action-bar";
@@ -17,10 +17,10 @@ import { BulkActionBar } from "@/components/dashboard/bulk-action-bar";
  * the one-off case, and the checkboxes are the accelerator (Nielsen #7).
  */
 export function DeletableMeasurementList({
-  projectId,
+  jobId,
   measurements,
 }: {
-  projectId: string;
+  jobId: string;
   measurements: Measurement[];
 }) {
   const { show } = useUndoToast();
@@ -70,7 +70,7 @@ export function DeletableMeasurementList({
         for (const id of ids) {
           const formData = new FormData();
           formData.set("measurementId", id);
-          formData.set("projectId", projectId);
+          formData.set("jobId", jobId);
           void deleteMeasurementAction(formData).catch((error) =>
             console.error("[measurement] delete failed", error)
           );

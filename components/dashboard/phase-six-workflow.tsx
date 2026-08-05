@@ -6,14 +6,14 @@ import {
   RoofComparison,
 } from "@prisma/client";
 import type { SavedMeasurement } from "@/components/dashboard/measure-viewer";
-import type { ModelMeasurementKind } from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
+import type { ModelMeasurementKind } from "@/app/(dashboard)/jobs/[jobId]/model-measurement-actions";
 import { ComparisonCreateForm } from "@/components/dashboard/comparison-create-form";
 import { DeletableItem } from "@/components/dashboard/deletable-item";
-import { deleteComparisonAction } from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
+import { deleteComparisonAction } from "@/app/(dashboard)/jobs/[jobId]/phase-six-actions";
 import {
   generateEstimateFromMeasurementsAction,
-  saveModelMeasurementsToProjectAction,
-} from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
+  saveModelMeasurementsToJobAction,
+} from "@/app/(dashboard)/jobs/[jobId]/model-measurement-actions";
 import { ImageryUploadForm } from "@/components/dashboard/imagery-upload-form";
 import { MeasureViewer } from "@/components/dashboard/measure-viewer";
 import { ProcessingJobPoller } from "@/components/dashboard/processing-job-poller";
@@ -26,7 +26,7 @@ import {
 import type { NodeOdmWorkerHealth } from "@/lib/nodeodm-client";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   imagery: ProjectImagery[];
   processingJobs: ProcessingJob[];
   workerHealth: NodeOdmWorkerHealth;
@@ -105,7 +105,7 @@ function StepCard({
 }
 
 export function PhaseSixWorkflow({
-  projectId,
+  jobId,
   imagery,
   processingJobs,
   workerHealth,
@@ -159,7 +159,7 @@ export function PhaseSixWorkflow({
 
   return (
     <section className="min-w-0 max-w-full space-y-5 overflow-hidden">
-      <ProcessingJobPoller projectId={projectId} activeJobs={activeJob ? 1 : 0} />
+      <ProcessingJobPoller jobId={jobId} activeJobs={activeJob ? 1 : 0} />
 
       <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
         <h2 className="text-2xl font-semibold text-ink-primary">Roof scan</h2>
@@ -176,7 +176,7 @@ export function PhaseSixWorkflow({
         title="Add your drone photos"
         hint={hasPhotos ? `${photos.length} photo${photos.length === 1 ? "" : "s"} added` : "Upload the photos from your drone flight"}
       >
-        <ImageryUploadForm projectId={projectId} />
+        <ImageryUploadForm jobId={jobId} />
 
         {hasPhotos ? (
           <>
@@ -256,7 +256,7 @@ export function PhaseSixWorkflow({
               </p>
             ) : null}
             <ProcessingLauncher
-              projectId={projectId}
+              jobId={jobId}
               sourceImageCount={photos.length}
               workerConfigured={workerHealth.configured}
             />
@@ -289,16 +289,16 @@ export function PhaseSixWorkflow({
                   </p>
                   <MeasureViewer
                     glbUrl={glbUrl}
-                    projectId={projectId}
+                    jobId={jobId}
                     modelImageryId={latestModel.id}
                     initialMeasurements={savedMeasurements}
                   />
                   {/* Two real next steps once the roof is mapped: turn the faces
-                      into a priced quote now, or just save them to the project to
+                      into a priced quote now, or just save them to the job to
                       return to later. Both act on what the roofer drew/detected. */}
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <form action={generateEstimateFromMeasurementsAction}>
-                      <input type="hidden" name="projectId" value={projectId} />
+                      <input type="hidden" name="jobId" value={jobId} />
                       <SubmitButton
                         pendingText="Building quote…"
                         className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
@@ -306,17 +306,17 @@ export function PhaseSixWorkflow({
                         Build the quote
                       </SubmitButton>
                     </form>
-                    <form action={saveModelMeasurementsToProjectAction}>
-                      <input type="hidden" name="projectId" value={projectId} />
+                    <form action={saveModelMeasurementsToJobAction}>
+                      <input type="hidden" name="jobId" value={jobId} />
                       <SubmitButton
                         pendingText="Saving…"
                         className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-lifted disabled:opacity-60"
                       >
-                        Save to the project
+                        Save to the job
                       </SubmitButton>
                     </form>
                     <span className="text-xs text-ink-muted">
-                      Build a priced quote now, or just save these to the project to come back to later.
+                      Build a priced quote now, or just save these to the job to come back to later.
                     </span>
                   </div>
                 </div>
@@ -342,14 +342,14 @@ export function PhaseSixWorkflow({
           <p className="text-sm text-ink-muted">
             Create a simple before/after sheet for the homeowner or insurance file.
           </p>
-          <ComparisonCreateForm projectId={projectId} />
+          <ComparisonCreateForm jobId={jobId} />
 
           {comparisons.length > 0 ? (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               {comparisons.map((comparison) => (
                 <div key={comparison.id} className="rounded-2xl border border-hairline bg-ground/45 p-4">
                   <DeletableItem
-                    projectId={projectId}
+                    jobId={jobId}
                     itemId={comparison.id}
                     idField="comparisonId"
                     label="Before & after sheet"

@@ -1,9 +1,10 @@
 import {
   Measurement,
   PhotoAsset,
-  Project,
+  Job,
   ProjectImagery,
-  Proposal,
+  Quote,
+  QuoteLineItem,
   RoofComparison,
   RoofIssue,
   RoofSection,
@@ -13,13 +14,15 @@ import {
   buildWasteRecommendation,
 } from "@/lib/roof-intelligence";
 import type { CostTotals, LineItem } from "@/lib/report-generator";
+import { formatAddress } from "@/lib/client-matching";
+import { jobAddress, jobClient, type JobLike } from "@/lib/job-identity";
 
 type ReportSection = {
   title: string;
   body: string;
 };
 
-type ParsedProposalPayload = {
+type ParsedQuotePayload = {
   summary?: {
     roofAreaSqft?: number;
     roofSquares?: number;
@@ -48,15 +51,19 @@ type ParsedProposalPayload = {
   plainTextScope?: string;
 };
 
-type ProjectReportInput = {
-  project: Project;
+type JobReportInput = {
+  // `JobLike` so the report reads the customer and address off the Client and
+  // Property relations when the caller includes them, and off the job's own
+  // deprecated columns when it doesn't.
+  job: Job & JobLike;
   measurements: Measurement[];
   sections: RoofSection[];
   issues: RoofIssue[];
   photos: PhotoAsset[];
   imagery: ProjectImagery[];
   comparisons: RoofComparison[];
-  proposals: Proposal[];
+  /** Newest first, with their rows — see the lineItems note below. */
+  quotes: (Quote & { lineItems?: QuoteLineItem[] })[];
 };
 
 //
@@ -117,11 +124,11 @@ function money(value: number | null) {
   return `$${value.toLocaleString()}`;
 }
 
-function parseProposal(proposal: Proposal | null): ParsedProposalPayload | null {
-  if (!proposal?.scopeOfWork) return null;
+function parseQuote(quote: Quote | null): ParsedQuotePayload | null {
+  if (!quote?.scopeOfWork) return null;
 
   try {
-    return JSON.parse(proposal.scopeOfWork);
+    return JSON.parse(quote.scopeOfWork);
   } catch {
     return null;
   }
@@ -133,18 +140,18 @@ function parseProposal(proposal: Proposal | null): ParsedProposalPayload | null 
 // =======================
 //
 
-export function buildProjectReportViewModel({
-  project,
+export function buildJobReportViewModel({
+  job,
   measurements,
   sections,
   issues,
   photos,
   imagery,
   comparisons,
-  proposals,
-}: ProjectReportInput) {
-  const latestProposal = proposals[0] ?? null;
-  const parsedProposal = parseProposal(latestProposal);
+  quotes,
+}: JobReportInput) {
+  const latestQuote = quotes[0] ?? null;
+  const parsedQuote = parseQuote(latestQuote);
 
   //
   // ===== RAW VALUES =====
@@ -200,7 +207,7 @@ export function buildProjectReportViewModel({
   //
 
   const reportSections =
-    parsedProposal?.sections ??
+    parsedQuote?.sections ??
     [
       {
         title: "Roof Measurements Summary",
@@ -225,21 +232,19 @@ export function buildProjectReportViewModel({
 
   return {
     cover: {
-      title: `${project.name} Report`,
-      subtitle: "Roof Measurement & Proposal Summary",
-      projectName: project.name,
-      clientName: project.clientName,
-      address: `${project.addressLine1}, ${project.city}, ${project.province}${
-        project.postalCode ? ` ${project.postalCode}` : ""
-      }`,
-      captureSource: project.captureSource,
-      status: project.status,
+      title: `${job.name} Report`,
+      subtitle: "Roof Measurement & Quote Summary",
+      jobName: job.name,
+      clientName: jobClient(job).name,
+      address: formatAddress(jobAddress(job)) ?? "",
+      captureSource: job.captureSource,
+      status: job.status,
     },
 
     measurementsSummary: {
       totalAreaDisplay,
       predominantPitch: pitchDisplay,
-      totalFacets: parsedProposal?.summary?.totalFacets ?? null,
+      totalFacets: parsedQuote?.summary?.totalFacets ?? null,
       ridgesHipsFt,
       valleysFt: valley,
       rakesFt: rake,
@@ -249,23 +254,38 @@ export function buildProjectReportViewModel({
     },
 
     pricingSummary: {
-      totalAmount: latestProposal?.totalAmount ?? null,
+      totalAmountCents: latestQuote?.totalAmountCents ?? null,
       materialCost:
-        parsedProposal?.summary?.estimatedMaterialCost ?? null,
+        parsedQuote?.summary?.estimatedMaterialCost ?? null,
       laborCost:
-        parsedProposal?.summary?.estimatedLaborCost ?? null,
+        parsedQuote?.summary?.estimatedLaborCost ?? null,
       accessoryCost:
-        parsedProposal?.summary?.estimatedAccessoryCost ?? null,
+        parsedQuote?.summary?.estimatedAccessoryCost ?? null,
       disposalCost:
-        parsedProposal?.summary?.disposalCost ?? null,
+        parsedQuote?.summary?.disposalCost ?? null,
       suggestedSquares:
-        parsedProposal?.summary?.suggestedSquares ?? null,
+        parsedQuote?.summary?.suggestedSquares ?? null,
       shingleBundles:
-        parsedProposal?.summary?.shingleBundles ?? null,
+        parsedQuote?.summary?.shingleBundles ?? null,
     },
 
-    lineItems: parsedProposal?.lineItems ?? [],
-    totals: parsedProposal?.totals ?? null,
+    // Rows first, the legacy blob second. Generated quotes stopped storing
+    // their line items in `scopeOfWork` when the document became real rows
+    // (Phase 3); quotes written before that still carry theirs in the JSON, and
+    // a printed report from last month must not come back blank.
+    lineItems:
+      latestQuote?.lineItems && latestQuote.lineItems.length > 0
+        ? latestQuote.lineItems
+            .filter((line) => line.kind !== "TEXT")
+            .map((line) => ({
+              description: line.name,
+              quantity: line.quantity,
+              unit: line.unit,
+              unitCost: line.unitPriceCents / 100,
+              amount: line.amountCents / 100,
+            }))
+        : (parsedQuote?.lineItems ?? []),
+    totals: parsedQuote?.totals ?? null,
 
     sections: sectionsData,
     pitchBreakdown: buildPitchBreakdown(sections),
@@ -275,7 +295,7 @@ export function buildProjectReportViewModel({
     imagery,
     comparisons,
     reportSections,
-    latestProposal,
+    latestQuote,
     totalAreaSqft: area,
   };
 }

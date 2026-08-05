@@ -4,8 +4,8 @@
  * Kept free of imports so the policy is directly unit-testable (and loadable
  * under plain Node), while lib/ai/rate-limit.ts owns the counting.
  *
- * Limits are grounded in the feature's cost model: a typical project sees ~15 AI
- * questions (~$0.15); 50/day caps a single project near the ~$0.50 worst case
+ * Limits are grounded in the feature's cost model: a typical job sees ~15 AI
+ * questions (~$0.15); 50/day caps a single job near the ~$0.50 worst case
  * modelled for a "chatty power user". The per-minute rule is a separate concern
  * — it stops a runaway loop or stuck client retry burning the daily budget in
  * seconds.
@@ -47,7 +47,7 @@ export function evaluateAiLimits(counts: {
     return {
       allowed: false,
       reason: "project_daily",
-      message: `This project has hit its daily limit of ${AI_LIMITS.perProjectPerDay} AI messages. It resets over the next 24 hours.`,
+      message: `This job has hit its daily limit of ${AI_LIMITS.perProjectPerDay} AI messages. It resets over the next 24 hours.`,
       retryAfterSeconds: 3600,
     };
   }

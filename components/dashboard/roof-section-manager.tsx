@@ -4,11 +4,11 @@ import { SectionCreateForm } from "@/components/dashboard/section-create-form";
 import { buildRoofSectionTotals } from "@/lib/roof-intelligence";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   sections: RoofSection[];
 };
 
-export function RoofSectionManager({ projectId, sections }: Props) {
+export function RoofSectionManager({ jobId, sections }: Props) {
   const totals = buildRoofSectionTotals(sections);
 
   return (
@@ -28,10 +28,10 @@ export function RoofSectionManager({ projectId, sections }: Props) {
         ))}
       </div>
 
-      <SectionCreateForm projectId={projectId} />
+      <SectionCreateForm jobId={jobId} />
 
       <div className="mt-6 space-y-4">
-        <DeletableSectionList projectId={projectId} sections={sections} />
+        <DeletableSectionList jobId={jobId} sections={sections} />
       </div>
     </section>
   );

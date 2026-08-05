@@ -2,20 +2,22 @@ import { UserButton } from "@clerk/nextjs";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 import { UndoToastProvider } from "@/components/dashboard/undo-toast";
+import { QuickCreateMenu } from "@/components/dashboard/quick-create-menu";
 import { requireCompanyContext } from "@/lib/auth";
+import { can } from "@/lib/permissions";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { company, user } = await requireCompanyContext();
+  const { company, user, role } = await requireCompanyContext();
   const displayName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
 
   return (
     <UndoToastProvider>
       <div className="grid min-h-screen w-full max-w-full grid-cols-1 overflow-x-hidden lg:grid-cols-[260px_minmax(0,1fr)]">
-        <AppSidebar />
+        <AppSidebar role={role} />
         <div className="flex min-h-screen min-w-0 flex-col">
           <header className="flex h-16 min-w-0 items-center justify-between gap-4 border-b border-hairline px-4 md:px-6">
             <div className="min-w-0">
@@ -24,6 +26,10 @@ export default async function DashboardLayout({
             </div>
 
             <div className="flex shrink-0 items-center gap-3">
+              {/* Absent for crew and the office role, same as "New job" in the
+                  sidebar — reaching a create-something-new button is a
+                  question of role, not of which page you happen to be on. */}
+              {can(role, "editJob") ? <QuickCreateMenu /> : null}
               <ThemeToggle />
               <UserButton />
             </div>

@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-export function ImageryUploadForm({ projectId }: { projectId: string }) {
+export function ImageryUploadForm({ jobId }: { jobId: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -37,7 +37,7 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
     setIsUploading(true);
 
     const formData = new FormData(event.currentTarget);
-    const response = await fetch(`/api/projects/${projectId}/imagery`, {
+    const response = await fetch(`/api/jobs/${jobId}/imagery`, {
       method: "POST",
       body: formData,
     });

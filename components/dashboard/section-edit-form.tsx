@@ -5,7 +5,7 @@ import type { RoofSection } from "@prisma/client";
 import {
   updateRoofSectionWithState,
   type SectionFormState,
-} from "@/app/(dashboard)/projects/[projectId]/section-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/section-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
 
@@ -19,10 +19,10 @@ const FIELD =
  * recovery contract as the create form.
  */
 export function SectionEditForm({
-  projectId,
+  jobId,
   section,
 }: {
-  projectId: string;
+  jobId: string;
   section: RoofSection;
 }) {
   const [state, formAction] = useActionState<SectionFormState, FormData>(
@@ -36,7 +36,7 @@ export function SectionEditForm({
     <>
       <FormError message={state.formError} />
       <form action={formAction} className="grid gap-3 md:grid-cols-4 xl:grid-cols-9">
-        <input type="hidden" name="projectId" value={projectId} />
+        <input type="hidden" name="jobId" value={jobId} />
         <input type="hidden" name="sectionId" value={section.id} />
         <div className="md:col-span-2">
           <input

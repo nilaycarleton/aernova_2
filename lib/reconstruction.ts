@@ -36,10 +36,10 @@ export type ProcessingReadiness = {
   hasActiveJob: boolean;
 };
 
-export function loadSourceImages(projectId: string) {
+export function loadSourceImages(jobId: string) {
   return prisma.projectImagery.findMany({
     where: {
-      projectId,
+      jobId,
       type: { in: ["DRONE", "ORTHOMOSAIC"] },
       NOT: { status: "FAILED" },
     },
@@ -68,9 +68,9 @@ export function captureBlockingReason(images: SourceImage[], cap: number) {
 
 // True when a NodeODM job for this exact source set is already queued/processing,
 // so a re-click (or re-run) can't create a duplicate (paid) task.
-export async function hasActiveNodeOdmJob(projectId: string, sourceImageIds: string[]) {
+export async function hasActiveNodeOdmJob(jobId: string, sourceImageIds: string[]) {
   const active = await prisma.processingJob.findMany({
-    where: { projectId, provider: "nodeodm", status: { in: ["QUEUED", "PROCESSING"] } },
+    where: { jobId, provider: "nodeodm", status: { in: ["QUEUED", "PROCESSING"] } },
     select: { sourceImageIds: true },
   });
   const target = [...sourceImageIds].sort().join(",");
@@ -83,13 +83,13 @@ export async function hasActiveNodeOdmJob(projectId: string, sourceImageIds: str
 }
 
 // Free, no-write readiness check + draft estimate.
-export async function buildProcessingReadiness(projectId: string): Promise<ProcessingReadiness> {
-  const sourceImages = await loadSourceImages(projectId);
+export async function buildProcessingReadiness(jobId: string): Promise<ProcessingReadiness> {
+  const sourceImages = await loadSourceImages(jobId);
   const cap = nodeOdmMaxImages();
   const quality = buildCaptureQualityProfile(sourceImages);
   const blockingReason = captureBlockingReason(sourceImages, cap);
   const hasActiveJob = await hasActiveNodeOdmJob(
-    projectId,
+    jobId,
     sourceImages.map((image) => image.id)
   );
   const draft = buildPhotogrammetryModelPackage(sourceImages);
@@ -113,20 +113,20 @@ export async function buildProcessingReadiness(projectId: string): Promise<Proce
 }
 
 /**
- * Submit the project's source imagery to NodeODM and persist the MODEL record +
+ * Submit the job's source imagery to NodeODM and persist the MODEL record +
  * ProcessingJob. Applies the same quality/cap/duplicate gate as the UI. Throws a
  * human-readable error if the set is not processable or NODEODM is unconfigured.
  */
 export async function queueNodeOdmReconstruction(
-  projectId: string,
+  jobId: string,
   label: string,
   quality: "standard" | "high"
 ): Promise<{ modelId: string; taskUuid: string }> {
-  const sourceImages = await loadSourceImages(projectId);
+  const sourceImages = await loadSourceImages(jobId);
 
   const blockingReason = captureBlockingReason(sourceImages, nodeOdmMaxImages());
   if (blockingReason) throw new Error(blockingReason);
-  if (await hasActiveNodeOdmJob(projectId, sourceImages.map((image) => image.id))) {
+  if (await hasActiveNodeOdmJob(jobId, sourceImages.map((image) => image.id))) {
     throw new Error(
       "A reconstruction for this image set is already in progress. Wait for it to finish or sync the worker."
     );
@@ -137,7 +137,7 @@ export async function queueNodeOdmReconstruction(
 
   const model = await prisma.projectImagery.create({
     data: {
-      projectId,
+      jobId,
       type: "MODEL",
       status: "QUEUED",
       url: (buildNodeOdmModelPackage(sourceImages, {
@@ -173,15 +173,15 @@ export async function queueNodeOdmReconstruction(
         quality,
         taskUuid: nodeTask.uuid,
         processingStatus: "queued",
-        downloadUrl: nodeOdmDownloadUrl(projectId, model.id),
-        assetUrls: nodeOdmAssetUrls(projectId, model.id),
+        downloadUrl: nodeOdmDownloadUrl(jobId, model.id),
+        assetUrls: nodeOdmAssetUrls(jobId, model.id),
       }) as unknown as Prisma.InputJsonValue,
     },
   });
 
   await prisma.processingJob.create({
     data: {
-      projectId,
+      jobId,
       modelImageryId: model.id,
       provider: "nodeodm",
       providerTaskId: nodeTask.uuid,
@@ -190,7 +190,7 @@ export async function queueNodeOdmReconstruction(
       sourceImageIds: sourceImages.map((image) => image.id),
       optionsJson: nodeTask.options as unknown as Prisma.InputJsonValue,
       outputsJson: {
-        assetUrls: nodeOdmAssetUrls(projectId, model.id),
+        assetUrls: nodeOdmAssetUrls(jobId, model.id),
         manifestUrl: null,
       },
     },

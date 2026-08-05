@@ -5,12 +5,13 @@ import {
   imageryTypeLabel,
   processingStatusLabel,
 } from "@/lib/format";
+import { formatMoney } from "@/lib/money";
 
 type ReportVm = {
   cover: {
     title: string;
     subtitle: string;
-    projectName: string;
+    jobName: string;
     clientName: string;
     address: string;
     captureSource: string;
@@ -28,7 +29,11 @@ type ReportVm = {
     wasteDisplay: string;
   };
   pricingSummary: {
-    totalAmount: number | null;
+    /** Cents — the authoritative stored total. See lib/money.ts. */
+    totalAmountCents: number | null;
+    // The breakdown below is still dollars: it is read out of the quote's
+    // scopeOfWork JSON, which report-generator writes in dollars. Both move to
+    // cents when line items become real rows.
     materialCost: number | null;
     laborCost: number | null;
     accessoryCost: number | null;
@@ -176,7 +181,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
           </div>
 
           <div className="rounded-2xl border border-paper-rule bg-paper-inset p-5 text-sm">
-            <div><span className="font-semibold">Project:</span> {report.cover.projectName}</div>
+            <div><span className="font-semibold">Job:</span> {report.cover.jobName}</div>
             <div className="mt-2"><span className="font-semibold">Client:</span> {report.cover.clientName}</div>
             <div className="mt-2"><span className="font-semibold">Address:</span> {report.cover.address}</div>
             <div className="mt-2"><span className="font-semibold">Capture Source:</span> {report.cover.captureSource}</div>
@@ -253,7 +258,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
       <section className="rounded-3xl border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Pricing & Material Summary</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div className="rounded-2xl bg-paper-inset p-4">Estimated Total: {money(report.pricingSummary.totalAmount)}</div>
+          <div className="rounded-2xl bg-paper-inset p-4">Estimated Total: {report.pricingSummary.totalAmountCents === null ? "—" : formatMoney(report.pricingSummary.totalAmountCents)}</div>
           <div className="rounded-2xl bg-paper-inset p-4">Material Cost: {money(report.pricingSummary.materialCost)}</div>
           <div className="rounded-2xl bg-paper-inset p-4">Labor Cost: {money(report.pricingSummary.laborCost)}</div>
           <div className="rounded-2xl bg-paper-inset p-4">Accessory Cost: {money(report.pricingSummary.accessoryCost)}</div>
@@ -526,7 +531,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
       <section className="rounded-3xl border border-paper-rule p-6 text-sm text-paper-ink-muted">
         <h2 className="text-lg font-semibold text-paper-ink">Notes & Disclaimer</h2>
         <p className="mt-3 leading-7">
-          This report is intended to support roofing estimation, proposal drafting, and project planning.
+          This report is intended to support roofing estimation, quote drafting, and job planning.
           Measurements, waste recommendations, material quantities, and pricing should be field-verified before
           final ordering or installation. Site conditions, crew methods, decking condition, accessory selection,
           and local code requirements may change final scope and totals.

@@ -10,7 +10,7 @@ import path from "path";
  *  - "s3"     → puts objects in an S3-compatible bucket (AWS S3 or Cloudflare
  *               R2) and serves them from STORAGE_PUBLIC_BASE_URL/<key>.
  *
- * Callers pass a stable key (e.g. "imagery/<projectId>/<file>") and store the
+ * Callers pass a stable key (e.g. "imagery/<jobId>/<file>") and store the
  * returned `url` on the record. Swapping drivers is an env change only.
  */
 
@@ -42,6 +42,31 @@ export function keyFromUrl(url: string): string {
     return normalizeKey(new URL(url).pathname.replace(/^\/uploads\//, ""));
   } catch {
     return normalizeKey(url);
+  }
+}
+
+/**
+ * Is this URL one we minted?
+ *
+ * Anywhere a stored URL makes the round trip through a browser — the quote
+ * builder posts its rows as JSON, photo URLs included — it comes back as an
+ * arbitrary string. Round-tripping through the active driver is the cheap proof
+ * that it names an object in our own storage, and without it a quote row is an
+ * arbitrary remote image on a page we hand to a homeowner.
+ */
+export function isOwnStorageUrl(url: string): boolean {
+  if (!url) return false;
+  try {
+    const key = keyFromUrl(url);
+    // `/uploads/../../etc/passwd` round-trips through the local driver
+    // unchanged, so the round trip alone would call it ours. A key with a `..`
+    // segment is never one we minted — every key we write is a fixed prefix and
+    // a UUID — and the moment such a key reaches `getBytes` it is a read
+    // outside the uploads root.
+    if (key.split("/").includes("..")) return false;
+    return storage.url(key) === url;
+  } catch {
+    return false;
   }
 }
 

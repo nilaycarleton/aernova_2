@@ -3,8 +3,8 @@ import {
   CompanyRole,
   MeasurementType,
   MeasurementUnit,
-  ProjectStatus,
-  ProposalStatus,
+  JobStatus,
+  QuoteStatus,
   IssueSeverity,
   PrismaClient,
 } from "@prisma/client";
@@ -47,7 +47,7 @@ async function main() {
     },
   });
 
-  const project = await prisma.project.create({
+  const job = await prisma.job.create({
     data: {
       companyId: company.id,
       createdById: user.id,
@@ -55,13 +55,13 @@ async function main() {
       clientName: "North Peak Roofing",
       clientEmail: "client@example.com",
       clientPhone: "555-123-4567",
-      status: ProjectStatus.READY_FOR_QUOTE,
+      status: JobStatus.READY_FOR_QUOTE,
       captureSource: CaptureSource.DRONE,
       addressLine1: "145 Maple Street",
       city: "Brampton",
       province: "ON",
       postalCode: "L6X 0A1",
-      notes: "Drone capture complete. Waiting on final proposal send.",
+      notes: "Drone capture complete. Waiting on final quote send.",
       sections: {
         create: [
           {
@@ -148,12 +148,15 @@ async function main() {
           },
         ],
       },
-      proposals: {
+      quotes: {
         create: [
           {
-            title: "Full replacement proposal",
-            status: ProposalStatus.DRAFT,
+            companyId: company.id,
+            quoteNumber: 1,
+            title: "Full replacement quote",
+            status: QuoteStatus.DRAFT,
             totalAmount: 8950,
+            totalAmountCents: 895000,
             scopeOfWork:
               "Remove old shingles, replace damaged underlayment areas, install new architectural shingles, replace flashing, install ridge cap, cleanup site.",
           },
@@ -162,7 +165,7 @@ async function main() {
     },
   });
 
-  console.log("Seeded project:", project.name);
+  console.log("Seeded job:", job.name);
 }
 
 main()

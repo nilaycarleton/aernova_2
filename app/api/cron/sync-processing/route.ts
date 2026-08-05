@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 /**
  * Unattended sweep that advances every in-flight NodeODM MODEL job. Point a
  * scheduler at this (Vercel Cron, GitHub Actions, or any external pinger) so
- * queued reconstructions reach READY without a human refreshing a project.
+ * queued reconstructions reach READY without a human refreshing a job.
  *
  * Auth: when CRON_SECRET is set, callers must send `Authorization: Bearer
  * <CRON_SECRET>` (the header Vercel Cron sends). If it is unset the route is

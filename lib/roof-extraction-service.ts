@@ -65,8 +65,8 @@ async function resolveLocalMesh(taskUuid: string): Promise<{ assetPath: string; 
 // Per-model cache key for an OBJ downloaded from a remote node, kept next to the
 // other processing outputs (S3 or local disk) so a second extraction does not
 // re-download it.
-function meshCacheKey(projectId: string, imageryId: string) {
-  return `processing/${projectId}/${imageryId}/mesh-extract.obj`;
+function meshCacheKey(jobId: string, imageryId: string) {
+  return `processing/${jobId}/${imageryId}/mesh-extract.obj`;
 }
 
 /**
@@ -77,18 +77,18 @@ function meshCacheKey(projectId: string, imageryId: string) {
  */
 async function resolveMeshText(
   taskUuid: string,
-  projectId: string,
+  jobId: string,
   imageryId: string
 ): Promise<{ assetPath: string; text: string } | null> {
   const local = await resolveLocalMesh(taskUuid);
   if (local) return local;
 
-  const cached = await storage.getBytes(meshCacheKey(projectId, imageryId));
+  const cached = await storage.getBytes(meshCacheKey(jobId, imageryId));
   if (cached) return { assetPath: "cache/mesh-extract.obj", text: cached.toString("utf8") };
 
   const fromZip = await meshFromZip(taskUuid);
   if (fromZip) {
-    await storage.put(meshCacheKey(projectId, imageryId), Buffer.from(fromZip.text, "utf8"), "text/plain");
+    await storage.put(meshCacheKey(jobId, imageryId), Buffer.from(fromZip.text, "utf8"), "text/plain");
     return fromZip;
   }
   return null;
@@ -116,11 +116,11 @@ async function meshFromZip(taskUuid: string): Promise<{ assetPath: string; text:
  * max vertex elevation falling in them (a simple DSM), normalised to 0-255.
  */
 export async function buildPlanPreviewForModel(
-  projectId: string,
+  jobId: string,
   imageryId: string,
   maxWidth = 220
 ): Promise<PlanPreview> {
-  const { mesh } = await loadModelMesh(projectId, imageryId);
+  const { mesh } = await loadModelMesh(jobId, imageryId);
   let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity, zMin = Infinity, zMax = -Infinity;
   for (const v of mesh.vertices) {
     if (v[0] < xMin) xMin = v[0];
@@ -248,18 +248,18 @@ function suggestFootprintPolygon(
  * in-3D annotation tools depend on (the GLB is in a different frame).
  */
 export async function resolveModelMeshText(
-  projectId: string,
+  jobId: string,
   imageryId: string
 ): Promise<{ assetPath: string; text: string }> {
   const model = await prisma.projectImagery.findFirst({
-    where: { id: imageryId, projectId, type: "MODEL" },
+    where: { id: imageryId, jobId, type: "MODEL" },
   });
   if (!model) throw new Error("Model imagery record was not found");
 
   const taskUuid = getModelTaskUuid(model.metadataJson);
   if (!taskUuid) throw new Error("This model is not linked to a NodeODM task with a 3D mesh");
 
-  const resolved = await resolveMeshText(taskUuid, projectId, imageryId);
+  const resolved = await resolveMeshText(taskUuid, jobId, imageryId);
   if (!resolved) {
     throw new Error(
       "The ODM mesh for this model could not be loaded. Make sure the worker task is complete, then sync it and try again."
@@ -278,11 +278,11 @@ const TEXTURED_MESH_ASSET = "odm_texturing/odm_textured_model_geo.obj";
  * auto-detect. Local disk first, then a per-model cache, then the worker zip.
  */
 export async function resolveTexturedModelMeshText(
-  projectId: string,
+  jobId: string,
   imageryId: string
 ): Promise<{ assetPath: string; text: string }> {
   const model = await prisma.projectImagery.findFirst({
-    where: { id: imageryId, projectId, type: "MODEL" },
+    where: { id: imageryId, jobId, type: "MODEL" },
   });
   if (!model) throw new Error("Model imagery record was not found");
   const taskUuid = getModelTaskUuid(model.metadataJson);
@@ -291,7 +291,7 @@ export async function resolveTexturedModelMeshText(
   const local = await readFile(path.join(nodeOdmDataDir(), taskUuid, TEXTURED_MESH_ASSET), "utf8").catch(() => null);
   if (local) return { assetPath: TEXTURED_MESH_ASSET, text: local };
 
-  const cacheKey = `processing/${projectId}/${imageryId}/mesh-textured.obj`;
+  const cacheKey = `processing/${jobId}/${imageryId}/mesh-textured.obj`;
   const cached = await storage.getBytes(cacheKey);
   if (cached) return { assetPath: "cache/mesh-textured.obj", text: cached.toString("utf8") };
 
@@ -313,11 +313,11 @@ export async function resolveTexturedModelMeshText(
 const texturedMeshCache = new Map<string, ParsedMesh>();
 
 /** Resolve + parse the textured (GLB-frame) mesh, cached per model in-process. */
-export async function resolveTexturedModelMesh(projectId: string, imageryId: string): Promise<ParsedMesh> {
-  const key = `${projectId}:${imageryId}`;
+export async function resolveTexturedModelMesh(jobId: string, imageryId: string): Promise<ParsedMesh> {
+  const key = `${jobId}:${imageryId}`;
   const cached = texturedMeshCache.get(key);
   if (cached) return cached;
-  const { text } = await resolveTexturedModelMeshText(projectId, imageryId);
+  const { text } = await resolveTexturedModelMeshText(jobId, imageryId);
   const mesh = parseObjMesh(text);
   if (texturedMeshCache.size >= 3) {
     const oldest = texturedMeshCache.keys().next().value;
@@ -327,16 +327,16 @@ export async function resolveTexturedModelMesh(projectId: string, imageryId: str
   return mesh;
 }
 
-async function loadModelMesh(projectId: string, imageryId: string) {
+async function loadModelMesh(jobId: string, imageryId: string) {
   const model = await prisma.projectImagery.findFirst({
-    where: { id: imageryId, projectId, type: "MODEL" },
+    where: { id: imageryId, jobId, type: "MODEL" },
   });
   if (!model) throw new Error("Model imagery record was not found");
 
   const taskUuid = getModelTaskUuid(model.metadataJson);
   if (!taskUuid) throw new Error("This model is not linked to a NodeODM task with a 3D mesh");
 
-  const resolved = await resolveMeshText(taskUuid, projectId, imageryId);
+  const resolved = await resolveMeshText(taskUuid, jobId, imageryId);
   if (!resolved) {
     throw new Error(
       "The ODM mesh for this model could not be loaded. Make sure the worker task is complete, then sync it and try again."
@@ -358,7 +358,7 @@ export type RoofExtractionResult = {
  * pipelines directly, replacing the formula-based placeholders.
  */
 export async function extractAndPersistRoof(
-  projectId: string,
+  jobId: string,
   imageryId: string,
   roiPolygon: { x: number; y: number }[]
 ): Promise<RoofExtractionResult> {
@@ -366,7 +366,7 @@ export async function extractAndPersistRoof(
     throw new Error("Draw a region of interest around the roof before extracting measurements");
   }
 
-  const { model, assetPath, mesh } = await loadModelMesh(projectId, imageryId);
+  const { model, assetPath, mesh } = await loadModelMesh(jobId, imageryId);
   const extraction = extractRoofMeasurements(mesh, { roiPolygon });
 
   if (extraction.facetCount === 0) {
@@ -383,7 +383,7 @@ export async function extractAndPersistRoof(
     roiPolygon,
     extraction,
   };
-  const manifestUrl = await writeExtractionManifest(projectId, imageryId, manifestPayload);
+  const manifestUrl = await writeExtractionManifest(jobId, imageryId, manifestPayload);
 
   const facetSections = extraction.facets.map((facet, index) => {
     const geometry: RoofFacetGeometry = {
@@ -396,7 +396,7 @@ export async function extractAndPersistRoof(
       extractor: "nodeodm-mesh-extraction",
     };
     return {
-      projectId,
+      jobId,
       label: `${FACET_LABEL_PREFIX} ${index + 1}`,
       planeIndex: index + 1,
       pitchRatio: facet.pitchRatio,
@@ -416,7 +416,7 @@ export async function extractAndPersistRoof(
     // that predate the source column via the historical label prefix.
     prisma.roofSection.deleteMany({
       where: {
-        projectId,
+        jobId,
         OR: [{ source: "auto" }, { source: null, label: { startsWith: FACET_LABEL_PREFIX } }],
       },
     }),
@@ -445,21 +445,21 @@ export async function extractAndPersistRoof(
     }),
   ]);
 
-  await upsertSummaryMeasurement(projectId, {
+  await upsertSummaryMeasurement(jobId, {
     type: MeasurementType.AREA,
     unit: MeasurementUnit.SQFT,
     label: "Roof surface area (mesh)",
     value: extraction.totalSurfaceAreaSqft,
     displayValue: `${extraction.totalSurfaceAreaSqft.toLocaleString()} sq ft`,
   });
-  await upsertSummaryMeasurement(projectId, {
+  await upsertSummaryMeasurement(jobId, {
     type: MeasurementType.PITCH,
     unit: MeasurementUnit.RATIO,
     label: "Predominant pitch (mesh)",
     value: extraction.predominantPitchDegrees,
     displayValue: extraction.predominantPitchRatio,
   });
-  await upsertSummaryMeasurement(projectId, {
+  await upsertSummaryMeasurement(jobId, {
     type: MeasurementType.FACET_COUNT,
     unit: MeasurementUnit.COUNT,
     label: "Roof facets (mesh)",
@@ -471,7 +471,7 @@ export async function extractAndPersistRoof(
 }
 
 async function upsertSummaryMeasurement(
-  projectId: string,
+  jobId: string,
   shape: {
     type: MeasurementType;
     unit: MeasurementUnit;
@@ -481,10 +481,10 @@ async function upsertSummaryMeasurement(
   }
 ) {
   const existing = await prisma.measurement.findFirst({
-    where: { projectId, label: shape.label, source: CaptureSource.DRONE },
+    where: { jobId, label: shape.label, source: CaptureSource.DRONE },
   });
   const data = {
-    projectId,
+    jobId,
     source: CaptureSource.DRONE,
     sortOrder: 10,
     confidence: null,
@@ -498,11 +498,11 @@ async function upsertSummaryMeasurement(
 }
 
 async function writeExtractionManifest(
-  projectId: string,
+  jobId: string,
   imageryId: string,
   payload: Prisma.InputJsonValue
 ) {
-  const key = `processing/${projectId}/${imageryId}/roof-extraction.json`;
+  const key = `processing/${jobId}/${imageryId}/roof-extraction.json`;
   await storage.put(key, Buffer.from(JSON.stringify(payload, null, 2)), "application/json");
   return storage.url(key);
 }

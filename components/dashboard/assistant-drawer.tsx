@@ -6,7 +6,7 @@ import { AiSummary } from "@/components/dashboard/ai-summary";
 
 /**
  * The roof assistant lives in a slide-over drawer, not inline. It used to sit as
- * a 520px panel between the project header and the workspace tabs, pushing the
+ * a 520px panel between the job header and the workspace tabs, pushing the
  * actual work below the fold. It is a helper, not a stage of the job — so it
  * gets a recessive floating trigger (never Instrument Cyan; that is reserved for
  * readouts) and opens on demand over a scrim.
@@ -15,7 +15,7 @@ import { AiSummary } from "@/components/dashboard/ai-summary";
  * survives closing the drawer and hidden content stays out of the tab order and
  * the accessibility tree.
  */
-export function AssistantDrawer({ projectId }: { projectId: string }) {
+export function AssistantDrawer({ jobId }: { jobId: string }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -77,9 +77,9 @@ export function AssistantDrawer({ projectId }: { projectId: string }) {
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <AiSummary projectId={projectId} />
+        <AiSummary jobId={jobId} />
         <div className="min-h-0 flex-1">
-          <RoofAssistant projectId={projectId} onClose={close} />
+          <RoofAssistant jobId={jobId} onClose={close} />
         </div>
       </div>
     </>

@@ -30,20 +30,20 @@ function stringArray(value: unknown) {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
-function manifestKey(projectId: string, imageryId: string) {
-  return `processing/${projectId}/${imageryId}/manifest.json`;
+function manifestKey(jobId: string, imageryId: string) {
+  return `processing/${jobId}/${imageryId}/manifest.json`;
 }
 
-export function processingManifestUrl(projectId: string, imageryId: string) {
-  return storage.url(manifestKey(projectId, imageryId));
+export function processingManifestUrl(jobId: string, imageryId: string) {
+  return storage.url(manifestKey(jobId, imageryId));
 }
 
 export async function writeProcessingOutputManifest(
-  projectId: string,
+  jobId: string,
   imageryId: string,
   payload: Prisma.InputJsonValue
 ) {
-  const key = manifestKey(projectId, imageryId);
+  const key = manifestKey(jobId, imageryId);
   await storage.put(key, Buffer.from(JSON.stringify(payload, null, 2)), "application/json");
   return storage.url(key);
 }
@@ -95,9 +95,9 @@ function measurementShape(measurement: ModelMeasurement) {
   };
 }
 
-export async function materializeDroneMeasurements(projectId: string, imageryId: string) {
+export async function materializeDroneMeasurements(jobId: string, imageryId: string) {
   const model = await prisma.projectImagery.findFirst({
-    where: { id: imageryId, projectId, type: "MODEL" },
+    where: { id: imageryId, jobId, type: "MODEL" },
   });
   const modelPackage = parsePhotogrammetryModelPackage(model?.extractedJson);
   if (!model || !modelPackage) throw new Error("Processed model package was not found");
@@ -112,14 +112,14 @@ export async function materializeDroneMeasurements(projectId: string, imageryId:
 
     const existing = await prisma.measurement.findFirst({
       where: {
-        projectId,
+        jobId,
         label: measurement.label,
         source: CaptureSource.DRONE,
       },
     });
 
     const data = {
-      projectId,
+      jobId,
       label: measurement.label,
       confidence: measurement.confidence,
       source: CaptureSource.DRONE,
@@ -140,11 +140,11 @@ export async function materializeDroneMeasurements(projectId: string, imageryId:
   return measurements.length;
 }
 
-export async function syncNodeOdmModelJob(projectId: string, imageryId: string) {
+export async function syncNodeOdmModelJob(jobId: string, imageryId: string) {
   const model = await prisma.projectImagery.findFirst({
     where: {
       id: imageryId,
-      projectId,
+      jobId,
       type: "MODEL",
     },
     include: {
@@ -175,7 +175,7 @@ export async function syncNodeOdmModelJob(projectId: string, imageryId: string) 
       : stringArray(metadata.sourceImageIds);
   const sourceImages = await prisma.projectImagery.findMany({
     where: {
-      projectId,
+      jobId,
       id: sourceImageIds.length > 0 ? { in: sourceImageIds } : undefined,
       type: { in: ["DRONE", "ORTHOMOSAIC"] },
     },
@@ -191,17 +191,17 @@ export async function syncNodeOdmModelJob(projectId: string, imageryId: string) 
         : status === "PROCESSING"
           ? "processing"
           : "queued";
-  const assetUrls = status === "READY" ? nodeOdmAssetUrls(projectId, imageryId) : undefined;
+  const assetUrls = status === "READY" ? nodeOdmAssetUrls(jobId, imageryId) : undefined;
   const outputsJson = {
     providerOutput: info.output ?? [],
     assetUrls: assetUrls ?? null,
     outputAssets: nodeOdmOutputAssets,
-    manifestUrl: status === "READY" ? processingManifestUrl(projectId, imageryId) : null,
+    manifestUrl: status === "READY" ? processingManifestUrl(jobId, imageryId) : null,
     syncedAt: new Date().toISOString(),
   } satisfies Prisma.InputJsonObject;
 
   if (status === "READY") {
-    await writeProcessingOutputManifest(projectId, imageryId, outputsJson);
+    await writeProcessingOutputManifest(jobId, imageryId, outputsJson);
   }
 
   const modelPackage = buildNodeOdmModelPackage(sourceImages, {
@@ -213,7 +213,7 @@ export async function syncNodeOdmModelJob(projectId: string, imageryId: string) 
     taskUuid,
     processingStatus,
     progress: info.progress ?? null,
-    downloadUrl: status === "READY" ? nodeOdmDownloadUrl(projectId, imageryId) : undefined,
+    downloadUrl: status === "READY" ? nodeOdmDownloadUrl(jobId, imageryId) : undefined,
     assetUrls,
     errorMessage: info.status.errorMessage,
   });
@@ -237,7 +237,7 @@ export async function syncNodeOdmModelJob(projectId: string, imageryId: string) 
     prisma.processingJob.upsert({
       where: { id: job?.id ?? "__missing_processing_job__" },
       create: {
-        projectId,
+        jobId,
         modelImageryId: imageryId,
         provider: "nodeodm",
         providerTaskId: taskUuid,
@@ -274,7 +274,7 @@ export type SyncSweepResult = {
   swept: number;
   advanced: number;
   jobs: {
-    projectId: string;
+    jobId: string;
     modelImageryId: string;
     status?: ProcessingStatus;
     progress?: number | null;
@@ -284,9 +284,9 @@ export type SyncSweepResult = {
 
 /**
  * Pull the current NodeODM status for every in-flight MODEL job across all
- * projects and advance it (queued -> processing -> ready/failed). This is the
- * unattended counterpart to the per-project sync route: a cron hits it so queued
- * reconstructions reach READY without a human opening the project and refreshing.
+ * jobs and advance it (queued -> processing -> ready/failed). This is the
+ * unattended counterpart to the per-job sync route: a cron hits it so queued
+ * reconstructions reach READY without a human opening the job and refreshing.
  * Bounded by `limit` so a single tick can't fan out unboundedly.
  */
 export async function syncAllInFlightModelJobs(limit = 25): Promise<SyncSweepResult> {
@@ -305,13 +305,13 @@ export async function syncAllInFlightModelJobs(limit = 25): Promise<SyncSweepRes
   for (const job of jobs) {
     if (!job.modelImageryId) continue;
     try {
-      const outcome = await syncNodeOdmModelJob(job.projectId, job.modelImageryId);
+      const outcome = await syncNodeOdmModelJob(job.jobId, job.modelImageryId);
       // "advanced" = left the in-flight set (reached a terminal state).
       if (outcome.status !== "QUEUED" && outcome.status !== "PROCESSING") advanced++;
-      results.push({ projectId: job.projectId, modelImageryId: job.modelImageryId, ...outcome });
+      results.push({ jobId: job.jobId, modelImageryId: job.modelImageryId, ...outcome });
     } catch (error) {
       results.push({
-        projectId: job.projectId,
+        jobId: job.jobId,
         modelImageryId: job.modelImageryId,
         error: error instanceof Error ? error.message : "Unable to sync job",
       });

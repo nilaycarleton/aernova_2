@@ -4,17 +4,17 @@ import { useState, useTransition } from "react";
 import {
   previewPhotogrammetryModelAction,
   processPhotogrammetryModelAction,
-} from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/phase-six-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import type { ProcessingReadiness } from "@/lib/reconstruction";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   sourceImageCount: number;
   workerConfigured: boolean;
 };
 
-export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigured }: Props) {
+export function ProcessingLauncher({ jobId, sourceImageCount, workerConfigured }: Props) {
   const [readiness, setReadiness] = useState<ProcessingReadiness | null>(null);
   const [previewError, setPreviewError] = useState("");
   const [isPreviewing, startPreview] = useTransition();
@@ -23,7 +23,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
     setPreviewError("");
     startPreview(async () => {
       try {
-        setReadiness(await previewPhotogrammetryModelAction(projectId));
+        setReadiness(await previewPhotogrammetryModelAction(jobId));
       } catch (error) {
         setPreviewError(error instanceof Error ? error.message : "Preview failed");
       }
@@ -37,7 +37,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
   return (
     <div className="mt-5 rounded-2xl border border-hairline bg-surface-lifted p-4">
       <form action={processPhotogrammetryModelAction}>
-        <input type="hidden" name="projectId" value={projectId} />
+        <input type="hidden" name="jobId" value={jobId} />
         <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
           <input
             name="label"

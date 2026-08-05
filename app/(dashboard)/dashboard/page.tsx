@@ -1,77 +1,54 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { requireCompanyContext } from "@/lib/auth";
-import { ProjectsBrowser } from "@/components/dashboard/projects-browser";
+import { requirePageCapability } from "@/lib/auth";
 import { DashboardCommandBand } from "@/components/dashboard/dashboard-command-band";
-import { OperationsOverview } from "@/components/dashboard/operations-overview";
 
+/**
+ * The overview: where the money is and where the work stands.
+ *
+ * The job list moved to `/jobs` — its own noun's address — and what is left
+ * here is the thing a contractor opens first thing in the morning to see how
+ * the business is doing, rather than to find one job. The counters grow into
+ * Jobber's five-noun home screen as requests, quotes and invoices land.
+ */
 export default async function DashboardPage() {
-  const { company } = await requireCompanyContext();
+  const { company } = await requirePageCapability("viewAllJobs");
 
-  const projects = await prisma.project.findMany({
-    where: {
-      companyId: company.id,
-    },
-    include: {
-      measurements: true,
-      issues: true,
-      proposals: true,
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
+  const jobs = await prisma.job.findMany({
+    where: { companyId: company.id },
+    include: { quotes: true },
+    orderBy: { updatedAt: "desc" },
   });
 
-  const totalProjects = projects.length;
+  const totalJobs = jobs.length;
+  const readyForQuote = jobs.filter((job) => job.status === "READY_FOR_QUOTE").length;
+  const quoted = jobs.filter((job) => job.status === "QUOTED").length;
 
-  const readyForQuote = projects.filter(
-    (project) => project.status === "READY_FOR_QUOTE"
-  ).length;
-
-  const quoted = projects.filter(
-    (project) => project.status === "QUOTED"
-  ).length;
-
-  const totalDraftProposalValue = projects.reduce((sum, project) => {
-    const latestProposal = project.proposals[0];
-    return sum + (latestProposal?.totalAmount ?? 0);
+  const totalDraftQuoteValueCents = jobs.reduce((sum, job) => {
+    const latestQuote = job.quotes[0];
+    return sum + (latestQuote?.totalAmountCents ?? 0);
   }, 0);
 
   return (
     <div className="min-w-0 space-y-8">
       <DashboardCommandBand
-        totalProjects={totalProjects}
+        totalJobs={totalJobs}
         readyForQuote={readyForQuote}
         quoted={quoted}
-        totalValue={totalDraftProposalValue}
+        totalValueCents={totalDraftQuoteValueCents}
       />
 
-      <OperationsOverview projects={projects} />
-
-      <section className="space-y-4">
-        <div>
-          <h3 className="text-xl font-semibold text-ink-primary">Projects</h3>
-          <p className="text-sm text-ink-muted">
-            Search, filter, and sort jobs across your roofing workspace
-          </p>
-        </div>
-
-        <ProjectsBrowser
-          projects={projects.map((project) => ({
-            id: project.id,
-            name: project.name,
-            clientName: project.clientName,
-            addressLine1: project.addressLine1,
-            city: project.city,
-            province: project.province,
-            status: project.status,
-            captureSource: project.captureSource,
-            updatedAt: project.updatedAt,
-            measurements: project.measurements.length,
-            issues: project.issues.length,
-            proposals: project.proposals.length,
-          }))}
-        />
-      </section>
+      {totalJobs > 0 ? (
+        <p className="text-sm text-ink-muted">
+          <Link
+            href="/jobs"
+            className="font-medium text-ink-primary underline underline-offset-4 transition hover:text-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          >
+            See all {totalJobs} {totalJobs === 1 ? "job" : "jobs"}
+          </Link>{" "}
+          to search, filter and sort them.
+        </p>
+      ) : null}
     </div>
   );
 }

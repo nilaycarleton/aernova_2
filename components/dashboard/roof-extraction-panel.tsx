@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import {
   prepareRoofExtractionAction,
   extractRoofFromMeshAction,
-} from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/phase-six-actions";
 import type { PlanPreview, RoofExtractionSummary } from "@/lib/roof-extraction-types";
 
 type ExtractionResult = RoofExtractionSummary;
@@ -12,11 +12,11 @@ type ExtractionResult = RoofExtractionSummary;
 type Point = { x: number; y: number };
 
 export function RoofExtractionPanel({
-  projectId,
+  jobId,
   imageryId,
   modelLabel,
 }: {
-  projectId: string;
+  jobId: string;
   imageryId: string;
   modelLabel: string;
 }) {
@@ -34,7 +34,7 @@ export function RoofExtractionPanel({
     setPolygon([]);
     startPreview(async () => {
       try {
-        const data = await prepareRoofExtractionAction(projectId, imageryId);
+        const data = await prepareRoofExtractionAction(jobId, imageryId);
         setPreview(data);
         // Seed the ROI with the auto-detected footprint so the operator only has
         // to confirm/adjust instead of outlining the roof from scratch.
@@ -45,7 +45,7 @@ export function RoofExtractionPanel({
         setError(e instanceof Error ? e.message : "Failed to load the roof model preview");
       }
     });
-  }, [projectId, imageryId]);
+  }, [jobId, imageryId]);
 
   // Paint the elevation raster and the in-progress ROI polygon onto the canvas.
   useEffect(() => {
@@ -124,7 +124,7 @@ export function RoofExtractionPanel({
     const meshPolygon = toMeshPolygon(polygon);
     startExtract(async () => {
       try {
-        const res = await extractRoofFromMeshAction(projectId, imageryId, meshPolygon);
+        const res = await extractRoofFromMeshAction(jobId, imageryId, meshPolygon);
         setResult(res);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Roof extraction failed");

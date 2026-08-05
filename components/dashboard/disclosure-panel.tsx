@@ -14,7 +14,7 @@ import { useId, useState, type ReactNode } from "react";
  * canvas survives a collapse — the same reason the workspace tabs stay mounted.
  *
  * `defaultOpen` is the "smart default": a panel that already has content opens
- * itself so a returning roofer sees their work, while an empty project stays
+ * itself so a returning roofer sees their work, while an empty job stays
  * calm and collapsed. It seeds initial state only; the roofer's toggle wins
  * after that.
  */

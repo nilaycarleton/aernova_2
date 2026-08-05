@@ -129,16 +129,16 @@ export function isNodeOdmConfigured() {
   return Boolean(getNodeOdmBaseUrl());
 }
 
-export function nodeOdmDownloadUrl(projectId: string, imageryId: string, asset: NodeOdmAssetKey | string = "all") {
+export function nodeOdmDownloadUrl(jobId: string, imageryId: string, asset: NodeOdmAssetKey | string = "all") {
   const params = new URLSearchParams({ asset });
-  return `/api/projects/${projectId}/processing/${imageryId}/download?${params.toString()}`;
+  return `/api/jobs/${jobId}/processing/${imageryId}/download?${params.toString()}`;
 }
 
-export function nodeOdmAssetUrls(projectId: string, imageryId: string) {
+export function nodeOdmAssetUrls(jobId: string, imageryId: string) {
   return Object.fromEntries(
     Object.keys(outputAssets).map((asset) => [
       asset,
-      nodeOdmDownloadUrl(projectId, imageryId, asset),
+      nodeOdmDownloadUrl(jobId, imageryId, asset),
     ])
   ) as Record<NodeOdmAssetKey, string>;
 }
