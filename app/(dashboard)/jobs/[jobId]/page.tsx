@@ -32,6 +32,8 @@ import { applyTemplateLines, type CatalogPrice } from "@/lib/quote/templates";
 import { computeTotals } from "@/lib/quote/totals";
 import type { StartTemplate } from "@/components/dashboard/quote-start-dialog";
 import { JobExpensesPanel, type JobExpenseRow } from "@/components/dashboard/job-expenses-panel";
+import { ReviewRequestPanel } from "@/components/dashboard/review-request-panel";
+import { isEmailConfigured } from "@/lib/email";
 
 export default async function JobDetailPage({
   params,
@@ -255,6 +257,28 @@ export default async function JobDetailPage({
       </section>
 
       <JobStatusStepper jobId={job.id} status={job.status} />
+
+      {job.status === "COMPLETED" && company.reviewUrl && can(role, "editJob") ? (
+        <ReviewRequestPanel
+          jobId={job.id}
+          reviewUrl={company.reviewUrl}
+          // A real instant, not a date-only value like incurredAt — this reads
+          // in whichever timezone the server happens to run in. Good enough
+          // for "we already asked," and unlike the Costs tab's date-only bug,
+          // there's no calendar-day value being typed here to preserve.
+          reviewRequestedAt={
+            job.reviewRequestedAt
+              ? job.reviewRequestedAt.toLocaleDateString("en-CA", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })
+              : null
+          }
+          clientEmail={client.email}
+          emailConfigured={isEmailConfigured()}
+        />
+      ) : null}
 
       <VisitPanel
         jobId={job.id}

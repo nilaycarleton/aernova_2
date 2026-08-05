@@ -156,6 +156,21 @@ export default async function SettingsPage() {
             </Field>
           </div>
 
+          <div className="border-t border-hairline pt-4">
+            <Field
+              label="Review link"
+              hint="Where 'Ask for a review' on a completed job sends a homeowner — a Google Business review link, Facebook, whatever you actually use. The button stays off jobs until this is set."
+            >
+              <input
+                type="url"
+                name="reviewUrl"
+                defaultValue={company.reviewUrl ?? ""}
+                placeholder="https://g.page/r/…/review"
+                className={inputClass}
+              />
+            </Field>
+          </div>
+
           <SubmitButton pendingText="Saving…" className={buttonClass}>
             Save
           </SubmitButton>

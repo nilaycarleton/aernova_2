@@ -183,9 +183,23 @@ function NewClientDialog({ onClose }: { onClose: () => void }) {
               id="quick-client-source"
               name="leadSource"
               type="text"
+              list="quick-client-source-suggestions"
               placeholder="Referral, hockey rink board, Google…"
               className={FIELD}
             />
+            {/* A datalist, not a select — same reason new-job-form.tsx and
+                new-request-form.tsx both already give this its own list: a
+                company whose best source is the hockey rink board has to be
+                able to say so. */}
+            <datalist id="quick-client-source-suggestions">
+              <option value="Referral" />
+              <option value="Repeat customer" />
+              <option value="Google" />
+              <option value="Facebook" />
+              <option value="Truck or sign" />
+              <option value="Door knock" />
+              <option value="Home show" />
+            </datalist>
           </div>
         </div>
 

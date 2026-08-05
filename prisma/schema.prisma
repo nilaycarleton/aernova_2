@@ -352,6 +352,8 @@ enum ActivityKind {
   QUOTE_REMINDER_SENT
   /** Item 46 — someone logged what a job actually cost. */
   JOB_EXPENSE_LOGGED
+  /** Item 48 — "Ask for a review" was used on a completed job. */
+  REVIEW_REQUESTED
 }
 
 enum ImageryType {
@@ -429,6 +431,13 @@ model Company {
    * CRA business number. Required to invoice, not to exist.
    */
   businessNumber String?
+  /**
+   * Item 48. Wherever the contractor wants a homeowner's review to land —
+   * a Google Business review link, Facebook, whatever they actually use.
+   * No button asks for one until this is set: same "no capability that
+   * doesn't exist yet" rule the calendar feed and quote-email panels follow.
+   */
+  reviewUrl      String?
   /**
    * Provincial workers' comp account (WCB / WSIB), which homeowners ask for.
    */
@@ -809,6 +818,12 @@ model Job {
    * fresh lead does.
    */
   assignedToId String?
+  /**
+   * Item 48. Set the moment "Ask for a review" is used — never cleared, and
+   * never implying an answer came back. This is evidence a request went out,
+   * the same limited claim `acceptedIp` makes for a quote.
+   */
+  reviewRequestedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

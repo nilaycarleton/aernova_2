@@ -3,12 +3,19 @@
 import { rm } from "fs/promises";
 import path from "path";
 import { revalidatePath } from "next/cache";
-import { JobStatus } from "@prisma/client";
+import { ActivityKind, JobStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireJobAccess } from "@/lib/auth";
 import { storageDriverName } from "@/lib/storage";
 import { ALL_STATUSES } from "@/lib/job-status";
 import { syncClientStatusForJob } from "@/lib/client-resolve";
+import { recordActivity } from "@/lib/activity";
+import { isEmailConfigured, sendEmail } from "@/lib/email";
+import { jobClient, jobIdentityInclude } from "@/lib/job-identity";
+
+function getString(formData: FormData, key: string) {
+  return String(formData.get(key) ?? "").trim();
+}
 
 export async function updateJobStatusAction(jobId: string, status: JobStatus) {
   if (!jobId) throw new Error("Missing jobId");
@@ -29,6 +36,54 @@ export async function updateJobStatusAction(jobId: string, status: JobStatus) {
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/dashboard");
   revalidatePath("/clients");
+}
+
+/**
+ * Item 48. Records that a review was asked for, and — when there's a client
+ * email and Resend is configured — actually sends it. `channel` reuses
+ * `ActivityMeta`'s existing "link" | "email" vocabulary from a quote's own
+ * send record, since this is the same fact: a link went out one of two ways.
+ *
+ * No token is minted. `Company.reviewUrl` is a static, company-wide address —
+ * Google's or Facebook's own review page — not a per-homeowner document, so
+ * there's nothing here for `lib/share-token.ts` to protect.
+ */
+export async function requestReviewAction(formData: FormData) {
+  const jobId = getString(formData, "jobId");
+  const channel = getString(formData, "channel") === "email" ? "email" : "link";
+  if (!jobId) throw new Error("Missing jobId");
+
+  const { companyId, userId } = await requireJobAccess(jobId, "editJob");
+
+  const [company, job] = await Promise.all([
+    prisma.company.findUnique({ where: { id: companyId }, select: { name: true, reviewUrl: true } }),
+    prisma.job.findFirst({ where: { id: jobId, companyId }, include: jobIdentityInclude }),
+  ]);
+  if (!company?.reviewUrl) throw new Error("Add a review link in Settings first.");
+  if (!job) throw new Error("Job not found");
+
+  if (channel === "email") {
+    const client = jobClient(job);
+    if (!client.email) throw new Error("This client has no email on file.");
+    if (!isEmailConfigured()) throw new Error("Email isn't set up in this environment.");
+    await sendEmail({
+      to: client.email,
+      subject: `How did we do, ${client.name}?`,
+      html: `<p>Hi ${client.name},</p><p>Thanks for choosing ${company.name}. If you have a minute, a review helps other homeowners find us.</p><p><a href="${company.reviewUrl}">Leave a review</a></p>`,
+      text: `Hi ${client.name},\n\nThanks for choosing ${company.name}. If you have a minute, a review helps other homeowners find us.\n\n${company.reviewUrl}`,
+    });
+  }
+
+  await prisma.job.update({ where: { id: jobId }, data: { reviewRequestedAt: new Date() } });
+  await recordActivity({
+    companyId,
+    jobId,
+    kind: ActivityKind.REVIEW_REQUESTED,
+    actorUserId: userId,
+    meta: { channel },
+  });
+
+  revalidatePath(`/jobs/${jobId}`);
 }
 
 export async function deleteJobAction(formData: FormData) {
