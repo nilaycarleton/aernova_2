@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { QuickJobSheet } from "@/components/dashboard/quick-job-sheet";
+import { isAiConfigured } from "@/lib/ai/client";
 
 /**
  * The form for a phone held in one hand.
@@ -19,6 +21,16 @@ export default function QuickJobPage() {
       </div>
 
       <QuickJobSheet />
+
+      {isAiConfigured() ? (
+        <p className="text-center text-sm text-ink-muted">
+          Or{" "}
+          <Link href="/jobs/capture" className="underline underline-offset-4 hover:text-ink-primary">
+            draft one from a photo instead
+          </Link>
+          .
+        </p>
+      ) : null}
     </div>
   );
 }
