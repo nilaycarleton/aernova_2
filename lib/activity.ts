@@ -158,6 +158,8 @@ export function describeActivity(
       return who ? `${who} cancelled ${invoice.toLowerCase()}` : `${invoice} was cancelled`;
     case ActivityKind.NOTE_ADDED:
       return who ? `${who} added a note` : "Note added";
+    case ActivityKind.REVIEW_REQUESTED:
+      return who ? `${who} asked for a review` : "Asked for a review";
     case ActivityKind.JOB_EXPENSE_LOGGED: {
       const category = meta.category ? jobExpenseCategoryLabel(meta.category).toLowerCase() : "a cost";
       return who

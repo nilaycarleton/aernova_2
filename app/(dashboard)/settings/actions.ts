@@ -45,6 +45,7 @@ export async function updateCompanyProfileAction(formData: FormData) {
       licenceNumber: getString(formData, "licenceNumber") || null,
       businessNumber: getString(formData, "businessNumber") || null,
       wcbNumber: getString(formData, "wcbNumber") || null,
+      reviewUrl: getString(formData, "reviewUrl") || null,
     },
   });
 
