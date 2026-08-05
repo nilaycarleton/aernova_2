@@ -195,3 +195,12 @@ test("a viewer can read an invoice but never record money against one", () => {
   assert.equal(can(CompanyRole.VIEWER, "viewMoney"), true);
   assert.equal(can(CompanyRole.VIEWER, "recordPayment"), false);
 });
+
+test("logging what a job actually cost is the estimator's business too, unlike invoicing", () => {
+  for (const role of [CompanyRole.OWNER, CompanyRole.ADMIN, CompanyRole.ESTIMATOR]) {
+    assert.equal(can(role, "manageJobCosts"), true, `${role} must manageJobCosts`);
+  }
+  for (const role of [CompanyRole.SALES, CompanyRole.VIEWER, CompanyRole.CREW]) {
+    assert.equal(can(role, "manageJobCosts"), false, `${role} must not manageJobCosts`);
+  }
+});

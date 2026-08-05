@@ -3,16 +3,17 @@
 import { useRef, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-type TabKey = "inspect" | "scan" | "quote";
+type TabKey = "inspect" | "scan" | "quote" | "costs";
 
 const ALL_TABS: { key: TabKey; label: string; hint: string }[] = [
   { key: "inspect", label: "Inspect", hint: "Photos & issues" },
   { key: "scan", label: "Scan & measure", hint: "3D model & measurements" },
   { key: "quote", label: "Quote", hint: "Quote & pricing" },
+  { key: "costs", label: "Costs", hint: "Quoted vs. actual" },
 ];
 
 function isTabKey(value: string | null): value is TabKey {
-  return value === "inspect" || value === "scan" || value === "quote";
+  return value === "inspect" || value === "scan" || value === "quote" || value === "costs";
 }
 
 /**
@@ -30,11 +31,13 @@ export function JobWorkspace({
   inspect,
   scan,
   quote,
+  costs,
   initialTab = "scan",
 }: {
   inspect: ReactNode;
   scan: ReactNode;
   quote: ReactNode;
+  costs?: ReactNode;
   initialTab?: TabKey;
 }) {
   const router = useRouter();
@@ -44,6 +47,7 @@ export function JobWorkspace({
     inspect: null,
     scan: null,
     quote: null,
+    costs: null,
   });
 
   /**
@@ -54,7 +58,7 @@ export function JobWorkspace({
    * advertise exactly the thing they are not allowed to have. The keyboard
    * model below then walks the tabs that exist rather than skipping a hole.
    */
-  const panels: Record<TabKey, ReactNode> = { inspect, scan, quote };
+  const panels: Record<TabKey, ReactNode> = { inspect, scan, quote, costs };
   const TABS = ALL_TABS.filter((t) => panels[t.key] !== null && panels[t.key] !== undefined);
 
   const urlTab = searchParams.get("tab");

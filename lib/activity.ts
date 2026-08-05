@@ -1,6 +1,7 @@
 import { ActivityKind, type ActivityEvent } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/money";
+import { jobExpenseCategoryLabel } from "@/lib/format";
 
 /**
  * The job's history. Every phase of the CRM work appends here; the job
@@ -48,6 +49,8 @@ export type ActivityMeta = {
   reason?: string;
   /** QUOTE_DECLINED — whatever's worth remembering beyond the reason code. */
   note?: string;
+  /** JOB_EXPENSE_LOGGED — MATERIALS / LABOUR / EQUIPMENT / OTHER, already in the words a roofer uses. */
+  category?: string;
 };
 
 export async function recordActivity(input: {
@@ -155,6 +158,12 @@ export function describeActivity(
       return who ? `${who} cancelled ${invoice.toLowerCase()}` : `${invoice} was cancelled`;
     case ActivityKind.NOTE_ADDED:
       return who ? `${who} added a note` : "Note added";
+    case ActivityKind.JOB_EXPENSE_LOGGED: {
+      const category = meta.category ? jobExpenseCategoryLabel(meta.category).toLowerCase() : "a cost";
+      return who
+        ? `${who} logged ${category}${amount}`
+        : `Logged ${category}${amount}`;
+    }
     default:
       return "Something happened";
   }

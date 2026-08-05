@@ -1492,9 +1492,91 @@ not a stored column, so turning one on later needs no migration.
     clean, plus the live pass above.
 
 ### Phase 8 — Insights & job costing
-46. Actual cost vs. quoted: materials, crew hours from visits, per job.
-47. Dashboards: revenue, revenue by lead source, quote conversion rate, lead
-    funnel, recurring vs one-off, profit per job, aged receivables.
+46. ✅ **`JobExpense`** (2026-08-05) — a ledger of what a job actually cost,
+    the counterpart to `QuoteLineItem.unitCostCents`'s "what it was quoted to
+    cost." Confirmed with the user rather than guessed: a **full expense
+    ledger**, not a narrower "derive labour from Visit hours, log materials by
+    hand" split. `Visit.startAt`/`endAt` exist on every visit including
+    all-day ones, but an all-day visit's times are UTC midnight of the
+    calendar square (`lib/schedule/day.ts`), not real worked hours — deriving
+    labour cost from them would have been precise-looking and wrong. A ledger
+    sidesteps that gap instead of forcing automatic derivation onto data that
+    often isn't there.
+
+    Four categories — MATERIALS / LABOUR / EQUIPMENT / OTHER — a closed set,
+    same doctrine as `ActivityKind`: a free-text category can't be summed into
+    a breakdown, and a cost breakdown is the whole point. LABOUR is the one
+    shape that isn't a bare amount: `hours × hourlyRateCents`, computed once
+    at creation and stored alongside the amount (`Company.defaultLabourRateCents`
+    seeds the rate field, never applied retroactively — the same "frozen at
+    the moment it was written" rule a quote's own catalog pricing follows).
+
+    A ledger of rows rather than a running total on `Job`, same reasoning as
+    `InvoicePayment`: a materials run in March and a dump-fee receipt in April
+    are two facts with two dates.
+
+    **`manageJobCosts`** is a new capability, office-tier like `editQuote`
+    rather than `editInvoice`'s narrower OWNER/ADMIN-only tier — costing a job
+    is the estimator's business the way quoting it is; invoicing stays the
+    office's alone. Crew hold neither `viewMoney` nor `manageJobCosts`: a cost
+    entry is money data, and "crew never see cost or margin" already covers
+    it without a new carve-out.
+
+    `lib/job-costing.ts` is the pure arithmetic (quoted cost via
+    `computeTotals().costCents` — not reimplemented, since that file already
+    knows to skip a declined optional line — actual cost, variance, category
+    breakdown, actual profit). Surfaced as a new **Costs tab** on the job page
+    (`JobExpensesPanel`), visible wherever the Quote tab already is
+    (`viewMoney`), with the log-a-cost form itself gated one tier narrower
+    (`manageJobCosts`) so a salesperson can read the variance but not write to
+    it. 9 tests in `tests/job-costing.test.ts`.
+
+47. ✅ **Two new report pages** (2026-08-05) — `/reports/revenue` and
+    `/reports/aged-receivables`, joined to the existing win-rate report by a
+    new `ReportsNav` sub-nav rather than three unrelated sidebar entries; the
+    sidebar's own comment already warns against exactly that kind of nav
+    bloat.
+
+    **"Revenue" means invoiced, not collected** — confirmed with the user
+    rather than guessed. The sum of what was billed (non-DRAFT, non-VOID
+    invoices) in the period, matching how a contractor already thinks about a
+    sent bill; the gap between billed and collected is what
+    `/reports/aged-receivables` exists to answer instead. `/reports/revenue`
+    has no cyan figure competing with anything — it's the only reading on its
+    own surface, same Readout Rule the win-rate page already established.
+
+    Revenue by lead source and by job type both fall out of data the schema
+    already had (`Client.leadSource` since Phase 2, `Job.type` since Phase 1)
+    — no new columns. The lead funnel reuses `lib/pipeline.ts`'s existing
+    seven stages rather than inventing a second funnel model; it counts what
+    `/pipeline` already knows how to bucket. Profit per job billed in the
+    period is billed-less-actual-cost via item 46's ledger, **not** windowed
+    to the period on the cost side — a job is often costed after the invoice
+    that paid for it goes out, and slicing cost to the same window would
+    understate it.
+
+    **Aged receivables deliberately has no date-range filter** — unlike every
+    other report page. An invoice overdue since March is still owed today,
+    and a range that hid it from the list would be a range that lies about
+    what's outstanding. Buckets (not yet due / 1–30 / 31–60 / 60+ days
+    overdue) are built on `lib/invoice/balance.ts`'s existing overdue
+    arithmetic rather than a second implementation of "is this late."
+
+    `lib/reports/revenue.ts` and `lib/reports/aged-receivables.ts` are both
+    pure and tested (6 tests each) — rows in, figures out, same doctrine as
+    `lib/quote/totals.ts`.
+
+**Also found and fixed the same session (2026-08-05):**
+`components/dashboard/operations-overview.tsx`, live on `/dashboard`, was
+found during this phase's verification pass to be pre-pivot scaffolding that
+survived the whole CRM rebuild undetected: it fabricated "Gross Profit" and
+"Gross Margin" as a hardcoded 38%/34% split of quoted value (exactly the kind
+of false precision `PRODUCT.md` names as a liability the contractor absorbs),
+duplicated the real Phase 6 `/pipeline` board with a dead `JobStatus` kanban,
+and was a second reader of the deprecated `Job.clientName`/`clientPhone`
+columns Phase 1A documents `lib/job-identity.ts` as the sole reader of.
+Removed outright rather than patched — nothing in it survived scrutiny, and a
+hollowed-out one-tile remainder would have been worse than no component.
 
 ### Phase 9 — Growth & AI
 48. Review requests after completion, referral tracking.
