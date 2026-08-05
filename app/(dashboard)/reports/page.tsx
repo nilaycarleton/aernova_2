@@ -6,6 +6,7 @@ import { formatMoney } from "@/lib/money";
 import { quoteDeclineReasonLabel } from "@/lib/quote-status";
 import { DATE_RANGES, isRangeKey, rangeStart, type RangeKey } from "@/lib/date-range";
 import { FilterPill } from "@/components/dashboard/filter-pill";
+import { ReportsNav } from "@/components/dashboard/reports-nav";
 
 /**
  * Item 42: won/lost outcome capture with reasons, feeding a win-rate view.
@@ -97,6 +98,8 @@ export default async function ReportsPage({
           How often a quote you sent came back a yes, in the {DATE_RANGES[range].label.toLowerCase()}.
         </p>
       </header>
+
+      <ReportsNav current="/reports" />
 
       <section className="flex flex-wrap gap-2">
         {(Object.keys(DATE_RANGES) as RangeKey[]).map((key) => (

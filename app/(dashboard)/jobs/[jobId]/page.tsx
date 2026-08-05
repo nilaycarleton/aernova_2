@@ -31,6 +31,7 @@ import { getModelTaskUuid } from "@/lib/roof-extraction-service";
 import { applyTemplateLines, type CatalogPrice } from "@/lib/quote/templates";
 import { computeTotals } from "@/lib/quote/totals";
 import type { StartTemplate } from "@/components/dashboard/quote-start-dialog";
+import { JobExpensesPanel, type JobExpenseRow } from "@/components/dashboard/job-expenses-panel";
 
 export default async function JobDetailPage({
   params,
@@ -42,8 +43,8 @@ export default async function JobDetailPage({
   const { jobId } = await params;
   const { quote: quoteParam, tab: tabParam } = await searchParams;
   // Landing with a freshly generated quote (or ?tab=quote) opens the Quote tab.
-  const initialTab: "inspect" | "scan" | "quote" =
-    tabParam === "inspect" || tabParam === "scan" || tabParam === "quote"
+  const initialTab: "inspect" | "scan" | "quote" | "costs" =
+    tabParam === "inspect" || tabParam === "scan" || tabParam === "quote" || tabParam === "costs"
       ? tabParam
       : quoteParam
         ? "quote"
@@ -63,6 +64,11 @@ export default async function JobDetailPage({
       issues: true,
       quotes: {
         orderBy: { createdAt: "desc" },
+        include: { lineItems: { orderBy: { sortOrder: "asc" } } },
+      },
+      expenses: {
+        orderBy: { incurredAt: "desc" },
+        include: { createdBy: true },
       },
       invoices: {
         orderBy: { createdAt: "desc" },
@@ -99,6 +105,23 @@ export default async function JobDetailPage({
   if (!job) notFound();
 
   const latestQuote = job.quotes[0];
+  // What the job was quoted to cost. `computeTotals` already knows to skip a
+  // declined optional line and include an accepted one — this file never
+  // re-derives that, only reads `.costCents` back off it. Zero with no quote
+  // yet, which reads honestly: a job with nothing priced has nothing to
+  // compare an actual cost against.
+  const quotedCostCents = latestQuote ? computeTotals(latestQuote.lineItems).costCents : 0;
+  const canManageJobCosts = can(role, "manageJobCosts");
+  const expenseRows: JobExpenseRow[] = job.expenses.map((expense) => ({
+    id: expense.id,
+    category: expense.category,
+    description: expense.description,
+    amountCents: expense.amountCents,
+    hours: expense.hours,
+    hourlyRateCents: expense.hourlyRateCents,
+    incurredAt: expense.incurredAt.toISOString(),
+    loggedBy: personName(expense.createdBy),
+  }));
   // A cancelled invoice is on the record but is not what this job is owed —
   // the rail should read what somebody still has to collect.
   const liveInvoice = job.invoices.find((invoice) => invoice.status !== InvoiceStatus.VOID);
@@ -330,6 +353,17 @@ export default async function JobDetailPage({
             <QuotePreview companyName={company.name} quote={latestQuote ?? null} />
             <PricingTemplatePanel />
           </>
+          )
+        }
+        costs={
+          !showsMoney ? null : (
+            <JobExpensesPanel
+              jobId={job.id}
+              canManage={canManageJobCosts}
+              expenses={expenseRows}
+              quotedCostCents={quotedCostCents}
+              defaultLabourRateCents={company.defaultLabourRateCents}
+            />
           )
         }
       />

@@ -303,6 +303,18 @@ enum QuoteLineKind {
 }
 
 /**
+ * Phase 8, item 46: what a job actually cost, against what it was quoted to
+ * cost. A closed set, same doctrine as `ActivityKind` — a free-text category
+ * can't be summed into a breakdown, and a cost breakdown is the whole point.
+ */
+enum JobExpenseCategory {
+  MATERIALS
+  LABOUR
+  EQUIPMENT
+  OTHER
+}
+
+/**
  * What happened on a job, in the order it happened. Every phase of the CRM work
  * appends here — quotes sent and viewed, status moves, payments recorded — so a
  * contractor can answer "what's the history with this customer" from one place.
@@ -338,6 +350,8 @@ enum ActivityKind {
   INVOICE_REMINDER_SENT
   /** Item 43's cron — the quote equivalent, for a link that's gone quiet. */
   QUOTE_REMINDER_SENT
+  /** Item 46 — someone logged what a job actually cost. */
+  JOB_EXPENSE_LOGGED
 }
 
 enum ImageryType {
@@ -371,6 +385,7 @@ model User {
   assignedJobs     Job[]     @relation("JobSalesperson")
   assignedRequests Request[] @relation("RequestSalesperson")
   visitAssignments VisitAssignment[]
+  loggedJobExpenses JobExpense[] @relation("JobExpenseCreatedBy")
 }
 
 model Company {
@@ -436,6 +451,16 @@ model Company {
   stripePayoutsEnabled   Boolean  @default(false)
   stripeDetailsSubmitted Boolean  @default(false)
 
+  /**
+   * Phase 8, item 46. The suggested rate a LABOUR expense entry starts from —
+   * never applied automatically to an existing entry, since a rate change
+   * must not reach backwards into a cost someone already logged, the same
+   * "frozen at the moment it was written" rule `Quote`'s own copy-not-link
+   * catalog pricing follows. Null until a company sets one; the labour entry
+   * form falls back to a blank rate rather than a fabricated default.
+   */
+  defaultLabourRateCents Int?
+
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
   memberships CompanyMembership[]
@@ -453,6 +478,7 @@ model Company {
   invoicePayments InvoicePayment[]
   invites     CompanyInvite[]
   activity    ActivityEvent[]
+  jobExpenses JobExpense[]
 }
 
 /**
@@ -806,6 +832,7 @@ model Job {
   aiUsageEvents     AiUsageEvent[]
   activity          ActivityEvent[]
   requests          Request[]
+  expenses          JobExpense[]
 
   @@unique([companyId, jobNumber])
   @@index([companyId, status])
@@ -814,6 +841,52 @@ model Job {
   @@index([propertyId])
   @@index([assignedToId])
   @@map("Project")
+}
+
+/**
+ * Phase 8, item 46: what a job actually cost. The counterpart to
+ * `QuoteLineItem.unitCostCents` — that half is what the job was *quoted* to
+ * cost, frozen at approval; this half is what it actually cost, logged as work
+ * happens. `lib/job-costing.ts` is the one place that compares the two.
+ *
+ * A ledger of entries rather than a running total on `Job`, for the same
+ * reason `InvoicePayment` is a row per payment: a materials run in March and a
+ * dump-fee receipt in April are two facts with two dates, and a single number
+ * can't be corrected without losing which one was wrong.
+ *
+ * Money-cost data, so writing one is gated on `manageJobCosts` — office tier,
+ * same as `editInvoice` — never crew. See `lib/permissions.ts`.
+ */
+model JobExpense {
+  id        String             @id @default(cuid())
+  companyId String
+  jobId     String
+  category  JobExpenseCategory
+
+  description String?
+  /**
+   * What it actually cost. For LABOUR, this is `hours × hourlyRateCents`,
+   * computed once and stored — same "auto but overridable" convention as
+   * `QuoteLineItem.amountCents`: editing the amount directly still works,
+   * `hours`/`hourlyRateCents` are just how it got there and are kept so the
+   * rate used is never lost to a later company-wide rate change.
+   */
+  amountCents     Int
+  hours           Float?
+  hourlyRateCents Int?
+
+  incurredAt DateTime @default(now())
+
+  createdByUserId String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  job       Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdBy User    @relation("JobExpenseCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([companyId])
+  @@index([jobId, incurredAt])
 }
 
 /**

@@ -73,6 +73,14 @@ export const CAPABILITIES = [
    * settings, only the account owner can change the bank account behind them.
    */
   "manageBilling",
+  /**
+   * Log or remove a `JobExpense` — what a job actually cost, against
+   * `viewMoney`'s "see what it was quoted to cost." Same office tier as
+   * `editQuote`, unlike `editInvoice`/`sendInvoice`/`recordPayment`: costing a
+   * job is the estimator's business the way quoting it is, where invoicing
+   * stays the office's alone.
+   */
+  "manageJobCosts",
 ] as const;
 
 export type Capability = (typeof CAPABILITIES)[number];
@@ -108,6 +116,7 @@ const GRANTS: Record<CompanyRole, readonly Capability[]> = {
     "sendQuote",
     "manageSchedule",
     "completeVisit",
+    "manageJobCosts",
   ],
 
   // Wins the work. Same money access — you cannot discount what you cannot see

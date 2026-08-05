@@ -104,6 +104,22 @@ export const MEASUREMENT_SOURCE_OPTIONS = options(
   measurementSourceLabel
 );
 
+const JOB_EXPENSE_CATEGORY: Record<string, string> = {
+  MATERIALS: "Materials",
+  LABOUR: "Labour",
+  EQUIPMENT: "Equipment",
+  OTHER: "Other",
+};
+
+export function jobExpenseCategoryLabel(value: string) {
+  return JOB_EXPENSE_CATEGORY[value] ?? sentenceCase(value);
+}
+
+export const JOB_EXPENSE_CATEGORY_OPTIONS = options(
+  ["MATERIALS", "LABOUR", "EQUIPMENT", "OTHER"],
+  jobExpenseCategoryLabel
+);
+
 /** Job lifecycle labels live with the flow itself — see lib/job-status. */
 export function enumLabel(value: string) {
   return sentenceCase(value);
