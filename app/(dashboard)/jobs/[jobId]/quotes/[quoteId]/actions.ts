@@ -7,6 +7,8 @@ import { requireJobAccess } from "@/lib/auth";
 import { parseMoneyToCents, percentToMicros } from "@/lib/money";
 import { computeTotals, type LineForTotals } from "@/lib/quote/totals";
 import { isOwnStorageUrl } from "@/lib/storage";
+import { checkAiRateLimit, recordAiUsage } from "@/lib/ai/rate-limit";
+import { draftScopeOfWork, type ScopeDraft } from "@/lib/ai/scope-draft";
 
 /** A photo URL is only kept if it is one we minted. See `isOwnStorageUrl`. */
 function ownStorageUrl(value: string | null | undefined): string | null {
@@ -262,4 +264,38 @@ export async function saveQuoteAction(
   revalidatePath(`/jobs/${jobId}/quotes/${quoteId}`);
   revalidatePath(`/jobs/${jobId}`);
   return { savedAt: Date.now() };
+}
+
+export type DraftScopeState = ScopeDraft | { error: string };
+
+/**
+ * Item 50. Fills the builder's Opening fields for review — nothing here
+ * saves anything. `QuoteBuilder` calls this directly (plain arguments, not
+ * FormData; `updateJobStatusAction` already establishes that a "use server"
+ * function can take serializable arguments instead) and holds the result in
+ * component state until the contractor presses the quote's own Save.
+ *
+ * Counted as "summary" against the existing `AiUsageEvent`/rate-limit
+ * machinery — a one-shot generation, the same shape as the job's AI summary,
+ * not a back-and-forth "chat" turn.
+ */
+export async function draftQuoteScopeAction(jobId: string, quoteId: string): Promise<DraftScopeState> {
+  const { companyId, userId } = await requireJobAccess(jobId, "editQuote");
+
+  const quote = await prisma.quote.findFirst({
+    where: { id: quoteId, jobId, companyId },
+    select: { id: true },
+  });
+  if (!quote) return { error: "Quote not found" };
+
+  const limit = await checkAiRateLimit({ jobId, userId });
+  if (!limit.allowed) return { error: limit.message };
+
+  await recordAiUsage({ jobId, userId, kind: "summary" });
+
+  try {
+    return await draftScopeOfWork({ jobId, quoteId, companyId });
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Couldn't draft an opening. Try again." };
+  }
 }
