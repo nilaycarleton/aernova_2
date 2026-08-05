@@ -3,11 +3,13 @@
 import { useActionState, useState } from "react";
 import type { QuoteDeclineReason } from "@prisma/client";
 import {
+  draftQuoteFollowUpAction,
   markQuoteApprovedAction,
   markQuoteDeclinedAction,
   sendQuoteEmailAction,
   shareQuoteAction,
   unshareQuoteAction,
+  type DraftFollowUpState,
   type SendEmailState,
 } from "@/app/(dashboard)/jobs/[jobId]/quotes/[quoteId]/send-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
@@ -37,6 +39,7 @@ export function QuoteSharePanel({
   declineNote,
   clientEmail,
   emailConfigured,
+  aiConfigured,
 }: {
   jobId: string;
   quoteId: string;
@@ -51,6 +54,7 @@ export function QuoteSharePanel({
   declineNote: string | null;
   clientEmail: string | null;
   emailConfigured: boolean;
+  aiConfigured: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const [declining, setDeclining] = useState(false);
@@ -58,6 +62,28 @@ export function QuoteSharePanel({
     sendQuoteEmailAction,
     {}
   );
+
+  // Item 50. A draft the contractor reads and can edit before it's part of
+  // what's sent — `EMAIL_FORM_ID` is how the textarea posts along with a form
+  // it isn't nested inside, same `form="…"` idiom the quote-approve extras
+  // checkboxes already use for the same reason.
+  const [followUpDraft, setFollowUpDraft] = useState<string | null>(null);
+  const [followUpDrafting, setFollowUpDrafting] = useState(false);
+  const [followUpError, setFollowUpError] = useState<string | null>(null);
+
+  async function draftFollowUp() {
+    setFollowUpDrafting(true);
+    setFollowUpError(null);
+    try {
+      const result: DraftFollowUpState = await draftQuoteFollowUpAction(jobId, quoteId);
+      if ("error" in result) setFollowUpError(result.error);
+      else setFollowUpDraft(result.message);
+    } catch {
+      setFollowUpError("Couldn't draft a follow-up. Try again.");
+    } finally {
+      setFollowUpDrafting(false);
+    }
+  }
 
   async function copy() {
     if (!shareUrl) return;
@@ -134,7 +160,7 @@ export function QuoteSharePanel({
             </button>
 
             {emailConfigured && clientEmail ? (
-              <form action={emailAction} className="shrink-0">
+              <form id="quote-follow-up-email" action={emailAction} className="shrink-0">
                 <input type="hidden" name="jobId" value={jobId} />
                 <input type="hidden" name="quoteId" value={quoteId} />
                 <SubmitButton
@@ -156,6 +182,45 @@ export function QuoteSharePanel({
             <p className="mt-2 text-sm text-danger-fg">{emailState.error}</p>
           ) : emailState.sentAt ? (
             <p className="mt-2 text-sm text-ink-secondary">Sent to {clientEmail}.</p>
+          ) : null}
+
+          {/* Item 50. Only once a quote has actually gone out before — a
+              follow-up to a quote nobody has seen yet isn't a follow-up. The
+              textarea posts with the email form above via `form=`, the same
+              cross-form idiom the quote-approve extras checkboxes use, since
+              it isn't nested inside that form's markup. */}
+          {aiConfigured && emailConfigured && clientEmail && sentAt ? (
+            <div className="mt-4 border-t border-hairline pt-4">
+              {followUpDraft === null ? (
+                <button
+                  type="button"
+                  onClick={draftFollowUp}
+                  disabled={followUpDrafting}
+                  className="text-sm text-ink-secondary underline underline-offset-4 transition hover:text-ink-primary disabled:opacity-60"
+                >
+                  {followUpDrafting ? "Drafting…" : "Draft a follow-up with AI"}
+                </button>
+              ) : (
+                <div>
+                  <label
+                    htmlFor="quote-followup-message"
+                    className="mb-1.5 block text-xs font-medium text-ink-secondary"
+                  >
+                    Follow-up message — edit anything, then press &ldquo;Email it to them&rdquo;
+                    above
+                  </label>
+                  <textarea
+                    id="quote-followup-message"
+                    form="quote-follow-up-email"
+                    name="customMessage"
+                    rows={3}
+                    defaultValue={followUpDraft}
+                    className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+                  />
+                </div>
+              )}
+              {followUpError ? <p className="mt-2 text-sm text-danger-fg">{followUpError}</p> : null}
+            </div>
           ) : null}
 
           <div className="mt-4 flex flex-wrap items-center gap-4">

@@ -3,7 +3,9 @@
 import { useActionState, useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  draftQuoteScopeAction,
   saveQuoteAction,
+  type DraftScopeState,
   type SaveQuoteState,
 } from "@/app/(dashboard)/jobs/[jobId]/quotes/[quoteId]/actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
@@ -81,12 +83,38 @@ export function QuoteBuilder({
   quote,
   taxRates,
   services,
+  aiConfigured,
 }: {
   quote: BuilderQuote;
   taxRates: TaxOption[];
   services: CatalogService[];
+  aiConfigured: boolean;
 }) {
   const [state, formAction] = useActionState<SaveQuoteState, FormData>(saveQuoteAction, {});
+
+  // Item 50. `defaultValue` inputs can't be set from outside once mounted, so
+  // an accepted draft remounts the two fields with a changed `key` rather
+  // than lifting them into controlled state — the smallest change that lets
+  // an AI draft fill in an otherwise-uncontrolled form.
+  const [scopeDraft, setScopeDraft] = useState<{ introTitle: string; introBody: string } | null>(
+    null
+  );
+  const [scopeDrafting, setScopeDrafting] = useState(false);
+  const [scopeError, setScopeError] = useState<string | null>(null);
+
+  async function draftScope() {
+    setScopeDrafting(true);
+    setScopeError(null);
+    try {
+      const result: DraftScopeState = await draftQuoteScopeAction(quote.jobId, quote.id);
+      if ("error" in result) setScopeError(result.error);
+      else setScopeDraft(result);
+    } catch {
+      setScopeError("Couldn't draft an opening. Try again.");
+    } finally {
+      setScopeDrafting(false);
+    }
+  }
 
   const [lines, setLines] = useState<DraftLine[]>(quote.lines);
   const [discountKind, setDiscountKind] = useState(quote.discountKind ?? "");
@@ -245,17 +273,36 @@ export function QuoteBuilder({
         title="Opening"
         hint="The first thing they read. Skip it and the quote starts at the price."
       >
+        {aiConfigured ? (
+          <div className="mb-3 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={draftScope}
+              disabled={scopeDrafting}
+              className={`${SECONDARY} disabled:opacity-60`}
+            >
+              {scopeDrafting ? "Drafting…" : "Draft with AI"}
+            </button>
+            <span className="text-xs text-ink-muted">
+              Fills the fields below from this job&rsquo;s measurements — nothing saves until you
+              press Save.
+            </span>
+          </div>
+        ) : null}
+        {scopeError ? <p className="mb-3 text-sm text-danger-fg">{scopeError}</p> : null}
         <input
+          key={scopeDraft ? "ai-intro-title" : "intro-title"}
           name="introTitle"
           type="text"
-          defaultValue={quote.introTitle ?? ""}
+          defaultValue={scopeDraft?.introTitle ?? quote.introTitle ?? ""}
           placeholder="Thanks for having us out"
           className={FIELD}
         />
         <textarea
+          key={scopeDraft ? "ai-intro-body" : "intro-body"}
           name="introBody"
           rows={3}
-          defaultValue={quote.introBody ?? ""}
+          defaultValue={scopeDraft?.introBody ?? quote.introBody ?? ""}
           placeholder="What you found on the roof, and what you're proposing to do about it."
           className={`mt-3 ${FIELD}`}
         />

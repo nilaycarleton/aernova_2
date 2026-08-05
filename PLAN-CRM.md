@@ -1592,11 +1592,102 @@ Removed outright rather than patched — nothing in it survived scrutiny, and a
 hollowed-out one-tile remainder would have been worse than no component.
 
 ### Phase 9 — Growth & AI
-48. Review requests after completion, referral tracking.
-49. AI capture: photo or voice note → drafted job with a suggested service line
-    and a price from catalog history. Extends `lib/ai/` + `roof-context.ts`.
-50. AI scope-of-work drafting from measurements and past accepted quotes;
-    follow-up drafting for stale quotes.
+48. ✅ **Review requests, and a referral-suggestion gap closed** (2026-08-05).
+    `Company.reviewUrl` (a Google Business/Facebook review link, set on
+    `/settings`) and `Job.reviewRequestedAt`. A panel appears on a job once
+    it's `COMPLETED` and a review link exists — absent otherwise, same rule
+    the calendar feed and quote-email panels already follow. It offers a
+    copyable link (no token to mint; `reviewUrl` is a static company-wide
+    address, unlike a quote's per-homeowner share link) plus an email door
+    when Resend and a client email are both available, and a plain "I asked
+    them another way" button for the driveway/phone-call case — same
+    "recorded, not clicked" shape `markQuoteApprovedAction` already
+    establishes. New `ActivityKind.REVIEW_REQUESTED`.
+
+    **Referral tracking's scope was confirmed with the user rather than
+    guessed: light touch, not a full referred-by system.** `Client.leadSource`
+    already exists as free text (Phase 1), and `/reports/revenue`'s existing
+    "by lead source" breakdown already reports on it — no schema change
+    earns its keep yet. The actual gap, found by checking every place
+    `leadSource` is captured: `new-job-form.tsx` and `new-request-form.tsx`
+    both already offer a "Referral" datalist suggestion; the global "+"
+    quick-create Client form (`quick-create-menu.tsx`) only had a placeholder
+    hint, no real suggestions. Now matches the other two.
+
+49. ✅ **AI capture: a photo drafts a job** (2026-08-05). A photo goes to
+    Claude with the company's own `Service` catalog as context — same
+    deterministic-snapshot doctrine `roof-context.ts` documents — and comes
+    back with a suggested job name, a plain-language description, and a
+    matching catalog price. **Never a price the model invented**: a
+    hallucinated `serviceId` (one that isn't actually in this company's
+    catalog) is dropped, and the price shown is always the catalog's own,
+    never whatever number the model echoed back. That guard is pulled into
+    `lib/ai/capture-response.ts`, pure and tested (7 tests), separate from
+    `lib/ai/capture.ts`, which is the one that actually calls Prisma and
+    Anthropic — same split `scope-draft-response.ts`/`scope-draft.ts` use
+    below, for the same reason: a file importing `@prisma/client` can't be
+    run under plain `node --test`.
+
+    **Voice capture was confirmed with the user as a deliberate fast-follow,
+    not part of this pass** — photo-only ships now rather than picking a
+    transcription approach (browser Web Speech API vs. server-side) before
+    there's a working baseline to build it on.
+
+    A real schema gap had to close first: `AiUsageEvent.jobId` was required,
+    but capture runs *before* a job exists — there's nothing to key a rate
+    limit against. `jobId` is now nullable and a nullable `companyId` was
+    added, so capture gets its own scope (`checkCaptureRateLimit`/
+    `evaluateCaptureLimits`, a new `perCompanyPerDayCapture` cap alongside
+    the existing per-project one) instead of borrowing a job that doesn't
+    exist yet. `createJobRecord` was pulled out of `createJobAction` for the
+    same one-implementation reason `lib/client-resolve.ts` already documents
+    — `/jobs/capture`'s save step creates a job exactly the way `/jobs/new`
+    does (client resolution, property resolution, job numbering), not a
+    third copy of it. A matched service becomes one draft `QuoteLineItem` on
+    a new blank quote, the same shape `createBlankQuoteAction` already
+    creates. New `CaptureSource.AI_CAPTURE`.
+
+    **Verified live end to end against a real photo**: vision call, an
+    honest description (correctly reported no visible damage rather than
+    inventing any — PRODUCT.md's "be honest about uncertainty," working as
+    intended), a real catalog match, client creation, job creation, and a
+    draft quote landing on the right tab, confirmed in both themes.
+
+50. ✅ **AI scope-of-work drafting, and follow-up drafting — both reviewed
+    before anything reaches a homeowner** (2026-08-05). Two confirmed-not-
+    guessed decisions shape this item:
+
+    - **Scope-of-work**: `lib/ai/scope-draft.ts` extends `buildRoofContext()`
+      with up to three of the company's own past *approved* quotes (tone and
+      structure only — the system prompt is explicit these are not to be
+      copied). A "Draft with AI" button on the quote builder's Opening panel
+      fills `introTitle`/`introBody` for review; nothing saves until the
+      quote's own existing Save. Absent without `ANTHROPIC_API_KEY`, same
+      absent-not-disabled rule as everywhere else a key gates a button. The
+      two fields are `defaultValue` inputs, not controlled — filling them
+      from outside after mount uses a changed `key` to force a remount
+      rather than lifting the whole builder into controlled state.
+    - **Follow-up drafting for a stale quote is reviewed by a person, never
+      written straight into the automatic cron** — confirmed with the user.
+      `app/api/cron/quote-reminders/route.ts` keeps `followUpIntro()`'s fixed
+      line unchanged; an unattended cron can't review anything. Instead,
+      `QuoteSharePanel` gets a "Draft a follow-up with AI" link (only once a
+      quote has actually been sent before — a follow-up to a quote nobody's
+      seen isn't one) that shows an editable draft. Sending it reuses the
+      *existing* "Email it to them" button: `sendQuoteEmailAction` gained an
+      optional `customMessage` field that wins over the fixed
+      `firstSendIntro()` when present, and the follow-up's textarea posts
+      into that same form via `form="quote-follow-up-email"` — the identical
+      cross-form idiom the quote-approve extras checkboxes already use for a
+      tick that isn't nested inside the form it posts with.
+
+    **Verified live**: an AI-drafted opening grounded in a job's real
+    measurements (1,497 sq ft, 5 facets, 4/12 pitch), and a follow-up message
+    correctly referencing a specific quote's real total and roof size rather
+    than a generic nudge — neither sent, both left for a human to read first.
+
+    352/352 tests, tsc, lint (app scope), and a production build all clean
+    across all three items.
 
 ---
 

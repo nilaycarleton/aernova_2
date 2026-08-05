@@ -12,6 +12,8 @@ import { isEmailConfigured, sendEmail } from "@/lib/email";
 import { jobClient, jobIdentityInclude } from "@/lib/job-identity";
 import { canDeleteQuote } from "@/lib/quote-status";
 import { firstSendIntro, quoteEmailHtml, quoteEmailText } from "@/lib/quote/email-templates";
+import { checkAiRateLimit, recordAiUsage } from "@/lib/ai/rate-limit";
+import { draftFollowUpMessage } from "@/lib/ai/quote-followup";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -314,7 +316,13 @@ export async function sendQuoteEmailAction(
   const url = shareUrl("quote", quote.shareToken, origin);
   const companyName = company?.name || "your contractor";
 
-  const intro = firstSendIntro({ companyName });
+  // Item 50: a reviewed AI follow-up (or anything hand-typed in its place)
+  // wins over the fixed first-send line. Never used unedited or unseen — the
+  // panel only ever posts here after showing the draft for the contractor to
+  // read and change, same "reviewed before it reaches a homeowner" rule the
+  // cron's own fixed template exists to avoid needing in the first place.
+  const customMessage = getString(formData, "customMessage");
+  const intro = customMessage || firstSendIntro({ companyName });
 
   try {
     await sendEmail({
@@ -346,4 +354,46 @@ export async function sendQuoteEmailAction(
   revalidatePath(`/jobs/${jobId}/quotes/${quoteId}`);
   revalidatePath(`/jobs/${jobId}`);
   return { sentAt: Date.now() };
+}
+
+export type DraftFollowUpState = { message: string } | { error: string };
+
+/**
+ * Item 50. Called directly from `QuoteSharePanel` (plain arguments, same
+ * pattern `draftQuoteScopeAction` establishes) — the draft lands in
+ * component state for the contractor to read and edit, never sent from
+ * here. Only makes sense once a quote has actually gone out once, so the
+ * panel gates this on `sentAt` already being set.
+ */
+export async function draftQuoteFollowUpAction(
+  jobId: string,
+  quoteId: string
+): Promise<DraftFollowUpState> {
+  const { companyId, userId } = await requireJobAccess(jobId, "sendQuote");
+
+  const quote = await prisma.quote.findFirst({
+    where: { id: quoteId, jobId, companyId },
+    select: { sentAt: true },
+  });
+  if (!quote) return { error: "Quote not found" };
+  if (!quote.sentAt) return { error: "This quote hasn't been sent yet." };
+
+  const limit = await checkAiRateLimit({ jobId, userId });
+  if (!limit.allowed) return { error: limit.message };
+
+  await recordAiUsage({ jobId, userId, kind: "summary" });
+
+  const daysSinceSent = Math.max(
+    1,
+    Math.floor((Date.now() - quote.sentAt.getTime()) / (24 * 60 * 60 * 1000))
+  );
+
+  try {
+    const message = await draftFollowUpMessage({ jobId, quoteId, daysSinceSent });
+    return { message };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Couldn't draft a follow-up. Try again.",
+    };
+  }
 }

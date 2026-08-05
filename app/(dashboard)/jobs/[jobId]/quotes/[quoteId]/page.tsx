@@ -11,6 +11,7 @@ import { jobAddress, jobClient, jobIdentityInclude } from "@/lib/job-identity";
 import { formatMoney, microsToPercent, toDollars } from "@/lib/money";
 import { shareUrl as buildShareUrl } from "@/lib/share-token";
 import { isEmailConfigured } from "@/lib/email";
+import { isAiConfigured } from "@/lib/ai/client";
 import { canDeleteQuote } from "@/lib/quote-status";
 import { QuoteBuilder } from "@/components/dashboard/quote-builder";
 import { QuoteSharePanel } from "@/components/dashboard/quote-share-panel";
@@ -132,6 +133,7 @@ export default async function QuoteBuilderPage({
         declineNote={quote.declineNote}
         clientEmail={jobClient(job).email}
         emailConfigured={isEmailConfigured()}
+        aiConfigured={isAiConfigured()}
       />
 
       {/* Only once they've said yes. An invoice offered beside an unanswered
@@ -191,6 +193,7 @@ export default async function QuoteBuilderPage({
       <QuoteBuilder
         taxRates={taxRates}
         services={services}
+        aiConfigured={isAiConfigured()}
         quote={{
           id: quote.id,
           jobId,
