@@ -203,7 +203,7 @@ export function computeTotals(
     totalCents,
     costCents,
     marginCents,
-    marginPercent: totalCents === 0 ? null : (marginCents / totalCents) * 100,
+    marginPercent: taxableCents === 0 ? null : (marginCents / taxableCents) * 100,
     depositCents,
   };
 }

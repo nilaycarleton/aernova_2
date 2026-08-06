@@ -22,6 +22,17 @@ test("the sample quote reproduces Jobber's figures exactly", () => {
   assert.equal(t.marginPercent?.toFixed(2), "41.93", "margin is a share of price");
 });
 
+test("margin percent is invariant to tax — it's a share of price, not of what the client pays", () => {
+  // Same $7,500/$4,355/$3,145 quote as above, with a 13% tax rate added. Tax
+  // collected isn't profit, so marginPercent must read the same 41.93%
+  // whether or not a tax rate is set — a regression here previously divided
+  // by the tax-inclusive total instead, quietly deflating every taxed quote.
+  const t = computeTotals(SAMPLE, { taxRateMicros: percentToMicros(13) });
+  assert.equal(t.marginCents, 314_500, "tax doesn't touch the margin itself");
+  assert.notEqual(t.taxableCents, t.totalCents, "sanity: tax is actually being added");
+  assert.equal(t.marginPercent?.toFixed(2), "41.93", "margin is a share of price, not of price+tax");
+});
+
 test("markup is derived from the cost/price pair, as the popover shows", () => {
   assert.equal(markupPercent(410_000, 680_000)?.toFixed(2), "65.85");
   assert.equal(markupPercent(17_500, 45_000)?.toFixed(2), "157.14");

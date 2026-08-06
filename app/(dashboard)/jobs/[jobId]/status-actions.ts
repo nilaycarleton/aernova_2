@@ -38,6 +38,8 @@ export async function updateJobStatusAction(jobId: string, status: JobStatus) {
   revalidatePath("/clients");
 }
 
+export type RequestReviewState = { error?: string; requestedAt?: number };
+
 /**
  * Item 48. Records that a review was asked for, and — when there's a client
  * email and Resend is configured — actually sends it. `channel` reuses
@@ -47,8 +49,17 @@ export async function updateJobStatusAction(jobId: string, status: JobStatus) {
  * No token is minted. `Company.reviewUrl` is a static, company-wide address —
  * Google's or Facebook's own review page — not a per-homeowner document, so
  * there's nothing here for `lib/share-token.ts` to protect.
+ *
+ * Every failure path here returns rather than throws — same reasoning as
+ * `sendQuoteEmailAction`: a real Resend failure (rate limit, invalid domain,
+ * transient network error) is reachable in production, and a contractor
+ * mid-request should see the reason inline, not the whole job page replaced
+ * by the error boundary.
  */
-export async function requestReviewAction(formData: FormData) {
+export async function requestReviewAction(
+  _prevState: RequestReviewState,
+  formData: FormData
+): Promise<RequestReviewState> {
   const jobId = getString(formData, "jobId");
   const channel = getString(formData, "channel") === "email" ? "email" : "link";
   if (!jobId) throw new Error("Missing jobId");
@@ -59,19 +70,23 @@ export async function requestReviewAction(formData: FormData) {
     prisma.company.findUnique({ where: { id: companyId }, select: { name: true, reviewUrl: true } }),
     prisma.job.findFirst({ where: { id: jobId, companyId }, include: jobIdentityInclude }),
   ]);
-  if (!company?.reviewUrl) throw new Error("Add a review link in Settings first.");
-  if (!job) throw new Error("Job not found");
+  if (!company?.reviewUrl) return { error: "Add a review link in Settings first." };
+  if (!job) return { error: "Job not found." };
 
   if (channel === "email") {
     const client = jobClient(job);
-    if (!client.email) throw new Error("This client has no email on file.");
-    if (!isEmailConfigured()) throw new Error("Email isn't set up in this environment.");
-    await sendEmail({
-      to: client.email,
-      subject: `How did we do, ${client.name}?`,
-      html: `<p>Hi ${client.name},</p><p>Thanks for choosing ${company.name}. If you have a minute, a review helps other homeowners find us.</p><p><a href="${company.reviewUrl}">Leave a review</a></p>`,
-      text: `Hi ${client.name},\n\nThanks for choosing ${company.name}. If you have a minute, a review helps other homeowners find us.\n\n${company.reviewUrl}`,
-    });
+    if (!client.email) return { error: "This client has no email on file." };
+    if (!isEmailConfigured()) return { error: "Email isn't set up in this environment." };
+    try {
+      await sendEmail({
+        to: client.email,
+        subject: `How did we do, ${client.name}?`,
+        html: `<p>Hi ${client.name},</p><p>Thanks for choosing ${company.name}. If you have a minute, a review helps other homeowners find us.</p><p><a href="${company.reviewUrl}">Leave a review</a></p>`,
+        text: `Hi ${client.name},\n\nThanks for choosing ${company.name}. If you have a minute, a review helps other homeowners find us.\n\n${company.reviewUrl}`,
+      });
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : "Couldn't send the email." };
+    }
   }
 
   await prisma.job.update({ where: { id: jobId }, data: { reviewRequestedAt: new Date() } });
@@ -84,6 +99,7 @@ export async function requestReviewAction(formData: FormData) {
   });
 
   revalidatePath(`/jobs/${jobId}`);
+  return { requestedAt: Date.now() };
 }
 
 export async function deleteJobAction(formData: FormData) {

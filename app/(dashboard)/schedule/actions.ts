@@ -4,9 +4,10 @@ import { revalidatePath } from "next/cache";
 import { JobStatus, VisitKind, VisitStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireCapability, requireJobAccess } from "@/lib/auth";
-import { dayToInstant, parseDayInput } from "@/lib/schedule/day";
-import { expandRecurrence, toCalendarDate, type Frequency } from "@/lib/schedule/recurrence";
+import { dayToInstant, instantToDay, parseDayInput } from "@/lib/schedule/day";
+import { compareDates, expandRecurrence, toCalendarDate, type Frequency } from "@/lib/schedule/recurrence";
 import { isValidTimeZone, parseTimeInput, utcToZoned, zonedTimeToUtc } from "@/lib/schedule/timezone";
+import { syncClientStatusForJob } from "@/lib/client-resolve";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -100,6 +101,16 @@ export async function bookVisitAction(
         }),
   ]);
 
+  // Booking work in is the everyday way a job reaches SCHEDULED — far more
+  // common than the manual status dropdown — so the lead→client conversion
+  // has to fire from here too, not only from updateJobStatusAction. An
+  // ASSESSMENT booking never reaches a won status (LEAD → INSPECTION only),
+  // so it's a safe no-op there; syncClientStatusForJob checks isWonJobStatus
+  // itself.
+  if (kind !== VisitKind.ASSESSMENT) {
+    await syncClientStatusForJob(job.id, JobStatus.SCHEDULED);
+  }
+
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/schedule");
   return { bookedAt: Date.now() };
@@ -184,17 +195,21 @@ export async function completeVisitAction(formData: FormData) {
         status: { in: [VisitStatus.SCHEDULED, VisitStatus.IN_PROGRESS] },
       },
     });
-    if (outstanding === 0) {
-      await prisma.job.updateMany({
-        where: { id: jobId, status: { in: [JobStatus.SCHEDULED, JobStatus.IN_PROGRESS] } },
-        data: { status: JobStatus.COMPLETED },
-      });
-    } else {
-      await prisma.job.updateMany({
-        where: { id: jobId, status: JobStatus.SCHEDULED },
-        data: { status: JobStatus.IN_PROGRESS },
-      });
-    }
+    const nextStatus = outstanding === 0 ? JobStatus.COMPLETED : JobStatus.IN_PROGRESS;
+    await prisma.job.updateMany({
+      where: {
+        id: jobId,
+        status:
+          nextStatus === JobStatus.COMPLETED
+            ? { in: [JobStatus.SCHEDULED, JobStatus.IN_PROGRESS] }
+            : JobStatus.SCHEDULED,
+      },
+      data: { status: nextStatus },
+    });
+    // Both destinations are won statuses, so a job completing its work is
+    // just as much a conversion moment as being booked in the first place —
+    // see the same reasoning in bookVisitAction above.
+    await syncClientStatusForJob(jobId, nextStatus);
   }
 
   revalidatePath(`/jobs/${jobId}`);
@@ -262,24 +277,54 @@ export async function setRecurrenceAction(formData: FormData) {
   const durationMinutes = Number(getString(formData, "duration") || "120") || 120;
   const timed = startMinutes !== null && company?.timeZone;
 
-  const rule = await prisma.recurrenceRule.create({
-    data: {
-      companyId,
-      jobId,
-      frequency,
-      interval,
-      startDate: dayToInstant(start),
-      count,
-      ...(timed ? { startMinutes, durationMinutes } : {}),
-    },
-  });
+  // A job has at most one active series at a time — this action is the only
+  // writer of RecurrenceRule, so that invariant holds as long as it's kept
+  // here. Resubmitting "It repeats" (extending the horizon, or tweaking just
+  // the time of day) must reuse the same rule id, not mint a new one: the
+  // uniqueness that makes `skipDuplicates` below actually dedupe is scoped to
+  // one rule, so two different rule ids generating the same dates would
+  // double-book. A genuinely different pattern (frequency/interval/count/
+  // start date all define *which* dates exist) is a new series, not an edit
+  // of the old one — the old rule stops generating but keeps what it already
+  // made, which is what `isActive` has been sitting here for.
+  const existingRule = await prisma.recurrenceRule.findFirst({ where: { jobId, isActive: true } });
+  const patternUnchanged =
+    existingRule !== null &&
+    existingRule.frequency === frequency &&
+    existingRule.interval === interval &&
+    existingRule.count === count &&
+    compareDates(instantToDay(existingRule.startDate), start) === 0;
+
+  let rule;
+  if (patternUnchanged) {
+    rule = await prisma.recurrenceRule.update({
+      where: { id: existingRule.id },
+      data: timed ? { startMinutes, durationMinutes } : {},
+    });
+  } else {
+    if (existingRule) {
+      await prisma.recurrenceRule.update({ where: { id: existingRule.id }, data: { isActive: false } });
+    }
+    rule = await prisma.recurrenceRule.create({
+      data: {
+        companyId,
+        jobId,
+        frequency,
+        interval,
+        startDate: dayToInstant(start),
+        count,
+        ...(timed ? { startMinutes, durationMinutes } : {}),
+      },
+    });
+  }
 
   const horizon = toCalendarDate(new Date(Date.now() + HORIZON_DAYS * 24 * 60 * 60 * 1000));
   const dates = expandRecurrence({ frequency, interval, startDate: start, count }, horizon);
 
   // `skipDuplicates` plus the unique index on (rule, occurrenceDate) is what
   // makes re-running this safe: extending the horizon adds the new dates and
-  // silently leaves every visit that already exists exactly as it is.
+  // silently leaves every visit that already exists exactly as it is — true
+  // now that the same rule id is actually reused above.
   await prisma.visit.createMany({
     data: dates.map((date) => {
       const startAt = timed ? zonedTimeToUtc(date, startMinutes, company!.timeZone!) : dayToInstant(date);
@@ -305,6 +350,7 @@ export async function setRecurrenceAction(formData: FormData) {
     },
     data: { status: JobStatus.SCHEDULED },
   });
+  await syncClientStatusForJob(jobId, JobStatus.SCHEDULED);
 
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/schedule");
