@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { formatAddress } from "@/lib/client-matching";
 import { jobAddress, jobClient, jobIdentityInclude } from "@/lib/job-identity";
 import { isWellFormedShareToken } from "@/lib/share-token";
-import { instantToDay } from "@/lib/schedule/day";
+import { visitCalendarDay } from "@/lib/schedule/timezone";
 import { buildCalendar, type IcsEvent } from "@/lib/schedule/ics";
 
 /**
@@ -53,7 +53,7 @@ export async function GET(
 
   const company = await prisma.company.findFirst({
     where: { calendarToken: token },
-    select: { id: true, name: true },
+    select: { id: true, name: true, timeZone: true },
   });
   if (!company) return new Response("Not found", { status: 404 });
 
@@ -80,7 +80,11 @@ export async function GET(
       // event on the crew's phone instead of leaving the old one behind and
       // adding a second.
       uid: `visit-${visit.id}@aernova`,
-      start: instantToDay(visit.startAt),
+      // The same timezone-aware bucketing every other consumer uses (the
+      // schedule page, double-booking detection) — a raw UTC day here was the
+      // exact "evening visit is tomorrow in UTC before it's tomorrow locally"
+      // mistake `tests/schedule-timezone.test.ts` documents avoiding.
+      start: visitCalendarDay(visit, company.timeZone),
       // What a person reads at a glance on a phone: whose roof, and where.
       // Jobs are often named after the address, so the client name is only
       // added when it says something the job name doesn't — "1550 Gilles St —

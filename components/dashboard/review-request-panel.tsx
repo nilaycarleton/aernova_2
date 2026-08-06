@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { requestReviewAction } from "@/app/(dashboard)/jobs/[jobId]/status-actions";
+import { useActionState, useState } from "react";
+import {
+  requestReviewAction,
+  type RequestReviewState,
+} from "@/app/(dashboard)/jobs/[jobId]/status-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 
 /**
@@ -25,6 +28,7 @@ export function ReviewRequestPanel({
   emailConfigured: boolean;
 }) {
   const [copied, setCopied] = useState(false);
+  const [state, action] = useActionState<RequestReviewState, FormData>(requestReviewAction, {});
 
   async function copy() {
     await navigator.clipboard.writeText(reviewUrl);
@@ -56,7 +60,7 @@ export function ReviewRequestPanel({
         </button>
 
         {emailConfigured && clientEmail ? (
-          <form action={requestReviewAction} className="shrink-0">
+          <form action={action} className="shrink-0">
             <input type="hidden" name="jobId" value={jobId} />
             <input type="hidden" name="channel" value="email" />
             <SubmitButton
@@ -75,10 +79,12 @@ export function ReviewRequestPanel({
         </p>
       ) : null}
 
+      {state.error ? <p className="mt-2 text-sm text-danger-fg">{state.error}</p> : null}
+
       {/* Most of these get asked in person or by text, not by clicking a
           button here — same reasoning as a quote's own phone-call approval.
           This just records that it happened. */}
-      <form action={requestReviewAction} className="mt-4 border-t border-hairline pt-4">
+      <form action={action} className="mt-4 border-t border-hairline pt-4">
         <input type="hidden" name="jobId" value={jobId} />
         <input type="hidden" name="channel" value="link" />
         <SubmitButton

@@ -928,12 +928,18 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
 
   return (
     // Signature instrument surface: stays dark in both app themes — see
-    // `.surface-dark` in globals.css. In full screen it becomes a fixed overlay
-    // filling the browser; the canvas stays mounted and the ResizeObserver resizes
-    // the renderer to match.
+    // `.surface-dark` in globals.css. `.surface-dark` only re-forces the
+    // *tokens* (--color-ground etc.), so it needs an element that actually
+    // paints with one — `bg-ground` here, always, not just in full screen.
+    // Without it the toolbar had nothing behind it in light mode, and the
+    // tool-identity buttons below (raw yellow/violet, not token-based, so
+    // .surface-dark can't touch them either) read as invisible pale-on-pale.
+    // In full screen it becomes a fixed overlay filling the browser; the
+    // canvas stays mounted and the ResizeObserver resizes the renderer to
+    // match.
     <div
       ref={outerRef}
-      className={`surface-dark min-w-0 ${fullscreen ? "fixed inset-0 z-50 bg-ground" : ""}`}
+      className={`surface-dark min-w-0 bg-ground ${fullscreen ? "fixed inset-0 z-50" : "rounded-2xl"}`}
     >
       <div
         {...(fullscreen ? keepChrome : {})}
