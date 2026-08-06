@@ -201,12 +201,17 @@ export default async function JobDetailPage({
             {[client.name, formatAddress(address) ?? "No address yet"].filter(Boolean).join(" • ")}
           </p>
 
-          <Link
-            href={`/jobs/${job.id}/report`}
-            className="mt-5 inline-flex rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-          >
-            Open printable report
-          </Link>
+          {/* The report is pricing/margin end to end, same reason as the quote
+              figure below: not rendered for crew, since the page it links to
+              is gated on viewMoney too. */}
+          {showsMoney ? (
+            <Link
+              href={`/jobs/${job.id}/report`}
+              className="mt-5 inline-flex rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            >
+              Open printable report
+            </Link>
+          ) : null}
         </div>
 
         <div className="min-w-0 space-y-6">

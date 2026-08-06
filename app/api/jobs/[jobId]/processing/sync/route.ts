@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { syncNodeOdmModelJob } from "@/lib/processing-jobs";
+import { requireJobAccess } from "@/lib/auth";
 
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ jobId: string }> }
 ) {
   const { jobId } = await params;
+
+  try {
+    await requireJobAccess(jobId, "editJob");
+  } catch {
+    return NextResponse.json({ error: "Not authorized for this job" }, { status: 403 });
+  }
+
   const jobs = await prisma.processingJob.findMany({
     where: {
       jobId,

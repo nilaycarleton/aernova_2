@@ -3,6 +3,7 @@ import path from "path";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { storage } from "@/lib/storage";
+import { requireJobAccess } from "@/lib/auth";
 import {
   downloadNodeOdmAllZip,
   extractZipEntry,
@@ -60,6 +61,12 @@ export async function GET(
 ) {
   const { jobId, imageryId } = await params;
   const requestedAsset = new URL(request.url).searchParams.get("asset") || "all";
+
+  try {
+    await requireJobAccess(jobId, "editJob");
+  } catch {
+    return NextResponse.json({ error: "Not authorized for this job" }, { status: 403 });
+  }
 
   const model = await prisma.projectImagery.findFirst({
     where: {
