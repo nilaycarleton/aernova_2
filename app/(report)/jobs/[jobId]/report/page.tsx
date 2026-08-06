@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireCompanyContext } from "@/lib/auth";
+import { can, jobScopeForRole } from "@/lib/permissions";
 import { buildJobReportViewModel } from "@/lib/report-view-model";
 import { jobIdentityInclude } from "@/lib/job-identity";
 import { PrintReport } from "@/components/dashboard/print-report";
@@ -12,10 +13,17 @@ export default async function JobReportPage({
   params: Promise<{ jobId: string }>;
 }) {
   const { jobId } = await params;
-  const { company } = await requireCompanyContext();
+  const { company, user, role } = await requireCompanyContext();
 
-  const job = await prisma.job.findUnique({
-    where: { id: jobId },
+  // The report is money-heavy end to end (quotes, line-item pricing, margin) —
+  // there is no partial view of it the way the job page has for crew, so it's
+  // gated on viewMoney outright rather than rendered and trimmed. Scoped by
+  // jobScopeForRole too, same as the job page, so a crew member can't reach a
+  // job they're not assigned to just by knowing its id.
+  if (!can(role, "viewMoney")) notFound();
+
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, companyId: company.id, ...jobScopeForRole(role, user.id) },
     include: {
       measurements: {
         orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
@@ -39,9 +47,7 @@ export default async function JobReportPage({
     },
   });
 
-  if (!job || job.companyId !== company.id) {
-    notFound();
-  }
+  if (!job) notFound();
 
   const report = buildJobReportViewModel({
     job,

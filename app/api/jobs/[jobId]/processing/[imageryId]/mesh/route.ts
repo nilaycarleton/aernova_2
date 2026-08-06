@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveModelMeshText } from "@/lib/roof-extraction-service";
+import { requireJobAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -14,6 +15,13 @@ export async function GET(
   { params }: { params: Promise<{ jobId: string; imageryId: string }> }
 ) {
   const { jobId, imageryId } = await params;
+
+  try {
+    await requireJobAccess(jobId, "editJob");
+  } catch {
+    return NextResponse.json({ error: "Not authorized for this job" }, { status: 403 });
+  }
+
   try {
     const { text } = await resolveModelMeshText(jobId, imageryId);
     return new Response(text, {
