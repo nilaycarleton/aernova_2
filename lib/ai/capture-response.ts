@@ -5,6 +5,7 @@
  * `prisma` while the actions that call it don't.
  */
 import { formatMoney, type Cents } from "../money.ts";
+import { parseJsonObject } from "./json-response.ts";
 
 export type ServiceForCapture = {
   id: string;
@@ -28,19 +29,8 @@ export type CaptureDraft = {
  * either reaches a draft job.
  */
 export function parseCaptureResponse(rawText: string, services: ServiceForCapture[]): CaptureDraft {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(rawText.trim());
-  } catch {
-    throw new Error("Couldn't read the assistant's response.");
-  }
-  // `typeof [] === "object"` in JS, so the array case needs its own check —
-  // without it, a malformed array response would silently fall through to
-  // every field's default rather than failing loudly.
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new Error("Couldn't read the assistant's response.");
-  }
-  const raw = parsed as Record<string, unknown>;
+  const raw = parseJsonObject(rawText);
+  if (!raw) throw new Error("Couldn't read the assistant's response.");
 
   const matched =
     typeof raw.serviceId === "string" ? services.find((s) => s.id === raw.serviceId) : undefined;

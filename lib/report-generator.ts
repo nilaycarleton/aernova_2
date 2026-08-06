@@ -10,6 +10,14 @@ type ReportSection = {
   body: string;
 };
 
+// This file works in dollar floats throughout (unlike lib/money.ts's
+// cents-only convention), so a bare `.toLocaleString()` on one of them drops
+// trailing zeros — "$1,207.3" instead of "$1,207.30" — inconsistent with
+// every other dollar figure on the same page. Two decimals, always.
+function formatDollars(dollars: number): string {
+  return dollars.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 export type LineItem = {
   description: string;
   quantity: number;
@@ -229,10 +237,10 @@ export function generateRoofingReport(
     {
       title: "Pricing Summary",
       body:
-        `Subtotal: $${totals.subtotal.toLocaleString()}. ` +
-        `Overhead & profit (${totals.markupPercent}%): $${totals.markupAmount.toLocaleString()}. ` +
-        `Tax (${totals.taxPercent}%): $${totals.taxAmount.toLocaleString()}. ` +
-        `Estimated total: $${totals.total.toLocaleString()}.`
+        `Subtotal: $${formatDollars(totals.subtotal)}. ` +
+        `Overhead & profit (${totals.markupPercent}%): $${formatDollars(totals.markupAmount)}. ` +
+        `Tax (${totals.taxPercent}%): $${formatDollars(totals.taxAmount)}. ` +
+        `Estimated total: $${formatDollars(totals.total)}.`
     },
     {
       title: "Scope of Work",

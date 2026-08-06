@@ -19,7 +19,7 @@ export default async function CapturePage() {
       <div>
         <h1 className="text-2xl font-semibold text-ink-primary">Draft from a photo</h1>
         <p className="mt-2 text-sm leading-6 text-ink-muted">
-          Take a photo of what needs work. Claude drafts a job name, a short description, and a
+          Take a photo of what needs work. We draft a job name, a short description, and a
           price from your own catalog — you pick who it&rsquo;s for and review the rest before
           anything saves.
         </p>

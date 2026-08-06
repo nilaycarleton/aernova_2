@@ -64,7 +64,7 @@ export function CaptureSheet() {
               {busy ? "Reading the photo…" : "Take or choose a photo"}
             </span>
             <span className="text-sm text-ink-muted">
-              Claude drafts a job name, a description, and a matching price from your catalog.
+              We draft a job name, a description, and a matching price from your catalog.
               Nothing saves until you review it.
             </span>
             <input
@@ -144,7 +144,7 @@ export function CaptureSheet() {
 
       <div>
         <label htmlFor="capture-notes" className="mb-2 block text-sm font-medium text-ink-secondary">
-          What Claude saw <span className="text-ink-muted">(edit if it&rsquo;s off)</span>
+          What we saw <span className="text-ink-muted">(edit if it&rsquo;s off)</span>
         </label>
         <textarea
           id="capture-notes"

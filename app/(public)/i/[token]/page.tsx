@@ -62,7 +62,7 @@ export default async function PublicInvoicePage({
   // homeowner must never be shown a demand for money that was withdrawn.
   if (!invoice || invoice.status === InvoiceStatus.VOID) notFound();
 
-  await markInvoiceViewed(invoice.id);
+  await markInvoiceViewed(token);
 
   const client = jobClient(invoice.job);
   const billTo = formatBillingAddress(effectiveBillingAddress(invoice, jobAddress(invoice.job)));

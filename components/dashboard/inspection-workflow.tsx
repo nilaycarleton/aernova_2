@@ -6,6 +6,7 @@ import {
   uploadInspectionPhotoAction,
 } from "@/app/(dashboard)/jobs/[jobId]/photo-actions";
 import { DeletableItem } from "@/components/dashboard/deletable-item";
+import { InspectionPhotoInput } from "@/components/dashboard/inspection-photo-input";
 import { PhotoAnnotationStudio } from "@/components/dashboard/photo-annotation-studio";
 
 type Props = {
@@ -73,17 +74,7 @@ export function InspectionWorkflow({ jobId, issues, photos }: Props) {
 
           <form action={uploadInspectionPhotoAction} className="mt-6 space-y-4">
             <input type="hidden" name="jobId" value={jobId} />
-            <input
-              name="photo"
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="block w-full rounded-2xl border border-dashed border-hairline bg-ground/50 px-4 py-5 text-sm text-ink-secondary file:mr-4 file:rounded-xl file:border-0 file:bg-surface-lifted file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink-primary"
-              required
-            />
-            <p className="text-xs text-ink-muted">
-              On phones and tablets this opens the camera directly for on-roof capture.
-            </p>
+            <InspectionPhotoInput />
             <div className="grid gap-4 md:grid-cols-2">
               <input
                 name="locationTag"
@@ -113,7 +104,7 @@ export function InspectionWorkflow({ jobId, issues, photos }: Props) {
               type="submit"
               className="rounded-2xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
             >
-              Upload Photo
+              Upload photo
             </button>
           </form>
         </div>
@@ -201,7 +192,7 @@ export function InspectionWorkflow({ jobId, issues, photos }: Props) {
               type="submit"
               className="rounded-2xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
             >
-              Add Issue
+              Add issue
             </button>
           </form>
         </div>
@@ -287,7 +278,7 @@ export function InspectionWorkflow({ jobId, issues, photos }: Props) {
                     type="submit"
                     className="mt-3 rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-strong transition hover:bg-surface-lifted"
                   >
-                    Save Photo Details
+                    Save photo details
                   </button>
                 </form>
                 </DeletableItem>

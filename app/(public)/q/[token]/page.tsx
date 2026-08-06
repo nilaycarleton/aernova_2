@@ -46,7 +46,7 @@ export default async function PublicQuotePage({
 
   if (!quote) notFound();
 
-  await markQuoteViewed(quote.id);
+  await markQuoteViewed(token);
 
   // Handed to the client island rather than summed here: the total has to move
   // when they tick an extra, and it must move by running the same function the

@@ -26,3 +26,16 @@ test("malformed JSON throws rather than silently drafting garbage", () => {
 test("a JSON array throws the same way objects with the wrong shape do", () => {
   assert.throws(() => parseScopeDraft("[1,2]"));
 });
+
+test("a markdown-fenced response is trusted, not rejected as unreadable", () => {
+  // Live-caught: the system prompt asks for raw JSON with no fences, and the
+  // model almost always complies — but "almost always" surfaced as a real
+  // "Couldn't read the assistant's response." error in a live check.
+  const fenced =
+    "```json\n" +
+    JSON.stringify({ introTitle: "Thanks for having us out", introBody: "Found some wear." }) +
+    "\n```";
+  const draft = parseScopeDraft(fenced);
+  assert.equal(draft.introTitle, "Thanks for having us out");
+  assert.equal(draft.introBody, "Found some wear.");
+});

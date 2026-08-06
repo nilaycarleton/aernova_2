@@ -57,6 +57,42 @@ test("every requireJobAccess call names the capability it needs", () => {
   );
 });
 
+test("every API route handler has some auth check, not zero", () => {
+  // The gap this audit actually found (2026-08-05): three route.ts files
+  // under app/api/jobs/[jobId]/processing/ called Prisma directly with no
+  // guard of any kind — not a wrong capability, no guard at all. The tests
+  // above can't see that class of bug; they only check that a
+  // `requireJobAccess(` call, once present, is used correctly. This one
+  // checks presence itself, across every API route rather than one call
+  // site at a time.
+  const GUARD_MARKERS = [
+    "requireJobAccess(",
+    "requireCapability(",
+    "requireCompanyContext(",
+    // Cron routes authenticate with a shared secret header instead —
+    // there's no per-request user to run a capability check against.
+    "CRON_SECRET",
+    // The Stripe webhook authenticates by verifying Stripe's own signature.
+    "webhooks.constructEvent",
+    // Public share-link routes (the ICS calendar feed, same idiom as
+    // /q/[token] and /i/[token]): the token in the URL is the whole
+    // credential, checked here instead of a company/job guard.
+    "isWellFormedShareToken(",
+  ];
+  const offenders: string[] = [];
+  for (const { file, text } of sources) {
+    if (!file.endsWith("route.ts")) continue;
+    if (!GUARD_MARKERS.some((marker) => text.includes(marker))) {
+      offenders.push(file);
+    }
+  }
+  assert.deepEqual(
+    offenders,
+    [],
+    "these API routes have no auth check of any kind:\n" + offenders.join("\n")
+  );
+});
+
 test("no server action falls back to a bare company check", () => {
   // `requireCompanyContext` answers "which company" and nothing about role, so
   // a mutating action that relies on it alone is open to every member — which

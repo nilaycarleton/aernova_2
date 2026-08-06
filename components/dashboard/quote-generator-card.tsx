@@ -8,6 +8,7 @@ import {
   QuoteStartDialog,
   type StartTemplate,
 } from "@/components/dashboard/quote-start-dialog";
+import { DisclosurePanel } from "@/components/dashboard/disclosure-panel";
 import { formatMoney } from "@/lib/money";
 
 type Props = {
@@ -140,20 +141,31 @@ export function QuoteGeneratorCard({ jobId, quotes, templates, hasMeasurements }
           ) : null}
 
           {parsed?.sections?.length ? (
+            /* Reference material, not primary content — the tiles above
+               already lead with the numbers a contractor actually reads.
+               Collapsed by default, same disclosure pattern the Scan tab
+               uses for its own hands-on tools. */
             <div className="border-t border-hairline pt-5">
-              {parsed.sections.map((section) => (
-                <div
-                  key={section.title}
-                  className="border-b border-hairline py-4 last:border-b-0 last:pb-0"
-                >
-                  <h4 className="text-sm font-semibold text-ink-primary">
-                    {section.title}
-                  </h4>
-                  <p className="mt-1.5 text-sm leading-6 text-ink-muted">
-                    {section.body}
-                  </p>
+              <DisclosurePanel
+                title="Full measurement report"
+                hint="Roof measurements, waste, material estimate, pricing, and scope of work"
+              >
+                <div className="space-y-4">
+                  {parsed.sections.map((section) => (
+                    <div
+                      key={section.title}
+                      className="border-b border-hairline pb-4 last:border-b-0 last:pb-0"
+                    >
+                      <h4 className="text-sm font-semibold text-ink-primary">
+                        {section.title}
+                      </h4>
+                      <p className="mt-1.5 text-sm leading-6 text-ink-muted">
+                        {section.body}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </DisclosurePanel>
             </div>
           ) : null}
         </>
