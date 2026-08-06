@@ -3,6 +3,7 @@
 import { ActivityKind, InvoiceStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { recordActivity } from "@/lib/activity";
+import { isWellFormedShareToken } from "@/lib/share-token";
 
 /**
  * They opened it.
@@ -17,17 +18,25 @@ import { recordActivity } from "@/lib/activity";
  * not need to be. The question this answers is only ever asked once — *have
  * they even seen it* — and it is asked on the day the contractor is deciding
  * whether to chase the link or chase the money.
+ *
+ * Takes the token, not an id — this is an exported "use server" action, so
+ * Next exposes it as a directly-callable endpoint regardless of how the page
+ * happens to invoke it internally. The token is the only credential a public
+ * caller actually holds; trusting a bare id let anyone who knew or guessed
+ * one flip another company's invoice to "viewed" from outside the page.
  */
-export async function markInvoiceViewed(invoiceId: string): Promise<void> {
+export async function markInvoiceViewed(token: string): Promise<void> {
+  if (!isWellFormedShareToken(token)) return;
+
   const updated = await prisma.invoice.updateMany({
-    where: { id: invoiceId, viewedAt: null, status: InvoiceStatus.SENT },
+    where: { shareToken: token, viewedAt: null, status: InvoiceStatus.SENT },
     data: { viewedAt: new Date() },
   });
   if (updated.count === 0) return;
 
-  const invoice = await prisma.invoice.findUnique({
-    where: { id: invoiceId },
-    select: { companyId: true, jobId: true, invoiceNumber: true },
+  const invoice = await prisma.invoice.findFirst({
+    where: { shareToken: token },
+    select: { id: true, companyId: true, jobId: true, invoiceNumber: true },
   });
   if (!invoice) return;
 
@@ -36,6 +45,6 @@ export async function markInvoiceViewed(invoiceId: string): Promise<void> {
     jobId: invoice.jobId,
     kind: ActivityKind.INVOICE_VIEWED,
     actorLabel: "The client",
-    meta: { invoiceId, invoiceNumber: invoice.invoiceNumber ?? undefined },
+    meta: { invoiceId: invoice.id, invoiceNumber: invoice.invoiceNumber ?? undefined },
   });
 }

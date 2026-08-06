@@ -59,9 +59,14 @@ test("a JSON array (not an object) throws the same way", () => {
   assert.throws(() => parseCaptureResponse("[1,2,3]", CATALOG));
 });
 
-test("markdown-fenced JSON still throws — the prompt asks for raw JSON only", () => {
-  // Documents the contract: draftJobFromPhoto passes the model's text through
-  // unmodified, so a model that ignores the "no markdown fences" instruction
-  // fails loudly here rather than the caller silently getting garbage.
-  assert.throws(() => parseCaptureResponse("```json\n{\"jobName\":\"x\"}\n```", CATALOG));
+test("markdown-fenced JSON is trusted, not rejected as unreadable", () => {
+  // Live-caught (2026-08-06): the system prompt asks for raw JSON with no
+  // fences, and the model almost always complies — but "almost always" isn't
+  // good enough to throw a contractor's draft away over. A fence is stripped
+  // before parsing rather than failing a well-formed response over wrapping.
+  const draft = parseCaptureResponse(
+    "```json\n" + JSON.stringify({ jobName: "Chimney flashing repair" }) + "\n```",
+    CATALOG
+  );
+  assert.equal(draft.jobName, "Chimney flashing repair");
 });

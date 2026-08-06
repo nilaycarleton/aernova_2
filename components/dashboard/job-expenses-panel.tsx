@@ -8,6 +8,7 @@ import {
   type JobExpenseFormState,
 } from "@/app/(dashboard)/jobs/[jobId]/expense-actions";
 import { formatMoney } from "@/lib/money";
+import { toDayInput, todayIn } from "@/lib/schedule/day";
 import { JOB_EXPENSE_CATEGORY_OPTIONS, jobExpenseCategoryLabel } from "@/lib/format";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { fieldClass, errorAttrs, FieldError, FormError } from "@/components/dashboard/form-feedback";
@@ -197,7 +198,7 @@ export function JobExpensesPanel({
                 id="expense-date"
                 name="incurredAt"
                 type="date"
-                defaultValue={new Date().toISOString().slice(0, 10)}
+                defaultValue={toDayInput(todayIn())}
                 className={fieldClass()}
               />
             </div>

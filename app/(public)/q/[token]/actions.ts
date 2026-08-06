@@ -180,20 +180,27 @@ export async function requestChangesAction(formData: FormData) {
  * depend on the homeowner clicking anything. Only the first view is recorded:
  * a quote re-read six times is not six events, and `viewedAt` means *first*
  * opened.
+ *
+ * Takes the token, not an id — same reasoning as `markInvoiceViewed`: this is
+ * an exported "use server" action, directly callable regardless of how the
+ * page happens to invoke it, and the token is the only credential a public
+ * caller actually holds.
  */
-export async function markQuoteViewed(quoteId: string): Promise<void> {
+export async function markQuoteViewed(token: string): Promise<void> {
+  if (!isWellFormedShareToken(token)) return;
+
   // `status: SENT` in the WHERE, not just `viewedAt: null`. A homeowner who
   // approves and then re-opens the link must not have their answer overwritten
   // by the act of reading it again.
   const updated = await prisma.quote.updateMany({
-    where: { id: quoteId, viewedAt: null, status: QuoteStatus.SENT },
+    where: { shareToken: token, viewedAt: null, status: QuoteStatus.SENT },
     data: { viewedAt: new Date(), status: QuoteStatus.VIEWED },
   });
   if (updated.count === 0) return;
 
-  const quote = await prisma.quote.findUnique({
-    where: { id: quoteId },
-    select: { companyId: true, jobId: true, quoteNumber: true },
+  const quote = await prisma.quote.findFirst({
+    where: { shareToken: token },
+    select: { id: true, companyId: true, jobId: true, quoteNumber: true },
   });
   if (!quote) return;
 
@@ -202,6 +209,6 @@ export async function markQuoteViewed(quoteId: string): Promise<void> {
     jobId: quote.jobId,
     kind: ActivityKind.QUOTE_VIEWED,
     actorLabel: "The client",
-    meta: { quoteId, quoteNumber: quote.quoteNumber ?? undefined },
+    meta: { quoteId: quote.id, quoteNumber: quote.quoteNumber ?? undefined },
   });
 }
