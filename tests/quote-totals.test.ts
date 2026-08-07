@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   computeTotals,
+  lineTotalCents,
   markupPercent,
   priceFromMarkup,
 } from "../lib/quote/totals.ts";
@@ -179,4 +180,42 @@ test("a fractional quantity multiplies out and still sums", () => {
   const t = computeTotals([{ quantity: 33.67, unitPriceCents: 31_245 }]);
   assert.equal(t.subtotalCents, 1_052_019);
   assert.equal(t.totalCents, 1_052_019);
+});
+
+// A negative quantity or price on a line item was never a legitimate feature
+// (see the discount/deposit fields for how a real credit is represented) —
+// this was a Strix-pentest finding: a negative-quantity line had no floor at
+// all, unlike the discount two lines below, which billed $100 for a $5,000
+// job in the reported proof of concept.
+test("a negative quantity does not undercut the subtotal below the real work billed", () => {
+  const t = computeTotals([
+    { quantity: 1, unitPriceCents: 500_000, unitCostCents: 300_000 },
+    { quantity: -1, unitPriceCents: 490_000 },
+  ]);
+  assert.equal(t.subtotalCents, 500_000, "the negative-quantity line contributes nothing, not -$4,900");
+  assert.equal(t.totalCents, 500_000);
+});
+
+test("a negative unit price on a line item is floored, same as a negative quantity", () => {
+  const t = computeTotals([{ quantity: 1, unitPriceCents: -100_000 }]);
+  assert.equal(t.subtotalCents, 0);
+});
+
+test("two negative factors don't cancel into a false-positive amount", () => {
+  // Each factor is floored independently before multiplying, so a negative
+  // quantity paired with a negative price can't slip past a product-only check.
+  const t = computeTotals([{ quantity: -2, unitPriceCents: -50_000 }]);
+  assert.equal(t.subtotalCents, 0);
+});
+
+test("a negative unit cost cannot fabricate a margin above the sale price", () => {
+  const t = computeTotals([{ quantity: 1, unitPriceCents: 1_000_000, unitCostCents: -500_000 }]);
+  assert.equal(t.costCents, 0, "a negative cost contributes nothing, not -$5,000");
+  assert.equal(t.marginCents, 1_000_000, "margin cannot exceed the total price of the job");
+  assert.equal(t.marginPercent, 100);
+});
+
+test("lineTotalCents alone is floored at zero, for callers outside computeTotals", () => {
+  assert.equal(lineTotalCents({ quantity: -1, unitPriceCents: 50_000 }), 0);
+  assert.equal(lineTotalCents({ quantity: 1, unitPriceCents: 50_000 }), 50_000);
 });

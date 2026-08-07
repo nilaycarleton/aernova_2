@@ -154,3 +154,11 @@ test("no invoice line carries a cost — the type has nowhere to put one", () =>
     assert.ok(!("unitCostCents" in item), "cost is not the homeowner's business");
   }
 });
+
+test("a stale negative-quantity row never produces a negative invoice line amount", () => {
+  // The write boundary in [quoteId]/actions.ts now floors quantity/price at
+  // save time, but this recomputes independently of computeTotals and needs
+  // its own floor too — for rows saved before that fix existed.
+  const draft = invoiceFromQuote([line({ quantity: -1, unitPriceCents: 490_000 })]);
+  assert.equal(draft.lineItems[0]!.amountCents, 0);
+});

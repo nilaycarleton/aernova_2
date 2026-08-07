@@ -13,6 +13,7 @@ import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { provisionCompanyCatalog } from "@/lib/company-setup";
 import { assertCan, can, jobScopeForRole, type Capability } from "@/lib/permissions";
+import { hasVerifiedPrimaryEmail, primaryEmail } from "@/lib/clerk-identity";
 
 /** Where a pending invite is parked across the sign-up round trip. */
 export const INVITE_COOKIE = "aernova_invite";
@@ -28,7 +29,7 @@ export async function getCurrentDbUser() {
   const clerkUser = await currentUser();
   if (!clerkUser) return null;
 
-  const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+  const email = primaryEmail(clerkUser);
   const profile = {
     email,
     firstName: clerkUser.firstName ?? undefined,
@@ -42,16 +43,20 @@ export async function getCurrentDbUser() {
     return prisma.user.update({ where: { id: byClerkId.id }, data: profile });
   }
 
-  // A row with this email already exists (e.g. a prior sign-in or a different
-  // Clerk instance). Re-link it to the current Clerk id instead of creating a
-  // duplicate, which would violate the unique email constraint.
-  if (email) {
+  // `clerkUserId` is required and unique (see schema.prisma), so a row is
+  // never "unclaimed" — any row found by email at this point already
+  // belongs to a *different* Clerk identity than the current session.
+  // Silently re-pointing it to `userId` here used to be an account-takeover
+  // path: any Clerk identity presenting a matching email string inherited
+  // the row's company membership (including OWNER) and evicted the real
+  // owner. A genuine "signed in from a different Clerk environment"
+  // reconciliation is rare enough to be a manual/support fix instead.
+  if (email && hasVerifiedPrimaryEmail(clerkUser)) {
     const byEmail = await prisma.user.findUnique({ where: { email } });
     if (byEmail) {
-      return prisma.user.update({
-        where: { id: byEmail.id },
-        data: { ...profile, clerkUserId: userId },
-      });
+      throw new Error(
+        "This email is already associated with another account. Contact support to resolve this."
+      );
     }
   }
 

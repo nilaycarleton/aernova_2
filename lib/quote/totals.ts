@@ -100,15 +100,29 @@ export type QuoteTotals = {
   depositCents: Cents;
 };
 
-/** One row's money. Optional rows still compute; they just don't count yet. */
+/**
+ * One row's money. Optional rows still compute; they just don't count yet.
+ *
+ * Quantity and unit price are each floored at zero before multiplying —
+ * unlike the standalone discount/deposit fields (where a negative value is
+ * a legitimate credit), a negative quantity or price on a line item isn't a
+ * feature anyone asked for; it's the one input this function was trusting
+ * unchecked while the discount two lines below was carefully clamped. A
+ * negative line used to subtract from the subtotal with no floor at all —
+ * see `Math.min(Math.max(discountCents, 0), subtotalCents)` below for the
+ * pattern this now matches. Clamping both factors (rather than just the
+ * product) also stops two negative inputs from multiplying into a
+ * positive-looking amount that would otherwise slip past a product-only check.
+ */
 export function lineTotalCents(line: LineForTotals): Cents {
   if (line.kind === "TEXT") return 0;
-  return lineAmountCents(line.unitPriceCents, line.quantity);
+  return lineAmountCents(Math.max(0, line.unitPriceCents), Math.max(0, line.quantity));
 }
 
+/** Floored the same way as `lineTotalCents` — a negative cost would fabricate margin instead of representing anything real. */
 function lineCostCents(line: LineForTotals): Cents {
   if (line.kind === "TEXT" || line.unitCostCents == null) return 0;
-  return lineAmountCents(line.unitCostCents, line.quantity);
+  return lineAmountCents(Math.max(0, line.unitCostCents), Math.max(0, line.quantity));
 }
 
 /**

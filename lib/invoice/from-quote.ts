@@ -97,7 +97,14 @@ export function invoiceFromQuote(
       quantity: line.quantity,
       unit: line.unit,
       unitPriceCents: line.unitPriceCents,
-      amountCents: line.kind === "TEXT" ? 0 : Math.round(line.unitPriceCents * line.quantity),
+      // Floored the same way as lib/quote/totals.ts's lineTotalCents — this
+      // recomputes independently of computeTotals, so it needs the same
+      // guard rather than trusting the source quote line is already clean
+      // (it will be, going forward, but existing rows predate that fix).
+      amountCents:
+        line.kind === "TEXT"
+          ? 0
+          : Math.round(Math.max(0, line.unitPriceCents) * Math.max(0, line.quantity)),
       // Renumbered from zero rather than carried across. The quote's ordering
       // had gaps wherever a declined extra used to sit, and a document whose
       // rows are 0, 1, 4, 7 sorts fine but tells the next reader nothing.
