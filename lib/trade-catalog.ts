@@ -251,6 +251,14 @@ export function catalogForTrade(trade: Trade): CatalogService[] {
   return CATALOGS[trade] ?? [];
 }
 
+/** Plain-language labels for the closed `Trade` set — /onboarding and Settings both render this list. */
+export const TRADE_OPTIONS: { value: Trade; label: string }[] = [
+  { value: Trade.ROOFING, label: "Roofing" },
+  { value: Trade.PLUMBING, label: "Plumbing" },
+  { value: Trade.LAWN_CARE, label: "Lawn care" },
+  { value: Trade.GENERAL, label: "General contracting" },
+];
+
 export type CatalogTaxRate = {
   name: string;
   rateMicros: RateMicros;
@@ -285,6 +293,23 @@ export const TAX_RATES_BY_PROVINCE: Record<string, CatalogTaxRate[]> = {
   PE: [{ name: "HST", rateMicros: percentToMicros(15), isDefault: true }],
   NS: [{ name: "HST", rateMicros: percentToMicros(14), isDefault: true }],
 };
+
+/** Every code `TAX_RATES_BY_PROVINCE` knows, with the full name /onboarding and Settings show — English order Canada Post itself uses. */
+export const PROVINCE_OPTIONS: { value: string; label: string }[] = [
+  { value: "AB", label: "Alberta" },
+  { value: "BC", label: "British Columbia" },
+  { value: "MB", label: "Manitoba" },
+  { value: "NB", label: "New Brunswick" },
+  { value: "NL", label: "Newfoundland and Labrador" },
+  { value: "NT", label: "Northwest Territories" },
+  { value: "NS", label: "Nova Scotia" },
+  { value: "NU", label: "Nunavut" },
+  { value: "ON", label: "Ontario" },
+  { value: "PE", label: "Prince Edward Island" },
+  { value: "QC", label: "Quebec" },
+  { value: "SK", label: "Saskatchewan" },
+  { value: "YT", label: "Yukon" },
+];
 
 /**
  * Normalize whatever was typed into a two-letter province code. Contractors

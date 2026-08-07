@@ -76,9 +76,13 @@ export type CompanyContext = {
  * action should call this so all data is scoped to the caller's company.
  *
  * Redirects to /sign-in if there is no session (the proxy normally prevents
- * this, but calling it here keeps server actions safe too).
+ * this, but calling it here keeps server actions safe too), and to
+ * /onboarding if the company hasn't confirmed its real trade/province yet
+ * and the caller could actually do something about that — see the wrapper
+ * below. `/onboarding` itself calls `resolveCompanyContext` directly to skip
+ * that redirect, or it could never render.
  */
-export async function requireCompanyContext(): Promise<CompanyContext> {
+export async function resolveCompanyContext(): Promise<CompanyContext> {
   const user = await getCurrentDbUser();
   if (!user) redirect("/sign-in");
 
@@ -116,8 +120,10 @@ export async function requireCompanyContext(): Promise<CompanyContext> {
       name: baseName,
       slug: await uniqueCompanySlug(baseName),
       // Roofing is the trade being sold to, so it is the assumption that costs
-      // the fewest people a wrong first screen. Onboarding asks properly, and
-      // changing it re-provisions nothing — the catalog is theirs by then.
+      // the fewest people a wrong first screen while the real one is still
+      // unknown. `onboardedAt` stays null, which sends the owner to
+      // /onboarding on their very next page load to confirm it for real —
+      // see the wrapper below `resolveCompanyContext`.
       trade: Trade.ROOFING,
       modules: [CompanyModule.ROOFING, CompanyModule.AERIAL_MEASUREMENT],
       memberships: {
@@ -139,6 +145,25 @@ export async function requireCompanyContext(): Promise<CompanyContext> {
   }
 
   return { user, company, membership, role: membership.role };
+}
+
+/**
+ * The public entry point every dashboard page and server action actually
+ * calls. Wraps `resolveCompanyContext` with the one-time redirect to
+ * `/onboarding` for a company that hasn't confirmed its real trade/province
+ * yet — gated on `manageCompany` rather than membership alone, since a crew
+ * member (or anyone else without that capability) landing on a
+ * not-yet-onboarded company can't do anything about it and shouldn't be
+ * stranded on a form they can't submit. In practice this only ever fires for
+ * the OWNER: nobody else can be a member of a company too new to have been
+ * onboarded, since invites don't exist until the owner sends one.
+ */
+export async function requireCompanyContext(): Promise<CompanyContext> {
+  const context = await resolveCompanyContext();
+  if (!context.company.onboardedAt && can(context.role, "manageCompany")) {
+    redirect("/onboarding");
+  }
+  return context;
 }
 
 /**

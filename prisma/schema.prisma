@@ -472,6 +472,16 @@ model Company {
    */
   defaultLabourRateCents Int?
 
+  /**
+   * When the owner picked their real trade and province on `/onboarding`,
+   * confirming the ROOFING/GST-only defaults `requireCompanyContext` seeds a
+   * brand-new company with. Null gates the one-time redirect to that page —
+   * see `lib/auth.ts`. Backfilled to `createdAt` for every company that
+   * existed before this field did, so nobody already using the app gets
+   * sent there retroactively.
+   */
+  onboardedAt DateTime?
+
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
   memberships CompanyMembership[]
