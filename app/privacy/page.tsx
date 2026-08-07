@@ -22,7 +22,7 @@ function P({ children }: { children: React.ReactNode }) {
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="min-h-screen bg-paper px-4 py-12 text-paper-ink-body sm:px-6">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper px-4 py-12 text-paper-ink-body outline-none sm:px-6">
       <div className="mx-auto max-w-3xl">
         <article className="rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
           <p className="text-sm uppercase tracking-[0.14em] text-paper-ink-faint">

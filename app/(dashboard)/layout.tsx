@@ -35,7 +35,7 @@ export default async function DashboardLayout({
             </div>
           </header>
 
-          <main className="min-w-0 flex-1 overflow-x-hidden p-4 md:p-6">
+          <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 overflow-x-hidden p-4 md:p-6 outline-none">
             <div className="mx-auto w-full max-w-[1600px] min-w-0">
               {children}
             </div>

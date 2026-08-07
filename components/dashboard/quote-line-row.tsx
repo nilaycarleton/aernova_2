@@ -252,7 +252,13 @@ export function QuoteLineRow({
 }) {
   const [costOpen, setCostOpen] = useState(false);
 
-  const amountCents = Math.round(centsOf(line.unitPriceText) * quantityOf(line.quantityText));
+  // Floored the same way as `lineTotalCents` (lib/quote/totals.ts) — this is
+  // only a preview of that real number, and a preview that goes negative
+  // while the server-side total stays clamped at zero is a bug a roofer
+  // would report, not a rendering detail.
+  const amountCents = Math.round(
+    Math.max(0, centsOf(line.unitPriceText)) * Math.max(0, quantityOf(line.quantityText))
+  );
 
   if (line.kind === "TEXT") {
     return (
