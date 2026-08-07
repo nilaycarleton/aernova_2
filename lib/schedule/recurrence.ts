@@ -40,8 +40,16 @@ export type CalendarDate = { year: number; month: number; day: number };
 /** Anything past this is a runaway rule, not a schedule. */
 const MAX_OCCURRENCES = 500;
 
+/**
+ * UTC, not local — same rule as `fromUtc` below, which this delegates to.
+ * The one caller (`setRecurrenceAction`'s horizon) feeds it an absolute
+ * instant (`Date.now() + N days`), and reading that back with local getters
+ * makes the materialization cutoff depend on the server's `TZ`: near a UTC
+ * day boundary, the local calendar day can land a day earlier or later than
+ * the UTC one, silently shifting how far ahead visits get created.
+ */
 export function toCalendarDate(date: Date): CalendarDate {
-  return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+  return fromUtc(date);
 }
 
 /** Compare two calendar days. Negative when `a` is earlier. */

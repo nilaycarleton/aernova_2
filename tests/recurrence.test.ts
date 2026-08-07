@@ -4,6 +4,7 @@ import {
   expandRecurrence,
   formatDateKey,
   missingOccurrences,
+  toCalendarDate,
   type CalendarDate,
   type Recurrence,
 } from "../lib/schedule/recurrence.ts";
@@ -126,4 +127,23 @@ test("an interval of zero or nonsense degrades to every period", () => {
 
 test("a horizon before the start yields nothing", () => {
   assert.deepEqual(expandRecurrence(rule(), d("2026-01-01")), []);
+});
+
+test("toCalendarDate reads UTC fields, not the host's local time", () => {
+  // 00:30 UTC. A local-getters implementation would read this back as the
+  // *previous* calendar day on any host west of UTC (America/Toronto, where
+  // this repo's tests actually run, included) — exactly the off-by-one this
+  // fixes in setRecurrenceAction's horizon, which feeds this an absolute
+  // instant (Date.now() + N days) with no timezone context at all.
+  assert.deepEqual(toCalendarDate(new Date(Date.UTC(2026, 5, 15, 0, 30))), {
+    year: 2026,
+    month: 6,
+    day: 15,
+  });
+  // And the boundary the other way: 23:30 UTC is already tomorrow east of UTC.
+  assert.deepEqual(toCalendarDate(new Date(Date.UTC(2026, 5, 15, 23, 30))), {
+    year: 2026,
+    month: 6,
+    day: 15,
+  });
 });

@@ -5,7 +5,13 @@ import { JobStatus, VisitKind, VisitStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireCapability, requireJobAccess } from "@/lib/auth";
 import { dayToInstant, instantToDay, parseDayInput } from "@/lib/schedule/day";
-import { compareDates, expandRecurrence, toCalendarDate, type Frequency } from "@/lib/schedule/recurrence";
+import {
+  compareDates,
+  formatDateKey,
+  missingOccurrences,
+  toCalendarDate,
+  type Frequency,
+} from "@/lib/schedule/recurrence";
 import { isValidTimeZone, parseTimeInput, utcToZoned, zonedTimeToUtc } from "@/lib/schedule/timezone";
 import { syncClientStatusForJob } from "@/lib/client-resolve";
 
@@ -319,12 +325,25 @@ export async function setRecurrenceAction(formData: FormData) {
   }
 
   const horizon = toCalendarDate(new Date(Date.now() + HORIZON_DAYS * 24 * 60 * 60 * 1000));
-  const dates = expandRecurrence({ frequency, interval, startDate: start, count }, horizon);
 
-  // `skipDuplicates` plus the unique index on (rule, occurrenceDate) is what
-  // makes re-running this safe: extending the horizon adds the new dates and
-  // silently leaves every visit that already exists exactly as it is — true
-  // now that the same rule id is actually reused above.
+  // Keyed against every occurrence this *job* already has, not just this
+  // rule's own. `skipDuplicates` below only dedupes within one rule id
+  // (`@@unique([generatedFromRuleId, occurrenceDate])`) — fine while
+  // `patternUnchanged` reuses the old rule, but a genuine pattern change
+  // deactivates the old rule and mints a new one (see the comment above
+  // `existingRule`), and the old rule's visits stay real. Generating from
+  // `expandRecurrence` directly would recreate every date the old rule
+  // already made under the new rule id, double-booking the crew the moment
+  // anyone changes count/interval/frequency/start on a job with visits.
+  const existingOccurrences = await prisma.visit.findMany({
+    where: { jobId, occurrenceDate: { not: null } },
+    select: { occurrenceDate: true },
+  });
+  const existingKeys = existingOccurrences.map((v) => formatDateKey(instantToDay(v.occurrenceDate!)));
+  const dates = missingOccurrences({ frequency, interval, startDate: start, count }, horizon, existingKeys);
+
+  // skipDuplicates stays as defense-in-depth against a concurrent double
+  // submission; `existingKeys` above is what actually carries the guarantee.
   await prisma.visit.createMany({
     data: dates.map((date) => {
       const startAt = timed ? zonedTimeToUtc(date, startMinutes, company!.timeZone!) : dayToInstant(date);
