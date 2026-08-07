@@ -5,10 +5,13 @@ import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { Trade } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireCapability } from "@/lib/auth";
 import { isStripeConfigured, stripeClient } from "@/lib/stripe";
 import { storage } from "@/lib/storage";
+import { resetCompanyCatalog } from "@/lib/company-setup";
+import { PROVINCE_OPTIONS, TRADE_OPTIONS } from "@/lib/trade-catalog";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -31,16 +34,26 @@ export async function updateCompanyProfileAction(formData: FormData) {
   const name = getString(formData, "name");
   if (!name) throw new Error("Give the company a name.");
 
+  const trade = getString(formData, "trade");
+  if (!TRADE_OPTIONS.some((t) => t.value === trade)) {
+    throw new Error("Pick a trade from the list.");
+  }
+  const province = getString(formData, "province");
+  if (province && !PROVINCE_OPTIONS.some((p) => p.value === province)) {
+    throw new Error("Pick a province from the list.");
+  }
+
   await prisma.company.update({
     where: { id: company.id },
     data: {
       name,
+      trade: trade as Trade,
       legalName: getString(formData, "legalName") || null,
       phone: getString(formData, "phone") || null,
       email: getString(formData, "email") || null,
       addressLine1: getString(formData, "addressLine1") || null,
       city: getString(formData, "city") || null,
-      province: getString(formData, "province") || null,
+      province: province || null,
       postalCode: getString(formData, "postalCode") || null,
       licenceNumber: getString(formData, "licenceNumber") || null,
       businessNumber: getString(formData, "businessNumber") || null,
@@ -49,6 +62,22 @@ export async function updateCompanyProfileAction(formData: FormData) {
     },
   });
 
+  revalidatePath("/settings");
+}
+
+/**
+ * The explicit, separate counterpart to the profile save above — changing
+ * `trade`/`province` there never touches a single `Service`/`TaxRate` row
+ * (see `provisionCompanyCatalog`'s own "never touch existing rows" rule).
+ * This is the deliberate, confirmed action for a company that actually wants
+ * a clean slate for whatever trade/province is *currently saved* — same
+ * mechanism `/onboarding` uses unconditionally on day zero, gated here
+ * behind `ConfirmSubmit` since real time may have passed and real edits may
+ * exist.
+ */
+export async function resetCompanyCatalogAction() {
+  const { company } = await requireCapability("manageCompany");
+  await resetCompanyCatalog(company.id, { trade: company.trade, province: company.province });
   revalidatePath("/settings");
 }
 

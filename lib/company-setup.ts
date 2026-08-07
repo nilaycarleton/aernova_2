@@ -63,3 +63,32 @@ export async function provisionCompanyCatalog(
 
   return result;
 }
+
+/**
+ * The explicit, destructive counterpart to `provisionCompanyCatalog` above —
+ * for a company that got the wrong trade/province seeded (the ROOFING/GST-only
+ * default every new signup starts with, see `lib/auth.ts`) and wants a clean
+ * slate for the right one, not a merge with what's there.
+ *
+ * Deletes every `Service` and `TaxRate` row for the company first. Safe to a
+ * quote or invoice that already references one — both relations are
+ * `onDelete: SetNull` everywhere (`QuoteLineItem.serviceId`,
+ * `QuoteTemplateLineItem.serviceId`, `Property/Quote/Invoice.taxRateId`), so a
+ * sent quote keeps its own frozen name/price snapshot and just loses the
+ * catalog link, the same as if the item had been deleted from the price list
+ * by hand. What it is *not* safe to is a service or tax rate the contractor
+ * added or edited themselves — this removes those too, which is exactly why
+ * callers must treat it as a distinct, confirmed action and never bundle it
+ * into an ordinary settings save.
+ */
+export async function resetCompanyCatalog(
+  companyId: string,
+  options: { trade: Trade; province?: string | null }
+): Promise<ProvisionResult> {
+  await prisma.$transaction([
+    prisma.service.deleteMany({ where: { companyId } }),
+    prisma.taxRate.deleteMany({ where: { companyId } }),
+  ]);
+
+  return provisionCompanyCatalog(companyId, options);
+}

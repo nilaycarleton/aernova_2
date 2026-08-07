@@ -3,13 +3,20 @@ import { requirePageCapability } from "@/lib/auth";
 import { can } from "@/lib/permissions";
 import { isStripeConfigured } from "@/lib/stripe";
 import { refreshStripeAccountStatus } from "@/lib/stripe-connect";
+import { PROVINCE_OPTIONS, TRADE_OPTIONS } from "@/lib/trade-catalog";
 import { SubmitButton } from "@/components/dashboard/submit-button";
+import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
 import { CompanyLogoUpload } from "@/components/dashboard/company-logo-upload";
 import { RequestFormLinkPanel } from "@/components/dashboard/request-form-link-panel";
-import { connectStripeAction, updateCompanyProfileAction } from "./actions";
+import {
+  connectStripeAction,
+  resetCompanyCatalogAction,
+  updateCompanyProfileAction,
+} from "./actions";
 
 const inputClass =
   "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+const selectClass = inputClass;
 
 function Field({
   label,
@@ -71,6 +78,9 @@ export default async function SettingsPage() {
   const buttonClass =
     "rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
 
+  const tradeLabel = TRADE_OPTIONS.find((t) => t.value === company.trade)?.label ?? company.trade;
+  const provinceLabel = PROVINCE_OPTIONS.find((p) => p.value === company.province)?.label ?? null;
+
   return (
     <div className="mx-auto min-w-0 max-w-2xl space-y-6">
       <header>
@@ -100,6 +110,15 @@ export default async function SettingsPage() {
             <Field label="Legal business name" hint="If different from the name above.">
               <input name="legalName" defaultValue={company.legalName ?? ""} className={inputClass} />
             </Field>
+            <Field label="Trade" hint="Sets your starter price list — see the reset below to apply a change here.">
+              <select name="trade" defaultValue={company.trade} required className={selectClass}>
+                {TRADE_OPTIONS.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
             <Field label="Phone">
               <input name="phone" defaultValue={company.phone ?? ""} className={inputClass} />
             </Field>
@@ -124,8 +143,15 @@ export default async function SettingsPage() {
             <Field label="City">
               <input name="city" defaultValue={company.city ?? ""} className={inputClass} />
             </Field>
-            <Field label="Province">
-              <input name="province" defaultValue={company.province ?? ""} className={inputClass} />
+            <Field label="Province" hint="Sets your starter tax rates — see the reset below to apply a change here.">
+              <select name="province" defaultValue={company.province ?? ""} className={selectClass}>
+                <option value="">Not set</option>
+                {PROVINCE_OPTIONS.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="Postal code">
               <input
@@ -174,6 +200,28 @@ export default async function SettingsPage() {
           <SubmitButton pendingText="Saving…" className={buttonClass}>
             Save
           </SubmitButton>
+        </form>
+      </section>
+
+      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <h3 className="text-lg font-semibold text-ink-primary">Starter price list &amp; tax rates</h3>
+        <p className="mt-1 text-sm text-ink-muted">
+          Changing trade or province above doesn&rsquo;t touch a single price or tax rate you
+          already have — this is the separate, deliberate way to start over for{" "}
+          <strong className="font-medium text-ink-secondary">
+            {tradeLabel}
+            {provinceLabel ? `, ${provinceLabel}` : ""}
+          </strong>{" "}
+          instead.
+        </p>
+        <form action={resetCompanyCatalogAction} className="mt-4">
+          <ConfirmSubmit
+            pendingText="Resetting…"
+            question={`This deletes every service and tax rate this company currently has, and replaces them with the starter set for ${tradeLabel}${provinceLabel ? `, ${provinceLabel}` : ""}. Quotes and invoices already sent keep their own numbers — this only touches the price list itself. Continue?`}
+            className="rounded-xl border border-hairline px-5 py-3 text-sm font-semibold text-ink-primary transition hover:bg-ground/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+          >
+            Reset starter price list &amp; tax rates
+          </ConfirmSubmit>
         </form>
       </section>
 
