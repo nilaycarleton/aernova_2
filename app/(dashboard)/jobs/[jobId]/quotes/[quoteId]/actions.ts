@@ -147,14 +147,18 @@ export async function saveQuoteAction(
 
   const normalized = lines.map((line, index) => {
     const kind = line.kind === "TEXT" ? QuoteLineKind.TEXT : QuoteLineKind.ITEM;
-    const quantity = Number.isFinite(line.quantity) ? Number(line.quantity) : 1;
+    // Floored at zero, same reasoning as lib/quote/totals.ts: a negative
+    // quantity or price here is what let a line item silently undercut a
+    // quote's total below its real cost with no floor, unlike the discount
+    // field a few screens over which has always been clamped.
+    const quantity = Number.isFinite(line.quantity) ? Math.max(0, Number(line.quantity)) : 1;
     const unitPriceCents = Number.isFinite(line.unitPriceCents)
-      ? Math.round(Number(line.unitPriceCents))
+      ? Math.max(0, Math.round(Number(line.unitPriceCents)))
       : 0;
     const unitCostCents =
       line.unitCostCents == null || !Number.isFinite(line.unitCostCents)
         ? null
-        : Math.round(Number(line.unitCostCents));
+        : Math.max(0, Math.round(Number(line.unitCostCents)));
 
     return {
       id: line.id,
