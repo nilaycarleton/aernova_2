@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 /**
  * Light / dark switch. Dark is the home base; on first visit the app follows the
@@ -9,15 +9,24 @@ import { useEffect, useState } from "react";
  * and remembered in localStorage — the inline script in the root layout replays
  * it before first paint so there is no flash. Clearing back to "system" hands
  * control back to the OS.
+ *
+ * `isDark` is read through `useSyncExternalStore` rather than mirrored into
+ * `useState` from an effect — this is exactly the case the hook exists for
+ * (subscribing to state that lives outside React: localStorage, matchMedia).
+ * It gets the SSR/hydration safety the old `mounted` flag was hand-rolling
+ * for free (React calls `getServerSnapshot` for both the server render *and*
+ * the client's first hydration pass, so they always agree — no flash, no
+ * mismatch — then switches to the live value right after), and it does not
+ * need a `choice` state at all: the button only ever renders and reasons
+ * about the resolved boolean, never the underlying "system" label.
  */
 
 type Choice = "light" | "dark" | "system";
 
 const STORAGE_KEY = "aernova-theme";
 
-function systemPrefersDark() {
-  return typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
+/** Same-tab subscribers — a `storage` event only fires in *other* tabs, never the one that called `apply`. */
+const listeners = new Set<() => void>();
 
 function apply(choice: Choice) {
   const root = document.documentElement;
@@ -28,39 +37,42 @@ function apply(choice: Choice) {
     root.setAttribute("data-theme", choice);
     window.localStorage.setItem(STORAGE_KEY, choice);
   }
+  listeners.forEach((listener) => listener());
 }
 
-/** The theme actually showing right now, resolving "system" against the OS. */
-function resolved(choice: Choice): "light" | "dark" {
-  if (choice === "system") return systemPrefersDark() ? "dark" : "light";
-  return choice;
+function getSnapshot(): boolean {
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  if (stored === "light") return false;
+  if (stored === "dark") return true;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+/** Matches the pre-hydration fallback the root layout's inline script assumes. */
+function getServerSnapshot(): boolean {
+  return true;
+}
+
+/** OS preference changing, another tab's toggle, or this tab's own `apply` — all three need a re-render. */
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener("change", callback);
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE_KEY) callback();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    listeners.delete(callback);
+    mq.removeEventListener("change", callback);
+    window.removeEventListener("storage", onStorage);
+  };
 }
 
 export function ThemeToggle() {
-  const [choice, setChoice] = useState<Choice>("system");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    setChoice(stored === "light" || stored === "dark" ? stored : "system");
-    setMounted(true);
-  }, []);
-
-  // Keep a "system" choice live if the OS flips while the app is open.
-  useEffect(() => {
-    if (choice !== "system") return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => setChoice("system");
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, [choice]);
-
-  const isDark = mounted ? resolved(choice) === "dark" : true;
+  const isDark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   function toggle() {
-    const next: Choice = isDark ? "light" : "dark";
-    apply(next);
-    setChoice(next);
+    apply(isDark ? "light" : "dark");
   }
 
   return (

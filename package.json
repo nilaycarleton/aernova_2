@@ -9,6 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "eslint app components lib",
     "postinstall": "prisma generate",
     "vercel-build": "prisma migrate deploy && next build",
     "db:start": "pg_ctl -D .postgres-data status || LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 pg_ctl -D .postgres-data -o \"-p 5433\" -l .postgres-data/server.log start",

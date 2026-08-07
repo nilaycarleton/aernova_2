@@ -4,8 +4,8 @@ import {
   MeasurementUnit,
   Prisma,
   ProcessingStatus,
-  ProjectImagery,
 } from "@prisma/client";
+import type { ProjectImagery } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { storage } from "@/lib/storage";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@/lib/photogrammetry-pipeline";
 import {
   getNodeOdmTaskInfo,
+  isNodeOdmTaskMissingError,
   nodeOdmAssetUrls,
   nodeOdmDownloadUrl,
   nodeOdmStatusToProcessingStatus,
@@ -181,7 +182,61 @@ export async function syncNodeOdmModelJob(jobId: string, imageryId: string) {
     },
     orderBy: [{ captureDate: "asc" }, { createdAt: "asc" }],
   });
-  const info = await getNodeOdmTaskInfo(taskUuid);
+  let info: Awaited<ReturnType<typeof getNodeOdmTaskInfo>>;
+  try {
+    info = await getNodeOdmTaskInfo(taskUuid);
+  } catch (error) {
+    // A purged remote task is permanent: WebODM Lightning drops the task's temp
+    // storage ~10 days after it finishes, so the info endpoint returns
+    // "no task table entry" forever after. Retire the job to a terminal state so
+    // it leaves the in-flight set and stops being re-swept. Any other error
+    // (network drop, 5xx, unconfigured URL) is transient and must propagate so
+    // the job stays QUEUED/PROCESSING and gets retried on the next sweep.
+    if (!isNodeOdmTaskMissingError(error)) throw error;
+
+    const purgeMessage =
+      `NodeODM task ${taskUuid} no longer exists on the worker. ` +
+      `WebODM Lightning purges task storage ~10 days after completion, so its outputs ` +
+      `can't be retrieved. Re-upload the source imagery and reprocess to rebuild this model.`;
+
+    await prisma.$transaction([
+      prisma.projectImagery.update({
+        where: { id: imageryId },
+        data: {
+          status: "NEEDS_REVIEW",
+          notes: purgeMessage,
+        },
+      }),
+      prisma.processingJob.upsert({
+        where: { id: job?.id ?? "__missing_processing_job__" },
+        create: {
+          jobId,
+          modelImageryId: imageryId,
+          provider: "nodeodm",
+          providerTaskId: taskUuid,
+          status: "NEEDS_REVIEW",
+          quality: job?.quality ?? "standard",
+          sourceImageIds,
+          errorMessage: purgeMessage,
+          completedAt: new Date(),
+        },
+        update: {
+          status: "NEEDS_REVIEW",
+          errorMessage: purgeMessage,
+          completedAt: new Date(),
+        },
+      }),
+      prisma.projectImagery.updateMany({
+        where: {
+          id: { in: sourceImages.map((image: ProjectImagery) => image.id) },
+          status: { in: ["UPLOADED", "QUEUED", "PROCESSING"] },
+        },
+        data: { status: "NEEDS_REVIEW" },
+      }),
+    ]);
+
+    return { status: "NEEDS_REVIEW" as ProcessingStatus, progress: null, taskMissing: true };
+  }
   const status = nodeOdmStatusToProcessingStatus(info.status.code) as ProcessingStatus;
   const processingStatus =
     status === "READY"

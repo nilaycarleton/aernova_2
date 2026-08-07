@@ -232,12 +232,19 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
   // In full screen the chrome auto-hides (YouTube-style): visible on mouse move,
   // gone after a short idle so the model owns the screen.
   const [controlsVisible, setControlsVisible] = useState(true);
-  // Undo/redo: snapshots of the measurement list. historyVersion re-renders the buttons.
+  // Undo/redo: snapshots of the measurement list, pushed/popped imperatively
+  // (not via setState — a full history array doesn't need to be render state).
+  // canUndo/canRedo are real state, set at the same call sites the stacks are
+  // mutated at, rather than derived by reading the refs' `.length` during
+  // render — the compiler can't verify a ref read during render stays safe
+  // across a phantom/interrupted render, even though these particular refs
+  // are only ever touched from event handlers.
   const undoStackRef = useRef<Measurement[][]>([]);
   const redoStackRef = useRef<Measurement[][]>([]);
   const snapshotRef = useRef<() => void>(() => {});
   const hoveredRef = useRef(false);
-  const [historyVersion, setHistoryVersion] = useState(0);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
   // Imperative scene handles shared across effects/handlers.
   const groupRef = useRef<THREE.Group | null>(null);
@@ -259,9 +266,16 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
   const colorMapRef = useRef<Map<string, number>>(new Map());
   const measurementsRef = useRef<Measurement[]>(measurements);
   const dragRef = useRef<{ id: string; index: number; handle: THREE.Mesh; point: Pt } | null>(null);
-  toolRef.current = tool;
-  unitsRef.current = units;
-  measurementsRef.current = measurements;
+
+  // Kept in sync after every commit (not during render) so the Three.js
+  // pointer handlers set up once in the mount effect below can read the
+  // latest tool/units/measurements without stale closures or needing to be
+  // torn down and rebuilt on every render.
+  useEffect(() => {
+    toolRef.current = tool;
+    unitsRef.current = units;
+    measurementsRef.current = measurements;
+  });
 
   // Labels show when not hidden, and always while editing (you need the number
   // to judge a nudge). Derived so the commit effect rebuilds only when it flips.
@@ -799,16 +813,20 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
     undoStackRef.current.push(measurementsRef.current);
     if (undoStackRef.current.length > 40) undoStackRef.current.shift();
     redoStackRef.current = [];
-    setHistoryVersion((v) => v + 1);
+    setCanUndo(true);
+    setCanRedo(false);
   };
-  snapshotRef.current = snapshot;
+  useEffect(() => {
+    snapshotRef.current = snapshot;
+  });
   const undo = () => {
     if (undoStackRef.current.length === 0) return;
     redoStackRef.current.push(measurementsRef.current);
     const prev = undoStackRef.current.pop()!;
     setMeasurements(prev);
     reconcile(prev);
-    setHistoryVersion((v) => v + 1);
+    setCanUndo(undoStackRef.current.length > 0);
+    setCanRedo(true);
   };
   const redo = () => {
     if (redoStackRef.current.length === 0) return;
@@ -816,11 +834,9 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
     const next = redoStackRef.current.pop()!;
     setMeasurements(next);
     reconcile(next);
-    setHistoryVersion((v) => v + 1);
+    setCanUndo(true);
+    setCanRedo(redoStackRef.current.length > 0);
   };
-  const canUndo = undoStackRef.current.length > 0;
-  const canRedo = redoStackRef.current.length > 0;
-  void historyVersion; // canUndo/canRedo recompute when this bumps
 
   // ⌘Z / ⌘⇧Z (Ctrl on Windows) while the viewer is hovered.
   useEffect(() => {
