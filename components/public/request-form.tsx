@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import {
   createPublicRequestAction,
   type PublicRequestState,
@@ -212,6 +213,14 @@ export function RequestForm({ companySlug }: { companySlug: string }) {
       >
         Send it
       </SubmitButton>
+      <p className="text-xs text-paper-ink-faint">
+        Sending this shares the details above with the business you&rsquo;re contacting. See how
+        that information is handled in our{" "}
+        <Link href="/privacy" className="underline hover:text-paper-ink">
+          Privacy Policy
+        </Link>
+        .
+      </p>
     </form>
   );
 }

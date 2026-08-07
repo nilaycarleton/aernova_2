@@ -39,6 +39,11 @@ const isPublicRoute = createRouteMatcher([
   // in has never heard of Aernova and never will; they are doing business
   // with the contractor whose slug is in the URL.
   "/request/(.*)",
+  // Legal pages. Anyone can read them without an account — a prospective
+  // Contractor deciding whether to sign up, or a Client the request form
+  // links out to, needs to reach these before they've ever authenticated.
+  "/terms",
+  "/privacy",
 ]);
 
 // S3/R2 mode serves uploaded photos from this origin instead of the app's own
