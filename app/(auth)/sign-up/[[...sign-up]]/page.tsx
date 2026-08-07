@@ -3,7 +3,7 @@ import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-ground p-6">
+    <main id="main-content" tabIndex={-1} className="flex min-h-screen flex-col items-center justify-center gap-4 bg-ground p-6 outline-none">
       <SignUp signInUrl="/sign-in" fallbackRedirectUrl="/dashboard" />
       <p className="max-w-xs text-center text-xs text-ink-muted">
         By creating an account, you agree to Aernova&rsquo;s{" "}

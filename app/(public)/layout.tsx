@@ -17,8 +17,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   // somebody who has never seen the app, and it should look like paper in every
   // case.
   return (
-    <div className="surface-light min-h-screen bg-paper text-paper-ink antialiased">
+    <main id="main-content" tabIndex={-1} className="surface-light min-h-screen bg-paper text-paper-ink antialiased outline-none">
       {children}
-    </div>
+    </main>
   );
 }

@@ -16,8 +16,8 @@ export default function ReportLayout({
   // that produced a nested-<html> hydration error. Instead it forces the light
   // paper surface on its subtree via `.surface-light`, regardless of app theme.
   return (
-    <div className="surface-light min-h-screen bg-paper text-paper-ink antialiased">
+    <main id="main-content" tabIndex={-1} className="surface-light min-h-screen bg-paper text-paper-ink antialiased outline-none">
       {children}
-    </div>
+    </main>
   );
 }
