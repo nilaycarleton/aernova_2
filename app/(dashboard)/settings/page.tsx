@@ -278,6 +278,16 @@ export default async function SettingsPage() {
           )}
         </section>
       ) : null}
+
+      <p className="text-center text-xs text-ink-muted">
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink-secondary">
+          Terms of Service
+        </a>
+        {" · "}
+        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink-secondary">
+          Privacy Policy
+        </a>
+      </p>
     </div>
   );
 }
