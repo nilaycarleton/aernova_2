@@ -38,6 +38,7 @@ yarn-error.log*
 .postgres-data/
 nodeodm-data/
 public/uploads/
+.backups/
 
 # Claude Code local state (worktrees, local settings)
 .claude/
