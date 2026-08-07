@@ -20,6 +20,41 @@ const nextConfig: NextConfig = {
       { source: "/api/projects/:path*", destination: "/api/jobs/:path*", permanent: true },
     ];
   },
+
+  /**
+   * The headers with no per-request value, so they belong here rather than in
+   * `proxy.ts` alongside the CSP (which needs a fresh nonce every request and
+   * so has to be set from middleware — see `clerkMiddleware`'s
+   * `contentSecurityPolicy` option there). `frame-ancestors` in that CSP is
+   * the modern equivalent of X-Frame-Options; this repeats it for browsers
+   * that only understand the older header.
+   *
+   * Camera/microphone/geolocation are denied outright: photo capture goes
+   * through the native `<input capture>` file picker (see
+   * `inspection-photo-input.tsx`), never `navigator.mediaDevices`, so the app
+   * has no legitimate use for the JS permission prompt either API would
+   * trigger.
+   */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 // Source maps upload only when a Sentry auth token + org/project are present,
