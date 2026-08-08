@@ -109,6 +109,14 @@ export function describeActivity(
       return who ? `${who} created this job` : "Job created";
     case ActivityKind.STATUS_CHANGED:
       return meta.to ? `Moved to ${meta.to.toLowerCase()}` : "Stage changed";
+    case ActivityKind.REQUEST_CREATED:
+      return who ? `${who} logged a new request` : "A new request came in";
+    case ActivityKind.REQUEST_CONVERTED:
+      return who ? `${who} turned this request into a job` : "Request turned into a job";
+    case ActivityKind.INVOICE_REMINDER_SENT:
+      return `A reminder went out for ${invoice.toLowerCase()}${amount}`;
+    case ActivityKind.QUOTE_REMINDER_SENT:
+      return `A reminder went out for ${quote.toLowerCase()}${amount}`;
     case ActivityKind.QUOTE_CREATED:
       return `${quote} was built${amount}`;
     case ActivityKind.QUOTE_SENT:

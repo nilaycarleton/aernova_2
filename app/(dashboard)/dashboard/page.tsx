@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requirePageCapability } from "@/lib/auth";
 import { DashboardCommandBand } from "@/components/dashboard/dashboard-command-band";
+import { RecentActivity } from "@/components/dashboard/recent-activity";
 
 /**
  * The overview: where the money is and where the work stands.
@@ -49,6 +50,8 @@ export default async function DashboardPage() {
           to search, filter and sort them.
         </p>
       ) : null}
+
+      <RecentActivity companyId={company.id} />
     </div>
   );
 }

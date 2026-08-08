@@ -35,6 +35,21 @@ export const aernovaTheme = defineTheme({
 
   tokens: {
     // --- Primary action: the ink-primary/ground inversion, not cyan. ---
+    //
+    // Known trade-off: Astryx also uses --color-accent for every component's
+    // focus-visible outline (astryx.css: `outline: 2px solid var(--color-accent)`,
+    // no separate focus-ring token to override independently). DESIGN.md treats
+    // the cyan focus ring as its own sanctioned exception, decoupled from
+    // button-fill color ("Two sanctioned exceptions, both invisible at rest:
+    // the button focus outline (outline-instrument)..."). Astryx's simpler
+    // one-token model can't express that decoupling, so swizzled Astryx
+    // components get an ink-primary/ground-colored focus ring instead of
+    // Aernova's usual cyan one. Still fully visible and WCAG 2.2 AA compliant
+    // (verified live, both themes) — just not brand-matched. Fixing this
+    // properly means `astryx swizzle` on the specific component and hand-
+    // editing its outline color, not a theme token; not worth it for a
+    // component only used in one place today (components/dashboard/
+    // recent-activity.tsx). Revisit if more swizzled components accumulate.
     "--color-accent": ["oklch(21% 0.04 265)", "#ffffff"],
     "--color-on-accent": ["oklch(95.5% 0.01 255)", "oklch(12.5% 0.05 264)"],
 
