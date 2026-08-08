@@ -26,10 +26,10 @@ export const aernovaTheme = defineTheme({
 
   typography: {
     body: {
-      family: "ui-sans-serif, system-ui, sans-serif",
+      family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     },
     heading: {
-      family: "ui-sans-serif, system-ui, sans-serif",
+      family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     },
   },
 
@@ -86,5 +86,44 @@ export const aernovaTheme = defineTheme({
     "--shadow-low": "none",
     "--shadow-med": "none",
     "--shadow-high": "none",
+
+    // --- Radius. Pinned explicitly rather than left on Astryx's default
+    // scale-generator (base: 4, multiplier: 1) so a future Astryx version
+    // bump can't silently drift these — even though the current defaults
+    // already happen to equal these values. --radius-element (8px) and
+    // --radius-container (12px) land exactly on DESIGN.md's sm/md. Aernova's
+    // lg (16px, panels) and xl (24px, outer shells) have no Astryx
+    // equivalent — Astryx's fixed slots stop at inner/element/container/
+    // page(28px)/full, so those two steps only exist on Aernova's own
+    // hand-built components, not on anything swizzled from Astryx.
+    "--radius-inner": "4px",
+    "--radius-element": "8px",
+    "--radius-container": "12px",
+
+    // --- Spacing: no override. Astryx's --spacing-N scale (4px base,
+    // multiplied) and DESIGN.md's xs/sm/md/lg/xl/2xl (4/8/12/16/24/32px)
+    // are the same 4px base unit — spacing-1/2/3/4/6/8 line up exactly.
+    // Checked, not skipped by oversight.
   },
 });
+
+/**
+ * Deliberately NOT importing @astryxdesign/core/tailwind-theme.css.
+ *
+ * That bridge remaps Tailwind's OWN core scale names — --radius-sm/md/lg/xl,
+ * --text-xs through --text-5xl, --spacing — to Astryx's token values via
+ * `@theme inline`, globally, for the whole app. Aernova's 78 existing
+ * hand-built components use those exact Tailwind classes (`rounded-lg`,
+ * `text-sm`, `p-4`, ...) throughout, on the assumption they mean Tailwind's
+ * stock values. Importing the bridge would silently resize every rounded
+ * corner and shrink most body text app-wide: Astryx's --font-size-sm is 12px
+ * where Tailwind's text-sm is 14px, --font-size-base is 14px where
+ * Tailwind's text-base is 16px, and --radius-container (12px) would replace
+ * Tailwind's rounded-lg (8px) — the exact radius DESIGN.md specifies for
+ * buttons. Confirmed by reading the bridge's source, not assumed.
+ *
+ * When Phase 3 swizzles a real Astryx primitive, style it against Astryx's
+ * own CSS variables directly (`var(--color-background-surface)`) or via
+ * defineTheme's `components:` field — never by reaching for a Tailwind
+ * utility this bridge would have renamed.
+ */

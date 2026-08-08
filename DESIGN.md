@@ -39,31 +39,31 @@ colors:
   paper-rule-strong: "oklch(86.9% 0.022 252.894)"
 typography:
   display:
-    fontFamily: "ui-sans-serif, system-ui, sans-serif"
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
     fontSize: "1.5rem"
     fontWeight: 600
     lineHeight: 2rem
     letterSpacing: "normal"
   headline:
-    fontFamily: "ui-sans-serif, system-ui, sans-serif"
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
     fontSize: "1.125rem"
     fontWeight: 600
     lineHeight: 1.75rem
     letterSpacing: "normal"
   title:
-    fontFamily: "ui-sans-serif, system-ui, sans-serif"
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
     fontSize: "0.875rem"
     fontWeight: 600
     lineHeight: 1.25rem
     letterSpacing: "normal"
   body:
-    fontFamily: "ui-sans-serif, system-ui, sans-serif"
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.25rem
     letterSpacing: "normal"
   label:
-    fontFamily: "ui-sans-serif, system-ui, sans-serif"
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
     fontSize: "0.75rem"
     fontWeight: 500
     lineHeight: 1rem
@@ -197,7 +197,7 @@ Two sanctioned exceptions, both invisible at rest: the **button focus outline** 
 
 ## 3. Typography
 
-**Display Font:** system sans (`ui-sans-serif, system-ui, sans-serif`)
+**Display Font:** system sans (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`)
 **Body Font:** system sans (same stack)
 **Label/Mono Font:** none distinct
 

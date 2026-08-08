@@ -47,6 +47,13 @@
  * from the v3 #22d3ee it superseded.
  */
 @theme {
+  /* System stack, retuned to lead with -apple-system/Segoe UI (matching
+     Astryx's own default, see lib/astryx/theme.ts) rather than Tailwind's
+     bare `ui-sans-serif, system-ui` default. Still zero webfont — see
+     DESIGN.md's Typography section for why that's doctrine, not a gap. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+
   /* --- Surfaces (DARK / home base). Depth is tonal only — the Two-Layer Rule.
      Panels are a navy-tinted white film, not neutral white, so the ground reads
      as one cohesive Ink Navy field. `ground` carries alpha variants throughout
