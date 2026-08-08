@@ -1,4 +1,27 @@
-@import "tailwindcss";
+/**
+ * Cascade layer order, declared once up front so Astryx's two layers
+ * (astryx-base, astryx-theme) interleave correctly with Tailwind's own
+ * (theme, base, utilities) rather than getting silently appended after
+ * utilities. This is why Tailwind is imported in three pieces below instead
+ * of the usual `@import "tailwindcss";` — that shorthand declares its own
+ * `@layer theme, base, components, utilities;` internally, which would lock
+ * in Tailwind's order before this file got a chance to interleave Astryx's
+ * layers between base and components. See astryx docs: Next.js + Tailwind.
+ *
+ * Priority, lowest to highest: reset < Tailwind theme < Tailwind base
+ * (preflight) < Astryx's own base < Astryx's theme tokens/component overrides
+ * < Tailwind components < Tailwind utilities. Utilities stay highest so a
+ * hand-written `className` on a swizzled Astryx component can always override
+ * it, matching how the rest of this app already works.
+ */
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "@astryxdesign/core/reset.css";
+@import "@astryxdesign/core/astryx.css";
+@import "../lib/astryx/aernova.css";
+@import "tailwindcss/utilities.css" layer(utilities);
 
 /**
  * Design tokens. The semantic names here are the ones DESIGN.md is written in;

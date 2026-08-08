@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { headers } from "next/headers";
 import { SITE_URL } from "@/lib/site";
+import { AstryxThemeProvider } from "@/components/astryx-theme-provider";
 import "./globals.css";
 
 const title = "Aernova";
@@ -62,18 +63,20 @@ export default async function RootLayout({
           />
         </head>
         <body className="min-h-screen bg-ground text-ink-primary antialiased">
-          {/* First focusable element on every route. Invisible until a
-              keyboard user tabs to it, then jumps straight past the sidebar/
-              header to `#main-content` — every nested layout's primary
-              content region carries that id (dashboard, public share pages,
-              the printable report, auth, terms, privacy, not-found). */}
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:border focus:border-hairline focus:bg-surface-sidebar focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-ink-primary focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-instrument"
-          >
-            Skip to content
-          </a>
-          {children}
+          <AstryxThemeProvider>
+            {/* First focusable element on every route. Invisible until a
+                keyboard user tabs to it, then jumps straight past the sidebar/
+                header to `#main-content` — every nested layout's primary
+                content region carries that id (dashboard, public share pages,
+                the printable report, auth, terms, privacy, not-found). */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:border focus:border-hairline focus:bg-surface-sidebar focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-ink-primary focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-instrument"
+            >
+              Skip to content
+            </a>
+            {children}
+          </AstryxThemeProvider>
         </body>
       </html>
     </ClerkProvider>

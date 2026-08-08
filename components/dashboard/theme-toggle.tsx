@@ -1,6 +1,12 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import {
+  applyTheme,
+  getThemeServerSnapshot,
+  getThemeSnapshot,
+  subscribeTheme,
+} from "@/lib/theme-store";
 
 /**
  * Light / dark switch. Dark is the home base; on first visit the app follows the
@@ -19,60 +25,16 @@ import { useSyncExternalStore } from "react";
  * mismatch — then switches to the live value right after), and it does not
  * need a `choice` state at all: the button only ever renders and reasons
  * about the resolved boolean, never the underlying "system" label.
+ *
+ * The store itself lives in lib/theme-store.ts, shared with
+ * AstryxThemeProvider — see that file for why.
  */
 
-type Choice = "light" | "dark" | "system";
-
-const STORAGE_KEY = "aernova-theme";
-
-/** Same-tab subscribers — a `storage` event only fires in *other* tabs, never the one that called `apply`. */
-const listeners = new Set<() => void>();
-
-function apply(choice: Choice) {
-  const root = document.documentElement;
-  if (choice === "system") {
-    root.removeAttribute("data-theme");
-    window.localStorage.removeItem(STORAGE_KEY);
-  } else {
-    root.setAttribute("data-theme", choice);
-    window.localStorage.setItem(STORAGE_KEY, choice);
-  }
-  listeners.forEach((listener) => listener());
-}
-
-function getSnapshot(): boolean {
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === "light") return false;
-  if (stored === "dark") return true;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-/** Matches the pre-hydration fallback the root layout's inline script assumes. */
-function getServerSnapshot(): boolean {
-  return true;
-}
-
-/** OS preference changing, another tab's toggle, or this tab's own `apply` — all three need a re-render. */
-function subscribe(callback: () => void) {
-  listeners.add(callback);
-  const mq = window.matchMedia("(prefers-color-scheme: dark)");
-  mq.addEventListener("change", callback);
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === STORAGE_KEY) callback();
-  };
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(callback);
-    mq.removeEventListener("change", callback);
-    window.removeEventListener("storage", onStorage);
-  };
-}
-
 export function ThemeToggle() {
-  const isDark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const isDark = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
 
   function toggle() {
-    apply(isDark ? "light" : "dark");
+    applyTheme(isDark ? "light" : "dark");
   }
 
   return (
