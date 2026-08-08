@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requirePageCapability } from "@/lib/auth";
 import { DashboardCommandBand } from "@/components/dashboard/dashboard-command-band";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
+import { ReceivablesSummary } from "@/components/dashboard/receivables-summary";
+import { NewRequestsSummary } from "@/components/dashboard/new-requests-summary";
 
 /**
  * The overview: where the money is and where the work stands.
@@ -50,6 +52,11 @@ export default async function DashboardPage() {
           to search, filter and sort them.
         </p>
       ) : null}
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <ReceivablesSummary companyId={company.id} />
+        <NewRequestsSummary companyId={company.id} />
+      </div>
 
       <RecentActivity companyId={company.id} />
     </div>

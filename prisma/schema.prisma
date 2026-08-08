@@ -770,6 +770,14 @@ model CompanyMembership {
   userId    String
   role      CompanyRole @default(VIEWER)
   createdAt DateTime    @default(now())
+  /**
+   * The notification bell's read/unread line. Lives here, not on `User` —
+   * a person can belong to more than one company, and marking notifications
+   * read in one must not clear the badge in another. Null means "never
+   * opened the bell", which the bell treats as "everything is unread"
+   * rather than crashing on a missing timestamp.
+   */
+  notificationsSeenAt DateTime?
 
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)

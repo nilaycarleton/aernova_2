@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 import { UndoToastProvider } from "@/components/dashboard/undo-toast";
 import { QuickCreateMenu } from "@/components/dashboard/quick-create-menu";
+import { NotificationBell } from "@/components/dashboard/notification-bell";
 import { requireCompanyContext } from "@/lib/auth";
 import { can } from "@/lib/permissions";
 
@@ -30,6 +31,10 @@ export default async function DashboardLayout({
                   sidebar — reaching a create-something-new button is a
                   question of role, not of which page you happen to be on. */}
               {can(role, "editJob") ? <QuickCreateMenu /> : null}
+              {/* Every curated kind either names a dollar amount or is
+                  company-wide visibility crew doesn't have — same gate as
+                  viewing money anywhere else, not a new rule. */}
+              {can(role, "viewMoney") ? <NotificationBell /> : null}
               <ThemeToggle />
               <UserButton />
             </div>
