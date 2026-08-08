@@ -5,6 +5,8 @@ import { DashboardCommandBand } from "@/components/dashboard/dashboard-command-b
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { ReceivablesSummary } from "@/components/dashboard/receivables-summary";
 import { NewRequestsSummary } from "@/components/dashboard/new-requests-summary";
+import { RevenueTrendSummary } from "@/components/dashboard/revenue-trend-summary";
+import { PipelineSnapshot } from "@/components/dashboard/pipeline-snapshot";
 
 /**
  * The overview: where the money is and where the work stands.
@@ -53,10 +55,13 @@ export default async function DashboardPage() {
         </p>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <ReceivablesSummary companyId={company.id} />
         <NewRequestsSummary companyId={company.id} />
+        <RevenueTrendSummary companyId={company.id} />
       </div>
+
+      <PipelineSnapshot companyId={company.id} />
 
       <RecentActivity companyId={company.id} />
     </div>
