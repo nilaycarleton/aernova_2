@@ -3,6 +3,7 @@ import { Timestamp } from "@astryxdesign/core/Timestamp";
 import { prisma } from "@/lib/prisma";
 import { describeActivity } from "@/lib/activity";
 import { personName } from "@/lib/job-identity";
+import { EmptyState } from "@/components/ui/empty-state";
 
 /**
  * The company's history, read back for the first time. `recordActivity()` has
@@ -40,10 +41,14 @@ export async function RecentActivity({ companyId }: { companyId: string }) {
       <h2 className="text-sm font-semibold text-ink-primary">Recent activity</h2>
 
       {events.length === 0 ? (
-        <p className="mt-4 rounded-2xl border border-dashed border-hairline p-8 text-center text-sm text-ink-muted">
-          Nothing yet. Activity shows up here as quotes get sent, invoices get paid, and jobs move
-          along.
-        </p>
+        <div className="mt-4">
+          <EmptyState
+            kind="first-use"
+            title="Nothing yet."
+            description="Activity shows up here as quotes get sent, invoices get paid, and jobs move along."
+            compact
+          />
+        </div>
       ) : (
         <div className="mt-3">
           <List hasDividers density="compact">

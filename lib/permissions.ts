@@ -56,6 +56,23 @@ export const CAPABILITIES = [
   "manageSchedule",
   /** Mark a visit done, upload what you did. The one thing crew write. */
   "completeVisit",
+  /**
+   * Check off `QualityCheck`'s field-evidence half — siteCleaned,
+   * photosUploaded, a note — from `/today`. Same CREW-tier grant as
+   * `completeVisit`, and the same reasoning: this is what a crew member
+   * observed on site, not a decision about the job. It never gates
+   * `[ Complete Project → ]` on its own — see `completeQualityCheck`.
+   */
+  "submitFieldEvidence",
+  /**
+   * Write `QualityCheck`'s office half — scopeCompleted, deficienciesResolved,
+   * walkthroughCompleted, completedAt — and with it, unlock a job's COMPLETED
+   * transition. Same office tier as `manageJobCosts`: this is the estimator's
+   * or owner's judgment call, never crew's, and `updateJobStatusAction`'s own
+   * completion gate is what actually enforces that split (see
+   * `lib/quality-check.ts`).
+   */
+  "completeQualityCheck",
   /** Invite people, change roles, remove members. */
   "manageTeam",
   /**
@@ -116,7 +133,9 @@ const GRANTS: Record<CompanyRole, readonly Capability[]> = {
     "sendQuote",
     "manageSchedule",
     "completeVisit",
+    "submitFieldEvidence",
     "manageJobCosts",
+    "completeQualityCheck",
   ],
 
   // Wins the work. Same money access — you cannot discount what you cannot see
@@ -129,14 +148,17 @@ const GRANTS: Record<CompanyRole, readonly Capability[]> = {
   VIEWER: ["viewMoney", "viewAllJobs"],
 
   /**
-   * Crew. Two grants, and the shape of the list is the point.
+   * Crew. Three grants, and the shape of the list is the point.
    *
    * No `viewMoney`: what a job is worth is not a fact a crew member needs to do
    * the work, and it is a fact that causes trouble on a site. No `viewAllJobs`:
    * they see the jobs they are actually on, which is also what makes the
    * scoping in `jobScopeForRole` load-bearing rather than decorative.
+   * `submitFieldEvidence` sits beside `completeVisit` deliberately — evidence,
+   * not a decision — and crew gets no path to `completeQualityCheck`,
+   * `editInvoice`, or anything else money- or customer-facing through it.
    */
-  CREW: ["completeVisit"],
+  CREW: ["completeVisit", "submitFieldEvidence"],
 };
 
 export function can(role: CompanyRole, capability: Capability): boolean {

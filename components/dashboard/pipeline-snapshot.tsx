@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PIPELINE_STAGES, PIPELINE_STAGE_META, stageForJob, stageForRequest } from "@/lib/pipeline";
+import { EmptyState } from "@/components/ui/empty-state";
 
 /**
  * Where the business is stuck, right now — not a period report. Reuses
@@ -48,9 +49,14 @@ export async function PipelineSnapshot({ companyId }: { companyId: string }) {
       <h2 className="text-sm font-semibold text-ink-primary">Where things stand</h2>
 
       {total === 0 ? (
-        <p className="mt-4 rounded-2xl border border-dashed border-hairline p-8 text-center text-sm text-ink-muted">
-          Nothing in the pipeline right now. New requests and open quotes will show up here.
-        </p>
+        <div className="mt-4">
+          <EmptyState
+            kind="clear"
+            title="Nothing in the pipeline right now."
+            description="New requests and open quotes will show up here."
+            compact
+          />
+        </div>
       ) : (
         <ul className="mt-3 divide-y divide-hairline">
           {rows.map((row) => (

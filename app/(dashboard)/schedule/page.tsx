@@ -36,6 +36,8 @@ import { TeamFilterSelect } from "@/components/dashboard/team-filter-select";
 import { setCompanyTimeZoneAction } from "@/app/(dashboard)/schedule/actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { findOverbookedDays, findOverlappingAssignments } from "@/lib/schedule/double-booking";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 /**
  * The schedule.
@@ -228,44 +230,43 @@ export default async function SchedulePage({
 
   return (
     <div className="min-w-0 space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Schedule</p>
-          <h2 className="mt-2 text-3xl font-semibold text-ink-primary">{heading}</h2>
-          <p className="mt-2 text-ink-muted">
-            {renderedVisits.length === 0
-              ? "Nothing booked here."
-              : `${renderedVisits.length} ${renderedVisits.length === 1 ? "visit" : "visits"}.`}
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Schedule"
+        title={heading}
+        description={
+          renderedVisits.length === 0
+            ? "Nothing booked here."
+            : `${renderedVisits.length} ${renderedVisits.length === 1 ? "visit" : "visits"}.`
+        }
+        primaryAction={
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Views are links, so each one is a place with a URL — the browser's
+                own Back button then does what everybody expects it to. */}
+            <div className="flex flex-wrap gap-1 rounded-xl border border-hairline p-1">
+              {VIEWS.filter((option) => option.key !== "day" || zone).map((option) => (
+                <Link
+                  key={option.key}
+                  href={scheduleHref({ view: option.key })}
+                  aria-current={view === option.key ? "page" : undefined}
+                  className={`rounded-lg px-3 py-1.5 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument ${
+                    view === option.key
+                      ? "bg-surface-lifted font-medium text-ink-primary"
+                      : "text-ink-secondary hover:text-ink-primary"
+                  }`}
+                >
+                  {option.label}
+                </Link>
+              ))}
+            </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Views are links, so each one is a place with a URL — the browser's
-              own Back button then does what everybody expects it to. */}
-          <div className="flex flex-wrap gap-1 rounded-xl border border-hairline p-1">
-            {VIEWS.filter((option) => option.key !== "day" || zone).map((option) => (
-              <Link
-                key={option.key}
-                href={scheduleHref({ view: option.key })}
-                aria-current={view === option.key ? "page" : undefined}
-                className={`rounded-lg px-3 py-1.5 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument ${
-                  view === option.key
-                    ? "bg-surface-lifted font-medium text-ink-primary"
-                    : "text-ink-secondary hover:text-ink-primary"
-                }`}
-              >
-                {option.label}
-              </Link>
-            ))}
+            <nav aria-label="Move through the calendar" className="flex items-center gap-2">
+              <Nav href={scheduleHref({ date: previous })}>←</Nav>
+              <Nav href={scheduleHref({ date: toDayInput(today) })}>Today</Nav>
+              <Nav href={scheduleHref({ date: next })}>→</Nav>
+            </nav>
           </div>
-
-          <nav aria-label="Move through the calendar" className="flex items-center gap-2">
-            <Nav href={scheduleHref({ date: previous })}>←</Nav>
-            <Nav href={scheduleHref({ date: toDayInput(today) })}>Today</Nav>
-            <Nav href={scheduleHref({ date: next })}>→</Nav>
-          </nav>
-        </div>
-      </header>
+        }
+      />
 
       {runsSchedule ? (
         <div className="flex flex-wrap items-center gap-2">
@@ -458,9 +459,7 @@ export default async function SchedulePage({
 
       {view === "agenda" ? (
         renderedVisits.length === 0 ? (
-          <p className="rounded-3xl border border-dashed border-hairline p-10 text-center text-ink-muted">
-            Nothing booked in the next three months.
-          </p>
+          <EmptyState kind="first-use" title="Nothing booked in the next three months." />
         ) : (
           <ul className="divide-y divide-hairline rounded-3xl border border-hairline bg-surface-raised">
             {[...byDay.entries()].map(([key, dayVisits]) => {
@@ -623,11 +622,7 @@ function DayGrid({ day, zone, visits }: { day: CalendarDate; zone: string; visit
   const hours = Array.from({ length: lastHour - firstHour + 1 }, (_, i) => firstHour + i);
 
   if (visits.length === 0) {
-    return (
-      <p className="rounded-2xl border border-dashed border-hairline p-10 text-center text-sm text-ink-muted">
-        Free — nothing booked {formatDayShort(day)}.
-      </p>
-    );
+    return <EmptyState kind="first-use" title={`Free — nothing booked ${formatDayShort(day)}.`} compact />;
   }
 
   return (

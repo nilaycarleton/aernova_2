@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import Link from "next/link";
 import { requirePageCapability } from "@/lib/auth";
 import { can } from "@/lib/permissions";
 import { isStripeConfigured } from "@/lib/stripe";
@@ -8,6 +9,7 @@ import { SubmitButton } from "@/components/dashboard/submit-button";
 import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
 import { CompanyLogoUpload } from "@/components/dashboard/company-logo-upload";
 import { RequestFormLinkPanel } from "@/components/dashboard/request-form-link-panel";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   connectStripeAction,
   resetCompanyCatalogAction,
@@ -83,13 +85,11 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto min-w-0 max-w-2xl space-y-6">
-      <header>
-        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Settings</p>
-        <h2 className="mt-2 text-3xl font-semibold text-ink-primary">Company</h2>
-        <p className="mt-2 max-w-2xl text-ink-muted">
-          What goes on a quote or an invoice, and how homeowners can pay one.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Settings"
+        title="Company"
+        description="What goes on a quote or an invoice, and how homeowners can pay one."
+      />
 
       <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Company profile</h3>
@@ -223,6 +223,20 @@ export default async function SettingsPage() {
             Reset starter price list &amp; tax rates
           </ConfirmSubmit>
         </form>
+      </section>
+
+      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <h3 className="text-lg font-semibold text-ink-primary">Workflow</h3>
+        <p className="mt-1 text-sm text-ink-muted">
+          What stages a job moves through, and what you call them — hide stages you don&rsquo;t
+          use, rename the rest into your own words.
+        </p>
+        <Link
+          href="/settings/workflow"
+          className="mt-4 inline-flex rounded-xl border border-hairline px-5 py-3 text-sm font-semibold text-ink-primary transition hover:bg-ground/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+        >
+          Edit workflow
+        </Link>
       </section>
 
       <RequestFormLinkPanel url={requestFormUrl} />

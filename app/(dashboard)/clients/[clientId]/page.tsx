@@ -4,9 +4,13 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requirePageCapability } from "@/lib/auth";
 import { formatAddress } from "@/lib/client-matching";
-import { CLIENT_STATUS_META } from "@/lib/client-status";
+import { CLIENT_STATUS_META, clientStatusTone } from "@/lib/client-status";
+import { statusLabel as jobStatusLabel, statusTone as jobStatusTone } from "@/lib/job-status";
 import { shareUrl as buildShareUrl } from "@/lib/share-token";
 import { ClientHubSharePanel } from "@/components/dashboard/client-hub-share-panel";
+import { PageHeader } from "@/components/ui/page-header";
+import { Status } from "@/components/ui/status";
+import { EmptyState } from "@/components/ui/empty-state";
 
 /**
  * A client's own page — new with item 44, and small on purpose.
@@ -40,22 +44,38 @@ export default async function ClientDetailPage({
 
   const host = (await headers()).get("host") ?? "localhost:3000";
   const origin = `${host.startsWith("localhost") ? "http" : "https"}://${host}`;
-  const statusMeta = CLIENT_STATUS_META[client.status];
+
+  // Purely presentational — the existing text already shows this contact
+  // info verbatim; wrapping it in tel:/mailto: adds no new data source and
+  // is safe on every device (Step 27).
+  const contactLinks = [
+    client.phone ? { href: `tel:${client.phone}`, label: client.phone } : null,
+    client.email ? { href: `mailto:${client.email}`, label: client.email } : null,
+  ].filter((link): link is { href: string; label: string } => link !== null);
 
   return (
     <div className="mx-auto min-w-0 max-w-3xl space-y-6">
-      <header className="min-w-0">
-        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Client</p>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h2 className="text-3xl font-semibold text-ink-primary">{client.displayName}</h2>
-          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusMeta.badge}`}>
-            {statusMeta.label}
-          </span>
-        </div>
-        <p className="mt-2 text-sm text-ink-secondary">
-          {[client.email, client.phone].filter(Boolean).join(" · ") || "No contact info on file"}
+      <PageHeader
+        eyebrow="Client"
+        title={client.displayName}
+        status={<Status tone={clientStatusTone(client.status)} label={CLIENT_STATUS_META[client.status].label} />}
+        description={contactLinks.length === 0 ? "No contact info on file" : undefined}
+      />
+      {contactLinks.length > 0 ? (
+        <p className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-ink-secondary">
+          {contactLinks.map((link, index) => (
+            <span key={link.href}>
+              {index > 0 ? <span className="mr-3 text-ink-muted">·</span> : null}
+              <a
+                href={link.href}
+                className="underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              >
+                {link.label}
+              </a>
+            </span>
+          ))}
         </p>
-      </header>
+      ) : null}
 
       <ClientHubSharePanel
         clientId={client.id}
@@ -65,7 +85,7 @@ export default async function ClientDetailPage({
       <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Properties</h3>
         {client.properties.length === 0 ? (
-          <p className="mt-2 text-sm text-ink-muted">No property on file yet.</p>
+          <EmptyState kind="first-use" title="No property on file yet." compact />
         ) : (
           <ul className="mt-3 space-y-2">
             {client.properties.map((property) => (
@@ -81,17 +101,18 @@ export default async function ClientDetailPage({
       <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Jobs</h3>
         {client.jobs.length === 0 ? (
-          <p className="mt-2 text-sm text-ink-muted">No jobs yet.</p>
+          <EmptyState kind="first-use" title="No jobs yet." compact />
         ) : (
           <ul className="mt-3 divide-y divide-hairline">
             {client.jobs.map((job) => (
-              <li key={job.id} className="py-3">
+              <li key={job.id} className="flex items-center justify-between gap-3 py-3">
                 <Link
                   href={`/jobs/${job.id}`}
                   className="font-medium text-ink-primary underline underline-offset-4 transition hover:text-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
                 >
                   {job.name}
                 </Link>
+                <Status tone={jobStatusTone(job.status)} label={jobStatusLabel(job.status)} />
               </li>
             ))}
           </ul>

@@ -40,10 +40,10 @@ test("crew cannot move the calendar or invite anyone", () => {
   assert.equal(can(CompanyRole.CREW, "manageTeam"), false);
 });
 
-test("crew can do exactly one thing, and that is the whole list", () => {
+test("crew can submit on-site evidence and complete a visit, and that is the whole list", () => {
   // Written as an equality rather than a series of assertions so that adding a
   // capability to CREW fails this test loudly instead of slipping through.
-  assert.deepEqual([...capabilitiesOf(CompanyRole.CREW)], ["completeVisit"]);
+  assert.deepEqual([...capabilitiesOf(CompanyRole.CREW)], ["completeVisit", "submitFieldEvidence"]);
 });
 
 test("only owners and admins can delete a job or manage the team", () => {

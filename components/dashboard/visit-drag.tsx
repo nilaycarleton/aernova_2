@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
+import { LayoutContent } from "@astryxdesign/core/Layout";
 import { moveVisitAction } from "@/app/(dashboard)/schedule/actions";
 
 /**
@@ -69,6 +71,9 @@ export function DraggableVisit({
   );
 }
 
+// Phase 3 migration map §60: one of the four native `<dialog>` implementations
+// named for direct Astryx Dialog migration. `moveVisitAction`'s contract is
+// unchanged — only the dialog chrome moved off a hand-managed `showModal()`.
 function MoveDialog({
   jobId,
   visitId,
@@ -80,18 +85,8 @@ function MoveDialog({
   visitLabel: string;
   onClose: () => void;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [pending, setPending] = useState(false);
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    dialog.showModal();
-    dialog.addEventListener("close", onClose);
-    return () => dialog.removeEventListener("close", onClose);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -105,45 +100,51 @@ function MoveDialog({
     formData.set("day", String(day));
     await moveVisitAction(formData);
     router.refresh();
-    ref.current?.close();
+    onClose();
   }
 
   return (
-    <dialog
-      ref={ref}
-      className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-hairline bg-surface-sidebar p-0 text-ink-primary backdrop:bg-ground/70 backdrop:backdrop-blur-sm"
+    <Dialog
+      isOpen
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) onClose();
+      }}
+      purpose="info"
+      width={352}
     >
-      <form onSubmit={onSubmit} className="p-5">
-        <h2 className="text-base font-semibold text-ink-primary">Move {visitLabel}</h2>
-        <label htmlFor="move-visit-day" className="mb-1.5 mt-4 block text-xs font-medium text-ink-secondary">
-          New day
-        </label>
-        <input
-          id="move-visit-day"
-          name="day"
-          type="date"
-          required
-          autoFocus
-          className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
-        />
-        <div className="mt-5 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => ref.current?.close()}
-            className="rounded-xl px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
-          >
-            {pending ? "Moving…" : "Move it"}
-          </button>
-        </div>
-      </form>
-    </dialog>
+      <DialogHeader title={`Move ${visitLabel}`} onOpenChange={() => onClose()} />
+      <LayoutContent>
+        <form onSubmit={onSubmit}>
+          <label htmlFor="move-visit-day" className="mb-1.5 block text-xs font-medium text-ink-secondary">
+            New day
+          </label>
+          <input
+            id="move-visit-day"
+            name="day"
+            type="date"
+            required
+            autoFocus
+            className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+          />
+          <div className="mt-5 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={pending}
+              className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+            >
+              {pending ? "Moving…" : "Move it"}
+            </button>
+          </div>
+        </form>
+      </LayoutContent>
+    </Dialog>
   );
 }
 

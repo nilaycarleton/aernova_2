@@ -5,6 +5,7 @@ import { formatAddress } from "@/lib/client-matching";
 import { jobAddress, jobClient, jobIdentityInclude, personName } from "@/lib/job-identity";
 import { PIPELINE_STAGES, stageForJob, stageForRequest, type PipelineStage } from "@/lib/pipeline";
 import { PipelineBoard, type PipelineCard } from "@/components/dashboard/pipeline-board";
+import { PageHeader } from "@/components/ui/page-header";
 
 /**
  * Every open deal, in one board — item 41. `lib/pipeline.ts` decides which
@@ -30,8 +31,8 @@ export default async function PipelinePage() {
         companyId: company.id,
         // CLOSED is fetched too, now that it has a column (Lost) to land on
         // — `stageForRequest` is still what decides whether a status becomes
-        // a card at all.
-        status: { in: ["NEW", "ASSESSING", "CLOSED"] },
+        // a card at all. CONTACTED (§4/§25 Phase 6) needs the same treatment.
+        status: { in: ["NEW", "CONTACTED", "ASSESSING", "CLOSED"] },
         jobId: null,
       },
       include: {
@@ -107,14 +108,10 @@ export default async function PipelinePage() {
 
   return (
     <div className="min-w-0 space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-ink-primary">Pipeline</h2>
-        {total > 0 ? (
-          <p className="mt-1 text-sm text-ink-muted">
-            Every deal in motion, from the first ask to the yes.
-          </p>
-        ) : null}
-      </div>
+      <PageHeader
+        title="Pipeline"
+        description={total > 0 ? "Every deal in motion, from the first ask to the yes." : undefined}
+      />
 
       <PipelineBoard
         columns={columns}

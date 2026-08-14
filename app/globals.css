@@ -1,12 +1,13 @@
 /**
  * Cascade layer order, declared once up front so Astryx's two layers
  * (astryx-base, astryx-theme) interleave correctly with Tailwind's own
- * (theme, base, utilities) rather than getting silently appended after
- * utilities. This is why Tailwind is imported in three pieces below instead
- * of the usual `@import "tailwindcss";` — that shorthand declares its own
- * `@layer theme, base, components, utilities;` internally, which would lock
- * in Tailwind's order before this file got a chance to interleave Astryx's
- * layers between base and components. See astryx docs: Next.js + Tailwind.
+ * (theme, base, components, utilities) rather than getting silently appended
+ * after utilities. This is why Tailwind is imported in three pieces below
+ * instead of the usual `@import "tailwindcss";` — that shorthand declares its
+ * own `@layer theme, base, components, utilities;` internally, which would
+ * lock in Tailwind's order before this file got a chance to interleave
+ * Astryx's layers between base and components. See astryx docs: Next.js +
+ * Tailwind.
  *
  * Priority, lowest to highest: reset < Tailwind theme < Tailwind base
  * (preflight) < Astryx's own base < Astryx's theme tokens/component overrides
@@ -24,73 +25,133 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 
 /**
- * Design tokens. The semantic names here are the ones DESIGN.md is written in;
- * prefer them over raw palette utilities (`text-ink-muted`, not `text-slate-400`)
- * so a palette decision can be made in one place instead of across 40+ files.
+ * Design tokens — Precision Workshop (Premium UI Redesign Phase 1). The
+ * semantic names here are the ones docs/DESIGN.md is written in; prefer them
+ * over raw palette utilities (`text-ink-muted`, not `text-slate-400`) so a
+ * palette decision can be made in one place instead of across 100+ files.
+ * This file is the ONE semantic source of truth: Tailwind utilities compile
+ * straight off it, `lib/astryx/theme.ts` copies these same values into
+ * Astryx's own token names (never re-derives them), and
+ * `components/motion-provider.tsx` / `lib/motion.ts` read the same motion
+ * intent (see that file for exact duration/easing values — CSS variables
+ * aren't a natural fit for spring physics, so motion timing is documented
+ * once, in one non-CSS place, rather than duplicated here).
  *
- * TWO THEMES, ONE HERO. Instrument Cyan is the readout colour in both light and
- * dark — it never flips. Everything *around* it does: the ground is a deep Ink
- * Navy in dark, a cool paper-grey in light. Amber is the one warm signal, held
- * in reserve for attention/caution and nothing else. See DESIGN.md.
+ * TWO THEMES, ONE HERO. Instrument Cyan is the readout colour in both light
+ * and dark — it never flips. Everything *around* it does: the ground is a
+ * neutral graphite in dark, a porcelain/mineral canvas in light. Amber is the
+ * one warm signal, held in reserve for attention/caution and nothing else.
+ * See docs/DESIGN.md.
  *
- * How the flip works: `@theme` below carries the DARK values (the home base).
- * Utilities compile to `var(--color-*)`, so re-declaring those custom properties
- * under a theme selector re-skins the whole app with no per-component work. The
- * light values live once in `--l-*` sources and are activated by two thin
- * mapping blocks: system-preference (when the user hasn't chosen) and an
- * explicit `[data-theme="light"]` override. Paper tokens never flip — the
- * (report) route is a printed document, not a screen.
+ * ACTION VS. MEASUREMENT — the Phase 1 fix. Cyan (`instrument-*`) means "this
+ * is a reading" and nothing else; it is never a generic application action
+ * colour. The application's own primary-action colour is `--color-action`
+ * (an ink/ground inversion — see below), independent of the measurement
+ * family. This was previously an unwritten convention (every button
+ * hardcoded `bg-ink-primary text-ground` directly) that `docs/DESIGN.md`'s
+ * *text* nonetheless still described as a cyan fill — a real, shipped
+ * contradiction. `--color-action`/`--color-on-action` make the convention an
+ * explicit, named token so there is exactly one authoritative model, not a
+ * pattern implied by grep.
  *
- * Values are OKLCH and match Tailwind v4's own palette where a v4 utility is
- * being aliased, so the swap is value-preserving. Do not "simplify" these to v3
- * hex: v4's cyan-400 is oklch(78.9% 0.154 211.53) = #00d3f2, visibly different
- * from the v3 #22d3ee it superseded.
+ * How the flip works: `@theme` below carries the DARK values (the home
+ * base). Utilities compile to `var(--color-*)`, so re-declaring those custom
+ * properties under a theme selector re-skins the whole app with no
+ * per-component work. The light values live once in `--l-*` sources and are
+ * activated by two thin mapping blocks: system-preference (when the user
+ * hasn't chosen) and an explicit `[data-theme="light"]` override. Paper
+ * tokens never flip — the (report) route is a printed document, not a
+ * screen. Action/selection tokens below are declared once as `var()`
+ * indirections onto ink/ground/surface tokens that DO flip, so they need no
+ * separate light-mode block at all — the indirection itself is the
+ * single-source guarantee.
+ *
+ * Values are OKLCH. Dark's ground/surface/ink chroma was deliberately
+ * lowered from the prior "Ink Navy" system (was up to 0.05) to roughly
+ * 0.01–0.02 — a neutral graphite reads as calm precision; a saturated navy
+ * reads as a brand flourish competing with the one hero cyan. Status,
+ * measurement, and signal-blue hues are unchanged from the prior system;
+ * only the neutrals moved. See docs/phase-0/04-decision-record.md for why
+ * exact values were treated as a Phase 0/1 decision, not re-litigated per
+ * component.
  */
 @theme {
-  /* System stack, retuned to lead with -apple-system/Segoe UI (matching
-     Astryx's own default, see lib/astryx/theme.ts) rather than Tailwind's
-     bare `ui-sans-serif, system-ui` default. Still zero webfont — see
-     DESIGN.md's Typography section for why that's doctrine, not a gap. */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+  /* IBM Plex Sans Variable (Phase 0 typography comparison winner), self-
+     hosted via next/font/google in app/layout.tsx — see that file for the
+     exact configuration (variable weight only, latin subset, no width axis
+     invoked). `--font-plex` is only defined once `<html>` carries the
+     next/font className; the system stack after it is a real fallback for
+     the (vanishingly unlikely) case the variable never resolves, not a
+     decorative comment. */
+  --font-sans: var(--font-plex), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
 
   /* --- Surfaces (DARK / home base). Depth is tonal only — the Two-Layer Rule.
-     Panels are a navy-tinted white film, not neutral white, so the ground reads
-     as one cohesive Ink Navy field. `ground` carries alpha variants throughout
-     (bg-ground/50, /80, /85) as scrims. */
-  --color-ground: oklch(12.5% 0.05 264); /* Ink Navy — deeper, bluer than slate-950 */
-  --color-surface-raised: rgb(216 227 255 / 0.07); /* navy-tinted white, 7% */
-  --color-surface-lifted: rgb(216 227 255 / 0.13); /* one step up: nested / hover / active */
-  --color-hairline: rgb(216 227 255 / 0.14); /* the one structural border */
-  --color-surface-sidebar: oklch(15.5% 0.05 264); /* the sidebar's second neutral layer */
+     Panels are a neutral-tinted white film, not saturated navy, so the
+     ground reads as calm graphite. `ground` carries alpha variants
+     throughout (bg-ground/50, /80, /85) as scrims. */
+  --color-ground: oklch(14% 0.014 264); /* neutral graphite, not navy */
+  --color-surface-raised: rgb(224 226 230 / 0.07); /* neutral-tinted white film, 7% */
+  --color-surface-lifted: rgb(224 226 230 / 0.13); /* one step up: nested / hover / active */
+  --color-hairline: rgb(224 226 230 / 0.14); /* the one structural border */
+  --color-surface-sidebar: oklch(17% 0.013 264); /* the sidebar's second neutral layer */
 
-  /* --- Text. Ink Muted is the contrast floor at ~7.6:1 on ground — nothing
-     dimmer may carry text. On-Accent is the constant dark ink that rides on
-     bright accents (cyan/amber/emerald buttons); it never flips. */
-  --color-ink-primary: #fff;
-  --color-ink-strong: oklch(93% 0.02 258);
-  --color-ink-secondary: oklch(87% 0.028 262); /* body — cool Ink Navy tint (#cdd6ea family) */
-  --color-ink-muted: oklch(70.4% 0.045 258);
-  --color-on-accent: oklch(13% 0.05 264); /* dark ink on bright accents — constant */
+  /* --- Text. Ink Muted is the contrast floor — nothing dimmer may carry
+     text (verified: ~7.3:1 on dark ground, ~4.6:1 on light ground — see the
+     contrast validation in docs/phase-0 or the Phase 1 implementation
+     summary). Ink Primary carries a deliberate, barely-there warm tint
+     (chroma 0.004 toward hue 75) rather than pure #fff — "warm/off-white,"
+     per the approved direction, not a cream. On-Accent is the constant dark
+     ink that rides on bright accents (cyan/amber/emerald); it never flips. */
+  --color-ink-primary: oklch(97% 0.004 75);
+  --color-ink-strong: oklch(91% 0.006 70);
+  --color-ink-secondary: oklch(86% 0.01 260);
+  --color-ink-muted: oklch(69% 0.014 258);
+  --color-on-accent: oklch(14% 0.014 264); /* dark ink on bright accents — constant, matches ground's new tone */
 
-  /* --- Instrument Cyan: the readout colour. Measurements and the action that
-     produces one. The one hero, identical in both themes — see The Readout Rule.
-     `-fg` is readable cyan text on a cyan tint (pale on dark, deep on light). */
+  /* --- Application action. NOT cyan — see the note above this block. An
+     ink/ground inversion, formalized as its own token. `-hover`/`-active`
+     reuse the existing ink hierarchy (one step down, two steps down) rather
+     than inventing new literal colours — the interaction ladder is already
+     the text hierarchy, just applied to a fill. `-quiet-*` is the secondary/
+     low-emphasis action: a hairline outline on Surface Raised, replacing the
+     old (contradictory) cyan-tinted "Quiet" button spec. Declared once with
+     `var()` indirection onto tokens that already flip per theme, so no
+     separate light-mode block is needed — see the file header. */
+  --color-action: var(--color-ink-primary);
+  --color-on-action: var(--color-ground);
+  --color-action-hover: var(--color-ink-strong);
+  --color-action-active: var(--color-ink-secondary);
+  --color-action-quiet-bg: var(--color-surface-raised);
+  --color-action-quiet-hover-bg: var(--color-surface-lifted);
+  --color-action-quiet-fg: var(--color-ink-secondary);
+  --color-action-quiet-border: var(--color-hairline);
+  --color-selection: var(--color-surface-lifted);
+
+  /* --- Instrument Cyan: the readout colour. Measurements and the action
+     that produces one — never a generic button. The one hero, identical in
+     both themes — see The Readout Rule in docs/DESIGN.md. `-fg` is readable
+     cyan text on a cyan tint (pale on dark, deep on light). Unchanged from
+     the prior system: already satisfied "recognizably consistent measurement
+     truth" and re-verified for contrast against the new neutrals. */
   --color-instrument: oklch(78.9% 0.154 211.53); /* = cyan-400 */
   --color-instrument-bright: oklch(86.5% 0.127 207.078); /* = cyan-300 */
   --color-instrument-deep: oklch(71.5% 0.143 215.221); /* = cyan-500 */
   --color-instrument-fg: oklch(89% 0.09 205);
 
   /* --- Signal Blue: structural emphasis in the 3D viewer and input focus.
-     Reads on both grounds, so it doesn't flip. */
+     Reads on both grounds, so it doesn't flip. Not an action colour either —
+     it marks selection/focus/structure, not "click me." */
   --color-signal-blue: oklch(62.3% 0.214 259.815); /* = blue-500 */
   --color-signal-blue-deep: oklch(54.6% 0.245 262.881); /* = blue-600 */
   --color-sky-accent: oklch(74.6% 0.16 232.661); /* = sky-400 */
 
   /* --- Semantic status. Each status keeps one saturated base (for `bg-x/10`
-     tints and `border-x/25` rules, which composite fine on either ground) plus
-     an `-fg` text colour that flips per theme. Caution (amber) is the one warm
-     signal — attention only, never a measurement, never an error. */
+     tints and `border-x/25` rules, which composite fine on either ground)
+     plus an `-fg` text colour that flips per theme. Caution (amber) is the
+     one warm signal — attention only, never a measurement, never an error.
+     Unchanged from the prior system: hue/chroma already satisfied the
+     approved semantics and are independent of the neutral-palette change. */
   --color-confirm: oklch(69.6% 0.17 162.48); /* = emerald-500 — terminal success */
   --color-confirm-fg: oklch(90% 0.11 165);
   --color-caution: oklch(80% 0.15 78); /* Amber (#ffb020) — attention / caution only */
@@ -100,10 +161,12 @@
   --color-info: oklch(68.5% 0.169 237); /* sky-500 — neutral informational state */
   --color-info-fg: oklch(88% 0.07 232);
 
-  /* --- Print surface. The (report) route is a document handed to a homeowner,
-     not a screen; it never borrows the tokens above and never flips with theme.
-     Its ink runs darker because slate-400 on white is 2.56:1 — the floor here is
-     paper-ink-faint. */
+  /* --- Print surface. The (report) route is a document handed to a
+     homeowner, not a screen; it never borrows the tokens above and never
+     flips with theme. Unchanged — already satisfies the "document mode"
+     foundation Phase 1 needs; Phase 6 migrates the actual public routes onto
+     it, not this file. Its ink runs darker because slate-400 on white is
+     2.56:1 — the floor here is paper-ink-faint. */
   --color-paper-document: #fff;
   --color-paper: oklch(96.8% 0.007 247.896); /* = slate-100 */
   --color-paper-inset: oklch(98.4% 0.003 247.858); /* = slate-50 */
@@ -117,33 +180,68 @@
      paper-rule for section edges, and this above a total — the one line an
      invoice draws heavier because the number under it is the point. */
   --color-paper-rule-strong: oklch(86.9% 0.022 252.894); /* = slate-300 */
+
+  /* --- Material: translucency tokens. Forward-looking foundation for sheets/
+     overlays/scrims (see docs/DESIGN.md's Elevation section) — not yet wired
+     into any component, since Phase 1 doesn't migrate components. Real
+     backdrop-blur usages are still hardcoded Tailwind `backdrop-blur-*`
+     classes today; see the Phase 1 implementation summary's legacy
+     migration inventory for retrofitting them onto these tokens. */
+  --blur-scrim: 12px;
+  --overlay-scrim-opacity: 0.7;
+
+  /* --- Elevation: shadow, restored for exactly one case. The Two-Layer
+     Rule (ground → raised → lifted, tone only) still governs everything
+     that sits ON the page. A genuinely floating element — a popover, a
+     menu, a modal, a sheet — sits ABOVE arbitrary content it did not
+     compose with, and a tonal step alone doesn't separate it from that
+     content the way it separates two panels that share a layout. These
+     three steps are that one exception: small, low-opacity, restrained —
+     not a soft-shadow card system. Never applied to `surface-raised`/
+     `surface-lifted` panels sitting in normal page flow; see docs/DESIGN.md.
+     Same values feed `lib/astryx/theme.ts`'s `--shadow-low/med/high`, so
+     Astryx's own popover/dialog primitives and any bespoke overlay share
+     one shadow source. */
+  --shadow-low: 0px 1px 2px rgb(10 15 20 / 0.35), 0px 1px 1px rgb(10 15 20 / 0.25);
+  --shadow-med: 0px 4px 16px rgb(10 15 20 / 0.45);
+  --shadow-high: 0px 16px 40px rgb(10 15 20 / 0.55);
 }
 
 /**
  * LIGHT THEME. Dark is the home base above; light is the daylight variant a
- * contractor on a bright roof can read. Source values live here once; the two
- * blocks below activate them. Only what must change is listed — the hero cyan,
- * signal blue, and status base hues are constant across themes.
+ * contractor on a bright roof can read — genuinely designed alongside dark,
+ * not mechanically inverted (chroma/lightness relationships were tuned
+ * independently; see the Phase 1 implementation summary). Source values live
+ * here once; the two blocks below activate them. Only what must change is
+ * listed — the hero cyan, signal blue, and status base hues are constant
+ * across themes, and the action/selection tokens above need no light-mode
+ * entry at all (they're `var()` indirections onto the tokens below).
  */
 :root {
   color-scheme: dark;
 
-  --l-ground: oklch(95.5% 0.01 255); /* cool paper-grey field */
-  --l-surface-raised: oklch(100% 0 0); /* white panels lift off the grey ground */
-  --l-surface-lifted: oklch(96.5% 0.012 256); /* nested / hover: a faint cool wash */
-  --l-hairline: rgb(15 23 43 / 0.12); /* Ink Navy at 12% — the one border, inverted */
-  --l-surface-sidebar: oklch(93.5% 0.012 255); /* sidebar sits a touch cooler than content */
+  --l-ground: oklch(97.5% 0.004 260); /* porcelain/mineral canvas */
+  --l-surface-raised: oklch(100% 0 0); /* clean white panels lift off the canvas */
+  --l-surface-lifted: oklch(97% 0.006 260); /* nested / hover: a faint cool wash */
+  --l-hairline: rgb(22 24 28 / 0.12); /* near-black graphite at 12% — the one border, inverted */
+  --l-surface-sidebar: oklch(94.5% 0.006 260); /* sidebar sits a touch cooler than content */
 
-  --l-ink-primary: oklch(21% 0.04 265); /* deep Ink Navy headings */
-  --l-ink-strong: oklch(28% 0.041 260);
-  --l-ink-secondary: oklch(37% 0.044 257); /* body */
-  --l-ink-muted: oklch(45% 0.043 257); /* contrast floor on the light ground (~4.7:1) */
+  --l-ink-primary: oklch(20% 0.012 264); /* near-black graphite headings — outdoor-readable */
+  --l-ink-strong: oklch(27% 0.013 260);
+  --l-ink-secondary: oklch(36% 0.014 258); /* body */
+  --l-ink-muted: oklch(45% 0.014 258); /* contrast floor on the light ground */
 
-  --l-instrument-fg: oklch(44% 0.125 224); /* deep cyan text on a cyan tint — dark enough for small labels on a near-white tint (~5:1) */
+  --l-instrument-fg: oklch(44% 0.125 224); /* deep cyan text on a cyan tint */
   --l-confirm-fg: oklch(45% 0.12 162);
   --l-caution-fg: oklch(47% 0.11 70);
   --l-danger-fg: oklch(50% 0.19 25);
   --l-info-fg: oklch(47% 0.13 235);
+
+  /* Lighter, softer than dark's — a heavy black shadow reads as muddy on a
+     porcelain ground. Same three-step floating-element-only contract. */
+  --l-shadow-low: 0px 1px 2px rgb(10 15 20 / 0.10), 0px 1px 1px rgb(10 15 20 / 0.06);
+  --l-shadow-med: 0px 4px 16px rgb(10 15 20 / 0.12);
+  --l-shadow-high: 0px 16px 40px rgb(10 15 20 / 0.18);
 }
 
 /* The light-value mapping. Kept UNLAYERED and at `:root[...]`/`:not(...)`
@@ -166,6 +264,9 @@
   --color-caution-fg: var(--l-caution-fg);
   --color-danger-fg: var(--l-danger-fg);
   --color-info-fg: var(--l-info-fg);
+  --shadow-low: var(--l-shadow-low);
+  --shadow-med: var(--l-shadow-med);
+  --shadow-high: var(--l-shadow-high);
 }
 
 /* System preference wins only when the user hasn't made an explicit choice.
@@ -188,6 +289,63 @@
     --color-caution-fg: var(--l-caution-fg);
     --color-danger-fg: var(--l-danger-fg);
     --color-info-fg: var(--l-info-fg);
+    --shadow-low: var(--l-shadow-low);
+    --shadow-med: var(--l-shadow-med);
+    --shadow-high: var(--l-shadow-high);
+  }
+}
+
+/**
+ * Increased contrast (`prefers-contrast: more`). Application-controlled —
+ * there is no browser-automatic equivalent for custom CSS colours the way
+ * `forced-colors` provides system colours. Strengthens the one hairline rule
+ * and the text contrast floor; does not introduce new colours or rely on
+ * anything color-only. Kept intentionally small: this is a foundation
+ * fallback, not a second visual system.
+ */
+@media (prefers-contrast: more) {
+  :root {
+    --color-hairline: rgb(224 226 230 / 0.32);
+    --color-ink-muted: var(--color-ink-secondary); /* stop using the dimmest tier at all */
+    --blur-scrim: 0px;
+    --overlay-scrim-opacity: 0.92;
+  }
+  :root[data-theme="light"],
+  :root:not([data-theme="dark"]) {
+    --color-hairline: rgb(22 24 28 / 0.38);
+  }
+}
+
+/**
+ * Reduced transparency (`prefers-reduced-transparency: reduce`). A real,
+ * Baseline-available platform media feature (Safari 17.4+, current Chrome/
+ * Edge) — not invented. `--blur-scrim` and `--overlay-scrim-opacity` are the
+ * foundation tokens future overlay/sheet/scrim components must read instead
+ * of a hardcoded `backdrop-blur-*` class; see the legacy migration inventory
+ * in the Phase 1 implementation summary for the 14 existing hardcoded
+ * usages this doesn't yet reach.
+ */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --blur-scrim: 0px;
+    --overlay-scrim-opacity: 0.94;
+  }
+}
+
+/**
+ * Forced colors (Windows High Contrast Mode and equivalents). Deliberately
+ * minimal: forced-colors mode already replaces custom backgrounds/text with
+ * system colours automatically, and Aernova's structural separation already
+ * relies on a real `border`, not background-only tinting (The One Rule
+ * Rule) — which forced-colors preserves. The one gap is a custom
+ * `focus-visible` outline drawn in `--color-instrument`, a value the browser
+ * won't remap; reinforce it with a system colour so focus never disappears.
+ * Never sets `forced-color-adjust: none` — that would fight the platform
+ * feature instead of cooperating with it.
+ */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
   }
 }
 
@@ -197,18 +355,19 @@
  * measurement chrome is tuned for a dark ground. It stays dark in BOTH app
  * themes — in light mode it reads as a dark instrument panel embedded in the
  * page, the way a map or media surface does. This re-forces the dark token
- * values on the subtree so nothing flips underneath it. Constant, never themed.
+ * values on the subtree so nothing flips underneath it. Constant, never
+ * themed. Values mirror the dark `@theme` block above exactly.
  */
 .surface-dark {
   color-scheme: dark;
-  --color-ground: oklch(12.5% 0.05 264);
-  --color-surface-raised: rgb(216 227 255 / 0.07);
-  --color-surface-lifted: rgb(216 227 255 / 0.13);
-  --color-hairline: rgb(216 227 255 / 0.14);
-  --color-ink-primary: #fff;
-  --color-ink-strong: oklch(93% 0.02 258);
-  --color-ink-secondary: oklch(87% 0.028 262);
-  --color-ink-muted: oklch(70.4% 0.045 258);
+  --color-ground: oklch(14% 0.014 264);
+  --color-surface-raised: rgb(224 226 230 / 0.07);
+  --color-surface-lifted: rgb(224 226 230 / 0.13);
+  --color-hairline: rgb(224 226 230 / 0.14);
+  --color-ink-primary: oklch(97% 0.004 75);
+  --color-ink-strong: oklch(91% 0.006 70);
+  --color-ink-secondary: oklch(86% 0.01 260);
+  --color-ink-muted: oklch(69% 0.014 258);
   --color-instrument-fg: oklch(89% 0.09 205);
   --color-confirm-fg: oklch(90% 0.11 165);
   --color-caution-fg: oklch(90% 0.08 88);

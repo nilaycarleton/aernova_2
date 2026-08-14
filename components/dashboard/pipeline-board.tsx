@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
+import { LayoutContent } from "@astryxdesign/core/Layout";
 import { updateRequestStatusAction } from "@/app/(dashboard)/requests/actions";
 import {
   markQuoteApprovedAction,
@@ -22,6 +24,7 @@ import {
   requestStatusForStage,
   type PipelineStage,
 } from "@/lib/pipeline";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export type PipelineCard = {
   kind: "request" | "job";
@@ -102,31 +105,106 @@ export function PipelineBoard({
 
   if (total === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-hairline p-10 text-center">
-        <p className="text-lg font-medium text-ink-primary">Nothing in motion</p>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-muted">
-          A request that hasn&rsquo;t been answered, or a job with a quote out, shows up here.
-        </p>
-      </div>
+      <EmptyState
+        kind="clear"
+        title="Nothing in motion"
+        description="A request that hasn't been answered, or a job with a quote out, shows up here."
+      />
     );
   }
 
   return (
-    // Scrolls in its own box rather than pushing the page sideways.
-    <div className="overflow-x-auto pb-2">
-      <div className="flex min-w-max gap-4">
-        {PIPELINE_STAGES.map((stage) => (
-          <Column
-            key={stage}
-            stage={stage}
-            cards={columns.get(stage) ?? []}
-            canMoveRequests={canMoveRequests}
-            canMoveQuotes={canMoveQuotes}
-            canAssign={canAssign}
-            assignableUsers={assignableUsers}
-          />
-        ))}
+    <>
+      {/* A Kanban board doesn't shrink — Phase 5 route guidance is explicit
+          that mobile pipeline must be usable without relying solely on
+          horizontal Kanban. Below `lg:`, a stage selector + vertical card
+          list replaces the board entirely (same data, same Card component,
+          same drop targets via each card's own "Move" button); the
+          horizontal board takes over at `lg:` and up, where a mouse and
+          screen width both make it the better tool. */}
+      <div className="lg:hidden">
+        <MobileStageList
+          columns={columns}
+          canMoveRequests={canMoveRequests}
+          canMoveQuotes={canMoveQuotes}
+          canAssign={canAssign}
+          assignableUsers={assignableUsers}
+        />
       </div>
+
+      {/* Scrolls in its own box rather than pushing the page sideways. */}
+      <div className="hidden overflow-x-auto pb-2 lg:block">
+        <div className="flex min-w-max gap-4">
+          {PIPELINE_STAGES.map((stage) => (
+            <Column
+              key={stage}
+              stage={stage}
+              cards={columns.get(stage) ?? []}
+              canMoveRequests={canMoveRequests}
+              canMoveQuotes={canMoveQuotes}
+              canAssign={canAssign}
+              assignableUsers={assignableUsers}
+            />
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function MobileStageList({
+  columns,
+  canMoveRequests,
+  canMoveQuotes,
+  canAssign,
+  assignableUsers,
+}: {
+  columns: Map<PipelineStage, PipelineCard[]>;
+  canMoveRequests: boolean;
+  canMoveQuotes: boolean;
+  canAssign: boolean;
+  assignableUsers: AssignableUser[];
+}) {
+  const stagesWithCards = PIPELINE_STAGES.filter((stage) => (columns.get(stage)?.length ?? 0) > 0);
+  const [stage, setStage] = useState<PipelineStage>(stagesWithCards[0] ?? PIPELINE_STAGES[0]);
+  const cards = columns.get(stage) ?? [];
+  const [moving, setMoving] = useState<PipelineCard | null>(null);
+
+  return (
+    <div className="space-y-3">
+      <select
+        value={stage}
+        onChange={(event) => setStage(event.target.value as PipelineStage)}
+        aria-label="Stage"
+        className="w-full rounded-xl border border-hairline bg-ground/60 px-3 py-2.5 text-sm text-ink-strong"
+      >
+        {PIPELINE_STAGES.map((option) => (
+          <option key={option} value={option}>
+            {PIPELINE_STAGE_META[option].label} ({columns.get(option)?.length ?? 0})
+          </option>
+        ))}
+      </select>
+
+      {cards.length === 0 ? (
+        <p className="rounded-2xl border border-hairline bg-surface-raised px-4 py-6 text-center text-sm text-ink-muted">
+          Nothing here.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {cards.map((card) => (
+            <Card
+              key={`${card.kind}-${card.id}`}
+              card={card}
+              canMove={canMove(card, canMoveRequests, canMoveQuotes)}
+              onRequestMove={() => setMoving(card)}
+              canAssign={canAssign}
+              assignableUsers={assignableUsers}
+            />
+          ))}
+        </ul>
+      )}
+
+      {moving ? <MoveDialog card={moving} onClose={() => setMoving(null)} /> : null}
     </div>
   );
 }
@@ -310,13 +388,19 @@ function Card({
 
       {/* Drag is a pointer shortcut, never the only way in — same reasoning
           `DraggableVisit` documents. A focusable "Move" control beside every
-          movable card is what makes advancing a deal possible by keyboard. */}
+          movable card is what makes advancing a deal possible by keyboard.
+          Phase 5 live-review finding: opacity-0-until-hover has no touch
+          equivalent — a touchscreen has no hover state, so the control was
+          technically tappable but undiscoverable on mobile/tablet. Now
+          always visible below `lg:` (where drag isn't offered anyway; see
+          the board's own drag-is-desktop-only doctrine), hover/focus-reveal
+          only at `lg:` and up. */}
       {draggable ? (
         <button
           type="button"
           onClick={onRequestMove}
           aria-label={`Move ${card.title} to a different stage`}
-          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md bg-surface-sidebar/90 text-xs text-ink-muted opacity-0 transition hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-instrument group-hover:opacity-100"
+          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md bg-surface-sidebar/90 text-xs text-ink-muted transition focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-instrument lg:opacity-0 lg:hover:opacity-100 lg:group-hover:opacity-100"
         >
           <span aria-hidden>⠿</span>
         </button>
@@ -366,6 +450,10 @@ function AssigneeSelect({
   );
 }
 
+// Phase 3 migration map §60: one of the four native `<dialog>` implementations
+// named for direct Astryx Dialog migration. `isOpen`/`onOpenChange` replace
+// the old `ref.current?.close()`/`showModal()` pair; the submit contract
+// itself (which action fires, what FormData it builds) is unchanged.
 function MoveDialog({
   card,
   presetTarget,
@@ -375,7 +463,6 @@ function MoveDialog({
   presetTarget?: PipelineStage;
   onClose: () => void;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const targets = pipelineDropTargets(card);
@@ -384,15 +471,6 @@ function MoveDialog({
   // field to put one in, so `requestStatusForStage` writes CLOSED straight
   // through `advanceCard` below, same as any other request transition.
   const needsReason = card.kind === "job" && stage === "LOST";
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    dialog.showModal();
-    dialog.addEventListener("close", onClose);
-    return () => dialog.removeEventListener("close", onClose);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -417,80 +495,86 @@ function MoveDialog({
       await advanceCard(card, target);
     }
     router.refresh();
-    ref.current?.close();
+    onClose();
   }
 
   return (
-    <dialog
-      ref={ref}
-      className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-hairline bg-surface-sidebar p-0 text-ink-primary backdrop:bg-ground/70 backdrop:backdrop-blur-sm"
+    <Dialog
+      isOpen
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) onClose();
+      }}
+      purpose="info"
+      width={352}
     >
-      <form onSubmit={onSubmit} className="p-5">
-        <h2 className="text-base font-semibold text-ink-primary">Move {card.title}</h2>
-        <label htmlFor="move-card-stage" className="mb-1.5 mt-4 block text-xs font-medium text-ink-secondary">
-          New stage
-        </label>
-        <select
-          id="move-card-stage"
-          name="stage"
-          autoFocus
-          value={stage}
-          onChange={(event) => setStage(event.target.value as PipelineStage)}
-          className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
-        >
-          {targets.map((option) => (
-            <option key={option} value={option}>
-              {PIPELINE_STAGE_META[option].label}
-            </option>
-          ))}
-        </select>
+      <DialogHeader title={`Move ${card.title}`} onOpenChange={() => onClose()} />
+      <LayoutContent>
+        <form onSubmit={onSubmit}>
+          <label htmlFor="move-card-stage" className="mb-1.5 block text-xs font-medium text-ink-secondary">
+            New stage
+          </label>
+          <select
+            id="move-card-stage"
+            name="stage"
+            autoFocus
+            value={stage}
+            onChange={(event) => setStage(event.target.value as PipelineStage)}
+            className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+          >
+            {targets.map((option) => (
+              <option key={option} value={option}>
+                {PIPELINE_STAGE_META[option].label}
+              </option>
+            ))}
+          </select>
 
-        {needsReason ? (
-          <>
-            <label htmlFor="move-card-reason" className="mb-1.5 mt-4 block text-xs font-medium text-ink-secondary">
-              Why?
-            </label>
-            <select
-              id="move-card-reason"
-              name="reason"
-              required
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+          {needsReason ? (
+            <>
+              <label htmlFor="move-card-reason" className="mb-1.5 mt-4 block text-xs font-medium text-ink-secondary">
+                Why?
+              </label>
+              <select
+                id="move-card-reason"
+                name="reason"
+                required
+                className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+              >
+                {Object.entries(QUOTE_DECLINE_REASON_META).map(([value, reasonMeta]) => (
+                  <option key={value} value={value}>
+                    {reasonMeta.label}
+                  </option>
+                ))}
+              </select>
+              <label htmlFor="move-card-note" className="mb-1.5 mt-4 block text-xs font-medium text-ink-secondary">
+                Anything worth remembering (optional)
+              </label>
+              <textarea
+                id="move-card-note"
+                name="note"
+                rows={2}
+                className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+              />
+            </>
+          ) : null}
+
+          <div className="mt-5 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
             >
-              {Object.entries(QUOTE_DECLINE_REASON_META).map(([value, reasonMeta]) => (
-                <option key={value} value={value}>
-                  {reasonMeta.label}
-                </option>
-              ))}
-            </select>
-            <label htmlFor="move-card-note" className="mb-1.5 mt-4 block text-xs font-medium text-ink-secondary">
-              Anything worth remembering (optional)
-            </label>
-            <textarea
-              id="move-card-note"
-              name="note"
-              rows={2}
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
-            />
-          </>
-        ) : null}
-
-        <div className="mt-5 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => ref.current?.close()}
-            className="rounded-xl px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
-          >
-            {pending ? "Moving…" : needsReason ? "Mark it lost" : "Move it"}
-          </button>
-        </div>
-      </form>
-    </dialog>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={pending}
+              className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+            >
+              {pending ? "Moving…" : needsReason ? "Mark it lost" : "Move it"}
+            </button>
+          </div>
+        </form>
+      </LayoutContent>
+    </Dialog>
   );
 }

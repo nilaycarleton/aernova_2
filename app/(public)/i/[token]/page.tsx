@@ -9,7 +9,8 @@ import { invoiceBalance } from "@/lib/invoice/balance";
 import { paymentMethodLabel } from "@/lib/invoice/payment-methods";
 import { effectiveBillingAddress, formatBillingAddress } from "@/lib/invoice/billing-address";
 import { SubmitButton } from "@/components/dashboard/submit-button";
-import { markInvoiceViewed } from "./actions";
+import { DocumentBrand } from "@/components/public/document-brand";
+import { confirmAdditionalWorkReviewAction, markInvoiceViewed } from "./actions";
 import { createStripeCheckoutAction } from "./pay-actions";
 
 // The group layout says "Your quote", which is the wrong tab title for a bill.
@@ -74,15 +75,20 @@ export default async function PublicInvoicePage({
   const longDate = (value: Date | null) =>
     value ? value.toLocaleDateString("en-CA", { dateStyle: "long" }) : null;
 
+  // §19.2 — an at/above-threshold Additional Work invoice, shared before it
+  // can send. Still DRAFT under the hood until this is true or an office
+  // override clears it (see shareInvoiceAction's own branching).
+  const pendingReview = invoice.requiresHomeownerReview && !invoice.homeownerReviewConfirmedAt;
+
   return (
     <main className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
       <div className="mx-auto max-w-3xl">
         <article className="min-w-0 rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
-              {/* The contractor's name, never ours. A homeowner is doing
+              {/* The contractor's identity, never ours. A homeowner is doing
                   business with the roofer; Aernova is not a party to it. */}
-              <p className="text-lg font-semibold text-paper-ink">{invoice.company.name}</p>
+              <DocumentBrand name={invoice.company.name} logoUrl={invoice.company.logoUrl} />
               {invoice.company.phone ? (
                 <p className="mt-0.5 text-sm text-paper-ink-muted">{invoice.company.phone}</p>
               ) : null}
@@ -101,8 +107,19 @@ export default async function PublicInvoicePage({
               <span className="shrink-0 rounded-full bg-danger/15 px-3 py-1 text-xs font-medium text-danger-fg">
                 Past due
               </span>
+            ) : pendingReview ? (
+              <span className="shrink-0 rounded-full bg-caution/15 px-3 py-1 text-xs font-medium text-caution-fg">
+                Please review
+              </span>
             ) : null}
           </header>
+
+          {pendingReview ? (
+            <p className="mt-6 rounded-xl bg-caution/10 px-4 py-3 text-sm leading-6 text-paper-ink-body">
+              This is additional work beyond what was originally quoted. Have a look below, then
+              confirm you&rsquo;ve reviewed it — that&rsquo;s what lets it go out as a bill.
+            </p>
+          ) : null}
 
           <h1 className="mt-8 text-2xl font-semibold text-paper-ink">
             {invoice.invoiceNumber ? `Invoice #${invoice.invoiceNumber}` : "Invoice"}
@@ -252,7 +269,19 @@ export default async function PublicInvoicePage({
             </p>
           ) : null}
 
-          {!balance.isPaid && invoice.company.stripeChargesEnabled ? (
+          {pendingReview ? (
+            // Nothing to pay yet — this hasn't reached SENT. Confirming is
+            // what gets it there; see confirmAdditionalWorkReviewAction.
+            <form action={confirmAdditionalWorkReviewAction} className="mt-6 border-t border-paper-rule pt-6">
+              <input type="hidden" name="token" value={token} />
+              <SubmitButton
+                pendingText="Confirming…"
+                className="w-full rounded-xl bg-instrument px-6 py-3 text-sm font-semibold text-on-accent transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60 sm:w-auto"
+              >
+                I&rsquo;ve reviewed this
+              </SubmitButton>
+            </form>
+          ) : !balance.isPaid && invoice.company.stripeChargesEnabled ? (
             <form action={createStripeCheckoutAction} className="mt-6 flex justify-end">
               <input type="hidden" name="token" value={token} />
               <SubmitButton

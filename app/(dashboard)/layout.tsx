@@ -1,12 +1,21 @@
-import { UserButton } from "@clerk/nextjs";
-import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 import { UndoToastProvider } from "@/components/dashboard/undo-toast";
-import { QuickCreateMenu } from "@/components/dashboard/quick-create-menu";
-import { NotificationBell } from "@/components/dashboard/notification-bell";
+import { ShellChrome } from "@/components/dashboard/shell/shell-chrome";
 import { requireCompanyContext } from "@/lib/auth";
-import { can } from "@/lib/permissions";
 
+/**
+ * Premium UI Redesign Phase 2 — the Precision Workshop application shell.
+ * Stays a Server Component: company/role resolution happens here, once,
+ * server-side, exactly as before (`requireCompanyContext()` is unchanged).
+ * Only three serializable facts cross into the client boundary — `role`,
+ * `company.name`, `displayName` — everything nav-shaped (which destinations,
+ * grouping, active state) is recomputed client-side from that
+ * server-verified `role` via the shared pure `lib/shell-nav.ts` module. See
+ * `components/dashboard/shell/shell-chrome.tsx` for the rest.
+ *
+ * `AppSidebar` (the old shell) is retired by this file, not left running
+ * alongside the new one — see docs/PREMIUM_UI_PHASE_2_IMPLEMENTATION.md for
+ * what was removed and why nothing kept both in production at once.
+ */
 export default async function DashboardLayout({
   children,
 }: {
@@ -17,36 +26,9 @@ export default async function DashboardLayout({
 
   return (
     <UndoToastProvider>
-      <div className="grid min-h-screen w-full max-w-full grid-cols-1 overflow-x-hidden lg:grid-cols-[260px_minmax(0,1fr)]">
-        <AppSidebar role={role} />
-        <div className="flex min-h-screen min-w-0 flex-col">
-          <header className="flex h-16 min-w-0 items-center justify-between gap-4 border-b border-hairline px-4 md:px-6">
-            <div className="min-w-0">
-              <p className="text-sm text-ink-muted">Welcome back, {displayName}</p>
-              <h1 className="truncate text-lg font-semibold text-ink-primary">{company.name}</h1>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-3">
-              {/* Absent for crew and the office role, same as "New job" in the
-                  sidebar — reaching a create-something-new button is a
-                  question of role, not of which page you happen to be on. */}
-              {can(role, "editJob") ? <QuickCreateMenu /> : null}
-              {/* Every curated kind either names a dollar amount or is
-                  company-wide visibility crew doesn't have — same gate as
-                  viewing money anywhere else, not a new rule. */}
-              {can(role, "viewMoney") ? <NotificationBell /> : null}
-              <ThemeToggle />
-              <UserButton />
-            </div>
-          </header>
-
-          <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 overflow-x-hidden p-4 md:p-6 outline-none">
-            <div className="mx-auto w-full max-w-[1600px] min-w-0">
-              {children}
-            </div>
-          </main>
-        </div>
-      </div>
+      <ShellChrome role={role} companyName={company.name} displayName={displayName}>
+        {children}
+      </ShellChrome>
     </UndoToastProvider>
   );
 }

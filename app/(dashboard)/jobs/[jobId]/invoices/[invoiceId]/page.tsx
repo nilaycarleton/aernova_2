@@ -14,11 +14,14 @@ import { invoiceBalance } from "@/lib/invoice/balance";
 import { INVOICE_STATUS_META } from "@/lib/invoice/status";
 import { invoiceSendGaps } from "@/lib/invoice/gaps";
 import { hasBillingOverride } from "@/lib/invoice/billing-address";
+import { PageHeader } from "@/components/ui/page-header";
 import { InvoiceSharePanel } from "@/components/dashboard/invoice-share-panel";
 import { InvoicePayments } from "@/components/dashboard/invoice-payments";
 import { InvoiceBillingAddress } from "@/components/dashboard/invoice-billing-address";
+import { AddOnOverrideForm } from "@/components/dashboard/addon-override-form";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
+import { addOnReviewOverrideReasonLabel } from "@/lib/format";
 import { deleteInvoiceAction, updateInvoiceDueDateAction, voidInvoiceAction } from "./actions";
 
 /**
@@ -104,7 +107,7 @@ export default async function InvoicePage({
 
   return (
     <div className="mx-auto min-w-0 max-w-5xl space-y-6">
-      <header className="min-w-0">
+      <div className="min-w-0 space-y-3">
         <Link
           href={`/jobs/${jobId}`}
           className="text-sm text-ink-muted underline underline-offset-4 transition hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
@@ -112,32 +115,27 @@ export default async function InvoicePage({
           ← Back to the job
         </Link>
 
-        <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h2 className="text-3xl font-semibold text-ink-primary">
-              {invoice.invoiceNumber ? `Invoice #${invoice.invoiceNumber}` : "Invoice"}
-            </h2>
-            <p className="mt-1 text-ink-muted">
-              {invoice.title} · {client.name}
-              {address ? ` · ${address}` : ""}
-            </p>
-          </div>
-          <span
-            title={meta.hint}
-            className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${meta.badge}`}
-          >
-            {meta.label}
-          </span>
-        </div>
+        <PageHeader
+          title={invoice.invoiceNumber ? `Invoice #${invoice.invoiceNumber}` : "Invoice"}
+          description={`${invoice.title} · ${client.name}${address ? ` · ${address}` : ""}`}
+          status={
+            <span
+              title={meta.hint}
+              className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${meta.badge}`}
+            >
+              {meta.label}
+            </span>
+          }
+        />
 
         {balance.isOverdue ? (
-          <p className="mt-3 text-sm text-danger-fg">
+          <p className="text-sm text-danger-fg">
             {balance.overdueDays === 0
               ? "Due today, and still owing."
               : `${balance.overdueDays} ${balance.overdueDays === 1 ? "day" : "days"} past due.`}
           </p>
         ) : null}
-      </header>
+      </div>
 
       {/* What is stopping it going out, said on the record rather than as a
           wall in front of a button. Required to advance, not to exist. */}
@@ -165,6 +163,32 @@ export default async function InvoicePage({
             ))}
           </ul>
         </section>
+      ) : null}
+
+      {/* §19.2 — this invoice can't reach SENT on its own; it needs the
+          homeowner's own look first, or a named office override. */}
+      {invoice.requiresHomeownerReview && !invoice.homeownerReviewConfirmedAt ? (
+        <section className="rounded-3xl border border-caution/30 bg-caution/5 p-6">
+          <h3 className="text-sm font-semibold text-caution-fg">Needs homeowner review</h3>
+          <p className="mt-2 text-sm leading-6 text-ink-secondary">
+            This is additional work at or above your review threshold. Share the link below so the
+            homeowner can look it over first — it can&rsquo;t go out as a bill until they confirm,
+            unless you record an override.
+          </p>
+          {can(role, "editInvoice") ? (
+            <AddOnOverrideForm jobId={jobId} invoiceId={invoice.id} />
+          ) : null}
+        </section>
+      ) : invoice.overrideReason ? (
+        <p className="text-sm text-ink-muted">
+          Homeowner review was skipped — {addOnReviewOverrideReasonLabel(invoice.overrideReason).toLowerCase()}
+          {invoice.overrideNote ? `: "${invoice.overrideNote}"` : ""}.
+        </p>
+      ) : invoice.homeownerReviewConfirmedAt ? (
+        <p className="text-sm text-ink-muted">
+          The homeowner confirmed they reviewed this on{" "}
+          {invoice.homeownerReviewConfirmedAt.toLocaleDateString("en-CA", { dateStyle: "medium" })}.
+        </p>
       ) : null}
 
       {can(role, "sendInvoice") ? (

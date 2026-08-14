@@ -2,6 +2,7 @@ import Link from "next/link";
 import { InvoiceStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/money";
+import { NumericReadout } from "@/components/ui/numeric-readout";
 
 const WINDOW_DAYS = 30;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -36,20 +37,15 @@ export async function RevenueTrendSummary({ companyId }: { companyId: string }) 
   const currentCents = current._sum.totalAmountCents ?? 0;
   const priorCents = prior._sum.totalAmountCents ?? 0;
 
+  const nothingBilled = currentCents === 0 && priorCents === 0;
+
   return (
     <section className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-6">
-      <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">Revenue, last 30 days</p>
-
-      {currentCents === 0 && priorCents === 0 ? (
-        <p className="mt-2 text-2xl font-semibold text-ink-muted">Nothing billed yet</p>
-      ) : (
-        <>
-          <p className="mt-2 text-3xl font-semibold tabular-nums text-ink-primary">
-            {formatMoney(currentCents)}
-          </p>
-          <p className="mt-2 text-sm text-ink-secondary">{trendLine(currentCents, priorCents)}</p>
-        </>
-      )}
+      <NumericReadout
+        label="Revenue, last 30 days"
+        value={nothingBilled ? null : formatMoney(currentCents)}
+        detail={nothingBilled ? "Nothing billed yet" : trendLine(currentCents, priorCents)}
+      />
 
       <Link
         href="/reports/revenue"

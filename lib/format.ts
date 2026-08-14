@@ -120,6 +120,22 @@ export const JOB_EXPENSE_CATEGORY_OPTIONS = options(
   jobExpenseCategoryLabel
 );
 
+/** §19.2 — why office/internal confirmation was used instead of the default homeowner review. */
+const ADD_ON_REVIEW_OVERRIDE_REASON: Record<string, string> = {
+  HOMEOWNER_CONTACT_MISSING: "No contact info on file",
+  VERBAL_APPROVAL: "Already approved verbally",
+  OWNER_OVERRIDE: "Owner override",
+};
+
+export function addOnReviewOverrideReasonLabel(value: string) {
+  return ADD_ON_REVIEW_OVERRIDE_REASON[value] ?? sentenceCase(value);
+}
+
+export const ADD_ON_REVIEW_OVERRIDE_REASON_OPTIONS = options(
+  ["HOMEOWNER_CONTACT_MISSING", "VERBAL_APPROVAL", "OWNER_OVERRIDE"],
+  addOnReviewOverrideReasonLabel
+);
+
 /** Job lifecycle labels live with the flow itself — see lib/job-status. */
 export function enumLabel(value: string) {
   return sentenceCase(value);

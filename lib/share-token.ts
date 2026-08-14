@@ -52,7 +52,14 @@ export function isWellFormedShareToken(token: string): boolean {
  * and typed by hand more often than anyone would like, and `/q/` costs four
  * fewer characters than `/quotes/` on every single one.
  */
-const PATHS = { quote: "q", invoice: "i", calendar: "calendar", hub: "hub" } as const;
+const PATHS = {
+  quote: "q",
+  invoice: "i",
+  calendar: "calendar",
+  hub: "hub",
+  changeOrder: "co",
+  warranty: "w",
+} as const;
 
 export type ShareKind = keyof typeof PATHS;
 

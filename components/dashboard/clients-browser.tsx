@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ClientStatus } from "@prisma/client";
+import { Table, pixel, proportional, type TableColumn } from "@astryxdesign/core/Table";
 import {
   CLIENT_FILTERS,
   CLIENT_STATUS_META,
@@ -12,7 +13,10 @@ import {
 import type { Tile } from "@/lib/client-insights";
 import { sinceLabel } from "@/lib/relative-time";
 import { deleteClientAction } from "@/app/(dashboard)/clients/actions";
-import { SubmitButton } from "@/components/dashboard/submit-button";
+import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
+import { FilterToolbar } from "@/components/ui/filter-toolbar";
+import { EmptyState } from "@/components/ui/empty-state";
+import { NumericReadout } from "@/components/ui/numeric-readout";
 
 export type BrowserClient = {
   id: string;
@@ -76,19 +80,19 @@ export function ClientsBrowser({ tiles, clients, canDelete }: Props) {
 
   if (clients.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-hairline p-10 text-center">
-        <p className="text-lg font-medium text-ink-primary">No clients yet</p>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-muted">
-          Clients arrive with the work. Start a job and type who it&apos;s for — they&apos;ll be
-          here as a lead the moment you do.
-        </p>
-        <Link
-          href="/jobs/new"
-          className="mt-5 inline-flex rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-        >
-          New job
-        </Link>
-      </div>
+      <EmptyState
+        kind="first-use"
+        title="No clients yet"
+        description="Clients arrive with the work. Start a job and type who it's for — they'll be here as a lead the moment you do."
+        action={
+          <Link
+            href="/jobs/new"
+            className="inline-flex rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          >
+            New job
+          </Link>
+        }
+      />
     );
   }
 
@@ -100,166 +104,168 @@ export function ClientsBrowser({ tiles, clients, canDelete }: Props) {
             key={tile.label}
             className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-5"
           >
-            <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">{tile.label}</p>
-            {/* The one cyan figure per tile — the Readout Rule: cyan marks the
-                number, never the label and never the delta. */}
-            <p className="mt-2 text-4xl font-semibold tabular-nums text-instrument-fg">
-              {tile.value}
-            </p>
+            {/* Was the one cyan figure per tile, with a doc comment claiming
+                the Readout Rule for it — backwards, same bug Phase 4 found and
+                fixed on the dashboard. A client count is a business count, not
+                a measurement; NumericReadout's tone="default" is ordinary ink. */}
+            <NumericReadout label={tile.label} value={tile.value} size="lg" />
             <DeltaLabel tile={tile} />
           </div>
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name or address…"
-          className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/60 px-4 py-2 text-sm text-ink-primary placeholder:text-ink-muted focus:border-signal-blue/50 focus:outline-none"
-        />
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as ClientFilter)}
-          aria-label="Filter by status"
-          className="rounded-xl border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong"
-        >
-          {CLIENT_FILTERS.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-        {/* Only offered once tags exist. An empty dropdown is a promise the
-            data cannot keep. */}
-        {allTags.length > 0 ? (
-          <select
-            value={tag}
-            onChange={(e) => setTag(e.target.value)}
-            aria-label="Filter by tag"
-            className="rounded-xl border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong"
-          >
-            <option value="">All tags</option>
-            {allTags.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        ) : null}
-      </div>
-
-      <p className="text-xs text-ink-muted">
-        {filtered.length} of {clients.length} client{clients.length === 1 ? "" : "s"}
-      </p>
+      <FilterToolbar
+        searchValue={query}
+        onSearchChange={setQuery}
+        searchPlaceholder="Search by name or address…"
+        resultCount={`${filtered.length} of ${clients.length} client${clients.length === 1 ? "" : "s"}`}
+        filters={
+          <>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as ClientFilter)}
+              aria-label="Filter by status"
+              className="rounded-md border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong"
+            >
+              {CLIENT_FILTERS.map((f) => (
+                <option key={f.value} value={f.value}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+            {/* Only offered once tags exist. An empty dropdown is a promise
+                the data cannot keep. */}
+            {allTags.length > 0 ? (
+              <select
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+                aria-label="Filter by tag"
+                className="rounded-md border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong"
+              >
+                <option value="">All tags</option>
+                {allTags.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            ) : null}
+          </>
+        }
+      />
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-hairline p-10 text-center text-ink-muted">
-          No clients match your filters.
-        </div>
+        <EmptyState kind="filtered" title="No clients match your filters." />
       ) : (
-        /* The table scrolls inside its own box rather than pushing the page
-           sideways — a horizontal scrollbar on the whole app is a bug. */
-        <div className="overflow-x-auto rounded-2xl border border-hairline">
-          <table className="w-full min-w-[46rem] border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-b border-hairline bg-surface-raised">
-                <th scope="col" className="px-4 py-3 font-medium text-ink-secondary">Name</th>
-                <th scope="col" className="px-4 py-3 font-medium text-ink-secondary">Address</th>
-                <th scope="col" className="px-4 py-3 font-medium text-ink-secondary">Tags</th>
-                <th scope="col" className="px-4 py-3 font-medium text-ink-secondary">Status</th>
-                <th scope="col" className="px-4 py-3 font-medium text-ink-secondary">Last activity</th>
-                {canDelete ? <th scope="col" className="px-4 py-3" /> : null}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((client) => (
-                <tr key={client.id} className="border-b border-hairline last:border-b-0">
-                  <td className="px-4 py-3">
-                    {/* Item 44 gave clients their own page — their name goes
-                        there now, not to a job search standing in for one. */}
-                    <Link
-                      href={`/clients/${client.id}`}
-                      className="font-medium text-ink-primary underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-                    >
-                      {client.displayName}
-                    </Link>
-                    <p className="mt-0.5 text-xs text-ink-muted">
-                      {client.jobCount === 0
-                        ? "No jobs yet"
-                        : `${client.jobCount} job${client.jobCount === 1 ? "" : "s"}`}
-                      {client.leadSource ? ` · via ${client.leadSource}` : ""}
-                    </p>
-                  </td>
-                  <td className="px-4 py-3 text-ink-secondary">
-                    {client.address ?? <span className="text-ink-muted">No address yet</span>}
-                  </td>
-                  <td className="px-4 py-3">
-                    {client.tags.length === 0 ? (
-                      <span className="text-ink-muted">—</span>
-                    ) : (
-                      <span className="flex flex-wrap gap-1.5">
-                        {client.tags.map((t) => (
-                          <span
-                            key={t}
-                            className="rounded-full bg-surface-lifted px-2.5 py-0.5 text-xs text-ink-secondary"
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        CLIENT_STATUS_META[client.status].badge
-                      }`}
-                    >
-                      {CLIENT_STATUS_META[client.status].label}
-                    </span>
-                  </td>
-                  <td
-                    className="px-4 py-3 text-ink-secondary"
-                    title={new Date(client.lastActivityAt).toLocaleString()}
-                  >
-                    {sinceLabel(client.lastActivityAt)}
-                  </td>
-                  {canDelete ? (
-                    <td className="px-4 py-3 text-right">
-                      <form
-                        action={deleteClientAction}
-                        onSubmit={(event) => {
-                          if (
-                            !window.confirm(
-                              `Delete ${client.displayName}? This also deletes their properties and any open requests. ${
-                                client.jobCount > 0
-                                  ? `Their ${client.jobCount} job${client.jobCount === 1 ? "" : "s"} will stay, keeping the name and address as they are today. `
-                                  : ""
-                              }This cannot be undone.`
-                            )
-                          ) {
-                            event.preventDefault();
-                          }
-                        }}
-                      >
-                        <input type="hidden" name="clientId" value={client.id} />
-                        <SubmitButton
-                          pendingText="Deleting…"
-                          className="text-xs text-ink-muted underline underline-offset-2 transition hover:text-danger-fg disabled:opacity-60"
-                        >
-                          Delete
-                        </SubmitButton>
-                      </form>
-                    </td>
-                  ) : null}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ClientsTable clients={filtered} canDelete={canDelete} />
       )}
     </div>
   );
+}
+
+function ClientsTable({ clients, canDelete }: { clients: BrowserClient[]; canDelete: boolean }) {
+  const columns: TableColumn<BrowserClient & Record<string, unknown>>[] = [
+    {
+      key: "name",
+      header: "Name",
+      width: proportional(2),
+      renderCell: (client) => (
+        <div>
+          {/* Item 44 gave clients their own page — their name goes there now,
+              not to a job search standing in for one. */}
+          <Link
+            href={`/clients/${client.id}`}
+            className="font-medium text-ink-primary underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          >
+            {client.displayName}
+          </Link>
+          <p className="mt-0.5 text-xs text-ink-muted">
+            {client.jobCount === 0 ? "No jobs yet" : `${client.jobCount} job${client.jobCount === 1 ? "" : "s"}`}
+            {client.leadSource ? ` · via ${client.leadSource}` : ""}
+          </p>
+        </div>
+      ),
+    },
+    {
+      key: "address",
+      header: "Address",
+      width: proportional(2),
+      renderCell: (client) => (
+        <span className="text-ink-secondary">
+          {client.address ?? <span className="text-ink-muted">No address yet</span>}
+        </span>
+      ),
+    },
+    {
+      key: "tags",
+      header: "Tags",
+      width: proportional(2),
+      renderCell: (client) =>
+        client.tags.length === 0 ? (
+          <span className="text-ink-muted">—</span>
+        ) : (
+          <span className="flex flex-wrap gap-1.5">
+            {client.tags.map((t) => (
+              <span key={t} className="rounded-full bg-surface-lifted px-2.5 py-0.5 text-xs text-ink-secondary">
+                {t}
+              </span>
+            ))}
+          </span>
+        ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      width: pixel(140),
+      renderCell: (client) => (
+        <span
+          className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${CLIENT_STATUS_META[client.status].badge}`}
+        >
+          {CLIENT_STATUS_META[client.status].label}
+        </span>
+      ),
+    },
+    {
+      key: "lastActivity",
+      header: "Last activity",
+      width: pixel(140),
+      renderCell: (client) => (
+        <span className="text-ink-secondary" title={new Date(client.lastActivityAt).toLocaleString()}>
+          {sinceLabel(client.lastActivityAt)}
+        </span>
+      ),
+    },
+    ...(canDelete
+      ? [
+          {
+            key: "actions",
+            header: "",
+            width: pixel(90),
+            align: "end" as const,
+            renderCell: (client: BrowserClient) => (
+              <form action={deleteClientAction}>
+                <input type="hidden" name="clientId" value={client.id} />
+                <ConfirmSubmit
+                  pendingText="Deleting…"
+                  question={`Delete ${client.displayName}? This also deletes their properties and any open requests. ${
+                    client.jobCount > 0
+                      ? `Their ${client.jobCount} job${client.jobCount === 1 ? "" : "s"} will stay, keeping the name and address as they are today. `
+                      : ""
+                  }This cannot be undone.`}
+                  // Impeccable audit finding (live at 420px): a Table cell's
+                  // button inherits no minimum size from the row — same
+                  // touch-target gap Phase 4 already found and fixed on the
+                  // Jobs list's own Delete button.
+                  className="inline-flex min-h-11 items-center text-xs text-ink-muted underline underline-offset-2 transition hover:text-danger-fg disabled:opacity-60"
+                >
+                  Delete
+                </ConfirmSubmit>
+              </form>
+            ),
+          },
+        ]
+      : []),
+  ];
+
+  return <Table data={clients} columns={columns} idKey="id" density="balanced" dividers="rows" hasHover />;
 }

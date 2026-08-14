@@ -90,16 +90,18 @@ export function QuoteGeneratorCard({ jobId, quotes, templates, hasMeasurements }
     <section className="min-w-0 space-y-6 rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
       {latest ? (
         /* With a quote in hand, the panel leads with the number instead of
-           another eyebrow-and-headline. The total is the only cyan figure on
-           this surface — the same Readout Rule shape the dashboard opens with,
-           so the whole app reads as one instrument. */
+           another eyebrow-and-headline — the same hero-readout shape the
+           dashboard opens with, in ordinary ink (money is never cyan). */
         <>
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div className="min-w-0">
               <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">
                 Quote total
               </p>
-              <p className="mt-2 break-words text-5xl font-semibold tabular-nums text-instrument-fg">
+              {/* Was cyan — same backwards-Readout-Rule bug Phase 4 found on
+                  the dashboard. A quote total is a business figure, never a
+                  measurement. */}
+              <p className="mt-2 break-words text-5xl font-semibold tabular-nums text-ink-primary">
                 {formatMoney(latest.totalAmountCents)}
               </p>
               <p className="mt-3 text-sm text-ink-secondary">

@@ -2,27 +2,40 @@
 
 import { useState, useTransition } from "react";
 import { JobStatus } from "@prisma/client";
-import {
-  STATUS_FLOW,
-  STATUS_META,
-  ALL_STATUSES,
-  nextStatus,
-} from "@/lib/job-status";
+import { STATUS_FLOW } from "@/lib/job-status";
+import { effectiveStageFlow, effectiveStageMeta, nextEnabledStatus, type StageOverride } from "@/lib/workflow-stages";
 import { updateJobStatusAction } from "@/app/(dashboard)/jobs/[jobId]/status-actions";
 
+/**
+ * docs/AERNOVA_PROJECT_WORKFLOW.md §15/§17/§25 Phase 11 — reads through
+ * `effectiveStageMeta()`/`effectiveStageFlow()` instead of `STATUS_META`
+ * directly, so a company's custom labels and disabled stages show up here
+ * without this component knowing anything about `CompanyWorkflowStage`
+ * rows itself. `workflowOverrides` defaults to `[]`, which is exactly
+ * "no customization" — every stage renders exactly as it always has.
+ */
 export function JobStatusStepper({
   jobId,
   status,
+  workflowOverrides = [],
 }: {
   jobId: string;
   status: JobStatus;
+  workflowOverrides?: StageOverride[];
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const currentIndex = STATUS_FLOW.indexOf(status);
-  const next = nextStatus(status);
-  const meta = STATUS_META[status];
+  const meta = effectiveStageMeta(status, workflowOverrides, status);
+  const next = nextEnabledStatus(status, workflowOverrides);
+
+  // Disabled future stages never appear as normal forward choices — but a
+  // job's own *current* stage always does, even if the company has since
+  // disabled it (§15): nothing here silently drops what a job actually is.
+  const visibleFlow = effectiveStageFlow(workflowOverrides, status).filter(
+    (m) => m.isEnabled || m.status === status
+  );
 
   const setStatus = (target: JobStatus) => {
     if (target === status) return;
@@ -53,7 +66,7 @@ export function JobStatusStepper({
               disabled={pending}
               className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
             >
-              {pending ? "Saving…" : STATUS_META[status].advanceLabel}
+              {pending ? "Saving…" : meta.advanceLabel}
             </button>
           )}
           <select
@@ -63,30 +76,40 @@ export function JobStatusStepper({
             aria-label="Set job status"
             className="rounded-xl border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong disabled:opacity-50"
           >
-            {ALL_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {STATUS_META[s].label}
+            {visibleFlow.map((m) => (
+              <option key={m.status} value={m.status}>
+                {m.label}
               </option>
             ))}
+            <option value={JobStatus.ARCHIVED}>
+              {effectiveStageMeta(JobStatus.ARCHIVED, workflowOverrides, status).label}
+            </option>
           </select>
         </div>
       </div>
+
+      {meta.isCurrentDisabled ? (
+        <p className="mt-3 rounded-xl border border-caution/30 bg-caution/5 px-4 py-3 text-sm text-caution-fg">
+          This stage is disabled for future jobs. Move this job to the next active stage when ready.
+        </p>
+      ) : null}
 
       {error && <p className="mt-3 text-sm text-danger-fg">{error}</p>}
 
       {/* Pipeline stepper */}
       <ol className="mt-6 flex flex-wrap gap-x-2 gap-y-3">
-        {STATUS_FLOW.map((stage, index) => {
-          const done = currentIndex > index;
-          const active = currentIndex === index;
+        {visibleFlow.map((m, displayIndex) => {
+          const stageIndex = STATUS_FLOW.indexOf(m.status);
+          const done = currentIndex > stageIndex;
+          const active = currentIndex === stageIndex;
           return (
-            <li key={stage} className="flex min-w-0 flex-1 items-center gap-2">
+            <li key={m.status} className="flex min-w-0 flex-1 items-center gap-2">
               <button
                 type="button"
-                onClick={() => setStatus(stage)}
+                onClick={() => setStatus(m.status)}
                 disabled={pending}
                 className="flex min-w-0 items-center gap-2 text-left"
-                title={STATUS_META[stage].description}
+                title={m.isCurrentDisabled ? "Disabled for future jobs" : m.description}
               >
                 <span
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
@@ -97,17 +120,17 @@ export function JobStatusStepper({
                         : "bg-surface-lifted text-ink-muted"
                   }`}
                 >
-                  {done ? "✓" : index + 1}
+                  {done ? "✓" : displayIndex + 1}
                 </span>
                 <span
                   className={`truncate text-xs font-medium ${
                     active ? "text-ink-primary" : done ? "text-ink-secondary" : "text-ink-muted"
                   }`}
                 >
-                  {STATUS_META[stage].label}
+                  {m.label}
                 </span>
               </button>
-              {index < STATUS_FLOW.length - 1 && (
+              {displayIndex < visibleFlow.length - 1 && (
                 <span className={`h-px flex-1 ${done ? "bg-confirm/40" : "bg-surface-lifted"}`} />
               )}
             </li>

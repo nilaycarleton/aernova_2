@@ -2,13 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { ActivityKind, InvoiceStatus, QuoteStatus } from "@prisma/client";
+import { ActivityKind, ChangeOrderStatus, InvoiceStatus, QuoteStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireJobAccess } from "@/lib/auth";
 import { recordActivity } from "@/lib/activity";
 import { withSequentialNumber } from "@/lib/sequential-number";
 import { amountInput, type DiscountInput } from "@/lib/quote/totals";
 import { invoiceFromQuote, invoiceTitleFromQuote, type InvoiceLineDraft } from "@/lib/invoice/from-quote";
+import { effectiveContractValueCents } from "@/lib/change-order";
 import { resolveDraw } from "@/lib/invoice/draw";
 import { dueDateFrom } from "@/lib/invoice/terms";
 import { parseMoneyToCents, percentToMicros } from "@/lib/money";
@@ -75,11 +76,28 @@ export async function createInvoiceFromQuoteAction(formData: FormData) {
     throw new Error("That quote hasn't been approved yet.");
   }
 
-  const priorInvoices = await prisma.invoice.findMany({
-    where: { quoteId: quote.id, companyId, status: { not: InvoiceStatus.VOID } },
-    select: { totalAmountCents: true },
-  });
-  const quoteTotalCents = quote.totalAmountCents ?? 0;
+  const [priorInvoices, approvedChangeOrders] = await Promise.all([
+    prisma.invoice.findMany({
+      where: { quoteId: quote.id, companyId, status: { not: InvoiceStatus.VOID } },
+      select: { totalAmountCents: true },
+    }),
+    // §19.1: "effective contract value becomes Quote.totalAmountCents +
+    // Σ(approved ChangeOrder.amountCents)" — computed here too, not just
+    // displayed, so an approved change order actually raises what this
+    // guard will let a contractor invoice for instead of only widening a
+    // number shown on screen.
+    prisma.changeOrder.aggregate({
+      where: { quoteId: quote.id, companyId, status: ChangeOrderStatus.APPROVED },
+      _sum: { amountCents: true },
+    }),
+  ]);
+  // Still named `quoteTotalCents` below — every use of it downstream (the
+  // itemized first invoice, `resolveDraw`'s ceiling) is "the most this quote
+  // can be billed for", which is exactly what approved change orders raise.
+  const quoteTotalCents = effectiveContractValueCents(
+    quote.totalAmountCents ?? 0,
+    approvedChangeOrders._sum.amountCents ?? 0
+  );
   const remainingCents =
     quoteTotalCents - priorInvoices.reduce((sum, inv) => sum + inv.totalAmountCents, 0);
 

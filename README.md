@@ -3,7 +3,7 @@
 Jobs, scheduling, quoting, and invoicing for trades contractors — Canadian,
 multi-trade, with drone-based aerial roof measurement as a premium add-on.
 Roofing is the wedge; the platform underneath is trade-agnostic (see
-[`PRODUCT.md`](./PRODUCT.md) for who this is actually for and why).
+[`docs/PRODUCT.md`](./docs/PRODUCT.md) for who this is actually for and why).
 
 **Stack**: Next.js 16 (App Router, Turbopack), React 19, TypeScript, Prisma 6
 + Postgres, Clerk (auth), Tailwind 4. Optional integrations degrade
@@ -96,16 +96,20 @@ interchangeable:
 
 ## Where to look next
 
-- [`PRODUCT.md`](./PRODUCT.md) — who this is for, the product strategy.
-- [`DESIGN.md`](./DESIGN.md) — the visual system: tokens, components,
-  conventions. Read before touching any user-facing UI.
-- [`PLAN-CRM.md`](./PLAN-CRM.md) — the full build roadmap and the product
-  decisions behind it, phase by phase.
+- [`docs/PRODUCT.md`](./docs/PRODUCT.md) — who this is for, the product
+  strategy.
+- [`docs/DESIGN.md`](./docs/DESIGN.md) — the visual system: tokens,
+  components, conventions. Read before touching any user-facing UI.
+- [`docs/PLAN-CRM.md`](./docs/PLAN-CRM.md) — the full build roadmap and the
+  product decisions behind it, phase by phase.
+- [`docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md`](./docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md) —
+  the next round of workflow decisions (change orders, warranty, progress
+  tracking, workflow customization) on top of the CRM roadmap above.
 - [`AGENTS.md`](./AGENTS.md) — a note for AI coding agents about this
   particular Next.js version's breaking changes vs. training-data defaults.
-- [`DEPLOYMENT.md`](./DEPLOYMENT.md) — what's needed to actually deploy this
-  (Vercel target, secrets rotation, migration deploy step, post-deploy
-  checks).
+- [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) — what's needed to actually
+  deploy this (Vercel target, secrets rotation, migration deploy step,
+  post-deploy checks).
 
 ## Photogrammetry worker (NodeODM)
 

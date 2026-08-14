@@ -25,6 +25,7 @@ import { isWonJobStatus } from "./client-lifecycle.ts";
 
 export const PIPELINE_STAGES = [
   "LEAD",
+  "CONTACTED",
   "ASSESSING",
   "DRAFT",
   "AWAITING_RESPONSE",
@@ -40,6 +41,10 @@ type StageMeta = { label: string; hint: string };
 
 export const PIPELINE_STAGE_META: Record<PipelineStage, StageMeta> = {
   LEAD: { label: "Lead", hint: "Nobody has answered this yet." },
+  CONTACTED: {
+    label: "Contacted / Qualified",
+    hint: "Someone has reached them — worth pursuing.",
+  },
   ASSESSING: {
     label: "Assessing",
     hint: "Being looked at or measured — no quote written yet.",
@@ -58,6 +63,7 @@ export const PIPELINE_STAGE_META: Record<PipelineStage, StageMeta> = {
  */
 export function stageForRequest(status: RequestStatus): PipelineStage | null {
   if (status === "NEW") return "LEAD";
+  if (status === "CONTACTED") return "CONTACTED";
   if (status === "ASSESSING") return "ASSESSING";
   if (status === "CLOSED") return "LOST";
   return null;
@@ -96,6 +102,7 @@ export function stageForJob(
  */
 export function requestStatusForStage(stage: PipelineStage): RequestStatus | null {
   if (stage === "LEAD") return "NEW";
+  if (stage === "CONTACTED") return "CONTACTED";
   if (stage === "ASSESSING") return "ASSESSING";
   if (stage === "LOST") return "CLOSED";
   return null;
@@ -105,8 +112,13 @@ export function requestStatusForStage(stage: PipelineStage): RequestStatus | nul
  * Where a card may be dropped, given what kind it is and where it sits today.
  *
  * Only transitions a real action already covers. A request moves between
- * `LEAD`/`ASSESSING`/`LOST` via `updateRequestStatusAction` (through
- * `requestStatusForStage` above). A job's quote moves `DRAFT` →
+ * `LEAD`/`CONTACTED`/`ASSESSING`/`LOST` via `updateRequestStatusAction`
+ * (through `requestStatusForStage` above) — §4/§25 Phase 6 inserts
+ * `CONTACTED` as reachable from and back to its neighbours, but leaves the
+ * existing `LEAD ⇄ ASSESSING` direct hop in place: `requests-browser.tsx`'s
+ * own "I'm looking at it" button has always skipped straight from a brand
+ * new request to Assessing, and that intentional shortcut isn't removed
+ * just because a stage now sits between them. A job's quote moves `DRAFT` →
  * `AWAITING_RESPONSE` via `shareQuoteAction` — the one write that mints the
  * link — any live quote stage can drop straight onto `WON` via
  * `markQuoteApprovedAction`, because most quotes are approved on the phone,
@@ -122,8 +134,9 @@ export function pipelineDropTargets(card: {
   stage: PipelineStage;
 }): PipelineStage[] {
   if (card.kind === "request") {
-    if (card.stage === "LEAD") return ["ASSESSING", "LOST"];
-    if (card.stage === "ASSESSING") return ["LEAD", "LOST"];
+    if (card.stage === "LEAD") return ["CONTACTED", "ASSESSING", "LOST"];
+    if (card.stage === "CONTACTED") return ["LEAD", "ASSESSING", "LOST"];
+    if (card.stage === "ASSESSING") return ["LEAD", "CONTACTED", "LOST"];
     return [];
   }
   if (card.stage === "DRAFT") return ["AWAITING_RESPONSE", "WON", "LOST"];

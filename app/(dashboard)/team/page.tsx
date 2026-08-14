@@ -4,11 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { requireCapability } from "@/lib/auth";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { InviteLink } from "@/components/dashboard/invite-link";
+import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
 import {
   createInviteAction,
   removeMemberAction,
   revokeInviteAction,
 } from "@/app/(dashboard)/team/actions";
+import { PageHeader } from "@/components/ui/page-header";
 
 /**
  * Who's on the team, and how somebody new gets on it.
@@ -48,14 +50,11 @@ export default async function TeamPage() {
 
   return (
     <div className="min-w-0 space-y-8">
-      <header>
-        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Team</p>
-        <h2 className="mt-2 text-3xl font-semibold text-ink-primary">Who works here</h2>
-        <p className="mt-2 max-w-2xl text-ink-muted">
-          Crew see the jobs they&rsquo;re booked on and nothing else — no prices, no
-          margins, no other crews&rsquo; work.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Team"
+        title="Who works here"
+        description="Crew see the jobs they're booked on and nothing else — no prices, no margins, no other crews' work."
+      />
 
       <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Add someone</h3>
@@ -126,9 +125,12 @@ export default async function TeamPage() {
                       </span>
                       <form action={revokeInviteAction}>
                         <input type="hidden" name="inviteId" value={invite.id} />
+                        {/* Impeccable audit finding (live at 420px): no
+                            minimum touch-target height, same gap Phase 4
+                            already found and fixed on the Jobs list. */}
                         <SubmitButton
                           pendingText="…"
-                          className="text-xs text-ink-muted underline underline-offset-2 transition hover:text-danger-fg"
+                          className="inline-flex min-h-11 items-center text-xs text-ink-muted underline underline-offset-2 transition hover:text-danger-fg"
                         >
                           Cancel
                         </SubmitButton>
@@ -166,18 +168,21 @@ export default async function TeamPage() {
                   {ROLE_COPY[member.role]?.label ?? member.role}
                 </span>
                 {member.role !== CompanyRole.OWNER ? (
-                  <form
-                    action={removeMemberAction}
-                    // Their account is theirs and survives; what ends is their
-                    // way in to this company's work. Worth saying before the click.
-                  >
+                  <form action={removeMemberAction}>
                     <input type="hidden" name="membershipId" value={member.id} />
-                    <SubmitButton
+                    {/* No confirmation existed here before — a genuine,
+                        flagged pre-existing gap (Phase 5 inventory), not a
+                        migrated window.confirm(). Added per the route's own
+                        "irreversible actions require confirmation" doctrine:
+                        their account survives, but what ends is their way in
+                        to this company's work, worth saying before the click. */}
+                    <ConfirmSubmit
                       pendingText="Removing…"
-                      className="shrink-0 text-xs text-ink-muted underline underline-offset-2 transition hover:text-danger-fg"
+                      question={`Remove ${name} from this company? Their account stays theirs, but they'll lose access to this company's jobs, clients, and schedule.`}
+                      className="inline-flex min-h-11 shrink-0 items-center text-xs text-ink-muted underline underline-offset-2 transition hover:text-danger-fg"
                     >
                       Remove
-                    </SubmitButton>
+                    </ConfirmSubmit>
                   </form>
                 ) : null}
               </li>

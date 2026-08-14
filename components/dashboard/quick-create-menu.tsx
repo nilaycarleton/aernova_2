@@ -2,6 +2,8 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog";
+import { LayoutContent } from "@astryxdesign/core/Layout";
 import { createLeadClientAction, type NewClientState } from "@/app/(dashboard)/clients/actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 
@@ -18,11 +20,18 @@ import { SubmitButton } from "@/components/dashboard/submit-button";
  * and `/quotes?status=APPROVED` (an invoice is raised from an approved quote,
  * never typed from scratch) — rather than second, thinner versions of forms
  * that already exist. Client is the odd one out: nothing before this button
- * could make one without a job attached, so it gets the one real form here, a
- * native `<dialog>` matching `QuoteStartDialog`'s idiom.
+ * could make one without a job attached, so it gets the one real form here.
+ *
+ * Phase 4 migration map §60: this was a native `<dialog>` (matching
+ * `QuoteStartDialog`'s old idiom); it now renders through Astryx `Dialog`
+ * directly for the same reason `SplitInspector`'s mobile sheet does — the
+ * native focus trap, Escape handling, backdrop, and scroll lock come for
+ * free instead of being re-derived. Same five actions, same permissions,
+ * same hrefs, same `createLeadClientAction` server action, same validation —
+ * only the dialog chrome changed.
  */
 const FIELD =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue";
 
 export function QuickCreateMenu() {
   const [open, setOpen] = useState(false);
@@ -53,7 +62,7 @@ export function QuickCreateMenu() {
           onClick={() => setOpen((current) => !current)}
           aria-expanded={open}
           aria-controls="quick-create-list"
-          className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-primary text-lg font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="flex h-9 w-9 items-center justify-center rounded-md bg-action text-lg font-semibold text-on-action transition hover:bg-action-hover active:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           <span aria-hidden>+</span>
           <span className="sr-only">Create new…</span>
@@ -67,7 +76,7 @@ export function QuickCreateMenu() {
         {open ? (
           <div
             id="quick-create-list"
-            className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-xl border border-hairline bg-surface-sidebar py-1.5 shadow-lg"
+            className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-md border border-hairline bg-surface-sidebar py-1.5 shadow-[var(--shadow-med)]"
           >
             <MenuLink href="/jobs/new" onNavigate={() => setOpen(false)}>
               New job
@@ -123,104 +132,100 @@ function MenuLink({
 }
 
 function NewClientDialog({ onClose }: { onClose: () => void }) {
-  const ref = useRef<HTMLDialogElement>(null);
   const [state, formAction] = useActionState<NewClientState, FormData>(createLeadClientAction, {});
   const [isBusiness, setIsBusiness] = useState(false);
 
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    dialog.showModal();
-    dialog.addEventListener("close", onClose);
-    return () => dialog.removeEventListener("close", onClose);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
-    <dialog
-      ref={ref}
-      className="w-[min(28rem,calc(100vw-2rem))] rounded-2xl border border-hairline bg-surface-sidebar p-0 text-ink-primary backdrop:bg-ground/70 backdrop:backdrop-blur-sm"
+    <Dialog
+      isOpen
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) onClose();
+      }}
+      purpose="info"
+      width={448}
     >
-      <form action={formAction} className="p-6">
-        <h2 className="text-lg font-semibold text-ink-primary">New client</h2>
-        <p className="mt-1 text-sm text-ink-muted">
-          A name is enough — everything else can wait until there&rsquo;s a job.
-        </p>
+      <DialogHeader title="New client" onOpenChange={() => onClose()} />
+      <LayoutContent>
+        <form action={formAction}>
+          <p className="text-sm text-ink-muted">
+            A name is enough — everything else can wait until there&rsquo;s a job.
+          </p>
 
-        <div className="mt-4 space-y-3">
-          <div>
-            <label htmlFor="quick-client-name" className="mb-1.5 block text-xs font-medium text-ink-secondary">
-              Name
+          <div className="mt-4 space-y-3">
+            <div>
+              <label htmlFor="quick-client-name" className="mb-1.5 block text-xs font-medium text-ink-secondary">
+                Name
+              </label>
+              <input
+                id="quick-client-name"
+                name="name"
+                type="text"
+                autoFocus
+                required
+                placeholder={isBusiness ? "Northgate Strata" : "Dave Chen"}
+                className={FIELD}
+              />
+            </div>
+
+            <label className="flex items-center gap-2 text-sm text-ink-secondary">
+              <input
+                type="checkbox"
+                name="isBusiness"
+                value="true"
+                checked={isBusiness}
+                onChange={(event) => setIsBusiness(event.target.checked)}
+                className="rounded border-hairline"
+              />
+              This is a business
             </label>
-            <input
-              id="quick-client-name"
-              name="name"
-              type="text"
-              autoFocus
-              required
-              placeholder={isBusiness ? "Northgate Strata" : "Dave Chen"}
-              className={FIELD}
-            />
+
+            <div>
+              <label htmlFor="quick-client-source" className="mb-1.5 block text-xs font-medium text-ink-secondary">
+                How did they find you? (optional)
+              </label>
+              <input
+                id="quick-client-source"
+                name="leadSource"
+                type="text"
+                list="quick-client-source-suggestions"
+                placeholder="Referral, hockey rink board, Google…"
+                className={FIELD}
+              />
+              {/* A datalist, not a select — same reason new-job-form.tsx and
+                  new-request-form.tsx both already give this its own list: a
+                  company whose best source is the hockey rink board has to be
+                  able to say so. */}
+              <datalist id="quick-client-source-suggestions">
+                <option value="Referral" />
+                <option value="Repeat customer" />
+                <option value="Google" />
+                <option value="Facebook" />
+                <option value="Truck or sign" />
+                <option value="Door knock" />
+                <option value="Home show" />
+              </datalist>
+            </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-ink-secondary">
-            <input
-              type="checkbox"
-              name="isBusiness"
-              value="true"
-              checked={isBusiness}
-              onChange={(event) => setIsBusiness(event.target.checked)}
-              className="rounded border-hairline"
-            />
-            This is a business
-          </label>
+          {state.error ? <p className="mt-3 text-sm text-danger-fg">{state.error}</p> : null}
 
-          <div>
-            <label htmlFor="quick-client-source" className="mb-1.5 block text-xs font-medium text-ink-secondary">
-              How did they find you? (optional)
-            </label>
-            <input
-              id="quick-client-source"
-              name="leadSource"
-              type="text"
-              list="quick-client-source-suggestions"
-              placeholder="Referral, hockey rink board, Google…"
-              className={FIELD}
-            />
-            {/* A datalist, not a select — same reason new-job-form.tsx and
-                new-request-form.tsx both already give this its own list: a
-                company whose best source is the hockey rink board has to be
-                able to say so. */}
-            <datalist id="quick-client-source-suggestions">
-              <option value="Referral" />
-              <option value="Repeat customer" />
-              <option value="Google" />
-              <option value="Facebook" />
-              <option value="Truck or sign" />
-              <option value="Door knock" />
-              <option value="Home show" />
-            </datalist>
+          <div className="mt-5 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
+            >
+              Cancel
+            </button>
+            <SubmitButton
+              pendingText="Creating…"
+              className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-hover disabled:opacity-60"
+            >
+              Create client
+            </SubmitButton>
           </div>
-        </div>
-
-        {state.error ? <p className="mt-3 text-sm text-danger-fg">{state.error}</p> : null}
-
-        <div className="mt-5 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => ref.current?.close()}
-            className="rounded-xl px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
-          >
-            Cancel
-          </button>
-          <SubmitButton
-            pendingText="Creating…"
-            className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
-          >
-            Create client
-          </SubmitButton>
-        </div>
-      </form>
-    </dialog>
+        </form>
+      </LayoutContent>
+    </Dialog>
   );
 }

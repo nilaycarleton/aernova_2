@@ -94,7 +94,9 @@ export function InvoicePayments({
           <dt className="text-sm text-ink-secondary">
             {balanceCents < 0 ? "Overpaid by" : "Still owing"}
           </dt>
-          <dd className="text-3xl font-semibold tabular-nums text-instrument-fg">
+          {/* Was cyan — same backwards-Readout-Rule bug Phase 4 found on the
+              dashboard. A balance is a business figure, never a measurement. */}
+          <dd className="text-3xl font-semibold tabular-nums text-ink-primary">
             {formatMoney(Math.abs(balanceCents))}
           </dd>
         </div>

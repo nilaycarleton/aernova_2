@@ -1,12 +1,11 @@
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 import { resolveCompanyContext } from "@/lib/auth";
 import { can } from "@/lib/permissions";
 import { PROVINCE_OPTIONS, TRADE_OPTIONS } from "@/lib/trade-catalog";
-import { SubmitButton } from "@/components/dashboard/submit-button";
-import { completeOnboardingAction } from "./actions";
-
-const selectClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+import { STATUS_META } from "@/lib/job-status";
+import { parseStageOverridesJson } from "@/lib/workflow-stages";
+import { OnboardingForm, type OnboardingTemplateCard } from "@/components/onboarding/onboarding-form";
 
 /**
  * The one-time redirect target `requireCompanyContext` sends a fresh
@@ -27,54 +26,41 @@ export default async function OnboardingPage() {
     redirect("/dashboard");
   }
 
+  // §14.6/§15/§25 Phase 11 — one small table (one row per trade in v1), read
+  // once here rather than per-trade-selection, since `OnboardingForm`
+  // filters client-side and there's no per-trade fetch to debounce.
+  const templates = await prisma.workflowTemplate.findMany({
+    select: { id: true, trade: true, name: true, stagesJson: true },
+  });
+
+  const templateCards: OnboardingTemplateCard[] = templates.map((t) => {
+    const stages = parseStageOverridesJson(t.stagesJson);
+    const hidden = stages.filter((s) => !s.isEnabled).map((s) => STATUS_META[s.jobStatus].label);
+    const renamed = stages
+      .filter((s) => s.label)
+      .map((s) => `${STATUS_META[s.jobStatus].label} → ${s.label}`);
+    return {
+      id: t.id,
+      trade: t.trade,
+      name: t.name,
+      hidesSummary: hidden.length > 0 ? `Hides: ${hidden.join(", ")}` : null,
+      renamesSummary: renamed.length > 0 ? `Renames: ${renamed.join(", ")}` : null,
+    };
+  });
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-ground p-6">
       <div className="w-full max-w-md rounded-2xl border border-hairline bg-surface-raised p-8">
         <h1 className="text-xl font-semibold text-ink-primary">Let&apos;s set you up</h1>
         <p className="mt-2 text-sm text-ink-secondary">
-          Two quick things, and your price list and taxes are ready to go.
+          A few quick things, and your price list, taxes and workflow are ready to go.
         </p>
 
-        <form action={completeOnboardingAction} className="mt-6 space-y-5">
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-ink-secondary">
-              What&apos;s your trade?
-            </span>
-            <select name="trade" required defaultValue="" className={selectClass}>
-              <option value="" disabled>
-                Choose one
-              </option>
-              {TRADE_OPTIONS.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-ink-secondary">
-              What province do you work in?
-            </span>
-            <select name="province" required defaultValue="" className={selectClass}>
-              <option value="" disabled>
-                Choose one
-              </option>
-              {PROVINCE_OPTIONS.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <SubmitButton
-            pendingText="Setting up…"
-            className="w-full rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
-          >
-            Get started
-          </SubmitButton>
-        </form>
+        <OnboardingForm
+          tradeOptions={TRADE_OPTIONS}
+          provinceOptions={PROVINCE_OPTIONS}
+          templates={templateCards}
+        />
       </div>
     </main>
   );

@@ -39,6 +39,8 @@ async function loadInvoice(formData: FormData, capability: Capability) {
       totalAmountCents: true,
       taxCents: true,
       dueAt: true,
+      requiresHomeownerReview: true,
+      homeownerReviewConfirmedAt: true,
     },
   });
   if (!invoice) throw new Error("Invoice not found");
@@ -59,6 +61,15 @@ function revalidateInvoice(jobId: string, invoiceId: string) {
  * message — the same two-doors-one-token shape `shareQuoteAction` established,
  * and for the same reason: a re-send must never invalidate the link already
  * sitting in somebody's inbox.
+ *
+ * §19.2's review gate branches here rather than in a parallel action, so
+ * "share the link" stays the one door onto a token for every invoice. A
+ * review-pending Additional Work invoice mints the same link and opens the
+ * same public page — a homeowner can already look — but *stays* DRAFT
+ * rather than reaching SENT: "the invoice can't reach SENT until they've
+ * looked at it" (§19.2). Reaching SENT is exactly what
+ * `confirmAdditionalWorkReviewAction` does once they have, on the public
+ * side, or what recording an override does here on the office side.
  */
 export async function shareInvoiceAction(formData: FormData) {
   const { jobId, invoiceId, companyId, userId, invoice } = await loadInvoice(
@@ -80,6 +91,7 @@ export async function shareInvoiceAction(formData: FormData) {
   if (gaps.length > 0) throw new Error(gaps[0].because);
 
   const shareToken = invoice.shareToken ?? generateShareToken();
+  const pendingReview = invoice.requiresHomeownerReview && !invoice.homeownerReviewConfirmedAt;
 
   await prisma.invoice.update({
     where: { id: invoiceId },
@@ -89,14 +101,18 @@ export async function shareInvoiceAction(formData: FormData) {
       // An invoice that has been paid, part-paid or cancelled stays where it
       // is. Re-opening the link for a homeowner who already paid must not walk
       // the status back to "awaiting payment" and put it on the chase list.
-      status: invoice.status === InvoiceStatus.DRAFT ? InvoiceStatus.SENT : invoice.status,
+      status: pendingReview
+        ? invoice.status
+        : invoice.status === InvoiceStatus.DRAFT
+          ? InvoiceStatus.SENT
+          : invoice.status,
     },
   });
 
   await recordActivity({
     companyId,
     jobId,
-    kind: ActivityKind.INVOICE_SENT,
+    kind: pendingReview ? ActivityKind.ADDITIONAL_WORK_HOMEOWNER_REVIEW_SENT : ActivityKind.INVOICE_SENT,
     actorUserId: userId,
     meta: {
       invoiceId,
@@ -156,6 +172,8 @@ export async function sendInvoiceEmailAction(
         totalAmountCents: true,
         amountPaidCents: true,
         dueAt: true,
+        requiresHomeownerReview: true,
+        homeownerReviewConfirmedAt: true,
       },
     }),
     prisma.job.findFirst({ where: { id: jobId, companyId }, include: jobIdentityInclude }),
@@ -191,10 +209,12 @@ export async function sendInvoiceEmailAction(
     return { error: err instanceof Error ? err.message : "Couldn't send the email." };
   }
 
+  const pendingReview = invoice.requiresHomeownerReview && !invoice.homeownerReviewConfirmedAt;
+
   await recordActivity({
     companyId,
     jobId,
-    kind: ActivityKind.INVOICE_SENT,
+    kind: pendingReview ? ActivityKind.ADDITIONAL_WORK_HOMEOWNER_REVIEW_SENT : ActivityKind.INVOICE_SENT,
     actorUserId: userId,
     meta: {
       invoiceId,

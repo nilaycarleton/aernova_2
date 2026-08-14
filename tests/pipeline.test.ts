@@ -7,8 +7,9 @@ import {
   stageForRequest,
 } from "../lib/pipeline.ts";
 
-test("an open request is a Lead or Assessing card", () => {
+test("an open request is a Lead, Contacted, or Assessing card", () => {
   assert.equal(stageForRequest("NEW"), "LEAD");
+  assert.equal(stageForRequest("CONTACTED"), "CONTACTED");
   assert.equal(stageForRequest("ASSESSING"), "ASSESSING");
 });
 
@@ -51,13 +52,27 @@ test("a rejected or expired quote is Lost; an archived job has no card", () => {
 
 test("a request can also be dropped straight onto Lost", () => {
   assert.deepEqual(pipelineDropTargets({ kind: "request", stage: "LEAD" }), [
+    "CONTACTED",
     "ASSESSING",
     "LOST",
   ]);
   assert.deepEqual(pipelineDropTargets({ kind: "request", stage: "ASSESSING" }), [
     "LEAD",
+    "CONTACTED",
     "LOST",
   ]);
+});
+
+test("Contacted sits between Lead and Assessing, reachable from and back to both", () => {
+  assert.deepEqual(pipelineDropTargets({ kind: "request", stage: "CONTACTED" }), [
+    "LEAD",
+    "ASSESSING",
+    "LOST",
+  ]);
+});
+
+test("a Lead can still be dropped straight onto Assessing — Contacted is optional, not mandatory", () => {
+  assert.ok(pipelineDropTargets({ kind: "request", stage: "LEAD" }).includes("ASSESSING"));
 });
 
 test("a draft quote can be sent, approved, or declined outright", () => {
@@ -82,6 +97,7 @@ test("Won and Lost have nowhere further to go", () => {
 
 test("requestStatusForStage is the inverse of stageForRequest, for the stages a request can be dropped on", () => {
   assert.equal(requestStatusForStage("LEAD"), "NEW");
+  assert.equal(requestStatusForStage("CONTACTED"), "CONTACTED");
   assert.equal(requestStatusForStage("ASSESSING"), "ASSESSING");
   assert.equal(requestStatusForStage("LOST"), "CLOSED");
 });

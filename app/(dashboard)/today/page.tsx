@@ -6,6 +6,8 @@ import { can } from "@/lib/permissions";
 import { formatAddress } from "@/lib/client-matching";
 import { jobAddress, jobClient, jobIdentityInclude } from "@/lib/job-identity";
 import { FieldCapturePanel } from "@/components/today/field-capture-panel";
+import { QualityEvidencePanel } from "@/components/today/quality-evidence-panel";
+import { ProgressPicker } from "@/components/today/progress-picker";
 import {
   dayToInstant,
   formatDayLong,
@@ -14,6 +16,8 @@ import {
   todayIn,
 } from "@/lib/schedule/day";
 import { formatTimeOfDay, utcToZoned, visitCalendarDay } from "@/lib/schedule/timezone";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 /**
  * The day, on a phone, in a driveway.
@@ -62,7 +66,7 @@ export default async function TodayPage() {
         startAt: { gte: windowStart, lt: windowEnd },
       },
       orderBy: { startAt: "asc" },
-      include: { job: { include: jobIdentityInclude } },
+      include: { job: { include: { ...jobIdentityInclude, qualityCheck: true } } },
     }),
     // What's next, so an empty day isn't a dead end. One visit, not a list —
     // this page is about now, and tomorrow is a footnote on it.
@@ -86,19 +90,17 @@ export default async function TodayPage() {
 
   return (
     <div className="mx-auto min-w-0 max-w-2xl space-y-6">
-      <header>
-        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Today</p>
-        <h2 className="mt-2 text-3xl font-semibold text-ink-primary">
-          {formatDayLong(today)}
-        </h2>
-        <p className="mt-2 text-ink-muted">
-          {todays.length === 0
+      <PageHeader
+        eyebrow="Today"
+        title={formatDayLong(today)}
+        description={
+          todays.length === 0
             ? "Nothing booked for you today."
             : outstanding.length === 0
               ? "All done. Nice one."
-              : `${outstanding.length} to go.`}
-        </p>
-      </header>
+              : `${outstanding.length} to go.`
+        }
+      />
 
       {todays.length === 0 && next ? (
         <section className="rounded-3xl border border-dashed border-hairline p-6">
@@ -176,6 +178,27 @@ export default async function TodayPage() {
                   a dropped connection. See `FieldCapturePanel`. */}
               <FieldCapturePanel jobId={visit.jobId} visitId={visit.id} initialDone={done} />
 
+              {/* Quality-check evidence, only once a job is actually in
+                  production — the window where "before you go" means
+                  something. §20/§22: evidence, never a decision; the job's
+                  status is never touched by this panel. */}
+              {visit.job.status === "IN_PROGRESS" ? (
+                <QualityEvidencePanel
+                  jobId={visit.jobId}
+                  initialSiteCleaned={visit.job.qualityCheck?.siteCleaned ?? false}
+                  initialPhotosUploaded={visit.job.qualityCheck?.photosUploaded ?? false}
+                  initialNotes={visit.job.qualityCheck?.fieldEvidenceNotes ?? ""}
+                  submitted={Boolean(visit.job.qualityCheck?.fieldEvidenceSubmittedAt)}
+                />
+              ) : null}
+
+              {/* §7.8/§14.5/§22 Phase 9 — same "actually in production"
+                  window as the quality-check evidence above, and only for
+                  a real work visit: an assessment isn't the job. */}
+              {visit.job.status === "IN_PROGRESS" && visit.kind === "WORK" ? (
+                <ProgressPicker jobId={visit.jobId} initialState={visit.job.progressState} />
+              ) : null}
+
               <div className="mt-3">
                 <Link
                   href={`/jobs/${visit.jobId}`}
@@ -190,9 +213,11 @@ export default async function TodayPage() {
       </ul>
 
       {todays.length === 0 && !next ? (
-        <p className="rounded-3xl border border-dashed border-hairline p-10 text-center text-ink-muted">
-          Nothing booked. Your boss will put work here when it&rsquo;s scheduled.
-        </p>
+        <EmptyState
+          kind="first-use"
+          title="Nothing booked."
+          description="Your boss will put work here when it's scheduled."
+        />
       ) : null}
     </div>
   );

@@ -23,23 +23,25 @@ enum CompanyRole {
 
 /**
  * A link the boss texts to somebody he has hired.
- *
  * Not an email invitation. That would mean building email sending first, and it
  * is the wrong channel anyway — a roofer reaches his crew by text and WhatsApp,
  * not by inbox. It is the same move this product already makes with a quote:
  * mint a URL, hand it over, let the contractor send it the way he actually
  * communicates.
- *
  * Single use and short-lived, because a link that is neither is a permanent
  * open door the moment it is forwarded.
  */
 model CompanyInvite {
   id        String      @id @default(cuid())
   companyId String
-  /** The credential. Same alphabet as a quote's share token. */
+  /**
+   * The credential. Same alphabet as a quote's share token.
+   */
   token     String      @unique
   role      CompanyRole @default(CREW)
-  /** Who it was meant for, in the boss's words. A label, never a credential. */
+  /**
+   * Who it was meant for, in the boss's words. A label, never a credential.
+   */
   label     String?
 
   createdById      String
@@ -100,6 +102,13 @@ enum ClientStatus {
  */
 enum RequestStatus {
   NEW
+  /**
+   * §4/§25 Phase 6 — someone has reached this lead and it's worth pursuing.
+   * Sits between NEW (nobody has answered) and ASSESSING (actively being
+   * looked at), inserted here rather than appended so the enum's own
+   * declaration order matches the pipeline's left-to-right reading.
+   */
+  CONTACTED
   ASSESSING
   CONVERTED
   CLOSED
@@ -140,6 +149,21 @@ enum JobStatus {
 }
 
 /**
+ * §7.8/§14.5/§25 Phase 9 — the crew's own five-state read on a job in
+ * progress, matching how a crew member actually thinks about a job, not a
+ * percentage. Written only from `/today` (`submitFieldEvidence` — the same
+ * crew-tier capability `QualityCheck`'s field evidence already uses),
+ * never derived from or overwritten by `Job.progressPercent`.
+ */
+enum JobProgressState {
+  NOT_STARTED
+  IN_PROGRESS
+  MOSTLY_COMPLETE
+  READY_FOR_QUALITY_CHECK
+  COMPLETED
+}
+
+/**
  * Where one visit stands. Deliberately not the job's status: a job with
  * twenty-six lawn visits has one status and twenty-six of these.
  */
@@ -147,7 +171,9 @@ enum VisitStatus {
   SCHEDULED
   IN_PROGRESS
   COMPLETED
-  /** Nobody went. Kept rather than deleted — a no-show is a fact about a job. */
+  /**
+   * Nobody went. Kept rather than deleted — a no-show is a fact about a job.
+   */
   MISSED
   CANCELLED
 }
@@ -164,7 +190,9 @@ enum RecurrenceFrequency {
  * different consequences for the job's status, see `bookVisitAction`.
  */
 enum VisitKind {
-  /** The first look. Booking one moves a LEAD to INSPECTION, nothing further. */
+  /**
+   * The first look. Booking one moves a LEAD to INSPECTION, nothing further.
+   */
   ASSESSMENT
   WORK
 }
@@ -172,7 +200,9 @@ enum VisitKind {
 enum CaptureSource {
   DRONE
   MANUAL
-  /** Item 49 — drafted from a photo by lib/ai/capture.ts, then saved as-is or edited. */
+  /**
+   * Item 49 — drafted from a photo by lib/ai/capture.ts, then saved as-is or edited.
+   */
   AI_CAPTURE
 }
 
@@ -234,15 +264,47 @@ enum QuoteDeclineReason {
 }
 
 /**
+ * docs/AERNOVA_PROJECT_WORKFLOW.md §14.2/§19.1. Same shape as `QuoteStatus`'s
+ * own send/approve/decline arc, deliberately smaller — a change order is
+ * lighter-weight than a full quote by design, so it has no VIEWED/EXPIRED/
+ * CHANGES_REQUESTED equivalents.
+ */
+enum ChangeOrderStatus {
+  DRAFT
+  SENT
+  APPROVED
+  DECLINED
+}
+
+/**
+ * §19.2 — why a no-quote Additional Work invoice skipped the default
+ * homeowner-review path. A closed, named set, same doctrine as
+ * `QuoteDeclineReason`: this is an audit trail, and a free-text reason can't
+ * be read back as one.
+ */
+enum AddOnReviewOverrideReason {
+  /**
+   * No email/phone on file to send a review link to.
+   */
+  HOMEOWNER_CONTACT_MISSING
+  /**
+   * The homeowner already said yes on the phone or in person.
+   */
+  VERBAL_APPROVAL
+  /**
+   * The business owner is intentionally recording an internal override. Requires `Invoice.overrideNote`.
+   */
+  OWNER_OVERRIDE
+}
+
+/**
  * Where an invoice stands.
- *
  * Only three of these are ever *set* by a person: DRAFT on creation, SENT when
  * the link goes out, VOID when the contractor cancels it. The other three are
  * arithmetic — `lib/invoice/balance.ts` derives PARTIALLY_PAID, PAID and
  * OVERDUE from the payments and the due date, and the column is a cache of that
  * derivation so the list can filter in SQL. Nothing writes them by hand, which
  * is what keeps a status from disagreeing with the money underneath it.
- *
  * OVERDUE sits in the same column as PAID rather than beside it as a flag, and
  * that is a real constraint: an invoice cannot be both. A partially-paid
  * invoice that is also late reads OVERDUE, because the late half is the half
@@ -259,12 +321,10 @@ enum InvoiceStatus {
 
 /**
  * How the money came in.
- *
  * The first four are the ones a Canadian contractor actually gets paid by, and
  * e-transfer leads because it is the one this product's users use most. Cash is
  * here without apology: it is a real payment method on a real roof, and a tool
  * that cannot record it sends somebody back to a paper book.
- *
  * `CARD_OFFLINE` means a card taken on somebody else's terminal — Square, a
  * bank machine, a phone reader — as opposed to `STRIPE`, which means paid
  * through this product. Keeping them apart is what will let Phase 5b report
@@ -277,7 +337,9 @@ enum PaymentMethod {
   CASH
   CARD_OFFLINE
   BANK_TRANSFER
-  /** Phase 5b writes this. No manual form offers it — see `MANUAL_PAYMENT_METHODS`. */
+  /**
+   * Phase 5b writes this. No manual form offers it — see `MANUAL_PAYMENT_METHODS`.
+   */
   STRIPE
   OTHER
 }
@@ -345,17 +407,77 @@ enum ActivityKind {
    * collapsed them would lose the date the contractor is trying to remember.
    */
   PAYMENT_RECORDED
-  /** The balance reached zero. Written once, beside the payment that got it there. */
+  /**
+   * The balance reached zero. Written once, beside the payment that got it there.
+   */
   INVOICE_PAID
   INVOICE_VOIDED
-  /** Item 38's cron nagged a homeowner. Every phase writes ActivityEvent — an automated send is no exception. */
+  /**
+   * Item 38's cron nagged a homeowner. Every phase writes ActivityEvent — an automated send is no exception.
+   */
   INVOICE_REMINDER_SENT
-  /** Item 43's cron — the quote equivalent, for a link that's gone quiet. */
+  /**
+   * Item 43's cron — the quote equivalent, for a link that's gone quiet.
+   */
   QUOTE_REMINDER_SENT
-  /** Item 46 — someone logged what a job actually cost. */
+  /**
+   * Item 46 — someone logged what a job actually cost.
+   */
   JOB_EXPENSE_LOGGED
-  /** Item 48 — "Ask for a review" was used on a completed job. */
+  /**
+   * Item 48 — "Ask for a review" was used on a completed job.
+   */
   REVIEW_REQUESTED
+
+  // docs/AERNOVA_PROJECT_WORKFLOW.md §13/§25 — foundation values for later
+  // phases. Added ahead of the features that write them so those phases are
+  // a normal additive migration too, not a schema change bundled with the
+  // feature. None of these are written anywhere yet.
+
+  /**
+   * Phase 2 (§19.1) — a ChangeOrder was created against an approved Quote.
+   */
+  CHANGE_ORDER_CREATED
+  /**
+   * Phase 2 (§19.1) — a ChangeOrder was approved; contract value increases.
+   */
+  CHANGE_ORDER_APPROVED
+  /**
+   * Phase 2 (§19.2) — below-threshold Additional Work invoiced directly, no homeowner review required.
+   */
+  ADDITIONAL_WORK_INVOICED
+  /**
+   * Phase 2 (§19.2) — at/above-threshold Additional Work shared to the homeowner for review before it can send.
+   */
+  ADDITIONAL_WORK_HOMEOWNER_REVIEW_SENT
+  /**
+   * Phase 2 (§19.2) — the homeowner confirmed an Additional Work review.
+   */
+  ADDITIONAL_WORK_HOMEOWNER_CONFIRMED
+  /**
+   * Phase 2 (§19.2) — office skipped homeowner review via AddOnReviewOverrideReason; carries overrideReason and, for OWNER_OVERRIDE, overrideNote as the audit trail.
+   */
+  ADDITIONAL_WORK_OFFICE_OVERRIDE
+  /**
+   * Phase 3 (§20) — crew submitted field evidence (site cleaned, photos, notes) from /today.
+   */
+  QUALITY_CHECK_EVIDENCE_SUBMITTED
+  /**
+   * Phase 3 (§20) — office/estimator completed the final quality check, gating [ Complete Project → ].
+   */
+  QUALITY_CHECK_COMPLETED
+  /**
+   * Phase 10 (§20) — a Warranty was sent to the homeowner.
+   */
+  WARRANTY_SENT
+  /**
+   * Phase 10 (§20) — the homeowner confirmed (checkbox + typed name) receipt of a Warranty.
+   */
+  WARRANTY_CONFIRMED
+  /**
+   * Phase 9 (§7.8/§14.5) — crew changed the job's progressState from /today. Not written for every progressPercent tweak, to avoid flooding the timeline.
+   */
+  PROGRESS_UPDATED
 }
 
 enum ImageryType {
@@ -376,20 +498,20 @@ enum ProcessingStatus {
 }
 
 model User {
-  id          String              @id @default(cuid())
-  clerkUserId String              @unique
-  email       String              @unique
-  firstName   String?
-  lastName    String?
-  imageUrl    String?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  memberships CompanyMembership[]
-  createdJobs Job[]               @relation("CreatedJobs")
-  assignedJobs     Job[]     @relation("JobSalesperson")
-  assignedRequests Request[] @relation("RequestSalesperson")
-  visitAssignments VisitAssignment[]
-  loggedJobExpenses JobExpense[] @relation("JobExpenseCreatedBy")
+  id                String              @id @default(cuid())
+  clerkUserId       String              @unique
+  email             String              @unique
+  firstName         String?
+  lastName          String?
+  imageUrl          String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  memberships       CompanyMembership[]
+  createdJobs       Job[]               @relation("CreatedJobs")
+  assignedJobs      Job[]               @relation("JobSalesperson")
+  assignedRequests  Request[]           @relation("RequestSalesperson")
+  visitAssignments  VisitAssignment[]
+  loggedJobExpenses JobExpense[]        @relation("JobExpenseCreatedBy")
 }
 
 model Company {
@@ -451,16 +573,16 @@ model Company {
    * the whole "we are not merchant of record" promise from `PLAN-CRM.md`.
    * Null until the owner starts onboarding.
    */
-  stripeAccountId        String?  @unique
+  stripeAccountId        String? @unique
   /**
    * Mirrors the three flags Stripe's own `account.updated` webhook reports.
    * All false until Stripe confirms them — an invoice must never offer a Pay
    * button that would fail, so `chargesEnabled` (not "an account id exists")
    * is what the public page and the Connect settings page actually gate on.
    */
-  stripeChargesEnabled   Boolean  @default(false)
-  stripePayoutsEnabled   Boolean  @default(false)
-  stripeDetailsSubmitted Boolean  @default(false)
+  stripeChargesEnabled   Boolean @default(false)
+  stripePayoutsEnabled   Boolean @default(false)
+  stripeDetailsSubmitted Boolean @default(false)
 
   /**
    * Phase 8, item 46. The suggested rate a LABOUR expense entry starts from —
@@ -473,6 +595,19 @@ model Company {
   defaultLabourRateCents Int?
 
   /**
+   * docs/AERNOVA_PROJECT_WORKFLOW.md §14.2/§19.2. The line between a small
+   * no-quote add-on the office can just bill (`createDirectInvoiceAction`
+   * sends it straight to DRAFT/SENT) and one big enough that homeowner
+   * review is the default before it can send. Null = use the v1 default of
+   * $500 — same "unset reads as the default" doctrine as
+   * `defaultLabourRateCents`. Read once, at the moment a direct invoice is
+   * created, and never re-read for an invoice that already exists — a later
+   * threshold change must not retroactively change what an existing
+   * invoice was already created under.
+   */
+  billableAddOnThresholdCents Int?
+
+  /**
    * When the owner picked their real trade and province on `/onboarding`,
    * confirming the ROOFING/GST-only defaults `requireCompanyContext` seeds a
    * brand-new company with. Null gates the one-time redirect to that page —
@@ -482,24 +617,28 @@ model Company {
    */
   onboardedAt DateTime?
 
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  memberships CompanyMembership[]
-  jobs        Job[]
-  clients     Client[]
-  properties  Property[]
-  services    Service[]
-  taxRates    TaxRate[]
-  requests    Request[]
-  quotes      Quote[]
-  invoices    Invoice[]
-  quoteTemplates QuoteTemplate[]
-  visits      Visit[]
-  recurrenceRules RecurrenceRule[]
-  invoicePayments InvoicePayment[]
-  invites     CompanyInvite[]
-  activity    ActivityEvent[]
-  jobExpenses JobExpense[]
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  memberships       CompanyMembership[]
+  jobs              Job[]
+  clients           Client[]
+  properties        Property[]
+  services          Service[]
+  taxRates          TaxRate[]
+  requests          Request[]
+  quotes            Quote[]
+  invoices          Invoice[]
+  changeOrders      ChangeOrder[]
+  quoteTemplates    QuoteTemplate[]
+  visits            Visit[]
+  recurrenceRules   RecurrenceRule[]
+  invoicePayments   InvoicePayment[]
+  invites           CompanyInvite[]
+  activity          ActivityEvent[]
+  jobExpenses       JobExpense[]
+  warranties        Warranty[]
+  warrantyTemplates WarrantyTemplate[]
+  workflowStages    CompanyWorkflowStage[]
 }
 
 /**
@@ -514,25 +653,25 @@ model Company {
  * someone has been waiting is the only urgent thing on this screen.
  */
 model Request {
-  id          String        @id @default(cuid())
-  companyId   String
-  clientId    String
-  propertyId  String?
-  title       String
-  description String?
-  status      RequestStatus @default(NEW)
+  id           String        @id @default(cuid())
+  companyId    String
+  clientId     String
+  propertyId   String?
+  title        String
+  description  String?
+  status       RequestStatus @default(NEW)
   /**
    * How it arrived, in the contractor's own words — "phone", "referral",
    * "website". Free text rather than an enum, because every trade has its own
    * list and none of them is ours to fix. Copied onto the client's `leadSource`
    * when the request creates them.
    */
-  source      String?
-  requestedAt DateTime      @default(now())
+  source       String?
+  requestedAt  DateTime      @default(now())
   /**
    * The job this became, once it did.
    */
-  jobId       String?
+  jobId        String?
   /**
    * Item 41's other half. Who's working this deal — nullable, because a lead
    * sits unowned until somebody picks it up. Carried across to the `Job` by
@@ -541,8 +680,8 @@ model Request {
    * ownership question over from a blank job.
    */
   assignedToId String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   client     Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -765,11 +904,11 @@ model TaxRate {
 }
 
 model CompanyMembership {
-  id        String      @id @default(cuid())
-  companyId String
-  userId    String
-  role      CompanyRole @default(VIEWER)
-  createdAt DateTime    @default(now())
+  id                  String      @id @default(cuid())
+  companyId           String
+  userId              String
+  role                CompanyRole @default(VIEWER)
+  createdAt           DateTime    @default(now())
   /**
    * The notification bell's read/unread line. Lives here, not on `User` —
    * a person can belong to more than one company, and marking notifications
@@ -830,44 +969,57 @@ model Job {
   latitude     Float?
   longitude    Float?
 
-  notes     String?
+  notes             String?
   /**
    * Item 41's salesperson assignment. Same field as `Request.assignedToId`,
    * carried across from one by `convertRequestToJobAction` — a job created
    * directly (no request behind it) simply starts unassigned, same as a
    * fresh lead does.
    */
-  assignedToId String?
+  assignedToId      String?
   /**
    * Item 48. Set the moment "Ask for a review" is used — never cleared, and
    * never implying an answer came back. This is evidence a request went out,
    * the same limited claim `acceptedIp` makes for a quote.
    */
   reviewRequestedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  /**
+   * §7.8/§14.5/§25 Phase 9 — two independent, optional, never-required
+   * signals, per the owner's own decision (Assumption 7): setting one never
+   * derives or clears the other. Both null by default; the fallback when
+   * both are null is a computed visit-completion count, not stored here —
+   * see `lib/job-progress.ts`.
+   */
+  progressState     JobProgressState? // crew-entered, from /today
+  progressPercent   Int? // office-entered/adjusted, 0-100
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
-  company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdBy         User               @relation("CreatedJobs", fields: [createdById], references: [id], onDelete: Restrict)
-  assignedTo        User?              @relation("JobSalesperson", fields: [assignedToId], references: [id], onDelete: SetNull)
-  client            Client?            @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  property          Property?          @relation(fields: [propertyId], references: [id], onDelete: SetNull)
-  sections          RoofSection[]
-  measurements      Measurement[]
-  issues            RoofIssue[]
-  photos            PhotoAsset[]
-  imagery           ProjectImagery[]
-  processingJobs    ProcessingJob[]
-  comparisons       RoofComparison[]
-  quotes            Quote[]
-  invoices          Invoice[]
-  visits            Visit[]
-  recurrenceRules   RecurrenceRule[]
-  modelMeasurements ModelMeasurement[]
-  aiUsageEvents     AiUsageEvent[]
-  activity          ActivityEvent[]
-  requests          Request[]
-  expenses          JobExpense[]
+  company                  Company                   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy                User                      @relation("CreatedJobs", fields: [createdById], references: [id], onDelete: Restrict)
+  assignedTo               User?                     @relation("JobSalesperson", fields: [assignedToId], references: [id], onDelete: SetNull)
+  client                   Client?                   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  property                 Property?                 @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  sections                 RoofSection[]
+  measurements             Measurement[]
+  issues                   RoofIssue[]
+  photos                   PhotoAsset[]
+  imagery                  ProjectImagery[]
+  processingJobs           ProcessingJob[]
+  comparisons              RoofComparison[]
+  quotes                   Quote[]
+  invoices                 Invoice[]
+  changeOrders             ChangeOrder[]
+  visits                   Visit[]
+  recurrenceRules          RecurrenceRule[]
+  modelMeasurements        ModelMeasurement[]
+  aiUsageEvents            AiUsageEvent[]
+  activity                 ActivityEvent[]
+  requests                 Request[]
+  expenses                 JobExpense[]
+  qualityCheck             QualityCheck?
+  preConstructionChecklist PreConstructionChecklist?
+  warranty                 Warranty?
 
   @@unique([companyId, jobNumber])
   @@index([companyId, status])
@@ -879,16 +1031,241 @@ model Job {
 }
 
 /**
+ * docs/AERNOVA_PROJECT_WORKFLOW.md §14.3/§20. Two authors, two different sets
+ * of fields — never the same write path. Crew (capability:
+ * `submitFieldEvidence`, CREW-tier, alongside the existing `completeVisit`)
+ * can write the field-evidence fields from `/today`. Only office/estimator
+ * (capability: `completeQualityCheck`, office-tier like `manageJobCosts`)
+ * can write scopeCompleted/deficienciesResolved/walkthroughCompleted/
+ * completedAt — the fields that actually gate `[ Complete Project → ]` in
+ * `JobStatusStepper` (see `updateJobStatusAction`'s COMPLETED guard). Crew
+ * supplies evidence; office makes the call. See `lib/permissions.ts`'s
+ * existing deny-by-default doctrine — these are two new capabilities added
+ * to that matrix, not a side channel around it.
+ */
+model QualityCheck {
+  id    String @id @default(cuid())
+  jobId String @unique
+
+  // Crew-writable field evidence, from /today.
+  siteCleaned                    Boolean   @default(false)
+  photosUploaded                 Boolean   @default(false)
+  fieldEvidenceNotes             String?
+  fieldEvidenceSubmittedAt       DateTime?
+  fieldEvidenceSubmittedByUserId String?
+
+  // Office/estimator-only. This half — not the evidence above — is what
+  // gates the job's actual COMPLETED transition.
+  scopeCompleted       Boolean   @default(false)
+  deficienciesResolved Boolean   @default(false)
+  walkthroughCompleted Boolean   @default(false)
+  walkthroughNotes     String?
+  completedAt          DateTime?
+  completedByUserId    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+/**
+ * docs/AERNOVA_PROJECT_WORKFLOW.md §7.6/§25 Phase 4. Not a new `JobStatus` —
+ * a checklist/gap layer read by `lib/pre-construction.ts`'s
+ * `preConstructionGaps()`, the same "required to advance, not required to
+ * exist" doctrine as `jobGaps()`/`invoiceSendGaps()`/`QualityCheck`. One row
+ * per job, office-writable only (reuses `editJob`, same tier `ChangeOrder`
+ * create/save already uses — see `lib/permissions.ts`); never written from
+ * `/today`. "Confirmed" per Assumption 2 means the gate is soft/overridable
+ * by default — see `savePreConstructionChecklistAction` and
+ * `WORKFLOW_PHASE_4_IMPLEMENTATION.md` for the exact (non-blocking) behavior.
+ */
+model PreConstructionChecklist {
+  id    String @id @default(cuid())
+  jobId String @unique
+
+  materialsConfirmed Boolean @default(false)
+  materialsNotes     String?
+
+  permitsChecked Boolean  @default(false)
+  /**
+   * Null until reviewed; the answer once `permitsChecked` is true.
+   */
+  permitRequired Boolean?
+  permitNotes    String?
+
+  crewReady          Boolean @default(false)
+  startDateConfirmed Boolean @default(false)
+  readinessNotes     String?
+
+  /**
+   * Stamped the first time every office-controlled item above is true — sticky, same as `QualityCheck.completedAt`.
+   */
+  confirmedAt       DateTime?
+  confirmedByUserId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+/// A homeowner-facing closeout document, mirroring Quote/Invoice's shape —
+/// office reviews/edits a pre-filled draft, then sends via a share link —
+/// with one deliberate difference: the homeowner's only action is a
+/// lightweight, typed-name acknowledgement of having viewed/received it,
+/// never an Approve/Request-Changes pair. A warranty is not negotiated, and
+/// this is not a contract-signing flow — see docs/AERNOVA_PROJECT_WORKFLOW.md
+/// §14.4/§20/§25 Phase 10.
+///
+/// `@@unique([jobId])` is taken verbatim from the plan's own §14.4 schema —
+/// one warranty per job in v1. §23's correction doctrine ("a correction is a
+/// new Warranty row, not a mutation of the confirmed one") is in real tension
+/// with that constraint, since a second row for the same job is exactly what
+/// it would forbid. Phase 10 keeps the schema as documented and defers the
+/// full correction/new-row flow rather than quietly widening it — see
+/// `WORKFLOW_PHASE_10_IMPLEMENTATION.md` for the write-up. What Phase 10
+/// *does* implement: a confirmed row can never be edited in place.
+model Warranty {
+  id         String  @id @default(cuid())
+  companyId  String
+  jobId      String
+  templateId String?
+
+  termMonths    Int
+  startsAt      DateTime
+  coverageNotes String?
+  exclusions    String?
+  /// Bumped whenever the office edits and re-sends an already-sent Warranty.
+  /// Exists so a confirmed acknowledgement can be read against the exact
+  /// wording it was given for. **Homeowner-visible, not internal-only** —
+  /// rendered quietly on the public document itself, since the homeowner is
+  /// the one confirming a specific version and is entitled to know which one
+  /// that is.
+  version       Int      @default(1)
+
+  // Pre-filled from Company/Client/Property at creation, then a real
+  // editable copy — same "pre-filled, then reviewed, not a live join"
+  // pattern Quote's intro/body fields already use. The company logo/name in
+  // the document header still reads the live `Company` relation (same as
+  // every other public document) — this snapshot is the free-text company
+  // information block (address, licence #, contact), not the branding.
+  companyInfoSnapshot     String
+  customerInfoSnapshot    String
+  propertyAddressSnapshot String
+
+  status     WarrantyStatus @default(DRAFT)
+  shareToken String?        @unique
+  sentAt     DateTime?
+  viewedAt   DateTime?
+
+  // The acknowledgement — exactly what the owner specified, no more: a
+  // confirmation checkbox, a typed name, and the thin-but-real evidence
+  // trail (IP + timestamp) Quote's own acceptedByName/acceptedIp already
+  // sets as this codebase's bar for "the homeowner did a thing." No drawn
+  // or touch signature capture in v1.
+  confirmationChecked Boolean   @default(false)
+  signerName          String?
+  confirmedAt         DateTime?
+  signerIp            String?
+
+  // Internal office review, before send — a business owner or estimator
+  // confirms the pre-filled draft. Not the homeowner's acknowledgement above.
+  reviewedByUserId String?
+  reviewedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company  Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  job      Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  template WarrantyTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@unique([jobId])
+}
+
+enum WarrantyStatus {
+  DRAFT
+  REVIEWED
+  SENT
+  VIEWED
+  CONFIRMED
+}
+
+/// Built-in starters, not company-authored-only. companyId null = an
+/// Aernova-provided starter for that trade, visible to every company on
+/// that trade and never itself editable. Picking one and editing it — or
+/// hitting "Duplicate" — creates a new row with companyId set, a real copy,
+/// same "starter → live company copy → frozen document" chain this codebase
+/// already uses elsewhere (catalog price → quote template → frozen quote
+/// line). Editing a company's own copy never reaches back into the shared
+/// built-in row, and sending a Warranty never reaches back into the
+/// template — it's copied onto the Warranty's own fields at creation, same
+/// as Company/Client/Property are.
+model WarrantyTemplate {
+  id            String  @id @default(cuid())
+  companyId     String? // null = built-in starter; set = a company's own (possibly duplicated-and-edited) template
+  trade         Trade? // set on built-ins to filter the picker by the company's trade; unused on a company's own row
+  variant       String? // "Simple" | "Detailed" on built-ins; unused/free-form once a company duplicates and renames its own copy
+  name          String // "Roofing — Simple Warranty", "Roofing — Detailed Warranty", ...
+  termMonths    Int
+  coverageNotes String?
+  exclusions    String?
+  isDefault     Boolean @default(false) // this company's default pick — meaningless on a built-in row
+
+  company    Company?   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  warranties Warranty[]
+
+  @@index([companyId])
+  @@index([trade])
+}
+
+/// docs/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — one row per
+/// (company, JobStatus) the company has an opinion about. Absence of a row
+/// means "default": visible, using STATUS_META's own label. JobStatus
+/// itself is untouched — this is a display/visibility layer over the one
+/// shared backend enum, not a second source of truth for where a job
+/// actually is. `updateJobStatusAction`'s state machine reads none of this;
+/// only `lib/workflow-stages.ts`'s `effectiveStageMeta()` does, at render
+/// time.
+model CompanyWorkflowStage {
+  id        String    @id @default(cuid())
+  companyId String
+  jobStatus JobStatus
+  label     String? // company's own word for the stage; null = use STATUS_META's default
+  isEnabled Boolean   @default(true)
+  sortOrder Int       @default(0) // display-only in v1 — no drag-and-drop reordering yet (§15)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, jobStatus])
+}
+
+/// Seed data, not a user-editable builder in v1. One row per (trade,
+/// template name) read once, at onboarding (or later from Settings →
+/// Workflow's reset), to populate a company's CompanyWorkflowStage rows so
+/// day one already looks tailored without asking the owner to configure
+/// anything by hand.
+model WorkflowTemplate {
+  id         String @id @default(cuid())
+  trade      Trade
+  name       String // "Roofing (default)", "Plumbing (default)", ...
+  stagesJson Json // ordered [{ jobStatus, label, isEnabled }], applied on pick
+
+  @@unique([trade, name])
+}
+
+/**
  * Phase 8, item 46: what a job actually cost. The counterpart to
  * `QuoteLineItem.unitCostCents` — that half is what the job was *quoted* to
  * cost, frozen at approval; this half is what it actually cost, logged as work
  * happens. `lib/job-costing.ts` is the one place that compares the two.
- *
  * A ledger of entries rather than a running total on `Job`, for the same
  * reason `InvoicePayment` is a row per payment: a materials run in March and a
  * dump-fee receipt in April are two facts with two dates, and a single number
  * can't be corrected without losing which one was wrong.
- *
  * Money-cost data, so writing one is gated on `manageJobCosts` — office tier,
  * same as `editInvoice` — never crew. See `lib/permissions.ts`.
  */
@@ -898,7 +1275,7 @@ model JobExpense {
   jobId     String
   category  JobExpenseCategory
 
-  description String?
+  description     String?
   /**
    * What it actually cost. For LABOUR, this is `hours × hourlyRateCents`,
    * computed once and stored — same "auto but overridable" convention as
@@ -930,13 +1307,13 @@ model JobExpense {
  * Rows are only written after a call is allowed through.
  */
 model AiUsageEvent {
-  id    String  @id @default(cuid())
+  id        String   @id @default(cuid())
   /**
    * Item 49 made this nullable: AI capture runs *before* a job exists, so
    * there is nothing to key a capture call against. Every chat/summary event
    * still gets one; only "capture" events leave it null.
    */
-  jobId String? @map("projectId")
+  jobId     String?  @map("projectId")
   /**
    * Item 49's other half of the same problem — capture needs a scope to rate
    * limit against, and a company is the only thing that exists at that point.
@@ -1081,8 +1458,10 @@ model PhotoAsset {
   id              String   @id @default(cuid())
   jobId           String   @map("projectId")
   roofIssueId     String?
-  /** Set when a crew member took this during a visit rather than an office
-   *  inspection upload — what lets a visit show what was done on it. */
+  /**
+   * Set when a crew member took this during a visit rather than an office
+   * inspection upload — what lets a visit show what was done on it.
+   */
   visitId         String?
   url             String
   fileName        String?
@@ -1254,17 +1633,17 @@ model Quote {
    * The homeowner's door. Null until the quote is sent, unguessable, and the
    * only credential on the public page — see lib/share-token.ts.
    */
-  shareToken     String?   @unique
-  sentAt         DateTime?
-  viewedAt       DateTime?
-  acceptedAt     DateTime?
-  acceptedByName String?
+  shareToken       String?   @unique
+  sentAt           DateTime?
+  viewedAt         DateTime?
+  acceptedAt       DateTime?
+  acceptedByName   String?
   /**
    * Captured at acceptance and never shown. It is the thin evidence that the
    * person who clicked Approve was at the address, and the only thing standing
    * behind a click that authorizes thousands of dollars of work.
    */
-  acceptedIp     String?
+  acceptedIp       String?
   /**
    * Set when a team member marked this approved themselves, because the yes
    * came over the phone or across a kitchen table. Its presence is what keeps
@@ -1273,7 +1652,7 @@ model Quote {
    * homeowner's click, and a click that never happened must not acquire any.
    */
   approvedByUserId String?
-  expiresAt      DateTime?
+  expiresAt        DateTime?
 
   /**
    * The other answer. Same shape as approval on purpose — a `declinedAt` plus
@@ -1305,12 +1684,18 @@ model Quote {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  company   Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  job       Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  taxRate   TaxRate?        @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
-  lineItems QuoteLineItem[]
-  /** Plural since Phase 5: one approved quote can be billed as several draws. */
-  invoices  Invoice[]
+  company      Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  job          Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  taxRate      TaxRate?        @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
+  lineItems    QuoteLineItem[]
+  /**
+   * Plural since Phase 5: one approved quote can be billed as several draws.
+   */
+  invoices     Invoice[]
+  /**
+   * §19.1 — a change order amends an already-approved quote; always required, never optional.
+   */
+  changeOrders ChangeOrder[]
 
   @@unique([companyId, quoteNumber])
   @@index([jobId, status])
@@ -1319,15 +1704,93 @@ model Quote {
 }
 
 /**
+ * docs/AERNOVA_PROJECT_WORKFLOW.md §14.2/§19.1. A billable scope addition to
+ * an *already-approved* quote — `quoteId` is required, not nullable, because
+ * a change order without an approved quote behind it isn't a change order at
+ * all under this model; that case is Additional Work (`Invoice.quoteId:
+ * null`) instead. Same send/approve doctrine as `Quote`: a share-token
+ * public door for the homeowner's own click, or an office-recorded
+ * approval for the yes that came over the phone — never both writing the
+ * same evidence.
+ */
+model ChangeOrder {
+  id          String            @id @default(cuid())
+  companyId   String
+  jobId       String
+  quoteId     String
+  title       String
+  description String?
+  status      ChangeOrderStatus @default(DRAFT)
+  /**
+   * Additive to the contract value once approved — see effectiveContractValueCents in lib/change-order.ts.
+   */
+  amountCents Int               @default(0)
+
+  /**
+   * The homeowner's door — same shape and reasoning as Quote.shareToken.
+   */
+  shareToken String?   @unique
+  sentAt     DateTime?
+  viewedAt   DateTime?
+
+  approvedAt       DateTime?
+  /**
+   * Set when a team member recorded the yes themselves — the phone/driveway approval.
+   */
+  approvedByUserId String?
+  /**
+   * The homeowner's typed name, public approval only — mirrors Quote.acceptedByName.
+   */
+  approvedByName   String?
+  /**
+   * Thin evidence a person at that address clicked Approve — mirrors Quote.acceptedIp, never shown.
+   */
+  approvedIp       String?
+
+  declinedAt DateTime?
+
+  createdByUserId String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  company   Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  job       Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  /**
+   * No `onDelete: SetNull` here, unlike Invoice.quote — a change order with no quote behind it isn't representable, so it cannot outlive one.
+   */
+  quote     Quote                 @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  lineItems ChangeOrderLineItem[]
+
+  @@index([jobId, status])
+  @@index([quoteId, status])
+}
+
+/**
+ * Priced the same way a QuoteLineItem is — no cost/markup columns beyond unitCostCents, since a change order is a customer-facing document like the quote it amends.
+ */
+model ChangeOrderLineItem {
+  id             String  @id @default(cuid())
+  changeOrderId  String
+  name           String
+  description    String?
+  quantity       Float   @default(1)
+  unit           String  @default("each")
+  unitCostCents  Int?
+  unitPriceCents Int     @default(0)
+  amountCents    Int     @default(0)
+  sortOrder      Int     @default(0)
+
+  changeOrder ChangeOrder @relation(fields: [changeOrderId], references: [id], onDelete: Cascade)
+}
+
+/**
  * The document a homeowner owes money against.
- *
  * Money is stored, not derived, on purpose: a quote's `totalAmountCents` can
  * keep moving (a line edited after the fact, a template re-applied), but an
  * invoice is what was actually billed at the moment it was created, and it
  * has to stay that number even if the quote it came from later changes.
  * `lib/invoice/from-quote.ts` is the one place that decides which quote lines
  * make it across — accepted work only, never a declined upsell.
- *
  * `quoteId` is **optional and not unique**, and both halves of that are
  * deliberate. Optional, because the plan's own front-door rule — required to
  * advance, not required to exist — dies at the last step if a $450 flashing
@@ -1340,14 +1803,16 @@ model Quote {
  * knowable; a unique index cannot tell them apart and would forbid both.
  */
 model Invoice {
-  id        String        @id @default(cuid())
-  companyId String
-  jobId     String        @map("projectId")
-  quoteId   String?
-  /** Per-company sequential, same shape as `jobNumber`/`quoteNumber`. */
+  id            String        @id @default(cuid())
+  companyId     String
+  jobId         String        @map("projectId")
+  quoteId       String?
+  /**
+   * Per-company sequential, same shape as `jobNumber`/`quoteNumber`.
+   */
   invoiceNumber Int?
-  title     String
-  status    InvoiceStatus @default(DRAFT)
+  title         String
+  status        InvoiceStatus @default(DRAFT)
 
   subtotalCents    Int
   discountCents    Int @default(0)
@@ -1362,9 +1827,11 @@ model Invoice {
    * owed" can be summed in SQL rather than by loading every payment in the
    * company.
    */
-  amountPaidCents  Int @default(0)
+  amountPaidCents Int @default(0)
 
-  /** The rate applied at creation, copied from the quote — not re-read later. */
+  /**
+   * The rate applied at creation, copied from the quote — not re-read later.
+   */
   taxRateId String?
 
   /**
@@ -1382,11 +1849,13 @@ model Invoice {
    * quote's token: revoking a paid invoice's link must not also break the quote
    * link, and an invoice with no quote has no token to borrow.
    */
-  shareToken String?   @unique
-  sentAt     DateTime?
-  viewedAt   DateTime?
-  /** Set once, when the balance first reaches zero. */
-  paidAt     DateTime?
+  shareToken         String?   @unique
+  sentAt             DateTime?
+  viewedAt           DateTime?
+  /**
+   * Set once, when the balance first reaches zero.
+   */
+  paidAt             DateTime?
   /**
    * Item 38's other half. Null until the first reminder goes out; from then
    * on it is what the cron reads to space reminders apart — an invoice must
@@ -1394,7 +1863,9 @@ model Invoice {
    */
   lastReminderSentAt DateTime?
 
-  /** A sentence to the homeowner, above the lines. Same role as `Quote.clientMessage`. */
+  /**
+   * A sentence to the homeowner, above the lines. Same role as `Quote.clientMessage`.
+   */
   clientMessage String?
 
   /**
@@ -1413,6 +1884,31 @@ model Invoice {
   billingProvince     String?
   billingPostalCode   String?
   billingCountry      String?
+
+  /**
+   * §19.2 — set only on a no-quote (`quoteId: null`) Additional Work invoice
+   * created at or above the company's `billableAddOnThresholdCents`. True
+   * until the homeowner completes review (`homeownerReviewConfirmedAt`) or
+   * the office records a named override below; both clear the gate. An
+   * ordinary invoice, or a below-threshold direct invoice, never sets this.
+   */
+  requiresHomeownerReview    Boolean   @default(false)
+  /**
+   * Set once, when the homeowner confirms they've reviewed this invoice on its public page.
+   */
+  homeownerReviewConfirmedAt DateTime?
+
+  /**
+   * The fallback, not a peer option — office/internal confirmation instead
+   * of homeowner review, and only for a named reason. `overrideNote` is
+   * optional for the two self-explanatory reasons and required (20-500
+   * chars, enforced in the action layer, not a DB constraint — see
+   * `lib/invoice/addon-override.ts`) for OWNER_OVERRIDE alone.
+   */
+  overrideReason     AddOnReviewOverrideReason?
+  overrideNote       String?
+  overriddenByUserId String?
+  overriddenAt       DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1438,14 +1934,12 @@ model Invoice {
 
 /**
  * Money that actually arrived.
- *
  * A row per payment rather than a `paidCents` column on the invoice, because
  * partial payment is the normal case, not the exception: a deposit in March and
  * the balance in May are two facts with two dates, and a single column can only
  * remember the last one. Overpayment is representable — a homeowner who rounds
  * a $1,847.30 invoice up to $1,850 has paid $1,850, and an invoice that quietly
  * recorded $1,847.30 would be lying about what cleared the bank.
- *
  * `method` carries `STRIPE` from day one even though nothing writes it yet, and
  * that is the whole "method-agnostic" promise from the plan kept honestly: when
  * Phase 5b lands, the webhook writes a row here and every balance, status and
@@ -1460,13 +1954,19 @@ model InvoicePayment {
 
   amountCents Int
   method      PaymentMethod
-  /** When the money arrived, which is rarely when somebody got round to typing it in. */
+  /**
+   * When the money arrived, which is rarely when somebody got round to typing it in.
+   */
   paidAt      DateTime
-  /** Cheque number, e-transfer confirmation, terminal reference. Free text. */
+  /**
+   * Cheque number, e-transfer confirmation, terminal reference. Free text.
+   */
   reference   String?
   notes       String?
 
-  /** Who recorded it. Same shape as `ActivityEvent.actorUserId` — an id, not a relation. */
+  /**
+   * Who recorded it. Same shape as `ActivityEvent.actorUserId` — an id, not a relation.
+   */
   recordedByUserId String?
 
   /**
@@ -1523,12 +2023,10 @@ model InvoiceLineItem {
  */
 /**
  * A quote a contractor has already written, kept to write the next one with.
- *
  * Not a settings form somebody fills in on a rainy afternoon. A template here is
  * *made from a quote that worked* — the roofer builds one good re-roof quote,
  * saves it, and the twelfth one takes a minute. That is the version of this
  * feature that gets used; a blank template editor is the version that sits empty.
- *
  * What is deliberately **not** here: discount, tax, and the client's name. A
  * discount is negotiated per job and a template that carried one would quietly
  * give away margin; tax comes from the property's province (`defaultTaxRateFor`)
@@ -1536,14 +2034,12 @@ model InvoiceLineItem {
  */
 /**
  * A day somebody actually turns up.
- *
  * The unit the whole field half of this product is built on, and the reason it
  * is separate from `Job`: a one-off re-roof is one job with one visit, and a
  * twenty-six-week lawn contract is *one job with twenty-six visits* — not
  * twenty-six jobs. Getting that wrong is what makes recurring work unbearable
  * in tools that only model the job, because every cut becomes a fresh record
  * with its own client, address and history.
- *
  * Times are stored as absolute instants. What a person sees is that instant in
  * the company's own timezone (`Company.timeZone`) — the generator that produces
  * these works in wall-clock terms so 8am stays 8am across a daylight-saving
@@ -1554,20 +2050,28 @@ model Visit {
   companyId String
   jobId     String
 
-  /** What the crew see at the top of the card. Falls back to the job's name. */
-  title     String?
-  startAt   DateTime
-  endAt     DateTime
-  /** A visit with no clock on it: "sometime Tuesday". Common for drop-ins. */
-  allDay    Boolean     @default(false)
-  status    VisitStatus @default(SCHEDULED)
-  /** Assessment vs. the actual work — see `VisitKind`. Defaults to work
-   *  because every visit before this field existed was the work. */
-  kind      VisitKind   @default(WORK)
+  /**
+   * What the crew see at the top of the card. Falls back to the job's name.
+   */
+  title       String?
+  startAt     DateTime
+  endAt       DateTime
+  /**
+   * A visit with no clock on it: "sometime Tuesday". Common for drop-ins.
+   */
+  allDay      Boolean     @default(false)
+  status      VisitStatus @default(SCHEDULED)
+  /**
+   * Assessment vs. the actual work — see `VisitKind`. Defaults to work
+   * because every visit before this field existed was the work.
+   */
+  kind        VisitKind   @default(WORK)
   completedAt DateTime?
-  /** Written in the field, read in the office. Appended to, never overwritten,
-   *  so a second crew member's note doesn't erase the first. */
-  notes     String?
+  /**
+   * Written in the field, read in the office. Appended to, never overwritten,
+   * so a second crew member's note doesn't erase the first.
+   */
+  notes       String?
 
   /**
    * Set on every visit the recurrence generator produced, so re-running it can
@@ -1590,9 +2094,9 @@ model Visit {
   assignments VisitAssignment[]
   photos      PhotoAsset[]
 
+  @@unique([generatedFromRuleId, occurrenceDate])
   @@index([companyId, startAt])
   @@index([jobId, startAt])
-  @@unique([generatedFromRuleId, occurrenceDate])
 }
 
 /**
@@ -1601,9 +2105,9 @@ model Visit {
  * later is always the second person.
  */
 model VisitAssignment {
-  id       String   @id @default(cuid())
-  visitId  String
-  userId   String
+  id         String   @id @default(cuid())
+  visitId    String
+  userId     String
   assignedAt DateTime @default(now())
 
   visit Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
@@ -1615,12 +2119,10 @@ model VisitAssignment {
 
 /**
  * "Every second Tuesday until October."
- *
  * On its own table rather than columns on `Job` so a job can be given a
  * schedule, have it changed, and keep the visits that were already generated
  * under the old one — which is what actually happens when a client moves their
  * mow day.
- *
  * Ends three ways, and exactly one of `untilDate` / `count` is set: never (both
  * null), on a date, or after N visits. Recurring work with no end is normal —
  * a lawn contract does not know when it stops.
@@ -1630,7 +2132,9 @@ model RecurrenceRule {
   companyId String
   jobId     String
   frequency RecurrenceFrequency
-  /** Every N periods. 2 + WEEKLY is fortnightly. */
+  /**
+   * Every N periods. 2 + WEEKLY is fortnightly.
+   */
   interval  Int                 @default(1)
   /**
    * For WEEKLY: which days, as 0=Sunday…6=Saturday. Empty means "the same
@@ -1639,15 +2143,19 @@ model RecurrenceRule {
    */
   byWeekday Int[]               @default([])
 
-  /** The first occurrence, and the time of day every occurrence inherits. */
-  startDate     DateTime
-  startMinutes  Int      @default(480)
-  durationMinutes Int    @default(120)
+  /**
+   * The first occurrence, and the time of day every occurrence inherits.
+   */
+  startDate       DateTime
+  startMinutes    Int      @default(480)
+  durationMinutes Int      @default(120)
 
   untilDate DateTime?
   count     Int?
-  /** Stops generating without deleting what it already made. */
-  isActive  Boolean  @default(true)
+  /**
+   * Stops generating without deleting what it already made.
+   */
+  isActive  Boolean   @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1660,10 +2168,12 @@ model RecurrenceRule {
 }
 
 model QuoteTemplate {
-  id        String @id @default(cuid())
-  companyId String
-  /** What the roofer calls it: "Full re-roof — architectural asphalt". */
-  name      String
+  id            String  @id @default(cuid())
+  companyId     String
+  /**
+   * What the roofer calls it: "Full re-roof — architectural asphalt".
+   */
+  name          String
   /**
    * The title the quote gets. Separate from `name` because "Re-roof (asphalt)"
    * is how a contractor finds the template in a list, and "Full south slope
@@ -1686,7 +2196,9 @@ model QuoteTemplate {
   showLineItemTotals Boolean @default(true)
   showTotals         Boolean @default(true)
 
-  /** A deposit policy is a house rule, so it templates. Same two-column shape. */
+  /**
+   * A deposit policy is a house rule, so it templates. Same two-column shape.
+   */
   depositKind          AmountKind?
   depositCents         Int?
   depositPercentMicros Int?
@@ -1704,12 +2216,10 @@ model QuoteTemplate {
 
 /**
  * One row of a template.
- *
  * Linked to the catalog by `serviceId`, **not by name**. Jobber links these by
  * name and re-links on a rename, which means renaming "Shingles" to "Shingles —
  * architectural" silently detaches every template that used it. An id does not
  * care what you call it.
- *
  * The price chain is: catalog → template (live) → quote (frozen). A row with a
  * `serviceId` takes the current catalog price when the template is applied, so
  * raising your prices reaches every template at once. A row without one keeps
@@ -1717,19 +2227,21 @@ model QuoteTemplate {
  * back into it.
  */
 model QuoteTemplateLineItem {
-  id         String        @id @default(cuid())
-  templateId String
-  serviceId  String?
-  kind       QuoteLineKind @default(ITEM)
-  name       String
+  id             String        @id @default(cuid())
+  templateId     String
+  serviceId      String?
+  kind           QuoteLineKind @default(ITEM)
+  name           String
   description    String?
-  quantity       Float   @default(1)
-  unit           String  @default("each")
+  quantity       Float         @default(1)
+  unit           String        @default("each")
   unitCostCents  Int?
-  unitPriceCents Int     @default(0)
-  sortOrder      Int     @default(0)
-  /** Templated on purpose: the "while we're up there" list is the house upsell. */
-  isOptional     Boolean @default(false)
+  unitPriceCents Int           @default(0)
+  sortOrder      Int           @default(0)
+  /**
+   * Templated on purpose: the "while we're up there" list is the house upsell.
+   */
+  isOptional     Boolean       @default(false)
   imageUrl       String?
 
   template QuoteTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)

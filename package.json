@@ -22,6 +22,8 @@
     "db:backfill-money": "node --env-file=.env --experimental-strip-types prisma/backfill-money.ts",
     "db:backfill-domain": "node --env-file=.env --experimental-strip-types prisma/backfill-domain.ts",
     "db:seed-catalog": "node --env-file=.env --experimental-strip-types prisma/seed-catalog.ts",
+    "db:seed-warranty-templates": "node --env-file=.env --experimental-strip-types prisma/seed-warranty-templates.ts",
+    "db:seed-workflow-templates": "node --env-file=.env --experimental-strip-types prisma/seed-workflow-templates.ts",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "import:photos": "node --env-file=.env --experimental-strip-types prisma/import-photos.ts",
     "nodeodm": "scripts/nodeodm.sh"
@@ -36,6 +38,8 @@
     "@stylexjs/stylex": "0.19.0",
     "@types/three": "^0.184.1",
     "fflate": "^0.8.3",
+    "lucide-react": "1.31.0",
+    "motion": "13.1.0",
     "next": "16.2.4",
     "openai": "^6.35.0",
     "prisma": "^6.19.3",

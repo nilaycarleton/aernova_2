@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { InvoiceStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireCompanyContext } from "@/lib/auth";
@@ -21,7 +22,7 @@ import { QuotePreview } from "@/components/dashboard/quote-preview";
 import { JobWorkspace } from "@/components/dashboard/job-workspace";
 import { JobGapsPanel } from "@/components/dashboard/job-gaps-panel";
 import { VisitPanel } from "@/components/dashboard/visit-panel";
-import { formatDayLong, toDayInput, todayIn } from "@/lib/schedule/day";
+import { formatDayLong, instantToDay, toDayInput, todayIn } from "@/lib/schedule/day";
 import { formatTimeOfDay, utcToZoned, visitCalendarDay } from "@/lib/schedule/timezone";
 import { jobGaps } from "@/lib/job-validation";
 import { INVOICE_STATUS_META } from "@/lib/invoice/status";
@@ -33,7 +34,25 @@ import { computeTotals } from "@/lib/quote/totals";
 import type { StartTemplate } from "@/components/dashboard/quote-start-dialog";
 import { JobExpensesPanel, type JobExpenseRow } from "@/components/dashboard/job-expenses-panel";
 import { ReviewRequestPanel } from "@/components/dashboard/review-request-panel";
+import { ChangeOrdersPanel } from "@/components/dashboard/change-orders-panel";
+import { AdditionalWorkPanel } from "@/components/dashboard/additional-work-panel";
+import { QualityCheckPanel } from "@/components/dashboard/quality-check-panel";
+import { JobProgressPanel } from "@/components/dashboard/job-progress-panel";
+import { jobProgressDisplay } from "@/lib/job-progress";
+import { PreConstructionChecklistPanel } from "@/components/dashboard/pre-construction-checklist-panel";
+import { preConstructionGaps } from "@/lib/pre-construction";
+import { StatusMiniCard } from "@/components/dashboard/status-mini-card";
+import { financialMiniCardState, salesMiniCardState } from "@/lib/job-mini-cards";
+import { FinancialCompletionPanel } from "@/components/dashboard/financial-completion-panel";
+import { jobFinancialSummary } from "@/lib/job-financial-summary";
+import { WarrantyPanel, type WarrantyRow, type WarrantyTemplateRow } from "@/components/dashboard/warranty-panel";
+import { longDate } from "@/lib/long-date";
+import { shareUrl as buildShareUrl } from "@/lib/share-token";
 import { isEmailConfigured } from "@/lib/email";
+import { statusLabel, statusTone } from "@/lib/job-status";
+import { PageHeader } from "@/components/ui/page-header";
+import { Status } from "@/components/ui/status";
+import { JobWorkspaceShell } from "@/components/dashboard/job-workspace-shell";
 
 export default async function JobDetailPage({
   params,
@@ -53,6 +72,14 @@ export default async function JobDetailPage({
         : "scan";
   const { company, user, role } = await requireCompanyContext();
   const showsMoney = can(role, "viewMoney");
+
+  // §14.6/§15/§25 Phase 11 — one small, company-scoped query, independent
+  // of the job query below, so a company with no customization pays for an
+  // empty array rather than an extra join on every job page load.
+  const workflowOverrides = await prisma.companyWorkflowStage.findMany({
+    where: { companyId: company.id },
+    select: { jobStatus: true, label: true, isEnabled: true },
+  });
 
   const job = await prisma.job.findFirst({
     // Scoped, not filtered afterwards: a job a crew member may not see must
@@ -77,11 +104,23 @@ export default async function JobDetailPage({
         select: {
           id: true,
           invoiceNumber: true,
+          title: true,
           status: true,
+          quoteId: true,
           totalAmountCents: true,
           amountPaidCents: true,
+          requiresHomeownerReview: true,
+          homeownerReviewConfirmedAt: true,
+          sentAt: true,
         },
       },
+      changeOrders: {
+        orderBy: { createdAt: "desc" },
+        select: { id: true, title: true, status: true, amountCents: true, quoteId: true },
+      },
+      qualityCheck: true,
+      preConstructionChecklist: true,
+      warranty: true,
       visits: {
         orderBy: { startAt: "asc" },
         include: { assignments: { include: { user: true } } },
@@ -180,88 +219,230 @@ export default async function JobDetailPage({
     hasQuote: job.quotes.length > 0,
   });
 
+  // §19.1 — a change order only ever amends an *approved* quote. Most jobs
+  // carry at most one, so the first one found is the one change orders
+  // attach to; a job with more than one approved quote is an edge case this
+  // phase doesn't build a picker for.
+  const approvedQuote = job.quotes.find((q) => q.status === "APPROVED");
+  // §19.2 — read once for display; the real, authoritative read happens
+  // server-side at the moment a direct invoice is actually created.
+  const billableAddOnThresholdCents = company.billableAddOnThresholdCents ?? 50000;
+
   // A model is extractable once it has a linked NodeODM task (the mesh assets
   // are resolved on demand from the worker / local cache).
   const extractableModel = job.imagery.find(
     (item) => item.type === "MODEL" && getModelTaskUuid(item.metadataJson) !== null
   );
 
-  return (
-    <div className="min-w-0 space-y-8">
-      {/* Identity on the left, the job's standing on the right.
-          The rail stops here rather than running the page's full height as
-          Jobber's does: below this sits the 3D viewer, which needs every pixel
-          of width it can get, and a rail that squeezes it would trade the thing
-          a roofer came for against a panel they read once. */}
-      <section className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="min-w-0 rounded-3xl border border-hairline bg-surface-raised p-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Job</p>
-          <h2 className="mt-2 break-words text-3xl font-semibold text-ink-primary">{job.name}</h2>
-          <p className="mt-2 break-words text-ink-muted">
-            {[client.name, formatAddress(address) ?? "No address yet"].filter(Boolean).join(" • ")}
+  // §14.3/§20 — office-only write path; crew can see this panel (it's their
+  // own submitted evidence) but never edit the office half. No relation on
+  // QualityCheck for the submitter ids (same plain-string-id shape
+  // Quote.approvedByUserId already uses), so names resolve through `team`,
+  // already loaded for the visit assignment picker above.
+  const canCompleteQualityCheck = can(role, "completeQualityCheck");
+  const dateLabel = (value: Date | null | undefined) =>
+    value ? value.toLocaleDateString("en-CA", { dateStyle: "medium" }) : null;
+  const nameFor = (userId: string | null | undefined) =>
+    userId ? (team.find((member) => member.userId === userId)?.name ?? null) : null;
+  const qualityCheckData = job.qualityCheck
+    ? {
+        siteCleaned: job.qualityCheck.siteCleaned,
+        photosUploaded: job.qualityCheck.photosUploaded,
+        fieldEvidenceNotes: job.qualityCheck.fieldEvidenceNotes,
+        fieldEvidenceSubmittedAt: dateLabel(job.qualityCheck.fieldEvidenceSubmittedAt),
+        fieldEvidenceSubmittedByName: nameFor(job.qualityCheck.fieldEvidenceSubmittedByUserId),
+        scopeCompleted: job.qualityCheck.scopeCompleted,
+        deficienciesResolved: job.qualityCheck.deficienciesResolved,
+        walkthroughCompleted: job.qualityCheck.walkthroughCompleted,
+        walkthroughNotes: job.qualityCheck.walkthroughNotes,
+        completedAt: dateLabel(job.qualityCheck.completedAt),
+      }
+    : null;
+
+  // §14.4/§20/§25 Phase 10 — office-only, same tier as the Pre-Construction
+  // Checklist (`editJob`). Templates are read once here rather than inside
+  // the panel component, matching every other job-page panel's own
+  // "server loads, client renders" split.
+  const [builtInWarrantyTemplates, companyWarrantyTemplates] = await Promise.all([
+    prisma.warrantyTemplate.findMany({
+      where: { companyId: null, trade: company.trade },
+      orderBy: { variant: "asc" },
+    }),
+    prisma.warrantyTemplate.findMany({
+      where: { companyId: company.id },
+      orderBy: { name: "asc" },
+    }),
+  ]);
+  const warrantyTemplateRows = (rows: typeof builtInWarrantyTemplates, isCompanyOwned: boolean): WarrantyTemplateRow[] =>
+    rows.map((t) => ({
+      id: t.id,
+      name: t.name,
+      variant: t.variant,
+      termMonths: t.termMonths,
+      coverageNotes: t.coverageNotes,
+      exclusions: t.exclusions,
+      isCompanyOwned,
+    }));
+
+  const host = (await headers()).get("host") ?? "localhost:3000";
+  const origin = `${host.startsWith("localhost") ? "http" : "https"}://${host}`;
+  const warrantyRow: WarrantyRow | null = job.warranty
+    ? {
+        id: job.warranty.id,
+        status: job.warranty.status,
+        termMonths: job.warranty.termMonths,
+        startsAt: toDayInput(instantToDay(job.warranty.startsAt)),
+        coverageNotes: job.warranty.coverageNotes,
+        exclusions: job.warranty.exclusions,
+        companyInfoSnapshot: job.warranty.companyInfoSnapshot,
+        customerInfoSnapshot: job.warranty.customerInfoSnapshot,
+        propertyAddressSnapshot: job.warranty.propertyAddressSnapshot,
+        version: job.warranty.version,
+        shareUrl: job.warranty.shareToken
+          ? buildShareUrl("warranty", job.warranty.shareToken, origin)
+          : null,
+        sentAtLabel: longDate(job.warranty.sentAt),
+        reviewedAtLabel: longDate(job.warranty.reviewedAt),
+        reviewedByName: nameFor(job.warranty.reviewedByUserId),
+        confirmedAtLabel: longDate(job.warranty.confirmedAt),
+        signerName: job.warranty.signerName,
+      }
+    : null;
+
+  // §7.6/§25 Phase 4 — a checklist/gap layer, not a new JobStatus. Shown once
+  // there's an approved quote to build it against (same `approvedQuote`
+  // signal `ChangeOrdersPanel` already gates on), office-only like the rest
+  // of the quote-tab money surface. `hasScope` reuses the quote's own line
+  // items/scopeOfWork rather than asking the office to re-confirm something
+  // the quote already states.
+  const canEditJob = can(role, "editJob");
+  const preConstructionGapList = approvedQuote
+    ? preConstructionGaps({
+        hasApprovedQuote: true,
+        hasScope: approvedQuote.lineItems.length > 0 || Boolean(approvedQuote.scopeOfWork),
+        materialsConfirmed: job.preConstructionChecklist?.materialsConfirmed ?? false,
+        permitsChecked: job.preConstructionChecklist?.permitsChecked ?? false,
+        crewReady: job.preConstructionChecklist?.crewReady ?? false,
+        startDateConfirmed: job.preConstructionChecklist?.startDateConfirmed ?? false,
+      })
+    : [];
+  const preConstructionData = job.preConstructionChecklist
+    ? {
+        materialsConfirmed: job.preConstructionChecklist.materialsConfirmed,
+        materialsNotes: job.preConstructionChecklist.materialsNotes,
+        permitsChecked: job.preConstructionChecklist.permitsChecked,
+        permitRequired: job.preConstructionChecklist.permitRequired,
+        permitNotes: job.preConstructionChecklist.permitNotes,
+        crewReady: job.preConstructionChecklist.crewReady,
+        startDateConfirmed: job.preConstructionChecklist.startDateConfirmed,
+        readinessNotes: job.preConstructionChecklist.readinessNotes,
+        confirmedAt: dateLabel(job.preConstructionChecklist.confirmedAt),
+      }
+    : null;
+
+  // §16/§17/§25 Phase 7 — read-only, next to the status stepper: what's
+  // already loaded above (`latestQuote`, `liveInvoice`, `approvedQuote`)
+  // is all either card needs, so this adds no query of its own.
+  const salesCard = salesMiniCardState(
+    job.id,
+    latestQuote
+      ? { id: latestQuote.id, status: latestQuote.status, totalAmountCents: latestQuote.totalAmountCents }
+      : null
+  );
+  const financialCard = financialMiniCardState(job.id, liveInvoice ?? null, Boolean(approvedQuote));
+
+  // §6/§21/§25 Phase 8 — the composed closeout view, deeper on the page
+  // near the quote/change-order/Additional Work panels rather than beside
+  // the status stepper (that's the Phase 7 mini-card's job). Reuses the
+  // same `job.changeOrders`/`job.invoices` arrays already loaded above —
+  // no new query.
+  // §7.8/§14.5/§25 Phase 9 — read-only, optional, never a gate. Reuses the
+  // same `job.visits` array VisitPanel already renders — no new query.
+  const progressDisplay = jobProgressDisplay(
+    job.progressPercent,
+    job.progressState,
+    job.visits.map((visit) => ({ kind: visit.kind, status: visit.status }))
+  );
+
+  const financialSummary = jobFinancialSummary(
+    approvedQuote ? { totalAmountCents: approvedQuote.totalAmountCents } : null,
+    job.changeOrders,
+    job.invoices
+  );
+
+  // §22/§23 Workbench split — the rail's former content (quote/invoice
+  // figures, gaps, sales/financial standing) is exactly the subset of this
+  // page already gated on `showsMoney`: "context useful across every tab,
+  // not the primary task." A role without `showsMoney` gets no inspector at
+  // all rather than an empty one — there is nothing left to put in it once
+  // the money content is removed, and an empty inspector trigger would be a
+  // control that does nothing (Step 98).
+  const inspectorContent = showsMoney ? (
+    <div className="min-w-0 space-y-6">
+      {/* The quote figure leads the rail — it is the number a contractor
+          stakes a bid on, so it is legible rather than a caption. */}
+      <div className="rounded-2xl border border-hairline bg-ground/50 px-5 py-4">
+        <p className="text-xs uppercase tracking-[0.18em] text-ink-muted">Quote</p>
+        {latestQuote ? (
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-ink-primary">
+            {formatMoney(latestQuote.totalAmountCents)}
           </p>
+        ) : (
+          <p className="mt-1 text-sm text-ink-muted">None yet</p>
+        )}
+      </div>
 
-          {/* The report is pricing/margin end to end, same reason as the quote
-              figure below: not rendered for crew, since the page it links to
-              is gated on viewMoney too. */}
-          {showsMoney ? (
-            <Link
-              href={`/jobs/${job.id}/report`}
-              className="mt-5 inline-flex rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-            >
-              Open printable report
-            </Link>
-          ) : null}
-        </div>
+      {/* Only once there is one. An "Invoiced: none yet" tile on every job
+          in the company would put a permanent reminder of unfinished
+          paperwork on jobs that were quoted this morning — and the figure
+          a contractor wants on a job that hasn't been billed is the quote,
+          which is already above it. */}
+      {liveInvoice ? (
+        <Link
+          href={`/jobs/${job.id}/invoices/${liveInvoice.id}`}
+          className="block rounded-2xl border border-hairline bg-ground/50 px-5 py-4 transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+        >
+          <p className="text-xs uppercase tracking-[0.18em] text-ink-muted">
+            {invoiceOwedCents > 0 ? "Still owed" : "Invoiced"}
+          </p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-ink-primary">
+            {formatMoney(invoiceOwedCents > 0 ? invoiceOwedCents : liveInvoice.totalAmountCents)}
+          </p>
+          <p className="mt-1 text-xs text-ink-muted">
+            {INVOICE_STATUS_META[liveInvoice.status].label}
+            {liveInvoice.invoiceNumber ? ` · #${liveInvoice.invoiceNumber}` : ""}
+          </p>
+        </Link>
+      ) : null}
 
-        <div className="min-w-0 space-y-6">
-          {/* The quote figure leads the rail — it is the number a contractor
-              stakes a bid on, so it is legible rather than a caption. Jobber
-              puts money at the top of its rail for the same reason. */}
-          {/* Not rendered at all for crew, rather than hidden with CSS. What
-              a job is worth is not a fact somebody needs to do the work, and a
-              value that reaches the browser has already left the building. */}
-          {showsMoney ? (
-            <div className="rounded-2xl border border-hairline bg-ground/50 px-5 py-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-ink-muted">Quote</p>
-              {latestQuote ? (
-                <p className="mt-1 text-2xl font-semibold tabular-nums text-ink-primary">
-                  {formatMoney(latestQuote.totalAmountCents)}
-                </p>
-              ) : (
-                <p className="mt-1 text-sm text-ink-muted">None yet</p>
-              )}
-            </div>
-          ) : null}
+      <JobGapsPanel gaps={gaps} />
 
-          {/* Only once there is one. An "Invoiced: none yet" tile on every job
-              in the company would put a permanent reminder of unfinished
-              paperwork on jobs that were quoted this morning — and the figure
-              a contractor wants on a job that hasn't been billed is the quote,
-              which is already above it. */}
-          {showsMoney && liveInvoice ? (
-            <Link
-              href={`/jobs/${job.id}/invoices/${liveInvoice.id}`}
-              className="block rounded-2xl border border-hairline bg-ground/50 px-5 py-4 transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-            >
-              <p className="text-xs uppercase tracking-[0.18em] text-ink-muted">
-                {invoiceOwedCents > 0 ? "Still owed" : "Invoiced"}
-              </p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums text-ink-primary">
-                {formatMoney(invoiceOwedCents > 0 ? invoiceOwedCents : liveInvoice.totalAmountCents)}
-              </p>
-              <p className="mt-1 text-xs text-ink-muted">
-                {INVOICE_STATUS_META[liveInvoice.status].label}
-                {liveInvoice.invoiceNumber ? ` · #${liveInvoice.invoiceNumber}` : ""}
-              </p>
-            </Link>
-          ) : null}
+      {/* §16/§17/§25 Phase 7 — sales and financial standing, beside the
+          money the rail already shows. Same gate as everything else here. */}
+      <div className="space-y-4">
+        <StatusMiniCard
+          eyebrow="Sales"
+          label={salesCard.label}
+          description={salesCard.description}
+          badge={salesCard.badge}
+          secondaryDetail={salesCard.secondaryDetail}
+          action={salesCard.action}
+        />
+        <StatusMiniCard
+          eyebrow="Financial"
+          label={financialCard.label}
+          description={financialCard.description}
+          badge={financialCard.badge}
+          secondaryDetail={financialCard.secondaryDetail}
+          action={financialCard.action}
+        />
+      </div>
+    </div>
+  ) : null;
 
-          {showsMoney ? <JobGapsPanel gaps={gaps} /> : null}
-        </div>
-      </section>
-
-      <JobStatusStepper jobId={job.id} status={job.status} />
+  const mainContent = (
+    <div className="min-w-0 space-y-8">
+      <JobStatusStepper jobId={job.id} status={job.status} workflowOverrides={workflowOverrides} />
 
       {job.status === "COMPLETED" && company.reviewUrl && can(role, "editJob") ? (
         <ReviewRequestPanel
@@ -282,6 +463,19 @@ export default async function JobDetailPage({
           }
           clientEmail={client.email}
           emailConfigured={isEmailConfigured()}
+        />
+      ) : null}
+
+      {/* §7.6/§25 Phase 4 — sits ahead of the scheduling panel below on
+          purpose: the office reads it right before booking the work visit
+          that moves this job to SCHEDULED. Warning-only, not a hard gate —
+          see lib/pre-construction.ts and WORKFLOW_PHASE_4_IMPLEMENTATION.md. */}
+      {approvedQuote && showsMoney ? (
+        <PreConstructionChecklistPanel
+          jobId={job.id}
+          data={preConstructionData}
+          gaps={preConstructionGapList}
+          editable={canEditJob}
         />
       ) : null}
 
@@ -312,6 +506,37 @@ export default async function JobDetailPage({
           };
         })}
         team={team}
+      />
+
+      {/* §7.8/§14.5/§25 Phase 9 — a read/review signal, not a gate; its own
+          calm empty state handles a job with nothing to report yet, so
+          this renders on every job status rather than only IN_PROGRESS. */}
+      <JobProgressPanel
+        jobId={job.id}
+        display={progressDisplay}
+        officePercent={job.progressPercent}
+        editable={canEditJob}
+      />
+
+      {/* §14.3/§20 — relevant once crew is actually on site working toward
+          completion, and kept visible after, as the record of it. */}
+      {job.status === "IN_PROGRESS" || job.status === "COMPLETED" ? (
+        <QualityCheckPanel
+          jobId={job.id}
+          data={qualityCheckData}
+          editable={canCompleteQualityCheck}
+        />
+      ) : null}
+
+      {/* §14.4/§20/§25 Phase 10 — a closeout document, alongside the
+          Financial Completion Panel's own closeout framing but never
+          money-gated: a warranty carries no cost/margin data at all. */}
+      <WarrantyPanel
+        jobId={job.id}
+        warranty={warrantyRow}
+        builtInTemplates={warrantyTemplateRows(builtInWarrantyTemplates, false)}
+        companyTemplates={warrantyTemplateRows(companyWarrantyTemplates, true)}
+        editable={canEditJob}
       />
 
       <JobWorkspace
@@ -381,6 +606,39 @@ export default async function JobDetailPage({
             />
             <QuotePreview companyName={company.name} quote={latestQuote ?? null} />
             <PricingTemplatePanel />
+
+            {approvedQuote ? (
+              <ChangeOrdersPanel
+                jobId={job.id}
+                quoteId={approvedQuote.id}
+                changeOrders={job.changeOrders.filter((co) => co.quoteId === approvedQuote.id)}
+              />
+            ) : null}
+
+            <AdditionalWorkPanel
+              jobId={job.id}
+              thresholdCents={billableAddOnThresholdCents}
+              existingInvoices={job.invoices
+                .filter((invoice) => invoice.quoteId === null)
+                .map((invoice) => ({
+                  id: invoice.id,
+                  invoiceNumber: invoice.invoiceNumber,
+                  title: invoice.title,
+                  status: invoice.status,
+                  totalAmountCents: invoice.totalAmountCents,
+                  requiresHomeownerReview: invoice.requiresHomeownerReview,
+                  homeownerReviewConfirmedAt: invoice.homeownerReviewConfirmedAt
+                    ? invoice.homeownerReviewConfirmedAt.toISOString()
+                    : null,
+                }))}
+            />
+
+            <FinancialCompletionPanel
+              jobId={job.id}
+              summary={financialSummary}
+              approvedQuoteId={approvedQuote?.id ?? null}
+              latestInvoiceId={liveInvoice?.id ?? null}
+            />
           </>
           )
         }
@@ -396,6 +654,38 @@ export default async function JobDetailPage({
           )
         }
       />
+    </div>
+  );
+
+  return (
+    <div className="min-w-0 space-y-6">
+      <PageHeader
+        eyebrow={job.jobNumber ? `JOB-${job.jobNumber}` : undefined}
+        title={job.name}
+        description={[client.name, formatAddress(address) ?? "No address yet"]
+          .filter(Boolean)
+          .join(" • ")}
+        status={<Status tone={statusTone(job.status)} label={statusLabel(job.status)} />}
+        // The report is pricing/margin end to end, same reason the rail's
+        // quote figure is money-gated: not rendered for crew, since the page
+        // it links to is gated on viewMoney too.
+        primaryAction={
+          showsMoney ? (
+            <Link
+              href={`/jobs/${job.id}/report`}
+              className="inline-flex rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            >
+              Open printable report
+            </Link>
+          ) : undefined
+        }
+      />
+
+      {inspectorContent ? (
+        <JobWorkspaceShell main={mainContent} inspector={inspectorContent} inspectorTitle="Job details" />
+      ) : (
+        mainContent
+      )}
 
       <AssistantDrawer jobId={job.id} />
     </div>

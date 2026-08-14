@@ -21,6 +21,11 @@ export const REQUEST_STATUS_META: Record<RequestStatus, RequestStatusMeta> = {
     description: "Nobody has answered this yet.",
     badge: "text-ink-secondary bg-surface-lifted",
   },
+  CONTACTED: {
+    label: "Contacted / Qualified",
+    description: "Someone has reached them, and it's worth pursuing.",
+    badge: "text-ink-secondary bg-surface-lifted",
+  },
   ASSESSING: {
     label: "Looking at it",
     description: "Someone is going out to see it, or has.",
@@ -38,18 +43,19 @@ export const REQUEST_STATUS_META: Record<RequestStatus, RequestStatusMeta> = {
   },
 };
 
-/** The two states that are still somebody's problem. */
-export const OPEN_REQUEST_STATUSES: RequestStatus[] = ["NEW", "ASSESSING"];
+/** The three states that are still somebody's problem. */
+export const OPEN_REQUEST_STATUSES: RequestStatus[] = ["NEW", "CONTACTED", "ASSESSING"];
 
 export function isOpenRequest(status: RequestStatus): boolean {
   return OPEN_REQUEST_STATUSES.includes(status);
 }
 
-export type RequestFilter = "OPEN" | "NEW" | "ASSESSING" | "CONVERTED" | "CLOSED";
+export type RequestFilter = "OPEN" | "NEW" | "CONTACTED" | "ASSESSING" | "CONVERTED" | "CLOSED";
 
 export const REQUEST_FILTERS: { value: RequestFilter; label: string }[] = [
   { value: "OPEN", label: "Still open" },
   { value: "NEW", label: "New" },
+  { value: "CONTACTED", label: "Contacted / Qualified" },
   { value: "ASSESSING", label: "Looking at it" },
   { value: "CONVERTED", label: "Became a job" },
   { value: "CLOSED", label: "Closed" },

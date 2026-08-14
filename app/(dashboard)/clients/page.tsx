@@ -4,6 +4,7 @@ import { can } from "@/lib/permissions";
 import { formatAddress } from "@/lib/client-matching";
 import { clientTiles } from "@/lib/client-insights";
 import { ClientsBrowser } from "@/components/dashboard/clients-browser";
+import { PageHeader } from "@/components/ui/page-header";
 
 /**
  * The second of the five nouns to get its own address.
@@ -44,14 +45,12 @@ export default async function ClientsPage() {
 
   return (
     <div className="min-w-0 space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-ink-primary">Clients</h2>
-        {clients.length > 0 ? (
-          <p className="mt-1 text-sm text-ink-muted">
-            Everyone you have worked for, and everyone who has asked.
-          </p>
-        ) : null}
-      </div>
+      <PageHeader
+        title="Clients"
+        description={
+          clients.length > 0 ? "Everyone you have worked for, and everyone who has asked." : undefined
+        }
+      />
 
       <ClientsBrowser
         tiles={tiles}

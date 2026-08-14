@@ -7,11 +7,12 @@ import { ActivityKind, JobStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireJobAccess } from "@/lib/auth";
 import { storageDriverName } from "@/lib/storage";
-import { ALL_STATUSES } from "@/lib/job-status";
+import { ALL_STATUSES, STATUS_META } from "@/lib/job-status";
 import { syncClientStatusForJob } from "@/lib/client-resolve";
 import { recordActivity } from "@/lib/activity";
 import { isEmailConfigured, sendEmail } from "@/lib/email";
 import { jobClient, jobIdentityInclude } from "@/lib/job-identity";
+import { qualityCheckCompletionGaps, qualityCheckGateMessage } from "@/lib/quality-check";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -24,7 +25,26 @@ export async function updateJobStatusAction(jobId: string, status: JobStatus) {
   // Was a hand-rolled company check, which scoped the tenant but not the role:
   // any member — including a viewer, whose whole job is to change nothing —
   // could move any job in the company. `requireJobAccess` does both.
-  await requireJobAccess(jobId, "editJob");
+  const { companyId, userId } = await requireJobAccess(jobId, "editJob");
+
+  const existing = await prisma.job.findUnique({ where: { id: jobId }, select: { status: true } });
+  const previousStatus = existing?.status;
+
+  // §14.3/§20's completion gate. Field evidence alone never satisfies this —
+  // only the office-side half of QualityCheck does, and only office ever
+  // writes it (see lib/quality-check.ts, lib/permissions.ts). The message is
+  // what JobStatusStepper surfaces verbatim through its existing error UI,
+  // so it names exactly what's missing rather than a generic refusal.
+  if (status === JobStatus.COMPLETED) {
+    const qualityCheck = await prisma.qualityCheck.findUnique({
+      where: { jobId },
+      select: { scopeCompleted: true, deficienciesResolved: true, walkthroughCompleted: true },
+    });
+    const gaps = qualityCheckCompletionGaps(qualityCheck);
+    if (gaps.length > 0) {
+      throw new Error(qualityCheckGateMessage(gaps));
+    }
+  }
 
   await prisma.job.update({ where: { id: jobId }, data: { status } });
 
@@ -32,6 +52,19 @@ export async function updateJobStatusAction(jobId: string, status: JobStatus) {
   // lib/client-lifecycle.ts. Nothing else in the product moves Client.status,
   // so without this the word "lead" would never mean anything.
   await syncClientStatusForJob(jobId, status);
+
+  // Skipped when the stage didn't actually move (e.g. re-clicking the current
+  // stage) — a timeline entry should mean something happened, not repeat what
+  // the badge already says.
+  if (previousStatus && previousStatus !== status) {
+    await recordActivity({
+      companyId,
+      jobId,
+      kind: ActivityKind.STATUS_CHANGED,
+      actorUserId: userId,
+      meta: { from: STATUS_META[previousStatus].label, to: STATUS_META[status].label },
+    });
+  }
 
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/dashboard");

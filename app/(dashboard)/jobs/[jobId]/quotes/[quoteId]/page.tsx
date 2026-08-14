@@ -13,6 +13,7 @@ import { shareUrl as buildShareUrl } from "@/lib/share-token";
 import { isEmailConfigured } from "@/lib/email";
 import { isAiConfigured } from "@/lib/ai/client";
 import { canDeleteQuote } from "@/lib/quote-status";
+import { effectiveContractValueCents } from "@/lib/change-order";
 import { QuoteBuilder } from "@/components/dashboard/quote-builder";
 import { QuoteSharePanel } from "@/components/dashboard/quote-share-panel";
 import { QuoteTemplatePanel } from "@/components/dashboard/quote-template-panel";
@@ -89,7 +90,22 @@ export default async function QuoteBuilderPage({
         })
       : [];
   const invoicedCents = invoices.reduce((sum, inv) => sum + inv.totalAmountCents, 0);
-  const remainingCents = (quote.totalAmountCents ?? 0) - invoicedCents;
+  // §19.1 — same effective-contract-value arithmetic
+  // `createInvoiceFromQuoteAction`'s own overbilling guard uses; this page's
+  // "how much is left to bill" display must agree with what that action will
+  // actually allow, or a contractor sees "fully invoiced" for a quote an
+  // approved change order just reopened room on.
+  const approvedChangeOrderCents =
+    quote.status === QuoteStatus.APPROVED
+      ? (
+          await prisma.changeOrder.aggregate({
+            where: { quoteId: quote.id, companyId, status: "APPROVED" },
+            _sum: { amountCents: true },
+          })
+        )._sum.amountCents ?? 0
+      : 0;
+  const remainingCents =
+    effectiveContractValueCents(quote.totalAmountCents ?? 0, approvedChangeOrderCents) - invoicedCents;
 
   // The origin comes off the request rather than an env var so the link a
   // roofer copies on a preview deployment points at that deployment. A quote

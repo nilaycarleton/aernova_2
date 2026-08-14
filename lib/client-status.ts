@@ -7,6 +7,7 @@
  * ordinary thing in the product.
  */
 import type { ClientStatus } from "@prisma/client";
+import type { StatusTone } from "@/lib/status-tone";
 
 type ClientStatusMeta = {
   label: string;
@@ -19,6 +20,17 @@ export const CLIENT_STATUS_META: Record<ClientStatus, ClientStatusMeta> = {
   ACTIVE: { label: "Active", badge: "text-confirm-fg bg-confirm/10" },
   ARCHIVED: { label: "Archived", badge: "text-ink-muted bg-surface-lifted" },
 };
+
+/**
+ * Minimal Phase 5 adapter for the client detail page's PageHeader `status`
+ * slot (the shared `Status` primitive) — same pattern as `lib/job-status.ts`'s
+ * `statusTone`. `CLIENT_STATUS_META` keeps owning label/badge for the list
+ * table; this only adds the tonal reading the one Status usage needs.
+ */
+export function clientStatusTone(status: ClientStatus): StatusTone {
+  if (status === "ACTIVE") return "success";
+  return "neutral";
+}
 
 /**
  * The filter above the list. "Leads and active" is the default and the reason

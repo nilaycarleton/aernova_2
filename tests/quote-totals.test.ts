@@ -174,6 +174,21 @@ test("margin percent on an empty quote is undefined, not 0%", () => {
   assert.equal(t.totalCents, 0);
 });
 
+test("the aggregate markup percent matches the sample quote's cost/price pair", () => {
+  // $4,355.00 cost, $3,145.00 margin — same SAMPLE quote as the first test.
+  const t = computeTotals(SAMPLE);
+  assert.equal(t.markupPercent?.toFixed(2), "72.22", "(price - cost) / cost, same basis as marginCents");
+});
+
+test("aggregate markup percent on an empty or zero-cost quote is undefined, not 0% or infinite", () => {
+  assert.equal(computeTotals([]).markupPercent, null);
+  assert.equal(
+    computeTotals([{ quantity: 1, unitPriceCents: 45_000 }]).markupPercent,
+    null,
+    "no cost data anywhere on the quote"
+  );
+});
+
 test("a fractional quantity multiplies out and still sums", () => {
   // 33.67 squares at $312.45 — the kind of number the measurement pipeline
   // produces, and the case per-line rounding exists for.

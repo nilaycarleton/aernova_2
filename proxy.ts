@@ -87,7 +87,22 @@ export default clerkMiddleware(
         // other vulnerability from silently redirecting every relative URL
         // on the page to an attacker's origin.
         "base-uri": ["self"],
-        ...(storageImgSrc.length > 0 ? { "img-src": storageImgSrc } : {}),
+        // The roof/model viewer (measure-viewer.tsx, hub-model-viewer.tsx)
+        // loads GLB textures through THREE.GLTFLoader, which pulls each
+        // embedded texture out of the binary as a Blob and hands GLTFLoader's
+        // own texture loader a `blob:` URL for it (`URL.createObjectURL()`).
+        // In Chrome that loader is THREE.ImageBitmapLoader, which fetches the
+        // URL itself — governed by connect-src, not img-src. Without `blob:`
+        // there every texture request is silently blocked and the model
+        // renders geometry-only/white, with GLTFLoader logging "Couldn't
+        // load texture" (the fetch() rejection, not a decode failure).
+        // img-src also needs it: browsers where GLTFLoader falls back to the
+        // <img>-based TextureLoader (Safari <17, Firefox <98) load the same
+        // blob: URL as an image element instead, which img-src governs.
+        // storageImgSrc is added on top, only in S3/R2 mode. Clerk unions
+        // these with its own defaults rather than replacing them.
+        "connect-src": ["blob:"],
+        "img-src": ["blob:", ...storageImgSrc],
       },
     },
   }

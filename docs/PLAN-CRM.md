@@ -1731,3 +1731,16 @@ with a horizontal product and must not slip:
 - **The crew surface is a different user.** A crew member on a phone, outdoors,
   in gloves, is not the office user `DESIGN.md` was written for. Larger targets,
   higher contrast, fewer choices per screen. WCAG 2.2 AA remains the floor.
+
+## What comes after this roadmap
+
+This file's own phase numbering ends with Phase 9 (2026-08-05), which closed
+out every item this plan originally scoped. The next round of product
+decisions — change orders vs. no-quote "Additional Work," a homeowner-facing
+warranty document, visit/task-based progress tracking, a `Contacted /
+Qualified` pipeline stage, and a per-company workflow-customization layer
+sitting on top of the one shared `JobStatus` enum — live in
+`docs/AERNOVA_PROJECT_WORKFLOW.md`, not here. That document also carries the
+owner's confirmation that this repo's positioning is the multi-trade platform
+described above, not a roofing-only tool — see `docs/PRODUCT.md`, rewritten
+to match.

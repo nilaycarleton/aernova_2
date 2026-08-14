@@ -1,12 +1,47 @@
 import type { Metadata } from "next";
+import { IBM_Plex_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { headers } from "next/headers";
 import { SITE_URL } from "@/lib/site";
 import { AstryxThemeProvider } from "@/components/astryx-theme-provider";
+import { MotionProvider } from "@/components/motion-provider";
 import "./globals.css";
 
 const title = "Aernova";
 const description = "Jobs, quotes and clients for trades contractors";
+
+/**
+ * IBM Plex Sans Variable — the Phase 0 typography comparison winner
+ * (docs/phase-0/02-typography-comparison.md), self-hosted through next/font
+ * so there is no runtime request to Google Fonts and no manual @import.
+ *
+ * `weight: "variable"` ships ONE variable file rather than several static
+ * weight instances — the recommended next/font path for a variable font,
+ * and the only way "IBM Plex Sans Variable" (the actual selected candidate)
+ * is what ships. Per Next's own font docs, a Google variable font loads only
+ * its `wght` axis by default unless an `axes` option is explicitly passed —
+ * IBM Plex Sans's `wdth` (width) axis is therefore never requested. Aernova
+ * only ever writes `font-weight: 400/500/600` in CSS (see the type-scale
+ * section of docs/DESIGN.md); the variable file supports the fuller
+ * 100–700 range Google ships, but nothing in this app invokes outside
+ * 400–600.
+ *
+ * `display: "swap"` plus next/font's automatic fallback-metric adjustment
+ * (`adjustFontFallback`, on by default) is the standard next/font pairing
+ * for "no invisible text, no layout shift" — text paints immediately in a
+ * metrics-matched system fallback, then swaps to Plex with no reflow.
+ *
+ * Applied via the CSS-variable method (`variable: "--font-plex"`) rather
+ * than `className`, so `app/globals.css`'s `--font-sans` token — the one
+ * semantic source Tailwind, Astryx, and bespoke CSS all read — is what
+ * actually resolves the family, not a class fighting for specificity.
+ */
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: "variable",
+  variable: "--font-plex",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -43,7 +78,7 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" className={ibmPlexSans.variable} suppressHydrationWarning>
         <head>
           {/* Replay an explicit light/dark choice before first paint so there is
               no flash. With no stored choice the attribute stays unset and CSS
@@ -64,18 +99,20 @@ export default async function RootLayout({
         </head>
         <body className="min-h-screen bg-ground text-ink-primary antialiased">
           <AstryxThemeProvider>
-            {/* First focusable element on every route. Invisible until a
-                keyboard user tabs to it, then jumps straight past the sidebar/
-                header to `#main-content` — every nested layout's primary
-                content region carries that id (dashboard, public share pages,
-                the printable report, auth, terms, privacy, not-found). */}
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:border focus:border-hairline focus:bg-surface-sidebar focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-ink-primary focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-instrument"
-            >
-              Skip to content
-            </a>
-            {children}
+            <MotionProvider>
+              {/* First focusable element on every route. Invisible until a
+                  keyboard user tabs to it, then jumps straight past the sidebar/
+                  header to `#main-content` — every nested layout's primary
+                  content region carries that id (dashboard, public share pages,
+                  the printable report, auth, terms, privacy, not-found). */}
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:border focus:border-hairline focus:bg-surface-sidebar focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-ink-primary focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-instrument"
+              >
+                Skip to content
+              </a>
+              {children}
+            </MotionProvider>
           </AstryxThemeProvider>
         </body>
       </html>

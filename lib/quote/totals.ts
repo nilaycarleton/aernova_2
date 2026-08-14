@@ -97,6 +97,13 @@ export type QuoteTotals = {
    * beside a blank quote reads as "you are making nothing on this."
    */
   marginPercent: number | null;
+  /**
+   * The aggregate of the per-line `markupPercent()` below — `(price − cost) /
+   * cost` over the whole quote, using the same price/cost pair `marginCents`
+   * already sums. Null when there's no cost to mark up, same doctrine as the
+   * per-line version: a quote with no cost data has no markup, not 0%.
+   */
+  markupPercent: number | null;
   depositCents: Cents;
 };
 
@@ -218,6 +225,7 @@ export function computeTotals(
     costCents,
     marginCents,
     marginPercent: taxableCents === 0 ? null : (marginCents / taxableCents) * 100,
+    markupPercent: costCents === 0 ? null : (marginCents / costCents) * 100,
     depositCents,
   };
 }

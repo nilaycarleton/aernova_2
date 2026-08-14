@@ -17,6 +17,9 @@ import {
   updateRequestStatusAction,
 } from "@/app/(dashboard)/requests/actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
+import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
+import { FilterToolbar } from "@/components/ui/filter-toolbar";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export type BrowserRequest = {
   id: string;
@@ -54,47 +57,44 @@ export function RequestsBrowser({
 
   if (requests.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-hairline p-10 text-center">
-        <p className="text-lg font-medium text-ink-primary">Nobody&apos;s waiting on you</p>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-muted">
-          When someone calls or emails asking for work, write it down here. It keeps the ask out
-          of your job list until you know it&apos;s real — and turns into a job in one click when
-          it is.
-        </p>
-        <Link
-          href="/requests/new"
-          className="mt-5 inline-flex rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-        >
-          Write down a request
-        </Link>
-      </div>
+      <EmptyState
+        kind="first-use"
+        title="Nobody's waiting on you"
+        description="When someone calls or emails asking for work, write it down here. It keeps the ask out of your job list until you know it's real — and turns into a job in one click when it is."
+        action={
+          <Link
+            href="/requests/new"
+            className="inline-flex rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          >
+            Write down a request
+          </Link>
+        }
+      />
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as RequestFilter)}
-          aria-label="Filter requests"
-          className="rounded-xl border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong"
-        >
-          {REQUEST_FILTERS.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-        <p className="text-xs text-ink-muted">
-          {filtered.length} of {requests.length} request{requests.length === 1 ? "" : "s"}
-        </p>
-      </div>
+      <FilterToolbar
+        resultCount={`${filtered.length} of ${requests.length} request${requests.length === 1 ? "" : "s"}`}
+        filters={
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as RequestFilter)}
+            aria-label="Filter requests"
+            className="rounded-md border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong"
+          >
+            {REQUEST_FILTERS.map((f) => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        }
+      />
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-hairline p-10 text-center text-ink-muted">
-          Nothing here right now.
-        </div>
+        <EmptyState kind="filtered" title="Nothing here right now." />
       ) : (
         <ul className="grid gap-4">
           {filtered.map((request) => {
@@ -159,7 +159,22 @@ export function RequestsBrowser({
                         </SubmitButton>
                       </form>
 
+                      {/* §4/§25 Phase 6. A brand new request's first, most
+                          obvious next step — separate from "I'm looking at
+                          it" below, which is starting the assessment itself
+                          and stays available on both NEW and CONTACTED, the
+                          same direct shortcut this button has always offered
+                          from a fresh request. */}
                       {request.status === RequestStatus.NEW ? (
+                        <StatusButton
+                          requestId={request.id}
+                          status={RequestStatus.CONTACTED}
+                          label="Mark Contacted"
+                        />
+                      ) : null}
+
+                      {request.status === RequestStatus.NEW ||
+                      request.status === RequestStatus.CONTACTED ? (
                         <StatusButton
                           requestId={request.id}
                           status={RequestStatus.ASSESSING}
@@ -176,28 +191,17 @@ export function RequestsBrowser({
                   )}
 
                   {canDelete ? (
-                    <form
-                      action={deleteRequestAction}
-                      className="ml-auto"
-                      onSubmit={(event) => {
-                        if (
-                          !window.confirm(
-                            `Delete this request from ${request.clientName}? This cannot be undone.${
-                              request.jobId ? " The job it became stays exactly as it is." : ""
-                            }`
-                          )
-                        ) {
-                          event.preventDefault();
-                        }
-                      }}
-                    >
+                    <form action={deleteRequestAction} className="ml-auto">
                       <input type="hidden" name="requestId" value={request.id} />
-                      <SubmitButton
+                      <ConfirmSubmit
                         pendingText="Deleting…"
-                        className="text-sm text-ink-muted underline underline-offset-2 transition hover:text-danger-fg disabled:opacity-60"
+                        question={`Delete this request from ${request.clientName}? This cannot be undone.${
+                          request.jobId ? " The job it became stays exactly as it is." : ""
+                        }`}
+                        className="flex min-h-11 items-center text-sm text-ink-muted underline underline-offset-2 transition hover:text-danger-fg disabled:opacity-60"
                       >
                         Delete
-                      </SubmitButton>
+                      </ConfirmSubmit>
                     </form>
                   ) : null}
                 </div>

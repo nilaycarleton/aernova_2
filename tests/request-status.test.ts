@@ -13,8 +13,9 @@ const NOW = new Date("2026-07-27T12:00:00Z");
 const DAY = 24 * 60 * 60 * 1000;
 const daysAgo = (n: number) => new Date(NOW.getTime() - n * DAY);
 
-test("only the two unanswered states count as open", () => {
+test("the three unanswered-or-in-progress states count as open", () => {
   assert.equal(isOpenRequest("NEW"), true);
+  assert.equal(isOpenRequest("CONTACTED"), true);
   assert.equal(isOpenRequest("ASSESSING"), true);
   assert.equal(isOpenRequest("CONVERTED"), false);
   assert.equal(isOpenRequest("CLOSED"), false);
@@ -38,6 +39,16 @@ test("finished requests are never late, however long they took", () => {
   // is reserved for something actually wrong.
   assert.equal(isOverdue("CONVERTED", daysAgo(60), NOW), false);
   assert.equal(isOverdue("CLOSED", daysAgo(60), NOW), false);
+});
+
+test("Contacted / Qualified reads its full label and meaning, not a shorthand", () => {
+  assert.equal(REQUEST_STATUS_META.CONTACTED.label, "Contacted / Qualified");
+  assert.match(REQUEST_STATUS_META.CONTACTED.description, /reached/i);
+});
+
+test("a contacted request is late on the same three-day clock as a new one", () => {
+  assert.equal(isOverdue("CONTACTED", daysAgo(1), NOW), false);
+  assert.equal(isOverdue("CONTACTED", daysAgo(4), NOW), true);
 });
 
 test("no status label is a database enum", () => {

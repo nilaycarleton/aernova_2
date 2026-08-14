@@ -1,4 +1,5 @@
 import { JobStatus } from "@prisma/client";
+import type { StatusTone } from "@/lib/status-tone";
 
 /**
  * The ordered job lifecycle a contractor moves a job through. ARCHIVED is
@@ -116,6 +117,19 @@ export function statusLabel(status: JobStatus) {
 
 export function statusBadgeClass(status: JobStatus) {
   return STATUS_META[status]?.badge ?? IN_FLIGHT;
+}
+
+/**
+ * Minimal Phase 4 adapter for the job workspace's PageHeader `status` slot
+ * (the shared `Status` primitive, components/ui/status.tsx). `STATUS_META`
+ * keeps owning label + the raw badge class Jobs-index still reads directly;
+ * this only adds the same three-tier reading as a `StatusTone`, so the one
+ * page that renders `Status` here doesn't hardcode an enum→tone map inline.
+ * Not a rewrite of `STATUS_META` — see docs/PREMIUM_UI_PHASE_4_IMPLEMENTATION.md.
+ */
+export function statusTone(status: JobStatus): StatusTone {
+  if (status === JobStatus.COMPLETED) return "success";
+  return "neutral";
 }
 
 /** The next stage in the flow, or null if at the end / off-flow (ARCHIVED). */

@@ -21,6 +21,7 @@ import {
 } from "@/components/dashboard/quote-catalog-picker";
 import { formatMoney, microsToPercent, toDollars } from "@/lib/money";
 import { computeTotals } from "@/lib/quote/totals";
+import { EstimateSummaryPanel } from "@/components/dashboard/estimate-summary-panel";
 
 export type BuilderQuote = {
   id: string;
@@ -308,6 +309,17 @@ export function QuoteBuilder({
         />
       </Panel>
 
+      {/* ── Estimate summary ───────────────────────────────────────────── */}
+      {/* §7.3/§25 Phase 5 — ahead of the line-item builder, not after it, so
+          the owner reads the financial shape of the estimate before editing
+          individual lines. Reuses the same `totals` memo the line items and
+          the Totals section below both already depend on — one calculation,
+          three places it's read. */}
+      <EstimateSummaryPanel
+        totals={totals}
+        lineItemCount={lines.filter((line) => line.kind !== "TEXT").length}
+      />
+
       {/* ── The document ───────────────────────────────────────────────── */}
       <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">The work</h3>
@@ -473,11 +485,12 @@ export function QuoteBuilder({
             </div>
           </div>
 
-          {/* The one cyan figure on this screen. Every other number here is
-              arithmetic on the way to it. */}
+          {/* Was the one cyan figure on this screen — same backwards-Readout-
+              Rule bug Phase 4 found on the dashboard. A quote total is a
+              business figure, never a measurement. */}
           <div className="flex items-baseline justify-between gap-4 pt-1">
             <span className="text-sm font-semibold text-ink-primary">Total</span>
-            <span className="text-3xl font-semibold tabular-nums text-instrument-fg">
+            <span className="text-3xl font-semibold tabular-nums text-ink-primary">
               {formatMoney(totals.totalCents)}
             </span>
           </div>
@@ -595,7 +608,7 @@ export function QuoteBuilder({
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-3">
           <p className="text-sm text-ink-secondary">
             Total{" "}
-            <span className="font-semibold tabular-nums text-instrument-fg">
+            <span className="font-semibold tabular-nums text-ink-primary">
               {formatMoney(totals.totalCents)}
             </span>
             {state.savedAt ? <span className="ml-3 text-ink-muted">Saved.</span> : null}

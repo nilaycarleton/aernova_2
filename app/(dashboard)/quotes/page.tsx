@@ -12,6 +12,10 @@ import {
 } from "@/lib/quote-status";
 import { DATE_RANGES, isRangeKey, rangeStart, type RangeKey } from "@/lib/date-range";
 import { FilterPill } from "@/components/dashboard/filter-pill";
+import { QuotesTable, type QuoteRow } from "@/components/dashboard/quotes-table";
+import { PageHeader } from "@/components/ui/page-header";
+import { NumericReadout } from "@/components/ui/numeric-readout";
+import { EmptyState } from "@/components/ui/empty-state";
 
 /**
  * Every quote in one place.
@@ -76,49 +80,49 @@ export default async function QuotesPage({
 
   return (
     <div className="min-w-0 space-y-8">
-      <header className="min-w-0">
-        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Quotes</p>
-        <h2 className="mt-2 text-3xl font-semibold text-ink-primary">What you&rsquo;re waiting on</h2>
-        <p className="mt-2 max-w-2xl text-ink-muted">
-          Everything you&rsquo;ve quoted in the {DATE_RANGES[range].label.toLowerCase()}, and where each
-          one stands.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Quotes"
+        title="What you're waiting on"
+        description={`Everything you've quoted in the ${DATE_RANGES[range].label.toLowerCase()}, and where each one stands.`}
+      />
 
       <section className="grid gap-4 sm:grid-cols-3">
-        {/* The one cyan figure on this surface. */}
+        {/* Was the one cyan figure on this surface — same backwards-Readout-
+            Rule bug Phase 4 found on the dashboard. Money is a business
+            figure, never a measurement. */}
         <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-          <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">Waiting on an answer</p>
-          <p className="mt-2 break-words text-4xl font-semibold tabular-nums text-instrument-fg">
-            {formatMoney(outstandingCents)}
-          </p>
-          <p className="mt-2 text-sm text-ink-secondary">
-            {outstanding.length === 0
-              ? "Nothing outstanding."
-              : `${outstanding.length} ${outstanding.length === 1 ? "quote" : "quotes"} out there.`}
-          </p>
+          <NumericReadout
+            label="Waiting on an answer"
+            value={formatMoney(outstandingCents)}
+            detail={
+              outstanding.length === 0
+                ? "Nothing outstanding."
+                : `${outstanding.length} ${outstanding.length === 1 ? "quote" : "quotes"} out there.`
+            }
+            size="lg"
+          />
         </div>
 
         <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-          <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">Won</p>
-          <p className="mt-2 break-words text-4xl font-semibold tabular-nums text-ink-primary">
-            {formatMoney(approvedCents)}
-          </p>
-          <p className="mt-2 text-sm text-ink-secondary">
-            {approved.length} approved in this period.
-          </p>
+          <NumericReadout
+            label="Won"
+            value={formatMoney(approvedCents)}
+            detail={`${approved.length} approved in this period.`}
+            size="lg"
+          />
         </div>
 
         <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-          <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">Of the ones you sent</p>
-          <p className="mt-2 text-4xl font-semibold tabular-nums text-ink-primary">
-            {approvalRate === null ? "—" : `${approvalRate}%`}
-          </p>
-          <p className="mt-2 text-sm text-ink-secondary">
-            {approvalRate === null
-              ? "Send one and this fills in."
-              : `${approved.length} of ${answered.length} came back a yes.`}
-          </p>
+          <NumericReadout
+            label="Of the ones you sent"
+            value={approvalRate === null ? null : `${approvalRate}%`}
+            detail={
+              approvalRate === null
+                ? "Send one and this fills in."
+                : `${approved.length} of ${answered.length} came back a yes.`
+            }
+            size="lg"
+          />
         </div>
       </section>
 
@@ -150,93 +154,49 @@ export default async function QuotesPage({
       </section>
 
       {quotes.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-hairline p-10 text-center">
-          <p className="text-ink-secondary">
-            {status
+        <EmptyState
+          kind={status ? "filtered" : "first-use"}
+          title={
+            status
               ? `Nothing ${QUOTE_STATUS_META[status].label.toLowerCase()} in this period.`
-              : "No quotes in this period yet."}
-          </p>
-          <p className="mt-2 text-sm text-ink-muted">
-            Quotes are written on a job — open one and price it there.
-          </p>
-          <Link
-            href="/jobs"
-            className="mt-5 inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-          >
-            Go to your jobs
-          </Link>
-        </div>
+              : "No quotes in this period yet."
+          }
+          description="Quotes are written on a job — open one and price it there."
+          action={
+            <Link
+              href="/jobs"
+              className="inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            >
+              Go to your jobs
+            </Link>
+          }
+        />
       ) : (
-        /* Scrolls in its own box rather than pushing the page sideways. */
+        /* Scrolls in its own box rather than pushing the page sideways. The
+           outer rounded-3xl panel stays hand-built — that radius has no
+           Astryx equivalent (see lib/astryx/theme.ts's radius comment). */
         <div className="overflow-x-auto rounded-3xl border border-hairline bg-surface-raised">
-          <table className="w-full border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-b border-hairline">
-                <Th>Client</Th>
-                <Th>Quote</Th>
-                <Th>Where</Th>
-                <Th>Created</Th>
-                <Th>Standing</Th>
-                <Th align="right">Total</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {quotes.map((quote) => {
-                const client = jobClient(quote.job);
-                const address = formatAddress(jobAddress(quote.job));
-                const meta = QUOTE_STATUS_META[quote.status];
-                return (
-                  <tr key={quote.id} className="border-b border-hairline last:border-b-0">
-                    <td className="px-4 py-3">
-                      {/* The whole row is about this quote, so the link is on
-                          the thing you'd point at: whose roof it is. */}
-                      <Link
-                        href={`/jobs/${quote.jobId}/quotes/${quote.id}`}
-                        className="font-medium text-ink-primary underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-                      >
-                        {client.name}
-                      </Link>
-                      <span className="mt-0.5 block text-xs text-ink-muted">{quote.title}</span>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 tabular-nums text-ink-secondary">
-                      {quote.quoteNumber ? `#${quote.quoteNumber}` : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-ink-secondary">{address ?? "—"}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-ink-secondary">
-                      {quote.createdAt.toLocaleDateString("en-CA", { dateStyle: "medium" })}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        title={meta.hint}
-                        className={`inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${meta.badge}`}
-                      >
-                        {meta.label}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums text-ink-primary">
-                      {formatMoney(quote.totalAmountCents)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <QuotesTable rows={quotes.map((quote): QuoteRow => {
+            const client = jobClient(quote.job);
+            const address = formatAddress(jobAddress(quote.job));
+            const meta = QUOTE_STATUS_META[quote.status];
+            return {
+              id: quote.id,
+              jobId: quote.jobId,
+              clientName: client.name,
+              title: quote.title,
+              quoteLabel: quote.quoteNumber ? `#${quote.quoteNumber}` : "—",
+              address: address ?? "—",
+              createdLabel: quote.createdAt.toLocaleDateString("en-CA", { dateStyle: "medium" }),
+              statusLabel: meta.label,
+              statusHint: meta.hint,
+              statusBadgeClass: meta.badge,
+              totalLabel: formatMoney(quote.totalAmountCents),
+            };
+          })} />
         </div>
       )}
     </div>
-  );
-}
-
-function Th({ children, align }: { children: React.ReactNode; align?: "right" }) {
-  return (
-    <th
-      scope="col"
-      className={`px-4 py-3 text-xs font-medium uppercase tracking-wide text-ink-muted ${
-        align === "right" ? "text-right" : ""
-      }`}
-    >
-      {children}
-    </th>
   );
 }
 

@@ -5,6 +5,7 @@ import { can } from "@/lib/permissions";
 import { formatAddress } from "@/lib/client-matching";
 import { isOpenRequest } from "@/lib/request-status";
 import { RequestsBrowser } from "@/components/dashboard/requests-browser";
+import { PageHeader } from "@/components/ui/page-header";
 
 /**
  * The inbox before the job list.
@@ -31,29 +32,28 @@ export default async function RequestsPage() {
 
   return (
     <div className="min-w-0 space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold text-ink-primary">Requests</h2>
-          {requests.length > 0 ? (
-            <p className="mt-1 text-sm text-ink-muted">
-              {open === 0
-                ? "Everyone who asked has an answer."
-                : `${open} ${open === 1 ? "person is" : "people are"} waiting on an answer.`}
-            </p>
-          ) : null}
-        </div>
-
-        {/* The empty state carries its own button; two primaries for one
-            decision is one too many. */}
-        {requests.length > 0 ? (
-          <Link
-            href="/requests/new"
-            className="shrink-0 rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-          >
-            New request
-          </Link>
-        ) : null}
-      </div>
+      <PageHeader
+        title="Requests"
+        description={
+          requests.length > 0
+            ? open === 0
+              ? "Everyone who asked has an answer."
+              : `${open} ${open === 1 ? "person is" : "people are"} waiting on an answer.`
+            : undefined
+        }
+        // The empty state carries its own button; two primaries for one
+        // decision is one too many.
+        primaryAction={
+          requests.length > 0 ? (
+            <Link
+              href="/requests/new"
+              className="rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            >
+              New request
+            </Link>
+          ) : undefined
+        }
+      />
 
       <RequestsBrowser
         canDelete={can(role, "deleteRequest")}

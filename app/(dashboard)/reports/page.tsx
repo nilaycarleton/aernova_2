@@ -7,6 +7,9 @@ import { quoteDeclineReasonLabel } from "@/lib/quote-status";
 import { DATE_RANGES, isRangeKey, rangeStart, type RangeKey } from "@/lib/date-range";
 import { FilterPill } from "@/components/dashboard/filter-pill";
 import { ReportsNav } from "@/components/dashboard/reports-nav";
+import { PageHeader } from "@/components/ui/page-header";
+import { NumericReadout } from "@/components/ui/numeric-readout";
+import { EmptyState } from "@/components/ui/empty-state";
 
 /**
  * Item 42: won/lost outcome capture with reasons, feeding a win-rate view.
@@ -91,13 +94,11 @@ export default async function ReportsPage({
 
   return (
     <div className="min-w-0 space-y-8">
-      <header className="min-w-0">
-        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Reports</p>
-        <h2 className="mt-2 text-3xl font-semibold text-ink-primary">Win rate</h2>
-        <p className="mt-2 max-w-2xl text-ink-muted">
-          How often a quote you sent came back a yes, in the {DATE_RANGES[range].label.toLowerCase()}.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Reports"
+        title="Win rate"
+        description={`How often a quote you sent came back a yes, in the ${DATE_RANGES[range].label.toLowerCase()}.`}
+      />
 
       <ReportsNav current="/reports" />
 
@@ -110,26 +111,26 @@ export default async function ReportsPage({
       </section>
 
       {decidedCount === 0 ? (
-        <div className="rounded-3xl border border-dashed border-hairline p-10 text-center">
-          <p className="text-ink-secondary">Nothing decided yet in this period.</p>
-          <p className="mt-2 text-sm text-ink-muted">
-            A quote counts here once it&rsquo;s approved, declined, or its price lapses.
-          </p>
-          <Link
-            href="/pipeline"
-            className="mt-5 inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-          >
-            See what&rsquo;s still open
-          </Link>
-        </div>
+        <EmptyState
+          kind="first-use"
+          title="Nothing decided yet in this period."
+          description="A quote counts here once it's approved, declined, or its price lapses."
+          action={
+            <Link
+              href="/pipeline"
+              className="inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            >
+              See what&rsquo;s still open
+            </Link>
+          }
+        />
       ) : (
         <>
           <section className="rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
-            {/* The one cyan figure on this surface. */}
-            <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">Win rate</p>
-            <p className="mt-2 text-5xl font-semibold tabular-nums text-instrument-fg">
-              {winRate}%
-            </p>
+            {/* Was the one cyan figure on this surface — same backwards-
+                Readout-Rule bug Phase 4 found on the dashboard. A win rate is
+                a business scoreboard figure, never a measurement. */}
+            <NumericReadout label="Win rate" value={`${winRate}%`} size="lg" />
             <p className="mt-3 text-sm text-ink-secondary">
               {`${won.length} won · ${lost.length} lost · ${decidedCount} decided`}
             </p>

@@ -5,6 +5,9 @@ import { formatMoney } from "@/lib/money";
 import { DATE_RANGES, isRangeKey, rangeStart, type RangeKey } from "@/lib/date-range";
 import { FilterPill } from "@/components/dashboard/filter-pill";
 import { ReportsNav } from "@/components/dashboard/reports-nav";
+import { PageHeader } from "@/components/ui/page-header";
+import { NumericReadout } from "@/components/ui/numeric-readout";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   PIPELINE_STAGES,
   PIPELINE_STAGE_META,
@@ -147,14 +150,11 @@ export default async function RevenueReportPage({
 
   return (
     <div className="min-w-0 space-y-8">
-      <header className="min-w-0">
-        <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Reports</p>
-        <h2 className="mt-2 text-3xl font-semibold text-ink-primary">Revenue</h2>
-        <p className="mt-2 max-w-2xl text-ink-muted">
-          What was billed in the {DATE_RANGES[range].label.toLowerCase()}, where it came from, and
-          what it actually made.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Reports"
+        title="Revenue"
+        description={`What was billed in the ${DATE_RANGES[range].label.toLowerCase()}, where it came from, and what it actually made.`}
+      />
 
       <ReportsNav current="/reports/revenue" />
 
@@ -167,25 +167,29 @@ export default async function RevenueReportPage({
       </section>
 
       {invoiceRows.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-hairline p-10 text-center">
-          <p className="text-ink-secondary">Nothing invoiced yet in this period.</p>
-          <Link
-            href="/invoices"
-            className="mt-5 inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
-          >
-            See invoices
-          </Link>
-        </div>
+        <EmptyState
+          kind="first-use"
+          title="Nothing invoiced yet in this period."
+          action={
+            <Link
+              href="/invoices"
+              className="inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            >
+              See invoices
+            </Link>
+          }
+        />
       ) : (
         <>
           <section className="rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
-            <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">Revenue</p>
-            <p className="mt-2 text-5xl font-semibold tabular-nums text-instrument-fg">
-              {formatMoney(totalCents)}
-            </p>
-            <p className="mt-3 text-sm text-ink-secondary">
-              {formatMoney(byType.ONE_OFF)} one-off · {formatMoney(byType.RECURRING)} recurring
-            </p>
+            {/* Was cyan — same backwards-Readout-Rule bug Phase 4 found on the
+                dashboard. Revenue is a business figure, never a measurement. */}
+            <NumericReadout
+              label="Revenue"
+              value={formatMoney(totalCents)}
+              detail={`${formatMoney(byType.ONE_OFF)} one-off · ${formatMoney(byType.RECURRING)} recurring`}
+              size="lg"
+            />
           </section>
 
           <section className="rounded-3xl border border-hairline bg-surface-raised p-6">

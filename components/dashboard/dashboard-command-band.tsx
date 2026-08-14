@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
+import { NumericReadout } from "@/components/ui/numeric-readout";
 
 type Props = {
   totalJobs: number;
@@ -10,12 +11,15 @@ type Props = {
 
 /**
  * The dashboard opens on the contractor's numbers, not a description of the
- * product. One command band: the open quote value as the hero readout — the
- * single cyan figure per the Readout Rule — a plain-language line of where the
- * jobs stand, and the one primary action. This replaces the old marketing hero
- * plus four identical stat tiles: the number is the content, and everything
- * around it is there to keep it readable. It is the same readout language the
- * job header opens with, so the whole app reads as one instrument.
+ * product. One command band: the open quote value as the hero readout, a
+ * plain-language line of where the jobs stand, and the one primary action.
+ *
+ * The value renders in ordinary ink, not Instrument Cyan — money is a
+ * business KPI, not a measurement/reading, and DESIGN.md's Readout Rule
+ * reserves cyan for genuine technical truth (roof area, pitch). An earlier
+ * revision of this file used `text-instrument-fg` here and called it "the
+ * Readout Rule" backwards; Phase 4 corrects that via `NumericReadout`'s own
+ * `tone="default"`, which is the only tone this callsite may use.
  */
 export function DashboardCommandBand({
   totalJobs,
@@ -37,17 +41,13 @@ export function DashboardCommandBand({
     <section className="min-w-0 rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">
-            Open quote value
-          </p>
           {hasValue ? (
-            <p className="mt-2 break-words text-5xl font-semibold tabular-nums text-instrument-fg">
-              {formatMoney(totalValueCents)}
-            </p>
+            <NumericReadout label="Open quote value" value={formatMoney(totalValueCents)} size="lg" />
           ) : (
-            <p className="mt-2 text-3xl font-semibold text-ink-muted">
-              No open quotes yet
-            </p>
+            <>
+              <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Open quote value</p>
+              <p className="mt-1 text-3xl font-semibold text-ink-muted">No open quotes yet</p>
+            </>
           )}
           <p className="mt-3 text-sm text-ink-secondary">{status}</p>
         </div>

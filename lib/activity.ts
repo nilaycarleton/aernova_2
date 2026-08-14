@@ -1,7 +1,7 @@
 import { ActivityKind, type ActivityEvent } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/money";
-import { jobExpenseCategoryLabel } from "@/lib/format";
+import { addOnReviewOverrideReasonLabel, jobExpenseCategoryLabel } from "@/lib/format";
 
 /**
  * The job's history. Every phase of the CRM work appends here; the job
@@ -51,6 +51,20 @@ export type ActivityMeta = {
   note?: string;
   /** JOB_EXPENSE_LOGGED — MATERIALS / LABOUR / EQUIPMENT / OTHER, already in the words a roofer uses. */
   category?: string;
+  /** CHANGE_ORDER_CREATED / CHANGE_ORDER_APPROVED — which change order. */
+  changeOrderId?: string;
+  /**
+   * PROGRESS_UPDATED — which of the two independent signals moved.
+   * `from`/`to` (above) carry the crew's plain-language state change, the
+   * same shape STATUS_CHANGED already uses; `previousPercent`/`nextPercent`
+   * carry the office's percentage. Only one pair is ever set per event.
+   */
+  source?: "crew" | "office";
+  previousPercent?: number | null;
+  nextPercent?: number | null;
+  /** WARRANTY_SENT / WARRANTY_CONFIRMED — which warranty, and which version of its wording. */
+  warrantyId?: string;
+  warrantyVersion?: number;
 };
 
 export async function recordActivity(input: {
@@ -174,6 +188,57 @@ export function describeActivity(
         ? `${who} logged ${category}${amount}`
         : `Logged ${category}${amount}`;
     }
+    case ActivityKind.CHANGE_ORDER_CREATED:
+      return who ? `${who} created a change order${amount}` : `A change order was created${amount}`;
+    case ActivityKind.CHANGE_ORDER_APPROVED:
+      if (meta.recordedByHand) {
+        return who
+          ? `${who} marked a change order approved${amount}`
+          : `A change order was marked approved${amount}`;
+      }
+      return who ? `${who} approved a change order${amount}` : `A change order was approved${amount}`;
+    case ActivityKind.ADDITIONAL_WORK_INVOICED:
+      return who
+        ? `${who} billed additional work on ${invoice.toLowerCase()}${amount}`
+        : `Additional work was billed on ${invoice.toLowerCase()}${amount}`;
+    case ActivityKind.ADDITIONAL_WORK_HOMEOWNER_REVIEW_SENT:
+      return who
+        ? `${who} sent ${invoice.toLowerCase()} for the homeowner's review${amount}`
+        : `${invoice} was sent for the homeowner's review${amount}`;
+    case ActivityKind.ADDITIONAL_WORK_HOMEOWNER_CONFIRMED:
+      return who
+        ? `${who} confirmed they reviewed ${invoice.toLowerCase()}`
+        : `The homeowner confirmed they reviewed ${invoice.toLowerCase()}`;
+    case ActivityKind.ADDITIONAL_WORK_OFFICE_OVERRIDE: {
+      const reasonLabel = meta.reason ? addOnReviewOverrideReasonLabel(meta.reason).toLowerCase() : "an override";
+      return who
+        ? `${who} skipped homeowner review on ${invoice.toLowerCase()} (${reasonLabel})`
+        : `Homeowner review was skipped on ${invoice.toLowerCase()} (${reasonLabel})`;
+    }
+    case ActivityKind.QUALITY_CHECK_EVIDENCE_SUBMITTED:
+      return who ? `${who} submitted quality check evidence` : "Quality check evidence submitted";
+    case ActivityKind.QUALITY_CHECK_COMPLETED:
+      return who ? `${who} completed the quality check` : "Quality check completed";
+    case ActivityKind.PROGRESS_UPDATED: {
+      if (meta.source === "office") {
+        const pct = meta.nextPercent != null ? `${meta.nextPercent}%` : "no percentage";
+        return who ? `${who} set progress to ${pct}` : `Progress set to ${pct}`;
+      }
+      if (meta.to) {
+        return who
+          ? `${who} updated progress to ${meta.to.toLowerCase()}`
+          : `Progress updated to ${meta.to.toLowerCase()}`;
+      }
+      return who ? `${who} updated progress` : "Progress updated";
+    }
+    case ActivityKind.WARRANTY_SENT: {
+      const version = meta.warrantyVersion ? ` (version ${meta.warrantyVersion})` : "";
+      return who ? `${who} sent the warranty${version}` : `The warranty was sent${version}`;
+    }
+    case ActivityKind.WARRANTY_CONFIRMED:
+      return who
+        ? `${who} confirmed they received the warranty`
+        : "The homeowner confirmed they received the warranty";
     default:
       return "Something happened";
   }

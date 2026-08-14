@@ -12,6 +12,7 @@ import {
 import { QuoteExtras } from "@/components/public/quote-extras";
 import { QuoteTotals } from "@/components/public/quote-totals";
 import { APPROVE_FORM_ID, QuoteResponse } from "@/components/public/quote-response";
+import { DocumentBrand } from "@/components/public/document-brand";
 
 /**
  * The quote, as the homeowner receives it.
@@ -106,9 +107,9 @@ export default async function PublicQuotePage({
         <article className="min-w-0 rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
-              {/* The contractor's name, never ours. A homeowner is doing
+              {/* The contractor's identity, never ours. A homeowner is doing
                   business with the roofer; Aernova is not a party to it. */}
-              <p className="text-lg font-semibold text-paper-ink">{quote.company.name}</p>
+              <DocumentBrand name={quote.company.name} logoUrl={quote.company.logoUrl} />
               {quote.company.phone ? (
                 <p className="mt-0.5 text-sm text-paper-ink-muted">{quote.company.phone}</p>
               ) : null}
