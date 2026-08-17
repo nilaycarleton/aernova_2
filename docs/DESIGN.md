@@ -1,6 +1,6 @@
 ---
 name: Aernova
-description: Design system for Aernova, a multi-trade project workflow platform for small construction and trades businesses; roofing (measurement, inspection, proposal) is one specialized module. Precision Workshop direction, Premium UI Redesign Phase 1.
+description: Design system for Aernova, a multi-trade project workflow platform for small construction and trades businesses; roofing (measurement, inspection, proposal) is one specialized module. Precision Workshop direction, current through Premium UI Redesign Phase 8 (final).
 colors:
   ground: "oklch(14% 0.014 264)"
   surface-raised: "rgb(224 226 230 / 0.07)"
@@ -148,7 +148,7 @@ A workshop is where skilled trade work actually happens: a clean bench, the righ
 
 The system is flat by default and layers by tone, not shadow — the Two-Layer Rule. Its home base is a **neutral graphite** dark ground, not a saturated brand color; light is a **porcelain/mineral canvas**, genuinely designed alongside dark rather than mechanically inverted from it. Both themes carry one constant: **Instrument Cyan**, the readout colour, identical in both themes so a number a contractor acts on always looks the same. Around it, amber remains the one deliberate warm note, held in strict reserve for attention and caution.
 
-**Precision Workshop is a course correction from the prior "Field Notebook" system, not a rename of it.** The prior system's biggest problem was not its palette — it was a saturated navy ground competing with the hero cyan, an unwritten "cyan is the primary action color" assumption that a shipped comment elsewhere in the codebase already contradicted, and equal-weight rounded panels with almost no interaction feedback. Phase 1 of the Premium UI Redesign (`docs/PREMIUM_UI_REDESIGN_PLAN.md`) exists specifically to resolve those, at the foundation level, before any route gets visually migrated.
+**Precision Workshop is a course correction from the prior "Field Notebook" system, not a rename of it.** The prior system's biggest problem was not its palette — it was a saturated navy ground competing with the hero cyan, an unwritten "cyan is the primary action color" assumption that a shipped comment elsewhere in the codebase already contradicted, and equal-weight rounded panels with almost no interaction feedback. Phase 1 of the Premium UI Redesign (`docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_PLAN.md`) exists specifically to resolve those, at the foundation level, before any route gets visually migrated.
 
 What this system still rejects, in `docs/PRODUCT.md`'s words, is **CAD and engineering complexity**: exposed technical controls, dense parameter panels, and the vocabulary of the photogrammetry pipeline surfaced into the UI. That constraint didn't change; only the visual language expressing it did.
 
@@ -188,6 +188,8 @@ Each status keeps one saturated **base** (for `bg-x/10` tints and `border-x/25` 
 - **Amber / Caution** (`oklch(80% 0.15 78)`, `#ffb020`): the one warm signal. Attention and caution. **Never a measurement, never an error, never decoration.**
 - **Danger** (`oklch(63.7% 0.234 25.3)`): errors and destructive actions.
 - **Info** (`oklch(68.5% 0.169 237)`): neutral informational states and non-measurement status badges.
+
+**Astryx's own success/error components need the on-accent override named explicitly.** `defineTheme` in `lib/astryx/theme.ts` sets `--color-success`/`--color-error` to Confirm Green/Danger, but Astryx's *own* `--color-on-success`/`--color-on-error` default to white — a real WCAG AA failure (2.47:1 and 3.82:1) a Phase 8 axe-core scan caught on a solid-fill `Badge variant="success"`. Both are now explicitly mapped to the same constant dark ink as `--color-on-accent` (8.05:1 / 5.21:1). If a new Astryx component ships its own bright solid-fill status variant, check its contrast against white text before assuming Astryx's default is safe — it wasn't here.
 
 ### Neutral
 
@@ -299,7 +301,7 @@ Unchanged mechanism: a single icon button, `data-theme` on `<html>`, persisted t
 ### Inputs / Fields
 
 - **Style:** Surface Raised fill, hairline border, 6px radius, 12px/16px padding, Ink Primary text.
-- **Focus:** border shifts to Signal Blue with a visible ring. Never a glow, never Instrument Cyan — an input's resting border reading as cyan would claim the field is a measurement.
+- **Focus:** border shifts to Signal Blue — a clearly visible indicator on its own (measured contrast: 5.29:1 against the dark ground, 3.50:1 against the light ground, both above the 3:1 WCAG 2.2 AA non-text-contrast floor for UI-component state), so no separate outline ring is required for this indicator to be visible. `outline-none focus:border-signal-blue` (~46 hand-built inputs, verified as of the Premium UI Redesign final audit) is the correct, sufficient implementation of this rule — not a gap. Never a glow, never Instrument Cyan — an input's resting border reading as cyan would claim the field is a measurement.
 - **Error:** border shifts to `danger` with a `danger-fg` message below — never colour-only.
 
 ### Navigation
@@ -312,7 +314,9 @@ Unchanged in Phase 1 — the production sidebar (`components/dashboard/app-sideb
 
 ### The Model Viewer
 
-The Three.js roof viewer is the product's signature surface — untouched by Phase 1. It follows the same doctrine: measurements in Signal Blue on the model, confirmed values in Instrument Cyan, dark instrument panel in both themes (The Dark-Instrument Rule). The model is evidence for the number, not the other way round.
+The Three.js roof viewer is the product's signature surface. It follows the same doctrine: measurements in Signal Blue on the model, confirmed values in Instrument Cyan, dark instrument panel in both themes (The Dark-Instrument Rule). The model is evidence for the number, not the other way round.
+
+**Tool-rail color rule** (Phase 7/8). An ordinary tool — Move, Auto-detect, Edit points, Split, Find roof edges — is not permanently colored to give it identity; every tool button shares one neutral resting style (hairline border, `bg-ground/50`) and one shared active/selected style, the same `bg-action text-on-action` ink/ground inversion every other primary action in the app uses. `aria-pressed` (never color alone) is what actually communicates which tool is active. Instrument Cyan stays reserved for readings; it is never a tool's resting or active color. Sky Accent/Signal Blue mark structural selection *on the model itself* (an edge, a facet outline), not a DOM tool button. Danger (`danger`/`danger-fg`) is for destructive/error only — a delete control or an error message, never a tool's identity. This closes a real Phase 7 finding: the viewer originally gave Auto-detect a permanent yellow and Edit points a permanent violet, both raw (non-token) Tailwind hues competing with the app's one reserved warm note (amber) and its one hero accent (cyan).
 
 ## 6. Motion
 
@@ -326,7 +330,7 @@ The Three.js roof viewer is the product's signature surface — untouched by Pha
 
 ## 7. Preferences and Accessibility
 
-- **WCAG 2.2 AA** is the stated target, verified for documented token pairs in the Phase 1 contrast pass (see `docs/PREMIUM_UI_PHASE_1_IMPLEMENTATION.md`).
+- **WCAG 2.2 AA** is the stated target, verified for documented token pairs in the Phase 1 contrast pass (see `docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_1_IMPLEMENTATION.md`).
 - **Increased contrast** (`prefers-contrast: more`): strengthens the hairline, retires Ink Muted in favor of Ink Secondary for any text use, removes blur/scrim translucency. Application-controlled — there's no browser-automatic equivalent for custom colours.
 - **Reduced transparency** (`prefers-reduced-transparency: reduce`): a real, Baseline-available platform query. `--blur-scrim` collapses to 0 and `--overlay-scrim-opacity` rises toward opaque. Foundation only — see the legacy migration inventory for the 14 hardcoded `backdrop-blur-*` usages not yet wired onto these tokens.
 - **Forced colors** (Windows High Contrast Mode): deliberately minimal — the platform already remaps custom colours to system ones, and Aernova's border-based separation (The One Rule Rule) survives that remapping natively. The one addition is a `Highlight`-colored `:focus-visible` reinforcement, since a custom `outline-instrument` value isn't itself remapped. `forced-color-adjust` is never disabled.
@@ -372,7 +376,7 @@ The canonical primitive set lives in `components/ui/` (not `components/dashboard
 `Status`, `NumericReadout`, `PageHeader`, `ActionToolbar`, `FilterToolbar`, `DataRow`,
 `EmptyState`, `Skeleton{Row,Readout,List}`, `SplitInspector`, and the `Document*` set. Session
 details, the Astryx reuse audit, and the full state-matrix results live in
-`docs/PREMIUM_UI_PHASE_3_IMPLEMENTATION.md` — this section is the durable rule set future work
+`docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_3_IMPLEMENTATION.md` — this section is the durable rule set future work
 should follow, not that log.
 
 **Status.** One component, two variants: `variant="dot"` (severity-dot, §5's default for any
@@ -416,5 +420,11 @@ wrapper. `ConfirmSubmit` stays for server-action forms with no client state to h
 
 **No generic Panel.** `components/ui/` will not grow a catch-all `Panel`/`Card`/`SurfaceBox`. Use
 spacing, section rules, row separators, and typography before reaching for a new container — the
-114 raw `rounded-{2xl,3xl} border border-hairline bg-surface-raised` occurrences the Phase 3 audit
-found are a reduction target for Phase 4/5 route migration, not a pattern to formalize.
+raw `rounded-{xl,2xl,3xl}` panel/button pattern the Phase 3 audit first flagged (114 occurrences)
+is still open at Phase 8 close: a fresh count found 536 combined occurrences of `rounded-{xl,2xl,3xl}`
+across the app, meaning the reduction never actually landed at scale and the gap widened as new
+routes shipped. Phase 8 deliberately did not attempt a bulk fix — radius carries real per-surface
+context (a dialog, a chip, and an ordinary panel don't necessarily converge on one value without
+review) and a blind global find-and-replace was explicitly out of scope. This remains a real,
+quantified, open reduction target for whoever picks it up next — reviewed file by file against
+this doc's radius scale (§Cards/Containers), not mechanically.

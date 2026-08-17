@@ -1,9 +1,9 @@
 # Premium UI Redesign — Phase 1 Implementation Summary
 
 **Phase:** 1 — Foundation and token architecture
-**Companion plan:** [`docs/PREMIUM_UI_REDESIGN_PLAN.md`](./PREMIUM_UI_REDESIGN_PLAN.md)
-**Evergreen reference:** [`docs/AERNOVA_DESIGN_REFERENCE.md`](./AERNOVA_DESIGN_REFERENCE.md) · [`docs/DESIGN.md`](./DESIGN.md) (rewritten this phase)
-**Phase 0 artifacts:** [`docs/phase-0/`](./phase-0/) · [`docs/PREMIUM_UI_PHASE_0_IMPLEMENTATION.md`](./PREMIUM_UI_PHASE_0_IMPLEMENTATION.md)
+**Companion plan:** [`PREMIUM_UI_REDESIGN_PLAN.md`](./PREMIUM_UI_REDESIGN_PLAN.md)
+**Evergreen reference:** [`docs/AERNOVA_DESIGN_REFERENCE.md`](../AERNOVA_DESIGN_REFERENCE.md) · [`docs/DESIGN.md`](../DESIGN.md) (rewritten this phase)
+**Phase 0 artifacts:** [`docs/phase-0/`](./phase-0/) · [`PREMIUM_UI_PHASE_0_IMPLEMENTATION.md`](./PREMIUM_UI_PHASE_0_IMPLEMENTATION.md)
 
 ## 1. Scope completed
 
@@ -30,7 +30,7 @@ Branch `feature/astryx-integration`. Verified before any edit: the same pre-exis
 - `lib/color-contrast.ts` — pure OKLCH contrast-ratio utility
 - `tests/design-tokens.test.ts` — automated AA contrast + token-invariant tests (7 tests)
 - `app/(dashboard)/internal/design-system/page.tsx`, `design-system-client.tsx` — the Phase 1 token preview
-- `docs/PREMIUM_UI_PHASE_1_IMPLEMENTATION.md` — this file
+- `PREMIUM_UI_PHASE_1_IMPLEMENTATION.md` — this file
 
 ## 5. Typography implementation
 
@@ -199,7 +199,7 @@ Measured via `grep`, current as of this phase:
 
 ## 32. DESIGN.md rewrite summary
 
-Full rewrite, not an append. Preserved every still-valid product semantic (Readout Rule generalized, Ink Floor Rule, One Rule Rule, Two-Layer Rule, print/document rules, severity-dot pattern from Phase 0) while replacing every value and rule Precision Workshop actually changed (palette, radius, the action/measurement split, the now-restored floating-element shadow exception, the new Motion ownership section, new preference-fallback documentation). Frontmatter follows the same YAML-token-schema spec the prior file already used (`docs/AERNOVA_PROJECT_WORKFLOW.md`/Impeccable's `document.md` spec — six fixed sections, same order, same header text). Not turned into a migration log — `docs/PREMIUM_UI_REDESIGN_PLAN.md` keeps that role.
+Full rewrite, not an append. Preserved every still-valid product semantic (Readout Rule generalized, Ink Floor Rule, One Rule Rule, Two-Layer Rule, print/document rules, severity-dot pattern from Phase 0) while replacing every value and rule Precision Workshop actually changed (palette, radius, the action/measurement split, the now-restored floating-element shadow exception, the new Motion ownership section, new preference-fallback documentation). Frontmatter follows the same YAML-token-schema spec the prior file already used (`../AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md`/Impeccable's `document.md` spec — six fixed sections, same order, same header text). Not turned into a migration log — `PREMIUM_UI_REDESIGN_PLAN.md` keeps that role.
 
 ## 33. Impeccable sidecar status
 

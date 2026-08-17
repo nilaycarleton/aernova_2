@@ -29,7 +29,7 @@ export function ChangeOrderApproval({ token, status }: { token: string; status: 
   }
 
   return (
-    <form action={approveChangeOrderAction} className="mt-8 border-t border-paper-rule pt-6">
+    <form action={approveChangeOrderAction} className="mt-8 border-t border-paper-rule pt-6 print:hidden">
       <input type="hidden" name="token" value={token} />
       <label htmlFor="co-approver-name" className="block text-sm font-medium text-paper-ink-strong">
         Your name

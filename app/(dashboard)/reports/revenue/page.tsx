@@ -32,10 +32,11 @@ import { actualProfitCents } from "@/lib/job-costing";
  * has actually landed. `/reports/aged-receivables` is where the gap between
  * billed and collected belongs instead.
  *
- * One cyan figure, per the Readout Rule this page inherits from `/reports`
- * itself: total revenue is the reading. Lead source, job type, the funnel and
- * the profit table are all plain ink — they explain the number, they don't
- * compete with it.
+ * Total revenue leads this page, in plain ink — a dollar figure is a business
+ * reading, never a measurement, so the Readout Rule this page inherits from
+ * `/reports` keeps it off Instrument Cyan. Lead source, job type, the funnel
+ * and the profit table are all plain ink too — they explain the number, they
+ * don't compete with it.
  */
 export default async function RevenueReportPage({
   searchParams,
@@ -173,7 +174,7 @@ export default async function RevenueReportPage({
           action={
             <Link
               href="/invoices"
-              className="inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-block rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               See invoices
             </Link>

@@ -264,7 +264,7 @@ enum QuoteDeclineReason {
 }
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.2/§19.1. Same shape as `QuoteStatus`'s
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.2/§19.1. Same shape as `QuoteStatus`'s
  * own send/approve/decline arc, deliberately smaller — a change order is
  * lighter-weight than a full quote by design, so it has no VIEWED/EXPIRED/
  * CHANGES_REQUESTED equivalents.
@@ -429,7 +429,7 @@ enum ActivityKind {
    */
   REVIEW_REQUESTED
 
-  // docs/AERNOVA_PROJECT_WORKFLOW.md §13/§25 — foundation values for later
+  // docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §13/§25 — foundation values for later
   // phases. Added ahead of the features that write them so those phases are
   // a normal additive migration too, not a schema change bundled with the
   // feature. None of these are written anywhere yet.
@@ -595,7 +595,7 @@ model Company {
   defaultLabourRateCents Int?
 
   /**
-   * docs/AERNOVA_PROJECT_WORKFLOW.md §14.2/§19.2. The line between a small
+   * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.2/§19.2. The line between a small
    * no-quote add-on the office can just bill (`createDirectInvoiceAction`
    * sends it straight to DRAFT/SENT) and one big enough that homeowner
    * review is the default before it can send. Null = use the v1 default of
@@ -1031,7 +1031,7 @@ model Job {
 }
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.3/§20. Two authors, two different sets
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.3/§20. Two authors, two different sets
  * of fields — never the same write path. Crew (capability:
  * `submitFieldEvidence`, CREW-tier, alongside the existing `completeVisit`)
  * can write the field-evidence fields from `/today`. Only office/estimator
@@ -1070,7 +1070,7 @@ model QualityCheck {
 }
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §7.6/§25 Phase 4. Not a new `JobStatus` —
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §7.6/§25 Phase 4. Not a new `JobStatus` —
  * a checklist/gap layer read by `lib/pre-construction.ts`'s
  * `preConstructionGaps()`, the same "required to advance, not required to
  * exist" doctrine as `jobGaps()`/`invoiceSendGaps()`/`QualityCheck`. One row
@@ -1115,7 +1115,7 @@ model PreConstructionChecklist {
 /// with one deliberate difference: the homeowner's only action is a
 /// lightweight, typed-name acknowledgement of having viewed/received it,
 /// never an Approve/Request-Changes pair. A warranty is not negotiated, and
-/// this is not a contract-signing flow — see docs/AERNOVA_PROJECT_WORKFLOW.md
+/// this is not a contract-signing flow — see docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md
 /// §14.4/§20/§25 Phase 10.
 ///
 /// `@@unique([jobId])` is taken verbatim from the plan's own §14.4 schema —
@@ -1220,7 +1220,7 @@ model WarrantyTemplate {
   @@index([trade])
 }
 
-/// docs/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — one row per
+/// docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — one row per
 /// (company, JobStatus) the company has an opinion about. Absence of a row
 /// means "default": visible, using STATUS_META's own label. JobStatus
 /// itself is untouched — this is a display/visibility layer over the one
@@ -1704,7 +1704,7 @@ model Quote {
 }
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.2/§19.1. A billable scope addition to
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.2/§19.1. A billable scope addition to
  * an *already-approved* quote — `quoteId` is required, not nullable, because
  * a change order without an approved quote behind it isn't a change order at
  * all under this model; that case is Additional Work (`Invoice.quoteId:

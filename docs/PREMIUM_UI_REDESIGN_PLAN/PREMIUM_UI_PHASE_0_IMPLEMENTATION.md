@@ -1,8 +1,8 @@
 # Premium UI Redesign — Phase 0 Implementation Summary
 
 **Phase:** 0 — Decisions, baseline, and concept validation
-**Companion plan:** [`docs/PREMIUM_UI_REDESIGN_PLAN.md`](./PREMIUM_UI_REDESIGN_PLAN.md)
-**Evergreen reference:** [`docs/AERNOVA_DESIGN_REFERENCE.md`](./AERNOVA_DESIGN_REFERENCE.md)
+**Companion plan:** [`PREMIUM_UI_REDESIGN_PLAN.md`](./PREMIUM_UI_REDESIGN_PLAN.md)
+**Evergreen reference:** [`docs/AERNOVA_DESIGN_REFERENCE.md`](../AERNOVA_DESIGN_REFERENCE.md)
 **Phase 0 artifacts:** [`docs/phase-0/`](./phase-0/)
 
 ## 1. Scope completed
@@ -28,7 +28,7 @@ Prototype code (`app/(prototype)/phase-0/`, entirely new route group, isolated f
 - `concepts/{_shared,page,a/page,b/page,c/page}.tsx` — three concept seeds
 - `prototype/{page,prototype-client}.tsx` — the interactive prototype
 
-This file: `docs/PREMIUM_UI_PHASE_0_IMPLEMENTATION.md`.
+This file: `PREMIUM_UI_PHASE_0_IMPLEMENTATION.md`.
 
 ## 3. Worktree/branch state at start
 

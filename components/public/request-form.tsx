@@ -175,6 +175,7 @@ export function RequestForm({ companySlug }: { companySlug: string }) {
           name="addressLine1"
           type="text"
           autoComplete="address-line1"
+          aria-label="Street address"
           defaultValue={was("addressLine1")}
           placeholder="145 Maple Street"
           className={fieldClass()}
@@ -184,6 +185,7 @@ export function RequestForm({ companySlug }: { companySlug: string }) {
             name="city"
             type="text"
             autoComplete="address-level2"
+            aria-label="City"
             defaultValue={was("city")}
             placeholder="Brampton"
             className={`${fieldClass()} mt-0`}
@@ -192,6 +194,7 @@ export function RequestForm({ companySlug }: { companySlug: string }) {
             name="province"
             type="text"
             autoComplete="address-level1"
+            aria-label="Province"
             defaultValue={was("province")}
             placeholder="ON"
             className={`${fieldClass()} mt-0`}
@@ -200,6 +203,7 @@ export function RequestForm({ companySlug }: { companySlug: string }) {
             name="postalCode"
             type="text"
             autoComplete="postal-code"
+            aria-label="Postal code"
             defaultValue={was("postalCode")}
             placeholder="L6X 0A1"
             className={`${fieldClass()} mt-0`}

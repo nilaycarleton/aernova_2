@@ -1,6 +1,6 @@
 # Phase 8 — Financial Completion Panel: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §6, §21, §23, §25 Phase 8 only. Branch: `feature/astryx-integration`. Phases 1–7 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_7_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–7 code beyond the one integration point the job page always needs.
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §6, §21, §23, §25 Phase 8 only. Branch: `feature/astryx-integration`. Phases 1–7 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_7_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–7 code beyond the one integration point the job page always needs.
 
 Core product rule: compose Quote, ChangeOrder, Invoice, and InvoicePayment data into the one "Original Contract / Approved Change Orders / Effective Contract Total / Additional Work / Total Invoiced / Paid / Balance Due" view §6/§21 have flagged as a gap since the first draft — while keeping contract value and Additional Work billing strictly, provably separate.
 

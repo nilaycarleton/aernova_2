@@ -10,6 +10,7 @@ import { quoteStatusLabel } from "@/lib/quote-status";
 import { invoiceStatusLabel } from "@/lib/invoice/status";
 import { hubMeasurements, hubModelGlbUrl, shareableInvoices, shareableQuotes } from "@/lib/client-hub";
 import { HubModelViewer } from "@/components/public/hub-model-viewer";
+import { DocumentSurface } from "@/components/ui/document";
 
 // The group layout says "Your quote" — the wrong tab title for a page that
 // isn't any one document.
@@ -119,9 +120,9 @@ export default async function ClientHubPage({
     value.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" });
 
   return (
-    <main className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
+    <div className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
       <div className="mx-auto max-w-3xl space-y-6">
-        <header className="rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
+        <DocumentSurface>
           <div className="min-w-0">
             {/* The contractor's name, never ours — same rule the quote and
                 invoice pages follow. */}
@@ -135,7 +136,7 @@ export default async function ClientHubPage({
             Everything {client.company.name} has sent you — quotes, invoices, visits, and your
             roof — in one place.
           </p>
-        </header>
+        </DocumentSurface>
 
         {!hasAnything ? (
           <div className="rounded-2xl border border-dashed border-paper-rule bg-paper-document p-10 text-center">
@@ -158,10 +159,7 @@ export default async function ClientHubPage({
               pastVisits,
               hasRoofReport,
             }) => (
-              <section
-                key={job.id}
-                className="rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10"
-              >
+              <DocumentSurface key={job.id}>
                 <h2 className="text-xl font-semibold text-paper-ink">{job.name}</h2>
                 {address ? <p className="mt-1 text-sm text-paper-ink-muted">{address}</p> : null}
 
@@ -292,11 +290,11 @@ export default async function ClientHubPage({
                     </ul>
                   </section>
                 ) : null}
-              </section>
+              </DocumentSurface>
             )
           )
         )}
       </div>
-    </main>
+    </div>
   );
 }

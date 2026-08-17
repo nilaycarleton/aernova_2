@@ -72,7 +72,7 @@ export default async function JobsPage({
           jobs.length > 0 ? (
             <Link
               href="/jobs/new"
-              className="rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               New job
             </Link>
@@ -112,7 +112,7 @@ export default async function JobsPage({
 }
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §15/§25 Phase 12 — the exact filtered
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §15/§25 Phase 12 — the exact filtered
  * jobs list the dashboard's disabled-stage Action Center item links to.
  * Deliberately not `JobsBrowser`: this list has one required order
  * (oldest-stuck-first, `sortDisabledStageJobs`'s full tiebreak) and

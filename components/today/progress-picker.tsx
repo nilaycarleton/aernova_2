@@ -60,7 +60,7 @@ export function ProgressPicker({
             aria-pressed={selected === option.value}
             className={`rounded-xl border px-4 py-3.5 text-left text-base font-medium transition ${
               selected === option.value
-                ? "border-ink-primary bg-ink-primary text-ground"
+                ? "border-ink-primary bg-action text-on-action"
                 : "border-hairline text-ink-primary hover:bg-surface-lifted"
             }`}
           >
@@ -74,7 +74,7 @@ export function ProgressPicker({
       <button
         type="submit"
         disabled={!selected}
-        className="w-full rounded-xl bg-ink-primary px-5 py-4 text-base font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+        className="w-full rounded-xl bg-action px-5 py-4 text-base font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
       >
         {state.savedAt ? "Saved — update again" : "Save"}
       </button>

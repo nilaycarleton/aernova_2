@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Bell } from "lucide-react";
 import { Popover } from "@astryxdesign/core/Popover";
 import { List, ListItem } from "@astryxdesign/core/List";
 import { Timestamp } from "@astryxdesign/core/Timestamp";
@@ -75,20 +76,7 @@ export function NotificationBell() {
         aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
         className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-hairline bg-surface-raised text-ink-secondary transition hover:bg-surface-lifted hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
       >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
+        <Bell size={18} strokeWidth={1.8} aria-hidden="true" />
         {unreadCount > 0 ? (
           <span className="absolute -right-1.5 -top-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-caution px-1 text-xs font-semibold leading-none text-on-accent">
             {unreadCount > 9 ? "9+" : unreadCount}

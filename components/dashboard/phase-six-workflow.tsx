@@ -62,7 +62,7 @@ function StepBadge({ n, state }: { n: number; state: StepState }) {
         state === "done"
           ? "bg-confirm/85 text-on-accent"
           : state === "current"
-            ? "bg-ink-primary text-ground"
+            ? "bg-action text-on-action"
             : "bg-surface-lifted text-ink-muted"
       }`}
     >
@@ -195,7 +195,12 @@ export function PhaseSixWorkflow({
               </p>
             </div>
 
-            <div className="mt-4 flex max-w-full gap-2 overflow-x-auto pb-1">
+            <div
+              className="mt-4 flex max-w-full gap-2 overflow-x-auto pb-1"
+              role="region"
+              aria-label="Photo filmstrip"
+              tabIndex={0}
+            >
               {filmstrip.map((item) => (
                 <img
                   key={item.id}

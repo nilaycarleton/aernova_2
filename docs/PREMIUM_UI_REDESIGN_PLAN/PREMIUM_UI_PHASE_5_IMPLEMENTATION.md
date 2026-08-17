@@ -9,7 +9,7 @@
 
 ## 1. Scope and newest-plan clarification
 
-`docs/PREMIUM_UI_REDESIGN_PLAN.md` §11's Phase 5 section already lists Quotes/Invoices/Change Orders/Reports/Team/Settings inside Phase 5 (not Phase 6) — verified by direct `grep` of the current file before starting, not assumed. No stale-plan correction was needed. Phase 6 remains Warranties, onboarding, authentication, and all public `/q`, `/i`, `/co`, `/w` share routes — none of which were touched.
+`PREMIUM_UI_REDESIGN_PLAN.md` §11's Phase 5 section already lists Quotes/Invoices/Change Orders/Reports/Team/Settings inside Phase 5 (not Phase 6) — verified by direct `grep` of the current file before starting, not assumed. No stale-plan correction was needed. Phase 6 remains Warranties, onboarding, authentication, and all public `/q`, `/i`, `/co`, `/w` share routes — none of which were touched.
 
 ## 2. Worktree start
 

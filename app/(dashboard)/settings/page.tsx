@@ -78,7 +78,7 @@ export default async function SettingsPage() {
   }
 
   const buttonClass =
-    "rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
+    "rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
 
   const tradeLabel = TRADE_OPTIONS.find((t) => t.value === company.trade)?.label ?? company.trade;
   const provinceLabel = PROVINCE_OPTIONS.find((p) => p.value === company.province)?.label ?? null;

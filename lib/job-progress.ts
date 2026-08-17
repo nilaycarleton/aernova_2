@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §7.8/§12/§14.5/§22/§25 Phase 9 — progress
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §7.8/§12/§14.5/§22/§25 Phase 9 — progress
  * tracking, kept pure and optional by construction: nothing here is ever
  * required, and this file is read by the job page and `/today`, never by
  * anything that gates a workflow. Same doctrine as `lib/pipeline.ts`'s

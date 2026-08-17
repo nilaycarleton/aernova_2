@@ -13,7 +13,7 @@ import { requireCompanyContext } from "@/lib/auth";
  * `components/dashboard/shell/shell-chrome.tsx` for the rest.
  *
  * `AppSidebar` (the old shell) is retired by this file, not left running
- * alongside the new one — see docs/PREMIUM_UI_PHASE_2_IMPLEMENTATION.md for
+ * alongside the new one — see docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_2_IMPLEMENTATION.md for
  * what was removed and why nothing kept both in production at once.
  */
 export default async function DashboardLayout({

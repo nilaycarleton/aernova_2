@@ -83,7 +83,7 @@ export function QuoteResponse({
       ) : null}
 
       {asking ? (
-        <form action={requestChangesAction} className="mt-6">
+        <form action={requestChangesAction} className="mt-6 print:hidden">
           <input type="hidden" name="token" value={token} />
           <label
             htmlFor="change-message"
@@ -116,7 +116,7 @@ export function QuoteResponse({
           </div>
         </form>
       ) : (
-        <div className="mt-6 space-y-3">
+        <div className="mt-6 space-y-3 print:hidden">
           <form id={APPROVE_FORM_ID} action={approveQuoteAction}>
             <input type="hidden" name="token" value={token} />
             <label htmlFor="approver-name" className="block text-sm font-medium text-paper-ink-strong">

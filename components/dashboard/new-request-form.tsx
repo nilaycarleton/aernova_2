@@ -284,7 +284,7 @@ export function NewRequestForm() {
       <div className="mt-8 flex flex-wrap items-center gap-4">
         <SubmitButton
           pendingText="Saving…"
-          className="rounded-xl bg-ink-primary px-6 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+          className="rounded-xl bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
         >
           Save request
         </SubmitButton>

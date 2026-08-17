@@ -29,7 +29,7 @@ export default async function DesignSystemPrimitivesPage() {
         </h1>
         <p className="mt-2 max-w-[70ch] text-sm text-ink-secondary">
           Internal only. The Premium UI Redesign Phase 3 primitive lab — see{" "}
-          <code>docs/PREMIUM_UI_PHASE_3_IMPLEMENTATION.md</code> for the written record this page
+          <code>docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_3_IMPLEMENTATION.md</code> for the written record this page
           demonstrates, and <code>components/ui/</code> for the primitives themselves. Not yet
           wired into any production route.
         </p>

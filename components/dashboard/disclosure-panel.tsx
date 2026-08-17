@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type ReactNode } from "react";
+import { ChevronRight } from "lucide-react";
 
 /**
  * A single disclosure ("show/hide") row for the Scan tab. It exists to keep the
@@ -45,22 +46,14 @@ export function DisclosurePanel({
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center gap-4 rounded-2xl border border-hairline bg-surface-raised px-5 py-4 text-left transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
       >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        <ChevronRight
+          size={18}
+          strokeWidth={2}
           aria-hidden="true"
           className={`shrink-0 text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${
             open ? "rotate-90" : ""
           }`}
-        >
-          <path d="m9 18 6-6-6-6" />
-        </svg>
+        />
 
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">

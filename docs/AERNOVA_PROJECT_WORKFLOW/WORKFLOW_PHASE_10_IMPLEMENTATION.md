@@ -1,6 +1,6 @@
 # Phase 10 — Warranty: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §14.4, §14.7, §20, §23, §25 Phase 10 only. Branch: `feature/astryx-integration`. Phases 1–9 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_9_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–9 code beyond the one integration point the job page always needs.
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §14.4, §14.7, §20, §23, §25 Phase 10 only. Branch: `feature/astryx-integration`. Phases 1–9 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_9_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–9 code beyond the one integration point the job page always needs.
 
 Core product rule: a warranty is a closeout document a homeowner *acknowledges*, not a document they *approve*. The homeowner's only action is a checkbox + typed name confirming they received and looked at it — never approve/reject/edit/request-changes, never a drawn signature. It carries zero cost/margin data and is never required to complete a job or block invoicing/payment/archiving/quality-check/progress.
 

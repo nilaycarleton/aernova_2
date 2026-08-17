@@ -1,6 +1,6 @@
 # Phase 2 — Change Orders + Additional Work / Billable Add-On: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §14.2, §19, §25 Phase 2 only. Branch: `feature/astryx-integration` (confirmed via `git branch --show-current` before starting). Phase 1 (confirmed complete and approved) was re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, or photogrammetry rendering.
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §14.2, §19, §25 Phase 2 only. Branch: `feature/astryx-integration` (confirmed via `git branch --show-current` before starting). Phase 1 (confirmed complete and approved) was re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, or photogrammetry rendering.
 
 ## Files changed
 

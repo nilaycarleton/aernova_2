@@ -1,7 +1,7 @@
 /**
  * Motion foundation — semantic presets, not raw durations scattered through
  * components. Values are the approved timing reference
- * (docs/AERNOVA_DESIGN_REFERENCE.md §11.4 / docs/PREMIUM_UI_REDESIGN_PLAN.md
+ * (docs/AERNOVA_DESIGN_REFERENCE.md §11.4 / docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_PLAN.md
  * §8.2), not re-derived here. Motion (the React library, `motion/react`)
  * owns everything in this file; CSS keeps owning simple hover/focus/pressed-
  * color transitions — see docs/DESIGN.md's Motion Ownership section.

@@ -31,7 +31,7 @@ export function WarrantyAcknowledgement({
   }
 
   return (
-    <form action={formAction} className="mt-8 space-y-3 border-t border-paper-rule pt-6">
+    <form action={formAction} className="mt-8 space-y-3 border-t border-paper-rule pt-6 print:hidden">
       <h2 className="text-sm font-semibold text-paper-ink">Confirm you received this</h2>
       <p className="text-sm text-paper-ink-muted">
         This only confirms you&rsquo;ve received and looked at your warranty — there&rsquo;s nothing
@@ -68,7 +68,7 @@ export function WarrantyAcknowledgement({
 
       <SubmitButton
         pendingText="Confirming…"
-        className="rounded-xl bg-instrument px-6 py-3 text-sm font-semibold text-on-accent transition hover:opacity-90 disabled:opacity-60"
+        className="rounded-xl bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
       >
         Confirm
       </SubmitButton>

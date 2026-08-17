@@ -56,7 +56,7 @@ export function DesignSystemClient() {
       {/* ---------- Colors ---------- */}
       <Section
         title="Colors"
-        description="Canvas, surfaces, separators, text roles, action roles (never cyan), measurement, and status — every documented pairing here passes WCAG 2.2 AA (see docs/PREMIUM_UI_PHASE_1_IMPLEMENTATION.md for the computed ratios)."
+        description="Canvas, surfaces, separators, text roles, action roles (never cyan), measurement, and status — every documented pairing here passes WCAG 2.2 AA (see docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_1_IMPLEMENTATION.md for the computed ratios)."
       >
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
           <Swatch label="Ground (canvas)" token="--color-ground" className="bg-ground" />

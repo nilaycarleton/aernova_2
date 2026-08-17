@@ -26,10 +26,11 @@ import { EmptyState } from "@/components/ui/empty-state";
  * gone quiet, and hunting job by job is how a $14,000 re-roof sits unchased for
  * three weeks.
  *
- * One reading, not four. Three figures sit at the top and only one is cyan —
- * the money awaiting an answer, because that is the number this page exists to
- * make somebody act on. The rate beside it is a scoreboard; scoreboards are not
- * readings.
+ * One reading, not four — but not in cyan. Three figures sit at the top; the
+ * money awaiting an answer leads because it's the number this page exists to
+ * make somebody act on, in plain ink like the other two (a quote total is a
+ * business figure, never a measurement — the Readout Rule cuts the other way
+ * here). The rate beside it is a scoreboard; scoreboards are not readings.
  */
 export default async function QuotesPage({
   searchParams,
@@ -165,7 +166,7 @@ export default async function QuotesPage({
           action={
             <Link
               href="/jobs"
-              className="inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-block rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               Go to your jobs
             </Link>

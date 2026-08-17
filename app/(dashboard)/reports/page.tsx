@@ -14,10 +14,11 @@ import { EmptyState } from "@/components/ui/empty-state";
 /**
  * Item 42: won/lost outcome capture with reasons, feeding a win-rate view.
  *
- * One reading on this surface — the win rate itself, the Readout Rule's cyan —
- * and everything else is plain ink, including the dollar figures: this page
- * answers "how often do we close," not "what is it worth," and a second cyan
- * number would fight the first one for the contractor's eye.
+ * The win rate leads this surface, but not in cyan — a percentage is a
+ * business scoreboard, not a measurement, so the Readout Rule keeps it off
+ * Instrument Cyan the same way it keeps the dollar figures off it. Everything
+ * here is plain ink: this page answers "how often do we close," not "what is
+ * it worth," and no figure competes with another for the contractor's eye.
  *
  * Scored per **quote**, not per job. A job re-quoted after a decline produces
  * two decisions, not one, and a win rate that collapsed them into "the job's
@@ -118,7 +119,7 @@ export default async function ReportsPage({
           action={
             <Link
               href="/pipeline"
-              className="inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-block rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               See what&rsquo;s still open
             </Link>

@@ -6,7 +6,7 @@ const ACTION_LINK =
   "rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §6/§21/§25 Phase 8 — the composed
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §6/§21/§25 Phase 8 — the composed
  * "financial status of this job" view the plan has flagged as a gap since
  * the first draft. Deeper on the page than the Phase 7 Financial mini-card
  * on purpose: that card is the quick glance, this is the closeout review —

@@ -42,7 +42,7 @@ export function FilterToolbar({
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={searchPlaceholder}
             aria-label={searchPlaceholder}
-            className="w-full min-w-0 rounded-md border border-hairline bg-ground/60 px-4 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-instrument sm:max-w-xs"
+            className="w-full min-w-0 rounded-md border border-hairline bg-ground/60 px-4 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue sm:max-w-xs"
           />
         ) : null}
         {filters ? <div className="flex flex-wrap items-center gap-2">{filters}</div> : null}

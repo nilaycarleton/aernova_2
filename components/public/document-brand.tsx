@@ -4,7 +4,7 @@
  * ship. One placement rule so a homeowner recognizes a contractor's next
  * document by where its identity sits, not just what it says. See
  * docs/DESIGN.md's "Company branding on every paper surface" and
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.7.
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.7.
  */
 export function DocumentBrand({ name, logoUrl }: { name: string; logoUrl: string | null }) {
   if (!logoUrl) {

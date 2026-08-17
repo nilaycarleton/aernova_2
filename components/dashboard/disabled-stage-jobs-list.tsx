@@ -14,7 +14,7 @@ export type DisabledStageJobRow = {
 };
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §15/§25 Phase 12 — the dashboard action
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §15/§25 Phase 12 — the dashboard action
  * item's exact destination. Deliberately not `JobsBrowser`: that component
  * always re-sorts to its own "recently updated" default the moment it
  * mounts, which would silently undo the required oldest-stuck-first

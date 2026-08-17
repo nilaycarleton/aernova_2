@@ -23,7 +23,7 @@ import { can, type Capability } from "./permissions.ts";
  * from this module rather than each carrying its own hardcoded array. This
  * is display-only: `needs` mirrors the exact capability each page's own
  * `requirePageCapability`/`requireCapability` call already enforces
- * server-side (see the table in docs/PREMIUM_UI_PHASE_2_IMPLEMENTATION.md);
+ * server-side (see the table in docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_2_IMPLEMENTATION.md);
  * this file grants nothing on its own and duplicates no authorization logic.
  *
  * Groups match the approved IA (docs/AERNOVA_DESIGN_REFERENCE.md §9.1):
@@ -58,7 +58,7 @@ export type NavItemDef = {
  * creation entry points, not stable work areas — they live behind
  * `+ Create` (`components/dashboard/quick-create-menu.tsx`), not here.
  * `/internal/*` are OWNER-only dev previews, deliberately absent from nav —
- * see docs/PREMIUM_UI_PHASE_0_IMPLEMENTATION.md.
+ * see docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_0_IMPLEMENTATION.md.
  */
 export const NAV_ITEMS: NavItemDef[] = [
   { id: "today", label: "Today", href: "/today", icon: CalendarCheck, group: "work", match: "exact" },

@@ -8,6 +8,7 @@ import {
   CLIENT_FILTERS,
   CLIENT_STATUS_META,
   ClientFilter,
+  clientStatusTone,
   matchesClientFilter,
 } from "@/lib/client-status";
 import type { Tile } from "@/lib/client-insights";
@@ -16,6 +17,7 @@ import { deleteClientAction } from "@/app/(dashboard)/clients/actions";
 import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
 import { FilterToolbar } from "@/components/ui/filter-toolbar";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Status } from "@/components/ui/status";
 import { NumericReadout } from "@/components/ui/numeric-readout";
 
 export type BrowserClient = {
@@ -87,7 +89,7 @@ export function ClientsBrowser({ tiles, clients, canDelete }: Props) {
         action={
           <Link
             href="/jobs/new"
-            className="inline-flex rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            className="inline-flex rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             New job
           </Link>
@@ -218,11 +220,11 @@ function ClientsTable({ clients, canDelete }: { clients: BrowserClient[]; canDel
       header: "Status",
       width: pixel(140),
       renderCell: (client) => (
-        <span
-          className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${CLIENT_STATUS_META[client.status].badge}`}
-        >
-          {CLIENT_STATUS_META[client.status].label}
-        </span>
+        <Status
+          variant="solid"
+          tone={clientStatusTone(client.status)}
+          label={CLIENT_STATUS_META[client.status].label}
+        />
       ),
     },
     {
@@ -239,7 +241,7 @@ function ClientsTable({ clients, canDelete }: { clients: BrowserClient[]; canDel
       ? [
           {
             key: "actions",
-            header: "",
+            header: <span className="sr-only">Actions</span>,
             width: pixel(90),
             align: "end" as const,
             renderCell: (client: BrowserClient) => (

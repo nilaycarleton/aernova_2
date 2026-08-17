@@ -65,15 +65,3 @@ export function toQuoteLines(
     };
   });
 }
-
-/**
- * Which rows a regenerate is allowed to destroy.
- *
- * Only the ones it wrote. This is stated as a function rather than inlined in a
- * `deleteMany` so the rule has somewhere to be tested and somewhere to be read
- * — losing a roofer's hand-written line to a button called "Rebuild" is the
- * kind of bug that ends a trial.
- */
-export function isRegenerable(line: { source: string }): boolean {
-  return line.source === "auto";
-}

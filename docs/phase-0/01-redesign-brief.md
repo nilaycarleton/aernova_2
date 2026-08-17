@@ -1,6 +1,6 @@
 # Phase 0 Redesign Brief — Precision Workshop
 
-One-page brief per Impeccable's shape workflow. Durable decisions belong in `docs/AERNOVA_DESIGN_REFERENCE.md`; sequencing belongs in `docs/PREMIUM_UI_REDESIGN_PLAN.md`. This page exists to keep the concept seeds and prototype (Steps 9–10) pointed at the same target without re-deriving it from the full plan each time.
+One-page brief per Impeccable's shape workflow. Durable decisions belong in `docs/AERNOVA_DESIGN_REFERENCE.md`; sequencing belongs in `docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_PLAN.md`. This page exists to keep the concept seeds and prototype (Steps 9–10) pointed at the same target without re-deriving it from the full plan each time.
 
 ## Product context
 

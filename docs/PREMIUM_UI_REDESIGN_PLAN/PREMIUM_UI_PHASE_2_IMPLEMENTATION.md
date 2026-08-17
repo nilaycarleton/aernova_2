@@ -1,8 +1,8 @@
 # Premium UI Redesign — Phase 2 Implementation Summary
 
 **Phase:** 2 — Application shell and navigation
-**Companion plan:** [`docs/PREMIUM_UI_REDESIGN_PLAN.md`](./PREMIUM_UI_REDESIGN_PLAN.md)
-**Prior phases:** [`docs/PREMIUM_UI_PHASE_0_IMPLEMENTATION.md`](./PREMIUM_UI_PHASE_0_IMPLEMENTATION.md) · [`docs/PREMIUM_UI_PHASE_1_IMPLEMENTATION.md`](./PREMIUM_UI_PHASE_1_IMPLEMENTATION.md)
+**Companion plan:** [`PREMIUM_UI_REDESIGN_PLAN.md`](./PREMIUM_UI_REDESIGN_PLAN.md)
+**Prior phases:** [`PREMIUM_UI_PHASE_0_IMPLEMENTATION.md`](./PREMIUM_UI_PHASE_0_IMPLEMENTATION.md) · [`PREMIUM_UI_PHASE_1_IMPLEMENTATION.md`](./PREMIUM_UI_PHASE_1_IMPLEMENTATION.md)
 
 ## 1. Phase scope
 
@@ -27,7 +27,7 @@ Branch `feature/astryx-integration`. `git status --porcelain` at the start of th
 - `components/dashboard/shell/mobile-bottom-nav.tsx` — the bottom tab bar
 - `components/dashboard/shell/command-palette.tsx` — the command launcher
 - `tests/shell-nav.test.ts` — 16 pure-logic tests
-- `docs/PREMIUM_UI_PHASE_2_IMPLEMENTATION.md` — this file
+- `PREMIUM_UI_PHASE_2_IMPLEMENTATION.md` — this file
 
 **Removed:** `components/dashboard/app-sidebar.tsx` (the old shell) — confirmed zero remaining imports before deletion; not left running alongside the new one.
 

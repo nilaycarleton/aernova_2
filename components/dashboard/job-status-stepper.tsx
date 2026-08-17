@@ -7,7 +7,7 @@ import { effectiveStageFlow, effectiveStageMeta, nextEnabledStatus, type StageOv
 import { updateJobStatusAction } from "@/app/(dashboard)/jobs/[jobId]/status-actions";
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §15/§17/§25 Phase 11 — reads through
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §15/§17/§25 Phase 11 — reads through
  * `effectiveStageMeta()`/`effectiveStageFlow()` instead of `STATUS_META`
  * directly, so a company's custom labels and disabled stages show up here
  * without this component knowing anything about `CompanyWorkflowStage`
@@ -108,13 +108,13 @@ export function JobStatusStepper({
                 type="button"
                 onClick={() => setStatus(m.status)}
                 disabled={pending}
-                className="flex min-w-0 items-center gap-2 text-left"
+                className="flex min-w-0 items-center gap-2 rounded-lg py-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
                 title={m.isCurrentDisabled ? "Disabled for future jobs" : m.description}
               >
                 <span
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                     active
-                      ? "bg-ink-primary text-ground"
+                      ? "bg-action text-on-action"
                       : done
                         ? "bg-confirm/80 text-on-accent"
                         : "bg-surface-lifted text-ink-muted"

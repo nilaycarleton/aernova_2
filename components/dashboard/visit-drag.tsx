@@ -137,7 +137,7 @@ function MoveDialog({
             <button
               type="submit"
               disabled={pending}
-              className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+              className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
             >
               {pending ? "Moving…" : "Move it"}
             </button>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
+import { useImperativeAlertDialog } from "@astryxdesign/core/AlertDialog";
 import {
   sendInvoiceEmailAction,
   shareInvoiceAction,
@@ -44,6 +45,9 @@ export function InvoiceSharePanel({
   hasPayments: boolean;
 }) {
   const [copied, setCopied] = useState(false);
+  const confirm = useImperativeAlertDialog();
+  const unshareFormRef = useRef<HTMLFormElement>(null);
+  const skipUnshareConfirmRef = useRef(false);
   const [emailState, emailAction] = useActionState<SendInvoiceState, FormData>(
     sendInvoiceEmailAction,
     {}
@@ -83,7 +87,7 @@ export function InvoiceSharePanel({
             <input type="hidden" name="invoiceId" value={invoiceId} />
             <SubmitButton
               pendingText="Creating…"
-              className="rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Create the link
             </SubmitButton>
@@ -112,7 +116,7 @@ export function InvoiceSharePanel({
             <button
               type="button"
               onClick={copy}
-              className="shrink-0 rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {copied ? "Copied" : "Copy link"}
             </button>
@@ -158,15 +162,25 @@ export function InvoiceSharePanel({
                 call about a broken link. */}
             {!hasPayments ? (
               <form
+                ref={unshareFormRef}
                 action={unshareInvoiceAction}
                 onSubmit={(event) => {
-                  if (
-                    !window.confirm(
-                      "Turn off the link? Anyone who has it will stop being able to open the invoice."
-                    )
-                  ) {
-                    event.preventDefault();
+                  if (skipUnshareConfirmRef.current) {
+                    skipUnshareConfirmRef.current = false;
+                    return;
                   }
+                  event.preventDefault();
+                  confirm.show({
+                    title: "Turn off the link?",
+                    description: "Anyone who has it will stop being able to open the invoice.",
+                    actionLabel: "Turn off",
+                    actionVariant: "destructive",
+                    onAction: () => {
+                      confirm.hide();
+                      skipUnshareConfirmRef.current = true;
+                      unshareFormRef.current?.requestSubmit();
+                    },
+                  });
                 }}
               >
                 <input type="hidden" name="jobId" value={jobId} />
@@ -182,6 +196,8 @@ export function InvoiceSharePanel({
           </div>
         </>
       )}
+
+      {confirm.element}
     </section>
   );
 }

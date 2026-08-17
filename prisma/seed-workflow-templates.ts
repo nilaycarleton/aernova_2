@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — one built-in
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — one built-in
  * workflow template per trade, seeded once and picked from at onboarding
  * (or later, as a reset, from Settings → Workflow).
  *

@@ -6,7 +6,7 @@ initiatives that happen to share a number.
 
 ## 1. Phase scope
 
-Deliverable per `docs/PREMIUM_UI_REDESIGN_PLAN.md` §11: PageHeader, ActionToolbar,
+Deliverable per `PREMIUM_UI_REDESIGN_PLAN.md` §11: PageHeader, ActionToolbar,
 FilterToolbar, Status, NumericReadout, DataRow, EmptyState, Skeleton pattern, SplitInspector,
 document primitives, an Astryx-backed form pattern, an Astryx-backed overlay doctrine, shared
 fixtures, and a removal/migration map for superseded custom UI — all proven in an internal lab,
@@ -16,7 +16,7 @@ Job workspace) is explicitly out of scope and not started.
 ## 2. Branch / worktree state
 
 Branch: `feature/astryx-integration`. Before any edit, `git status --short` was recorded and
-compared against `docs/PREMIUM_UI_PHASE_2_IMPLEMENTATION.md`: the tree already carried substantial
+compared against `PREMIUM_UI_PHASE_2_IMPLEMENTATION.md`: the tree already carried substantial
 pre-existing uncommitted work (Workflow Phases 1–13, the CRM/warranty/change-order/quality-check
 build-out, and Premium UI Phases 0–2's own files). Nothing in that state was reset, stashed, or
 cleaned. Only new files were added and a small, named set of existing files were edited (§4).
@@ -50,7 +50,7 @@ tests/numeric-readout.test.ts
 tests/split-inspector.test.ts
 tests/char-counter.test.ts
 
-docs/PREMIUM_UI_PHASE_3_IMPLEMENTATION.md   (this file)
+PREMIUM_UI_PHASE_3_IMPLEMENTATION.md   (this file)
 ```
 
 ~1,630 lines across the twelve component/lib files plus the two-file lab route; 15 new tests.
@@ -306,7 +306,7 @@ adjacent copy purely for reuse's sake (Step 46).
 
 ## 27. Astryx FieldStatus investigation/result
 
-Re-confirmed the exact Phase 1 finding (`docs/PREMIUM_UI_PHASE_1_IMPLEMENTATION.md` §45.2):
+Re-confirmed the exact Phase 1 finding (`PREMIUM_UI_PHASE_1_IMPLEMENTATION.md` §45.2):
 Astryx `FieldStatus` (rendered by `TextInput`/`TextArea`'s `status` prop) has a pre-existing
 SSR/CSR hydration class-name mismatch in `@astryxdesign/core@0.3.0`, non-blocking (content is
 correct post-hydration). `CounterTextArea` is now the **second** place in the codebase that

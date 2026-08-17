@@ -34,7 +34,7 @@ export default async function PublicRequestPage({
   if (!company) notFound();
 
   return (
-    <main className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
+    <div className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
       <div className="mx-auto max-w-xl">
         <article className="rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
           <p className="text-lg font-semibold text-paper-ink">{company.name}</p>
@@ -52,6 +52,6 @@ export default async function PublicRequestPage({
           <RequestForm companySlug={companySlug} />
         </article>
       </div>
-    </main>
+    </div>
   );
 }

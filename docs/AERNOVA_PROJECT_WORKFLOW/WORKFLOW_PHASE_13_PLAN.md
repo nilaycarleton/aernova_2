@@ -1,6 +1,6 @@
 # Phase 13 — Visual Workflow Builder: Implementation Plan
 
-**Planning pass only. No production code, schema, or UI changed in this pass — this document is the only artifact.** Implements the planning instructions in `docs/AERNOVA_PROJECT_WORKFLOW.md` §14.6, §15, §16, §17, §23, §25 Phase 13. Phases 1–12 (complete and approved) are unmodified; nothing here touches the 3D model viewer, roof detection, measurement tools, photogrammetry rendering, or quote-builder rendering.
+**Planning pass only. No production code, schema, or UI changed in this pass — this document is the only artifact.** Implements the planning instructions in `AERNOVA_PROJECT_WORKFLOW.md` §14.6, §15, §16, §17, §23, §25 Phase 13. Phases 1–12 (complete and approved) are unmodified; nothing here touches the 3D model viewer, roof detection, measurement tools, photogrammetry rendering, or quote-builder rendering.
 
 ## Executive summary
 

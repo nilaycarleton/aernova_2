@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useImperativeAlertDialog } from "@astryxdesign/core/AlertDialog";
 import {
   createClientHubLinkAction,
   unshareClientHubLinkAction,
@@ -23,6 +24,9 @@ export function ClientHubSharePanel({
   shareUrl: string | null;
 }) {
   const [copied, setCopied] = useState(false);
+  const confirm = useImperativeAlertDialog();
+  const unshareFormRef = useRef<HTMLFormElement>(null);
+  const skipUnshareConfirmRef = useRef(false);
 
   async function copy() {
     if (!shareUrl) return;
@@ -45,7 +49,7 @@ export function ClientHubSharePanel({
             <input type="hidden" name="clientId" value={clientId} />
             <SubmitButton
               pendingText="Creating…"
-              className="rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
             >
               Create the link
             </SubmitButton>
@@ -68,7 +72,7 @@ export function ClientHubSharePanel({
             <button
               type="button"
               onClick={copy}
-              className="shrink-0 rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {copied ? "Copied" : "Copy link"}
             </button>
@@ -85,15 +89,25 @@ export function ClientHubSharePanel({
             </a>
 
             <form
+              ref={unshareFormRef}
               action={unshareClientHubLinkAction}
               onSubmit={(event) => {
-                if (
-                  !window.confirm(
-                    "Turn off the link? Anyone who has it will stop being able to open it."
-                  )
-                ) {
-                  event.preventDefault();
+                if (skipUnshareConfirmRef.current) {
+                  skipUnshareConfirmRef.current = false;
+                  return;
                 }
+                event.preventDefault();
+                confirm.show({
+                  title: "Turn off the link?",
+                  description: "Anyone who has it will stop being able to open it.",
+                  actionLabel: "Turn off",
+                  actionVariant: "destructive",
+                  onAction: () => {
+                    confirm.hide();
+                    skipUnshareConfirmRef.current = true;
+                    unshareFormRef.current?.requestSubmit();
+                  },
+                });
               }}
             >
               <input type="hidden" name="clientId" value={clientId} />
@@ -107,6 +121,8 @@ export function ClientHubSharePanel({
           </div>
         </>
       )}
+
+      {confirm.element}
     </section>
   );
 }

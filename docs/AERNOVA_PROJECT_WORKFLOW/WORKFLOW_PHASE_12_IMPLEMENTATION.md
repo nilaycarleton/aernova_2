@@ -1,6 +1,6 @@
 # Phase 12 — Dashboard Action Center: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §3, §11, §15, §25 Phase 12 only. Branch: `feature/astryx-integration`. Phases 1–11 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_11_` before starting; nothing here touches the 3D model viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–11 code beyond the two integration points this phase needs (the dashboard page, and `/jobs` gaining an `?attention=` filter).
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §3, §11, §15, §25 Phase 12 only. Branch: `feature/astryx-integration`. Phases 1–11 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_11_` before starting; nothing here touches the 3D model viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–11 code beyond the two integration points this phase needs (the dashboard page, and `/jobs` gaining an `?attention=` filter).
 
 Core product rule: unify the dashboard's scattered "needs your attention" signals into one list — a display/read layer over facts every one of these already tracked, not a new workflow engine, notification table, or background job.
 

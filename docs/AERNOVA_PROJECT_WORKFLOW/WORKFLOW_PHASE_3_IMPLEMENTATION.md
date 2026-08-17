@@ -1,6 +1,6 @@
 # Phase 3 — Quality Check + Completion Gate: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §14.3, §20, §22, §23, §25 Phase 3 only. Branch: `feature/astryx-integration`. Phase 1 and Phase 2 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` and `WORKFLOW_PHASE_2_IMPLEMENTATION.md` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, or the quote-builder rendering code, and Phase 2 (change orders / additional work) was not refactored.
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §14.3, §20, §22, §23, §25 Phase 3 only. Branch: `feature/astryx-integration`. Phase 1 and Phase 2 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` and `WORKFLOW_PHASE_2_IMPLEMENTATION.md` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, or the quote-builder rendering code, and Phase 2 (change orders / additional work) was not refactored.
 
 Core product rule this phase enforces: **two authors, two write paths.** Crew supplies field evidence from `/today`; only office/owner completing the quality check unlocks `[ Complete Project → ]`. Crew evidence alone can never complete a job.
 

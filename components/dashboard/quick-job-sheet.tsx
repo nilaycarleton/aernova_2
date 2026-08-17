@@ -126,7 +126,7 @@ export function QuickJobSheet() {
       <div className="space-y-3 pt-2">
         <SubmitButton
           pendingText="Saving…"
-          className="w-full rounded-xl bg-ink-primary px-6 py-4 text-base font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+          className="w-full rounded-xl bg-action px-6 py-4 text-base font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
         >
           Save it
         </SubmitButton>

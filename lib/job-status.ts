@@ -125,7 +125,7 @@ export function statusBadgeClass(status: JobStatus) {
  * keeps owning label + the raw badge class Jobs-index still reads directly;
  * this only adds the same three-tier reading as a `StatusTone`, so the one
  * page that renders `Status` here doesn't hardcode an enum→tone map inline.
- * Not a rewrite of `STATUS_META` — see docs/PREMIUM_UI_PHASE_4_IMPLEMENTATION.md.
+ * Not a rewrite of `STATUS_META` — see docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_4_IMPLEMENTATION.md.
  */
 export function statusTone(status: JobStatus): StatusTone {
   if (status === JobStatus.COMPLETED) return "success";

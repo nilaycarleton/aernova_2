@@ -3,7 +3,7 @@ import { defineTheme } from "@astryxdesign/core/theme";
 /**
  * Maps app/globals.css's Precision Workshop semantic tokens onto Astryx's
  * token schema (Premium UI Redesign Phase 1 — see docs/DESIGN.md and
- * docs/PREMIUM_UI_REDESIGN_PLAN.md). Astryx expresses light/dark as
+ * docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_PLAN.md). Astryx expresses light/dark as
  * [light, dark] tuples on one CSS custom property (compiled to
  * `light-dark()`); Aernova expresses the same flip as a `@theme` dark home
  * base plus a `[data-theme="light"]` override block in globals.css. The
@@ -107,10 +107,22 @@ export const aernovaTheme = defineTheme({
     // Aernova's `-fg` tokens are a different role (readable text on a 10%
     // tint) and would wash out a solid fill. --color-on-warning stays dark
     // ink in both modes (Astryx's own default) since amber is light enough
-    // that white text on it would fail contrast; on-success/on-error keep
-    // Astryx's white-on-both defaults, matching Aernova's own pattern.
+    // that white text on it would fail contrast.
+    //
+    // on-success/on-error do NOT keep Astryx's white-on-both defaults — a
+    // Phase 8 axe-core scan caught a real WCAG AA failure this comment used
+    // to claim didn't exist: white text on Confirm Green measures 2.47:1,
+    // on Danger measures 3.82:1, both below the 4.5:1 floor (verified via
+    // the same relative-luminance math Astryx's own theme/contrast.ts uses).
+    // Both pass comfortably with the constant dark ink already defined as
+    // --color-on-accent below (8.05:1 on Confirm Green, 5.21:1 on Danger) —
+    // the same Constant-On-Accent Rule DESIGN.md already applies to cyan and
+    // amber fills, just never wired through for Astryx's own success/error
+    // badge and button variants until this fix.
     "--color-success": ["oklch(69.6% 0.17 162.48)", "oklch(69.6% 0.17 162.48)"],
+    "--color-on-success": ["oklch(14% 0.014 264)", "oklch(14% 0.014 264)"],
     "--color-error": ["oklch(63.7% 0.234 25.3)", "oklch(63.7% 0.234 25.3)"],
+    "--color-on-error": ["oklch(14% 0.014 264)", "oklch(14% 0.014 264)"],
     "--color-warning": ["oklch(80% 0.15 78)", "oklch(80% 0.15 78)"],
     // Aernova's "info" is Signal Blue / Sky Accent — deliberately not cyan,
     // so an informational badge is never mistaken for a reading.

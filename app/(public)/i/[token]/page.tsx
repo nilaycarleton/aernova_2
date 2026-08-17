@@ -10,6 +10,13 @@ import { paymentMethodLabel } from "@/lib/invoice/payment-methods";
 import { effectiveBillingAddress, formatBillingAddress } from "@/lib/invoice/billing-address";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import { DocumentBrand } from "@/components/public/document-brand";
+import {
+  DocumentSurface,
+  DocumentHeader,
+  DocumentMeta,
+  DocumentRule,
+  DocumentTotalRow,
+} from "@/components/ui/document";
 import { confirmAdditionalWorkReviewAction, markInvoiceViewed } from "./actions";
 import { createStripeCheckoutAction } from "./pay-actions";
 
@@ -80,10 +87,29 @@ export default async function PublicInvoicePage({
   // override clears it (see shareInvoiceAction's own branching).
   const pendingReview = invoice.requiresHomeownerReview && !invoice.homeownerReviewConfirmedAt;
 
+  const metaItems = [
+    {
+      label: "Billed to",
+      value: (
+        <>
+          {client.name}
+          {billTo ? (
+            <>
+              <br />
+              {billTo}
+            </>
+          ) : null}
+        </>
+      ),
+    },
+    ...(longDate(invoice.issuedAt) ? [{ label: "Issued", value: longDate(invoice.issuedAt) as string }] : []),
+    ...(longDate(invoice.dueAt) ? [{ label: "Due", value: longDate(invoice.dueAt) as string }] : []),
+  ];
+
   return (
-    <main className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
+    <div className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
       <div className="mx-auto max-w-3xl">
-        <article className="min-w-0 rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
+        <DocumentSurface>
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
               {/* The contractor's identity, never ours. A homeowner is doing
@@ -121,29 +147,15 @@ export default async function PublicInvoicePage({
             </p>
           ) : null}
 
-          <h1 className="mt-8 text-2xl font-semibold text-paper-ink">
-            {invoice.invoiceNumber ? `Invoice #${invoice.invoiceNumber}` : "Invoice"}
-          </h1>
-          <p className="mt-1 text-sm text-paper-ink-muted">{invoice.title}</p>
+          <div className="mt-8">
+            <DocumentHeader
+              eyebrow={invoice.invoiceNumber ? `Invoice #${invoice.invoiceNumber}` : "Invoice"}
+              title={invoice.title}
+            />
+          </div>
 
-          <div className="mt-6 grid gap-6 border-y border-paper-rule py-6 sm:grid-cols-2">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-paper-ink-faint">
-                Billed to
-              </p>
-              <p className="mt-1.5 font-medium text-paper-ink-strong">{client.name}</p>
-              {billTo ? <p className="text-sm text-paper-ink-muted">{billTo}</p> : null}
-            </div>
-            <div className="sm:text-right">
-              {longDate(invoice.issuedAt) ? (
-                <p className="text-sm text-paper-ink-muted">
-                  Issued {longDate(invoice.issuedAt)}
-                </p>
-              ) : null}
-              {longDate(invoice.dueAt) ? (
-                <p className="text-sm text-paper-ink-muted">Due {longDate(invoice.dueAt)}</p>
-              ) : null}
-            </div>
+          <div className="mt-6 border-y border-paper-rule py-6">
+            <DocumentMeta items={metaItems} />
           </div>
 
           {invoice.clientMessage ? (
@@ -214,22 +226,22 @@ export default async function PublicInvoicePage({
 
           <section className="mt-8 flex justify-end">
             <dl className="w-full max-w-xs space-y-2">
-              <Row label="Subtotal" value={formatMoney(invoice.subtotalCents)} />
+              <DocumentTotalRow label="Subtotal" value={formatMoney(invoice.subtotalCents)} />
               {invoice.discountCents > 0 ? (
-                <Row label="Discount" value={`− ${formatMoney(invoice.discountCents)}`} />
+                <DocumentTotalRow label="Discount" value={`− ${formatMoney(invoice.discountCents)}`} />
               ) : null}
               {invoice.taxRate ? (
-                <Row
+                <DocumentTotalRow
                   label={`${invoice.taxRate.name} (${microsToPercent(invoice.taxRate.rateMicros)}%)`}
                   value={formatMoney(invoice.taxCents)}
                 />
               ) : null}
 
-              <div className="flex items-baseline justify-between gap-4 border-t border-paper-rule pt-2">
-                <dt className="font-medium text-paper-ink">Total</dt>
-                <dd className="font-semibold tabular-nums text-paper-ink">
-                  {formatMoney(invoice.totalAmountCents)}
-                </dd>
+              <div className="pt-1">
+                <DocumentRule />
+                <div className="pt-2">
+                  <DocumentTotalRow label="Total" value={formatMoney(invoice.totalAmountCents)} emphasis />
+                </div>
               </div>
 
               {/* Every payment, listed. A homeowner who paid a deposit in March
@@ -237,7 +249,7 @@ export default async function PublicInvoicePage({
                   balance on faith — this is the number they will check against
                   their own bank statement. */}
               {invoice.payments.map((payment) => (
-                <Row
+                <DocumentTotalRow
                   key={payment.id}
                   label={`Paid ${payment.paidAt.toLocaleDateString("en-CA", {
                     dateStyle: "medium",
@@ -247,13 +259,15 @@ export default async function PublicInvoicePage({
               ))}
 
               {invoice.payments.length > 0 ? (
-                <div className="flex items-baseline justify-between gap-4 border-t border-paper-rule pt-2">
-                  <dt className="font-medium text-paper-ink">
-                    {balance.balanceCents < 0 ? "Overpaid by" : "Still owing"}
-                  </dt>
-                  <dd className="text-lg font-semibold tabular-nums text-paper-ink">
-                    {formatMoney(Math.abs(balance.balanceCents))}
-                  </dd>
+                <div className="pt-1">
+                  <DocumentRule strong />
+                  <div className="pt-2">
+                    <DocumentTotalRow
+                      label={balance.balanceCents < 0 ? "Overpaid by" : "Still owing"}
+                      value={formatMoney(Math.abs(balance.balanceCents))}
+                      emphasis
+                    />
+                  </div>
                 </div>
               ) : null}
             </dl>
@@ -272,21 +286,21 @@ export default async function PublicInvoicePage({
           {pendingReview ? (
             // Nothing to pay yet — this hasn't reached SENT. Confirming is
             // what gets it there; see confirmAdditionalWorkReviewAction.
-            <form action={confirmAdditionalWorkReviewAction} className="mt-6 border-t border-paper-rule pt-6">
+            <form action={confirmAdditionalWorkReviewAction} className="mt-6 border-t border-paper-rule pt-6 print:hidden">
               <input type="hidden" name="token" value={token} />
               <SubmitButton
                 pendingText="Confirming…"
-                className="w-full rounded-xl bg-instrument px-6 py-3 text-sm font-semibold text-on-accent transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60 sm:w-auto"
+                className="w-full rounded-xl bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60 sm:w-auto"
               >
                 I&rsquo;ve reviewed this
               </SubmitButton>
             </form>
           ) : !balance.isPaid && invoice.company.stripeChargesEnabled ? (
-            <form action={createStripeCheckoutAction} className="mt-6 flex justify-end">
+            <form action={createStripeCheckoutAction} className="mt-6 flex justify-end print:hidden">
               <input type="hidden" name="token" value={token} />
               <SubmitButton
                 pendingText="Opening…"
-                className="rounded-xl bg-instrument px-6 py-3 text-sm font-semibold text-on-accent transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+                className="rounded-xl bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
               >
                 Pay {formatMoney(Math.abs(balance.balanceCents))} online
               </SubmitButton>
@@ -300,17 +314,8 @@ export default async function PublicInvoicePage({
                   invoice.company.phone ? ` — ${invoice.company.phone}` : ""
                 }${invoice.company.email ? `, ${invoice.company.email}` : ""}.`}
           </p>
-        </article>
+        </DocumentSurface>
       </div>
-    </main>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4">
-      <dt className="text-sm text-paper-ink-muted">{label}</dt>
-      <dd className="text-sm tabular-nums text-paper-ink-body">{value}</dd>
     </div>
   );
 }

@@ -1740,7 +1740,7 @@ decisions — change orders vs. no-quote "Additional Work," a homeowner-facing
 warranty document, visit/task-based progress tracking, a `Contacted /
 Qualified` pipeline stage, and a per-company workflow-customization layer
 sitting on top of the one shared `JobStatus` enum — live in
-`docs/AERNOVA_PROJECT_WORKFLOW.md`, not here. That document also carries the
+`docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md`, not here. That document also carries the
 owner's confirmation that this repo's positioning is the multi-trade platform
 described above, not a roofing-only tool — see `docs/PRODUCT.md`, rewritten
 to match.

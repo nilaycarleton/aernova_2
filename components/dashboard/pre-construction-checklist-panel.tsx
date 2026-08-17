@@ -176,7 +176,7 @@ export function PreConstructionChecklistPanel({
 
           <SubmitButton
             pendingText="Saving…"
-            className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+            className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
           >
             {state.savedAt ? "Saved" : "Save"}
           </SubmitButton>

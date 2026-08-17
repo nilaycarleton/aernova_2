@@ -421,8 +421,6 @@ export function buildNodeOdmModelPackage(
   };
 }
 
-export const buildNodeOdxModelPackage = buildNodeOdmModelPackage;
-
 export function parsePhotogrammetryModelPackage(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const candidate = value as Partial<PhotogrammetryModelPackage>;

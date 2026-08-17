@@ -142,7 +142,7 @@ export function VisitPanel({
                       <input type="hidden" name="userId" value={person.userId} />
                       <SubmitButton
                         pendingText="…"
-                        className="rounded-full bg-surface-lifted px-2.5 py-1 text-xs text-ink-secondary transition hover:text-danger-fg"
+                        className="inline-flex min-h-11 items-center rounded-full bg-surface-lifted px-2.5 text-xs text-ink-secondary transition hover:text-danger-fg"
                       >
                         {person.name} ×
                       </SubmitButton>
@@ -174,7 +174,7 @@ export function VisitPanel({
                       </select>
                       <SubmitButton
                         pendingText="…"
-                        className="rounded-lg border border-hairline px-2 py-1 text-xs text-ink-secondary transition hover:text-ink-primary"
+                        className="inline-flex min-h-11 items-center rounded-lg border border-hairline px-2 text-xs text-ink-secondary transition hover:text-ink-primary"
                       >
                         Add
                       </SubmitButton>
@@ -190,7 +190,7 @@ export function VisitPanel({
                     <input type="hidden" name="visitId" value={visit.id} />
                     <SubmitButton
                       pendingText="Saving…"
-                      className="rounded-lg border border-hairline px-2.5 py-1.5 text-xs text-ink-secondary transition hover:bg-surface-lifted hover:text-ink-primary"
+                      className="inline-flex min-h-11 items-center rounded-lg border border-hairline px-2.5 text-xs text-ink-secondary transition hover:bg-surface-lifted hover:text-ink-primary"
                     >
                       Done
                     </SubmitButton>
@@ -203,7 +203,7 @@ export function VisitPanel({
                     <input type="hidden" name="visitId" value={visit.id} />
                     <SubmitButton
                       pendingText="…"
-                      className="rounded-lg px-2 py-1.5 text-xs text-ink-muted underline underline-offset-2 transition hover:text-danger-fg"
+                      className="inline-flex min-h-11 items-center rounded-lg px-2 text-xs text-ink-muted underline underline-offset-2 transition hover:text-danger-fg"
                     >
                       Called off
                     </SubmitButton>
@@ -238,7 +238,7 @@ export function VisitPanel({
                   aria-pressed={kind === option}
                   className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
                     kind === option
-                      ? "bg-ink-primary text-ground"
+                      ? "bg-action text-on-action"
                       : "text-ink-secondary hover:bg-surface-lifted"
                   }`}
                 >
@@ -337,7 +337,7 @@ export function VisitPanel({
 
         <SubmitButton
           pendingText="Booking…"
-          className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+          className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
         >
           {repeating ? "Book them all in" : "Book it in"}
         </SubmitButton>

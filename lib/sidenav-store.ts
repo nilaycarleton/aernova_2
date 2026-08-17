@@ -13,7 +13,7 @@
  * client's first-paint snapshot must agree or React logs a hydration
  * mismatch. A collapsed returning visitor sees one quick re-render to the
  * narrow state right after mount, not a full-shell flash — an accepted,
- * documented tradeoff (see docs/PREMIUM_UI_PHASE_2_IMPLEMENTATION.md),
+ * documented tradeoff (see docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_2_IMPLEMENTATION.md),
  * consistent with how the theme store already handles the same class of
  * problem for color scheme.
  */

@@ -150,7 +150,7 @@ function AstryxDecisionMatrix() {
     <Section
       id="astryx-audit"
       title="Astryx capability audit — reuse decisions"
-      description="Per-primitive record required by the acceptance criteria (&quot;no custom primitive duplicates an Astryx primitive without a recorded reason&quot;). Full audit detail in docs/PREMIUM_UI_PHASE_3_IMPLEMENTATION.md."
+      description="Per-primitive record required by the acceptance criteria (&quot;no custom primitive duplicates an Astryx primitive without a recorded reason&quot;). Full audit detail in docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_3_IMPLEMENTATION.md."
     >
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
@@ -594,7 +594,7 @@ function ResponsiveNotes() {
     <Section
       id="verification-log"
       title="Responsive / theme / a11y verification log"
-      description="Live-checked at 390 / 768 / 1024 / 1440 / 1728, dark and light, keyboard-only, and browser 200% zoom. Full results in docs/PREMIUM_UI_PHASE_3_IMPLEMENTATION.md — this page is what was checked, not a substitute for checking it."
+      description="Live-checked at 390 / 768 / 1024 / 1440 / 1728, dark and light, keyboard-only, and browser 200% zoom. Full results in docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_3_IMPLEMENTATION.md — this page is what was checked, not a substitute for checking it."
     >
       <ul className="list-inside list-disc space-y-1 text-sm text-ink-secondary">
         <li>PageHeader/ActionToolbar actions wrap and reorder below 640px without clipping.</li>

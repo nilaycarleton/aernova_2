@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -111,9 +112,7 @@ export function RoofAssistant({
               aria-label="Close assistant"
               className="rounded-lg p-1.5 text-ink-primary/60 transition hover:bg-surface-lifted hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
+              <X size={16} strokeWidth={2} aria-hidden="true" />
             </button>
           )}
         </div>

@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §7.6/§25 Phase 4 — the pre-construction
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §7.6/§25 Phase 4 — the pre-construction
  * checklist, kept pure: same "required to advance, not required to exist"
  * doctrine `jobGaps()`/`invoiceSendGaps()`/`qualityCheckCompletionGaps()`
  * already use. Not a new `JobStatus` — this is a checklist/gap layer that
@@ -63,24 +63,4 @@ export function preConstructionGaps(facts: PreConstructionFacts): PreConstructio
 export function preConstructionGateMessage(gaps: PreConstructionGap[]): string {
   const items = gaps.map((gap) => gap.need);
   return `Not yet ready to schedule — still need: ${items.join(", ")}.`;
-}
-
-export type PreConstructionChecklistStatus = {
-  gaps: PreConstructionGap[];
-  /** True once every checklist item above is satisfied. */
-  isReady: boolean;
-  /** Whether the office has ever saved the checklist with everything confirmed. */
-  confirmed: boolean;
-};
-
-export function preConstructionChecklistStatus(
-  facts: PreConstructionFacts,
-  confirmedAt: Date | null | undefined
-): PreConstructionChecklistStatus {
-  const gaps = preConstructionGaps(facts);
-  return {
-    gaps,
-    isReady: gaps.length === 0,
-    confirmed: Boolean(confirmedAt),
-  };
 }

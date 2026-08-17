@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ChangeOrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -5,7 +6,17 @@ import { formatMoney } from "@/lib/money";
 import { isWellFormedShareToken } from "@/lib/share-token";
 import { markChangeOrderViewed } from "@/app/(public)/co/[token]/actions";
 import { DocumentBrand } from "@/components/public/document-brand";
+import { DocumentSurface, DocumentHeader, DocumentRule } from "@/components/ui/document";
 import { ChangeOrderApproval } from "@/components/public/change-order-approval";
+
+// The group layout says "Your quote" — the wrong tab title for a change
+// order. Same fix already applied to the invoice/warranty/hub/request pages;
+// this route was the one still missing it.
+export const metadata: Metadata = {
+  title: "Your change order",
+  description: "A change order from your contractor",
+  robots: { index: false, follow: false },
+};
 
 /**
  * The change order, as the homeowner receives it.
@@ -42,9 +53,9 @@ export default async function PublicChangeOrderPage({
       : null;
 
   return (
-    <main className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
+    <div className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
       <div className="mx-auto max-w-3xl">
-        <article className="min-w-0 rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
+        <DocumentSurface>
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
               <DocumentBrand name={changeOrder.company.name} logoUrl={changeOrder.company.logoUrl} />
@@ -59,11 +70,16 @@ export default async function PublicChangeOrderPage({
             ) : null}
           </header>
 
-          <p className="mt-8 text-xs font-medium uppercase tracking-wide text-paper-ink-faint">
-            Change order
-            {changeOrder.quote.quoteNumber ? ` · amends Quote #${changeOrder.quote.quoteNumber}` : ""}
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold text-paper-ink">{changeOrder.title}</h1>
+          <div className="mt-8">
+            <DocumentHeader
+              eyebrow={
+                changeOrder.quote.quoteNumber
+                  ? `Change order · amends Quote #${changeOrder.quote.quoteNumber}`
+                  : "Change order"
+              }
+              title={changeOrder.title}
+            />
+          </div>
 
           {changeOrder.description ? (
             <p className="mt-4 max-w-prose text-sm leading-6 text-paper-ink-body">
@@ -118,17 +134,22 @@ export default async function PublicChangeOrderPage({
           ) : null}
 
           <section className="mt-8 flex justify-end">
-            <div className="flex items-baseline justify-between gap-4 border-t border-paper-rule-strong pt-3">
-              <p className="font-medium text-paper-ink">Adds to your contract</p>
-              <p className="text-lg font-semibold tabular-nums text-paper-ink">
-                {formatMoney(changeOrder.amountCents)}
-              </p>
+            <div className="w-full max-w-xs">
+              <DocumentRule strong />
+              <div className="pt-3">
+                <p className="flex items-baseline justify-between gap-4">
+                  <span className="font-medium text-paper-ink">Adds to your contract</span>
+                  <span className="text-lg font-semibold tabular-nums text-paper-ink">
+                    {formatMoney(changeOrder.amountCents)}
+                  </span>
+                </p>
+              </div>
             </div>
           </section>
 
           <ChangeOrderApproval token={token} status={changeOrder.status} />
-        </article>
+        </DocumentSurface>
       </div>
-    </main>
+    </div>
   );
 }

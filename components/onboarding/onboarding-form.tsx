@@ -19,7 +19,7 @@ export type OnboardingTemplateCard = {
 };
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§16/§25 Phase 11 — the second
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§16/§25 Phase 11 — the second
  * onboarding step, added to what was previously a one-shot trade+province
  * form. Both steps live in one `<form>` so the whole thing submits once,
  * at the end — step 1's inputs stay mounted (just visually hidden) while
@@ -55,6 +55,13 @@ export function OnboardingForm({
 
   return (
     <form action={completeOnboardingAction} className="mt-6">
+      {/* Focused Entry mode's one required affordance for a multi-step flow
+          (Premium UI Redesign Phase 6 §51) — this was a silent two-step form
+          before, with no indication a second screen was coming. */}
+      <p className="mb-4 text-xs font-medium uppercase tracking-wide text-ink-muted" aria-live="polite">
+        Step {step} of 2
+      </p>
+
       <div className={step === 1 ? "space-y-5" : "hidden"}>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-ink-secondary">
@@ -107,7 +114,7 @@ export function OnboardingForm({
           type="button"
           onClick={continueToStep2}
           disabled={!trade || !province}
-          className="w-full rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-50"
+          className="w-full rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-50"
         >
           Continue
         </button>
@@ -129,7 +136,7 @@ export function OnboardingForm({
                 key={t.id}
                 className={`block cursor-pointer rounded-xl border p-4 transition ${
                   templateId === t.id
-                    ? "border-instrument-bright/70 bg-instrument-bright/10"
+                    ? "border-signal-blue/40 bg-signal-blue/10"
                     : "border-hairline hover:bg-surface-lifted"
                 }`}
               >
@@ -158,7 +165,7 @@ export function OnboardingForm({
             <label
               className={`block cursor-pointer rounded-xl border p-4 transition ${
                 templateId === ""
-                  ? "border-instrument-bright/70 bg-instrument-bright/10"
+                  ? "border-signal-blue/40 bg-signal-blue/10"
                   : "border-hairline hover:bg-surface-lifted"
               }`}
             >
@@ -191,7 +198,7 @@ export function OnboardingForm({
             </button>
             <SubmitButton
               pendingText="Setting up…"
-              className="flex-1 rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+              className="flex-1 rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Finish setup
             </SubmitButton>

@@ -13,6 +13,7 @@ import { QuoteExtras } from "@/components/public/quote-extras";
 import { QuoteTotals } from "@/components/public/quote-totals";
 import { APPROVE_FORM_ID, QuoteResponse } from "@/components/public/quote-response";
 import { DocumentBrand } from "@/components/public/document-brand";
+import { DocumentSurface, DocumentHeader, DocumentMeta } from "@/components/ui/document";
 
 /**
  * The quote, as the homeowner receives it.
@@ -102,9 +103,14 @@ export default async function PublicQuotePage({
       // the contractor has already gone and scheduled work against.
       locked={answered !== null}
     >
-    <main className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
+    <div className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
-        <article className="min-w-0 rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
+        {/* min-w-0: DocumentSurface has no className prop to carry this itself,
+            but this article sits in a minmax(0,1fr) grid track — without it, a
+            long unbroken line (a long line-item description, a long URL) would
+            push the whole grid column wider instead of wrapping inside it. */}
+        <div className="min-w-0">
+        <DocumentSurface>
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
               {/* The contractor's identity, never ours. A homeowner is doing
@@ -127,26 +133,38 @@ export default async function PublicQuotePage({
             ) : null}
           </header>
 
-          <h1 className="mt-8 text-2xl font-semibold text-paper-ink">{quote.title}</h1>
+          <div className="mt-8">
+            <DocumentHeader title={quote.title} />
+          </div>
 
-          <div className="mt-6 grid gap-6 border-y border-paper-rule py-6 sm:grid-cols-2">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-paper-ink-faint">
-                Prepared for
-              </p>
-              <p className="mt-1.5 font-medium text-paper-ink-strong">{client.name}</p>
-              {address ? <p className="text-sm text-paper-ink-muted">{address}</p> : null}
-            </div>
-            <div className="sm:text-right">
-              {quote.quoteNumber ? (
-                <p className="text-sm text-paper-ink-muted">Quote #{quote.quoteNumber}</p>
-              ) : null}
-              {quote.sentAt ? (
-                <p className="text-sm text-paper-ink-muted">
-                  Sent {quote.sentAt.toLocaleDateString("en-CA", { dateStyle: "medium" })}
-                </p>
-              ) : null}
-            </div>
+          <div className="mt-6 border-y border-paper-rule py-6">
+            <DocumentMeta
+              items={[
+                {
+                  label: "Prepared for",
+                  value: (
+                    <>
+                      {client.name}
+                      {address ? (
+                        <>
+                          <br />
+                          {address}
+                        </>
+                      ) : null}
+                    </>
+                  ),
+                },
+                ...(quote.quoteNumber ? [{ label: "Quote #", value: quote.quoteNumber }] : []),
+                ...(quote.sentAt
+                  ? [
+                      {
+                        label: "Sent",
+                        value: quote.sentAt.toLocaleDateString("en-CA", { dateStyle: "medium" }),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
           </div>
 
           {quote.introBody || quote.introTitle ? (
@@ -216,11 +234,12 @@ export default async function PublicQuotePage({
               </p>
             </section>
           ) : null}
-        </article>
+        </DocumentSurface>
+        </div>
 
         <QuoteResponse token={token} status={quote.status} clientName={client.name} />
       </div>
-    </main>
+    </div>
     </QuoteDecisionProvider>
   );
 }

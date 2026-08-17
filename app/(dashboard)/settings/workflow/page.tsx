@@ -9,7 +9,7 @@ import { resetWorkflowToTemplateAction } from "./actions";
 import { PageHeader } from "@/components/ui/page-header";
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§16/§25 Phase 11 — post-onboarding
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§16/§25 Phase 11 — post-onboarding
  * editing for the same `CompanyWorkflowStage` rows the onboarding template
  * picker writes. `requirePageCapability("manageCompany")` is the same gate
  * the rest of Settings already uses (office-tier: OWNER + ADMIN) — no new

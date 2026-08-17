@@ -22,7 +22,7 @@ import { PageHeader } from "@/components/ui/page-header";
  */
 const ROLE_COPY: Partial<Record<CompanyRole, { label: string; hint: string }>> = {
   OWNER: { label: "Owner", hint: "Everything, including the team and the money." },
-  ADMIN: { label: "Admin", hint: "Everything the owner can do." },
+  ADMIN: { label: "Admin", hint: "Everything except connecting the bank account." },
   ESTIMATOR: { label: "Estimator", hint: "Prices work, writes quotes, runs the calendar." },
   SALES: { label: "Sales", hint: "Wins work. Sees prices, doesn't run the calendar." },
   VIEWER: { label: "Office", hint: "Reads everything, changes nothing." },
@@ -30,7 +30,7 @@ const ROLE_COPY: Partial<Record<CompanyRole, { label: string; hint: string }>> =
 };
 
 export default async function TeamPage() {
-  const { company } = await requireCapability("manageTeam");
+  const { company, user } = await requireCapability("manageTeam");
 
   const [members, invites] = await Promise.all([
     prisma.companyMembership.findMany({
@@ -87,7 +87,7 @@ export default async function TeamPage() {
               id="invite-role"
               name="role"
               defaultValue="CREW"
-              className="rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary"
+              className="rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
             >
               {(["CREW", "ESTIMATOR", "SALES", "VIEWER", "ADMIN"] as const).map((role) => (
                 <option key={role} value={role}>
@@ -98,7 +98,7 @@ export default async function TeamPage() {
           </div>
           <SubmitButton
             pendingText="Making the link…"
-            className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+            className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
           >
             Make a link
           </SubmitButton>
@@ -167,7 +167,7 @@ export default async function TeamPage() {
                 <span className="shrink-0 rounded-full bg-surface-lifted px-2.5 py-1 text-xs font-medium text-ink-secondary">
                   {ROLE_COPY[member.role]?.label ?? member.role}
                 </span>
-                {member.role !== CompanyRole.OWNER ? (
+                {member.role !== CompanyRole.OWNER && member.userId !== user.id ? (
                   <form action={removeMemberAction}>
                     <input type="hidden" name="membershipId" value={member.id} />
                     {/* No confirmation existed here before — a genuine,

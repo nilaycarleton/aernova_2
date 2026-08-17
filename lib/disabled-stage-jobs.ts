@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §15/§25 Phase 12 — the dashboard/jobs-list
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §15/§25 Phase 12 — the dashboard/jobs-list
  * counterpart to Phase 11's job-page warning: which jobs are currently
  * sitting in a stage their own company has since disabled, and in what
  * order to show them.

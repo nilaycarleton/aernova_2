@@ -400,7 +400,7 @@ function Card({
           type="button"
           onClick={onRequestMove}
           aria-label={`Move ${card.title} to a different stage`}
-          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md bg-surface-sidebar/90 text-xs text-ink-muted transition focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-instrument lg:opacity-0 lg:hover:opacity-100 lg:group-hover:opacity-100"
+          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md bg-surface-sidebar/90 text-xs text-ink-muted transition before:absolute before:-inset-2.5 before:content-[''] lg:before:content-none focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-instrument lg:opacity-0 lg:hover:opacity-100 lg:group-hover:opacity-100"
         >
           <span aria-hidden>⠿</span>
         </button>
@@ -568,7 +568,7 @@ function MoveDialog({
             <button
               type="submit"
               disabled={pending}
-              className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+              className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
             >
               {pending ? "Moving…" : needsReason ? "Mark it lost" : "Move it"}
             </button>

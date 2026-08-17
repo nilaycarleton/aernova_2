@@ -62,7 +62,7 @@ export function InvoiceBillingAddress({
             toggledByUser.current = true;
             setSameAsProperty(event.target.checked);
           }}
-          className="h-4 w-4 rounded border-hairline text-instrument focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="h-4 w-4 rounded border-hairline accent-signal-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         />
         Same as the property address
       </label>
@@ -113,7 +113,7 @@ export function InvoiceBillingAddress({
 }
 
 const inputClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
 
 function Field({
   label,

@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.4/§25 Phase 10 — the v1 launch
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.4/§25 Phase 10 — the v1 launch
  * starter set: Simple and Detailed per trade, eight rows total.
  *
  *   npm run db:seed-warranty-templates

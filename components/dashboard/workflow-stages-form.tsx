@@ -14,10 +14,10 @@ export type WorkflowStageRow = {
 };
 
 const inputClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — every backend
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — every backend
  * `JobStatus` in fixed `STATUS_FLOW` order (no drag-and-drop; `sortOrder`
  * stays whatever the flow position already is). "Hide" rather than
  * "disable" or "delete" in the visible copy — deliberately, since the
@@ -62,7 +62,7 @@ export function WorkflowStagesForm({ stages }: { stages: WorkflowStageRow[] }) {
       <div className="mt-5 flex items-center gap-3">
         <SubmitButton
           pendingText="Saving…"
-          className="rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+          className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
         >
           {state.savedAt ? "Saved" : "Save changes"}
         </SubmitButton>

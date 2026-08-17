@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import type { QuoteDeclineReason } from "@prisma/client";
+import { useImperativeAlertDialog } from "@astryxdesign/core/AlertDialog";
 import {
   draftQuoteFollowUpAction,
   markQuoteApprovedAction,
@@ -58,6 +59,11 @@ export function QuoteSharePanel({
 }) {
   const [copied, setCopied] = useState(false);
   const [declining, setDeclining] = useState(false);
+  const confirm = useImperativeAlertDialog();
+  const unshareFormRef = useRef<HTMLFormElement>(null);
+  const skipUnshareConfirmRef = useRef(false);
+  const approveFormRef = useRef<HTMLFormElement>(null);
+  const skipApproveConfirmRef = useRef(false);
   const [emailState, emailAction] = useActionState<SendEmailState, FormData>(
     sendQuoteEmailAction,
     {}
@@ -117,7 +123,7 @@ export function QuoteSharePanel({
             <input type="hidden" name="quoteId" value={quoteId} />
             <SubmitButton
               pendingText="Creating…"
-              className="rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Create the link
             </SubmitButton>
@@ -154,7 +160,7 @@ export function QuoteSharePanel({
             <button
               type="button"
               onClick={copy}
-              className="shrink-0 rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {copied ? "Copied" : "Copy link"}
             </button>
@@ -238,11 +244,25 @@ export function QuoteSharePanel({
                 approving it. */}
             {status !== "APPROVED" ? (
               <form
+                ref={unshareFormRef}
                 action={unshareQuoteAction}
                 onSubmit={(event) => {
-                  if (!window.confirm("Turn off the link? Anyone who has it will stop being able to open the quote.")) {
-                    event.preventDefault();
+                  if (skipUnshareConfirmRef.current) {
+                    skipUnshareConfirmRef.current = false;
+                    return;
                   }
+                  event.preventDefault();
+                  confirm.show({
+                    title: "Turn off the link?",
+                    description: "Anyone who has it will stop being able to open the quote.",
+                    actionLabel: "Turn off",
+                    actionVariant: "destructive",
+                    onAction: () => {
+                      confirm.hide();
+                      skipUnshareConfirmRef.current = true;
+                      unshareFormRef.current?.requestSubmit();
+                    },
+                  });
                 }}
               >
                 <input type="hidden" name="jobId" value={jobId} />
@@ -268,16 +288,27 @@ export function QuoteSharePanel({
           must not read as a way to reverse that decision by hand. */}
       {status !== "APPROVED" && status !== "REJECTED" ? (
         <form
+          ref={approveFormRef}
           action={markQuoteApprovedAction}
           className="mt-5 border-t border-hairline pt-4"
           onSubmit={(event) => {
-            if (
-              !window.confirm(
-                "Mark this approved? Do it once they've actually said yes — it moves the job forward and goes in the record."
-              )
-            ) {
-              event.preventDefault();
+            if (skipApproveConfirmRef.current) {
+              skipApproveConfirmRef.current = false;
+              return;
             }
+            event.preventDefault();
+            confirm.show({
+              title: "Mark this approved?",
+              description:
+                "Do it once they've actually said yes — it moves the job forward and goes in the record.",
+              actionLabel: "Mark approved",
+              actionVariant: "primary",
+              onAction: () => {
+                confirm.hide();
+                skipApproveConfirmRef.current = true;
+                approveFormRef.current?.requestSubmit();
+              },
+            });
           }}
         >
           <input type="hidden" name="jobId" value={jobId} />
@@ -368,6 +399,8 @@ export function QuoteSharePanel({
           )}
         </div>
       ) : null}
+
+      {confirm.element}
     </section>
   );
 }

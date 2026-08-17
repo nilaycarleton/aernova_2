@@ -16,6 +16,7 @@ import {
   type UpdateWarrantyTemplateState,
 } from "@/app/(dashboard)/jobs/[jobId]/warranty-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
+import { Status } from "@/components/ui/status";
 import { longDate } from "@/lib/long-date";
 import { WARRANTY_STATUS_META, warrantyTermLabel } from "@/lib/warranty";
 
@@ -56,10 +57,10 @@ const SECONDARY =
   "rounded-xl border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 const PRIMARY =
-  "rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60";
+  "rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.4/§20/§25 Phase 10 — office-facing
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.4/§20/§25 Phase 10 — office-facing
  * only. Never rendered on `/today`, and every write path behind it is
  * gated on `editJob` server-side (see `warranty-actions.ts`) — `editable`
  * here only controls what this component *shows*, never what it lets
@@ -86,11 +87,11 @@ export function WarrantyPanel({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-lg font-semibold text-ink-primary">Warranty</h3>
         {warranty ? (
-          <span
-            className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${WARRANTY_STATUS_META[warranty.status].badge}`}
-          >
-            {WARRANTY_STATUS_META[warranty.status].label}
-          </span>
+          <Status
+            variant="solid"
+            tone={WARRANTY_STATUS_META[warranty.status].tone}
+            label={WARRANTY_STATUS_META[warranty.status].label}
+          />
         ) : null}
       </div>
 

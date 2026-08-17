@@ -260,9 +260,9 @@ export default async function SchedulePage({
             </div>
 
             <nav aria-label="Move through the calendar" className="flex items-center gap-2">
-              <Nav href={scheduleHref({ date: previous })}>←</Nav>
+              <Nav href={scheduleHref({ date: previous })} label="Previous">←</Nav>
               <Nav href={scheduleHref({ date: toDayInput(today) })}>Today</Nav>
-              <Nav href={scheduleHref({ date: next })}>→</Nav>
+              <Nav href={scheduleHref({ date: next })} label="Next">→</Nav>
             </nav>
           </div>
         }
@@ -334,7 +334,7 @@ export default async function SchedulePage({
           </div>
           <SubmitButton
             pendingText="Saving…"
-            className="rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+            className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
           >
             Save
           </SubmitButton>
@@ -715,10 +715,20 @@ function VisitCard({ visit, timeLabel }: { visit: GridVisit; timeLabel?: string 
   );
 }
 
-function Nav({ href, children }: { href: string; children: React.ReactNode }) {
+function Nav({
+  href,
+  children,
+  label,
+}: {
+  href: string;
+  children: React.ReactNode;
+  /** Set when `children` is a bare glyph with no reliable spoken form. */
+  label?: string;
+}) {
   return (
     <Link
       href={href}
+      aria-label={label}
       className="rounded-xl border border-hairline px-3 py-2 text-sm text-ink-secondary transition hover:bg-surface-raised hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
     >
       {children}

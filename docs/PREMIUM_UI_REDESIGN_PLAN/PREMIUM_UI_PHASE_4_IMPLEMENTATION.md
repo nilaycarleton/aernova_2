@@ -9,7 +9,7 @@
 
 ## 1. Scope
 
-Per `docs/PREMIUM_UI_REDESIGN_PLAN.md` §11 Phase 4 and the task brief that initiated this work, the pilot covers exactly:
+Per `PREMIUM_UI_REDESIGN_PLAN.md` §11 Phase 4 and the task brief that initiated this work, the pilot covers exactly:
 
 - Dashboard (`/dashboard`)
 - Jobs index (`/jobs`, including the `?attention=disabled-workflow-stage` view and `/jobs/new`)

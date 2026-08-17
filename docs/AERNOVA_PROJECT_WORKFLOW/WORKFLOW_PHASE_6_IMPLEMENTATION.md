@@ -1,6 +1,6 @@
 # Phase 6 — Sales Pipeline `Contacted / Qualified` Stage: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §4, §14.1, §25 Phase 6 only. Branch: `feature/astryx-integration`. Phases 1–5 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_5_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, or Phase 1–5 code.
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §4, §14.1, §25 Phase 6 only. Branch: `feature/astryx-integration`. Phases 1–5 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_5_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, or Phase 1–5 code.
 
 Core product rule: one new pipeline stage, `Contacted / Qualified`, sitting between "nobody has answered" (`NEW`) and "actively assessing" (`ASSESSING`). No `Follow-Up`/`Negotiation` stage. `AWAITING_RESPONSE` and `OPENED` stay two separate columns, unchanged.
 

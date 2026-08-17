@@ -70,7 +70,7 @@ export function ProcessingLauncher({ jobId, sourceImageCount, workerConfigured }
               disabled={blockSubmit}
               title={blockSubmit ? readiness?.blockingReason ?? undefined : undefined}
               pendingText="Starting…"
-              className="rounded-xl bg-ink-primary px-4 py-2 text-sm font-medium text-ground transition hover:bg-ink-secondary disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-action px-4 py-2 text-sm font-medium text-on-action transition hover:bg-action-active disabled:cursor-not-allowed disabled:opacity-50"
             >
               {workerConfigured ? "Build 3D model" : "Build preview model"}
             </SubmitButton>

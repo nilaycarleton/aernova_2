@@ -1,11 +1,12 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.4/§20/§23/§25 Phase 10 — pure display
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.4/§20/§23/§25 Phase 10 — pure display
  * and snapshot logic, kept out of the actions and components the same way
  * `lib/quote-status.ts`/`lib/invoice/status.ts` keep their own status
  * tables pure. A database enum never reaches a screen; that rule applies
  * here too.
  */
 import type { WarrantyStatus } from "@prisma/client";
+import type { StatusTone } from "@/lib/status-tone";
 
 export function warrantyTermLabel(termMonths: number): string {
   if (termMonths > 0 && termMonths % 12 === 0) {
@@ -15,41 +16,39 @@ export function warrantyTermLabel(termMonths: number): string {
   return `${termMonths} ${termMonths === 1 ? "month" : "months"}`;
 }
 
-const QUIET = "text-ink-muted bg-surface-lifted";
-const NEUTRAL = "text-ink-secondary bg-surface-lifted";
-
 type WarrantyStatusMeta = {
   label: string;
   /** What it means, in the words a roofer would use. */
   hint: string;
-  badge: string;
+  /** Feeds the shared Status primitive (components/ui/status.tsx) — this table still owns the mapping, per Phase 3's "*_STATUS_META continues to own label/tone" doctrine. */
+  tone: StatusTone;
 };
 
 export const WARRANTY_STATUS_META: Record<WarrantyStatus, WarrantyStatusMeta> = {
   DRAFT: {
     label: "Draft",
     hint: "Not reviewed yet. Nobody but your office has seen this.",
-    badge: QUIET,
+    tone: "neutral",
   },
   REVIEWED: {
     label: "Reviewed",
     hint: "Reviewed internally. Ready to send.",
-    badge: NEUTRAL,
+    tone: "info",
   },
   SENT: {
     label: "Sent",
     hint: "Sent. They haven't opened it yet.",
-    badge: NEUTRAL,
+    tone: "info",
   },
   VIEWED: {
     label: "Opened",
     hint: "They've read it. No acknowledgement yet.",
-    badge: NEUTRAL,
+    tone: "info",
   },
   CONFIRMED: {
     label: "Confirmed",
     hint: "They confirmed they received it.",
-    badge: "text-confirm-fg bg-confirm/10",
+    tone: "success",
   },
 };
 

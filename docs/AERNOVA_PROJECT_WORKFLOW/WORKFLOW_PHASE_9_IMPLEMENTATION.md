@@ -1,6 +1,6 @@
 # Phase 9 — Progress Tracking: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §7.8, §12, §14.5, §22, §25 Phase 9 only. Branch: `feature/astryx-integration`. Phases 1–8 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_8_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–8 code beyond the two integration points the job page and `/today` always need.
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §7.8, §12, §14.5, §22, §25 Phase 9 only. Branch: `feature/astryx-integration`. Phases 1–8 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_8_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–8 code beyond the two integration points the job page and `/today` always need.
 
 Core product rule: progress tracking is optional and never blocks anything. Default is computed visit completion ("3 of 5 visits completed"); two independent, optional manual overrides — a crew five-state picker from `/today`, and an office exact-percentage override on the job page — sit on top of it, per §7.8's own decision.
 

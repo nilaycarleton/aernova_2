@@ -23,10 +23,11 @@ import { EmptyState } from "@/components/ui/empty-state";
  * cannot hold which of them have gone quiet, and an unchased $8,000 balance is
  * the difference between making payroll and not.
  *
- * Two figures, not four, and only one of them is cyan (the Readout Rule): what
- * is owed. Overdue sits beside it in the danger tone because it is a subset of
- * that number and the part to act on today — everything else on this page is
- * navigation.
+ * Two figures, not four: what is owed, in plain ink — a balance is a business
+ * figure, never a measurement, so the Readout Rule keeps it off cyan rather
+ * than putting it on. Overdue sits beside it in the danger tone because it is
+ * a subset of that number and the part to act on today — everything else on
+ * this page is navigation.
  */
 export default async function InvoicesPage({
   searchParams,
@@ -157,7 +158,7 @@ export default async function InvoicesPage({
           action={
             <Link
               href="/quotes?status=APPROVED"
-              className="inline-block rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-block rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               See your approved quotes
             </Link>

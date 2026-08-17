@@ -52,19 +52,3 @@ export function FormError({ message }: { message?: string }) {
     </div>
   );
 }
-
-/** The reassurance banner: names the count and promises nothing was lost. */
-export function FormErrorSummary({ count, noun = "job" }: { count: number; noun?: string }) {
-  if (count < 1) return null;
-  return (
-    <div
-      role="alert"
-      className="mb-6 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
-    >
-      {count === 1
-        ? `One thing needs fixing before we can save this ${noun}.`
-        : `${count} things need fixing before we can save this ${noun}.`}{" "}
-      Nothing you typed has been lost.
-    </div>
-  );
-}

@@ -1,6 +1,6 @@
 # Phase 7 — Sales / Financial Stage Mini-Cards: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §16, §17, §25 Phase 7 only. Branch: `feature/astryx-integration`. Phases 1–6 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_6_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–6 code beyond the one small integration point the job page always needs (§16's own stated expectation: "extended with new panels... rather than replaced").
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §16, §17, §25 Phase 7 only. Branch: `feature/astryx-integration`. Phases 1–6 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_6_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–6 code beyond the one small integration point the job page always needs (§16's own stated expectation: "extended with new panels... rather than replaced").
 
 Core product rule: generalize `JobStatusStepper`'s shape (label/description/badge/next-action) into two compact, read-only mini-cards — sales and financial — without building the cross-entity workflow-configuration engine §17 explicitly warns against.
 

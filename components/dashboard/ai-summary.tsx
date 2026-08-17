@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronRight } from "lucide-react";
 
 /**
  * A plain-language recap of where a job stands, generated on demand. It
@@ -63,22 +64,14 @@ export function AiSummary({ jobId }: { jobId: string }) {
           aria-controls="job-overview-body"
           className="flex min-w-0 flex-1 items-center gap-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <ChevronRight
+            size={16}
+            strokeWidth={2}
             aria-hidden="true"
             className={`shrink-0 text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${
               open ? "rotate-90" : ""
             }`}
-          >
-            <path d="m9 18 6-6-6-6" />
-          </svg>
+          />
           <span className="min-w-0">
             <span className="block text-sm font-semibold text-ink-primary">Job overview</span>
             <span className="block text-xs text-ink-primary/50">

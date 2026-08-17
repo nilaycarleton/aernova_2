@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { isWellFormedShareToken } from "@/lib/share-token";
 import { markWarrantyViewed } from "@/app/(public)/w/[token]/actions";
 import { DocumentBrand } from "@/components/public/document-brand";
+import { DocumentSurface, DocumentHeader, DocumentMeta, DocumentFooter } from "@/components/ui/document";
 import { WarrantyAcknowledgement } from "@/components/public/warranty-acknowledgement";
 import { longDate } from "@/lib/long-date";
 import { warrantyTermLabel } from "@/lib/warranty";
@@ -43,9 +44,9 @@ export default async function PublicWarrantyPage({
   const confirmed = warranty.status === "CONFIRMED";
 
   return (
-    <main className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
+    <div className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
       <div className="mx-auto max-w-3xl">
-        <article className="min-w-0 rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
+        <DocumentSurface>
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
               <DocumentBrand name={warranty.company.name} logoUrl={warranty.company.logoUrl} />
@@ -60,10 +61,12 @@ export default async function PublicWarrantyPage({
             ) : null}
           </header>
 
-          <p className="mt-8 text-xs font-medium uppercase tracking-wide text-paper-ink-faint">Warranty</p>
-          <h1 className="mt-1 text-2xl font-semibold text-paper-ink">
-            {warrantyTermLabel(warranty.termMonths)} workmanship warranty
-          </h1>
+          <div className="mt-8">
+            <DocumentHeader
+              eyebrow="Warranty"
+              title={`${warrantyTermLabel(warranty.termMonths)} workmanship warranty`}
+            />
+          </div>
           <p className="mt-1 text-sm text-paper-ink-muted">
             Starts {longDate(warranty.startsAt)}
           </p>
@@ -86,27 +89,14 @@ export default async function PublicWarrantyPage({
             </section>
           ) : null}
 
-          <section className="mt-8 grid gap-6 border-t border-paper-rule pt-6 sm:grid-cols-3">
-            <div>
-              <h3 className="text-xs font-medium uppercase tracking-wide text-paper-ink-faint">From</h3>
-              <p className="mt-1 whitespace-pre-line text-sm text-paper-ink-body">
-                {warranty.companyInfoSnapshot}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-xs font-medium uppercase tracking-wide text-paper-ink-faint">For</h3>
-              <p className="mt-1 whitespace-pre-line text-sm text-paper-ink-body">
-                {warranty.customerInfoSnapshot}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-xs font-medium uppercase tracking-wide text-paper-ink-faint">
-                Property
-              </h3>
-              <p className="mt-1 whitespace-pre-line text-sm text-paper-ink-body">
-                {warranty.propertyAddressSnapshot}
-              </p>
-            </div>
+          <section className="mt-8 border-t border-paper-rule pt-6">
+            <DocumentMeta
+              items={[
+                { label: "From", value: <span className="whitespace-pre-line">{warranty.companyInfoSnapshot}</span> },
+                { label: "For", value: <span className="whitespace-pre-line">{warranty.customerInfoSnapshot}</span> },
+                { label: "Property", value: <span className="whitespace-pre-line">{warranty.propertyAddressSnapshot}</span> },
+              ]}
+            />
           </section>
 
           <WarrantyAcknowledgement token={token} confirmed={confirmed} signerName={warranty.signerName} />
@@ -114,12 +104,12 @@ export default async function PublicWarrantyPage({
           {/* Subtle by design (§20) — the homeowner is confirming a specific
               version, so knowing which one is theirs to see, quietly, never
               competing with the coverage terms for attention. */}
-          <p className="mt-8 text-xs text-paper-ink-faint">
+          <DocumentFooter>
             Warranty version {warranty.version}
             {confirmed && warranty.confirmedAt ? ` · Confirmed ${longDate(warranty.confirmedAt)}` : ""}
-          </p>
-        </article>
+          </DocumentFooter>
+        </DocumentSurface>
       </div>
-    </main>
+    </div>
   );
 }

@@ -3,7 +3,7 @@
 **Status:** Authoritative reference for new Aernova interface work
 **Established:** 2026-08-12
 **Approved direction:** Precision Workshop
-**Companion plan:** [`docs/PREMIUM_UI_REDESIGN_PLAN.md`](./PREMIUM_UI_REDESIGN_PLAN.md)
+**Companion plan:** [`docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_PLAN.md`](./PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_PLAN.md)
 
 ## 1. Purpose
 
@@ -17,14 +17,14 @@ Use this document whenever designing or building a new Aernova feature, route, c
 - a repeatable feature-design and implementation workflow;
 - quality gates that apply before work is considered complete.
 
-This is a durable reference, not a redesign task list. The phased migration sequence lives in `docs/PREMIUM_UI_REDESIGN_PLAN.md`.
+This is a durable reference, not a redesign task list. The phased migration sequence lives in `docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_PLAN.md`.
 
 ## 2. Authority Order
 
 When sources disagree, resolve them in this order:
 
-1. Current approved product behavior and domain rules in `docs/PRODUCT.md` and `docs/AERNOVA_PROJECT_WORKFLOW.md`.
-2. This reference and the approved decision record in `docs/PREMIUM_UI_REDESIGN_PLAN.md`.
+1. Current approved product behavior and domain rules in `docs/PRODUCT.md` and `docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md`.
+2. This reference and the approved decision record in `docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_PLAN.md`.
 3. The current `docs/DESIGN.md`, once rewritten for Precision Workshop.
 4. Existing tested behavior, permission rules, and server contracts.
 5. Astryx component contracts and theme capabilities.

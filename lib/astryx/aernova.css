@@ -113,7 +113,9 @@
     --color-border: light-dark(rgb(22 24 28 / 0.12), rgb(224 226 230 / 0.14));
     --color-border-emphasized: light-dark(rgb(22 24 28 / 0.12), rgb(224 226 230 / 0.14));
     --color-success: light-dark(oklch(69.6% 0.17 162.48), oklch(69.6% 0.17 162.48));
+    --color-on-success: light-dark(oklch(14% 0.014 264), oklch(14% 0.014 264));
     --color-error: light-dark(oklch(63.7% 0.234 25.3), oklch(63.7% 0.234 25.3));
+    --color-on-error: light-dark(oklch(14% 0.014 264), oklch(14% 0.014 264));
     --color-warning: light-dark(oklch(80% 0.15 78), oklch(80% 0.15 78));
     --color-border-blue: light-dark(oklch(62.3% 0.214 259.815), oklch(74.6% 0.16 232.661));
     --color-icon-blue: light-dark(oklch(62.3% 0.214 259.815), oklch(74.6% 0.16 232.661));

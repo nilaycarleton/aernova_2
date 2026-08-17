@@ -314,10 +314,3 @@ export function nodeOdmStatusToProcessingStatus(code: NodeOdmTaskInfo["status"][
 }
 
 export const nodeOdmOutputAssets = outputAssets;
-
-export const isNodeOdxConfigured = isNodeOdmConfigured;
-export const nodeOdxDownloadUrl = nodeOdmDownloadUrl;
-export const createNodeOdxTask = createNodeOdmTask;
-export const getNodeOdxTaskInfo = getNodeOdmTaskInfo;
-export const downloadNodeOdxArchive = downloadNodeOdmAsset;
-export const nodeOdxStatusToProcessingStatus = nodeOdmStatusToProcessingStatus;

@@ -84,6 +84,45 @@ Variables (Production environment), then deploy. `vercel-build` handles
   check already done locally — worth repeating once real production
   origins, not dev ones, are in play).
 
+## Rollback
+
+**Rolling back application code alone, without also rolling back the database
+schema, is not safe by default.** This was rehearsed once, in an isolated git
+worktree that never touched a real database: checking out an earlier commit
+and type-checking it against the *current* branch's generated Prisma client
+surfaced a real incompatibility — the older commit's `lib/request-status.ts`
+was missing a `CONTACTED` status entry that the current Prisma-generated types
+require. Older application code and a newer database schema are not freely
+interchangeable, at least not across every commit pair; the reverse
+(rolling the schema back too) has not been separately verified either.
+
+Whether a specific rollback is safe depends on whether every migration
+between the two commits was purely additive (new nullable columns, new enum
+values with no removed ones, new tables) or contained a destructive/renaming
+change. There is no automated check for this yet — read the migration
+folders (`prisma/migrations/`) between the target commit and the current one
+before assuming a rollback is safe.
+
+Practically, before rolling back a real deployment:
+
+1. Diff `prisma/migrations/` between the deployed commit and the rollback
+   target. If every migration in that range only adds nullable columns,
+   tables, or enum values, code-only rollback (via Vercel's "promote a
+   previous deployment" or `vercel rollback`) is likely safe.
+2. If any migration in that range drops/renames a column or table, or adds a
+   `NOT NULL` column without a default, roll back the schema too (a
+   compensating migration, or a database restore) — do not roll back the
+   application code alone against a schema it was never built against.
+3. Vercel's own rollback mechanism (Project → Deployments → promote a
+   previous deployment, or `vercel rollback`) only reverts the deployed
+   application build. It has no awareness of the database schema and will
+   not roll back or warn about a migration.
+
+This has not yet been exercised against a real production deployment or a
+real database rollback — Aernova has never been deployed to production as of
+this writing. The above is the reviewed procedure for whoever performs the
+first one, not a claim that it has been operationally tested end to end.
+
 ## Known follow-ups, not blockers
 
 - **Prisma major version available** (6.19.3 → 7.9.1 as of this baseline).

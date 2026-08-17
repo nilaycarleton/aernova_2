@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§17/§25 Phase 11.
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§17/§25 Phase 11.
  *
  * A thin read-time join between the static `STATUS_META`/`STATUS_FLOW`
  * (`lib/job-status.ts`, unchanged) and a company's optional

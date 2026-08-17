@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §6/§21/§25 Phase 8 — "no single screen
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §6/§21/§25 Phase 8 — "no single screen
  * composes this chain into one 'financial status of this job' view," now
  * closed. Pure, same doctrine as `lib/quote/totals.ts` and
  * `lib/job-costing.ts`: rows in, figures out, no database in sight.

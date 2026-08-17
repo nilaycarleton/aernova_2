@@ -10,7 +10,7 @@ const TONE_DOT: Record<ActionCenterTone, string> = {
 };
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §3/§11/§15/§25 Phase 12 — the one
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §3/§11/§15/§25 Phase 12 — the one
  * "needs your attention" list, replacing the dashboard's previously
  * separate `ReceivablesSummary`/`NewRequestsSummary` tiles (which said the
  * same two facts this now says once). `PipelineSnapshot` and

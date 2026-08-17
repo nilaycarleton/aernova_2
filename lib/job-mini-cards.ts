@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §16/§17/§25 Phase 7 — generalizing
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §16/§17/§25 Phase 7 — generalizing
  * `JobStatusStepper`'s shape (label/description/badge/next-action) into two
  * read-only mini-cards, not a cross-entity workflow engine. Pure, same
  * doctrine as `lib/pipeline.ts`'s `stageForJob()`: rows in, a small display

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useImperativeAlertDialog } from "@astryxdesign/core/AlertDialog";
 import {
   createCalendarFeedAction,
   revokeCalendarFeedAction,
@@ -20,6 +21,9 @@ import { SubmitButton } from "@/components/dashboard/submit-button";
  */
 export function CalendarFeedPanel({ feedUrl }: { feedUrl: string | null }) {
   const [copied, setCopied] = useState(false);
+  const confirm = useImperativeAlertDialog();
+  const revokeFormRef = useRef<HTMLFormElement>(null);
+  const skipRevokeConfirmRef = useRef(false);
 
   async function copy() {
     if (!feedUrl) return;
@@ -44,7 +48,7 @@ export function CalendarFeedPanel({ feedUrl }: { feedUrl: string | null }) {
           <form action={createCalendarFeedAction}>
             <SubmitButton
               pendingText="Making the link…"
-              className="rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
             >
               Make the link
             </SubmitButton>
@@ -68,7 +72,7 @@ export function CalendarFeedPanel({ feedUrl }: { feedUrl: string | null }) {
             <button
               type="button"
               onClick={copy}
-              className="shrink-0 rounded-xl bg-ink-primary px-5 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {copied ? "Copied" : "Copy link"}
             </button>
@@ -90,16 +94,27 @@ export function CalendarFeedPanel({ feedUrl }: { feedUrl: string | null }) {
           </ul>
 
           <form
+            ref={revokeFormRef}
             action={revokeCalendarFeedAction}
             className="mt-4"
             onSubmit={(event) => {
-              if (
-                !window.confirm(
-                  "Turn the link off? Every calendar it was added to stops updating, including your own phone."
-                )
-              ) {
-                event.preventDefault();
+              if (skipRevokeConfirmRef.current) {
+                skipRevokeConfirmRef.current = false;
+                return;
               }
+              event.preventDefault();
+              confirm.show({
+                title: "Turn the link off?",
+                description:
+                  "Every calendar it was added to stops updating, including your own phone.",
+                actionLabel: "Turn off",
+                actionVariant: "destructive",
+                onAction: () => {
+                  confirm.hide();
+                  skipRevokeConfirmRef.current = true;
+                  revokeFormRef.current?.requestSubmit();
+                },
+              });
             }}
           >
             <SubmitButton
@@ -111,6 +126,8 @@ export function CalendarFeedPanel({ feedUrl }: { feedUrl: string | null }) {
           </form>
         </>
       )}
+
+      {confirm.element}
     </section>
   );
 }

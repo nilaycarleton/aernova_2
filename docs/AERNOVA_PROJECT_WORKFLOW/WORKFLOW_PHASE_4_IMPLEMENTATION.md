@@ -1,6 +1,6 @@
 # Phase 4 — Pre-Construction Checklist: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §7.6, §25 Phase 4 only. Branch: `feature/astryx-integration`. Phases 1–3 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md`/`_2_`/`_3_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, or the quote-builder rendering code, and Phases 1–3 were not refactored.
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §7.6, §25 Phase 4 only. Branch: `feature/astryx-integration`. Phases 1–3 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md`/`_2_`/`_3_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, or the quote-builder rendering code, and Phases 1–3 were not refactored.
 
 Core product rule this phase enforces: **a checklist, not a state.** `Job.status` gains no new value — pre-construction is a gap layer, same "required to advance, not required to exist" doctrine `jobGaps()`/`invoiceSendGaps()`/`qualityCheckCompletionGaps()` already use. It sits between an approved quote and the scheduling panel, reviewed and confirmed by office/estimator roles, never by crew.
 

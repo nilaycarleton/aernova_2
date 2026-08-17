@@ -174,7 +174,7 @@ export function FieldCapturePanel({
           <button
             type="button"
             onClick={handleComplete}
-            className="flex-1 rounded-xl bg-ink-primary px-5 py-4 text-base font-semibold text-ground transition hover:bg-ink-secondary"
+            className="flex-1 rounded-xl bg-action px-5 py-4 text-base font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             Mark this done
           </button>
@@ -223,7 +223,7 @@ export function FieldCapturePanel({
             <button
               type="button"
               onClick={handleSaveNote}
-              className="rounded-xl bg-ink-primary px-4 py-2.5 text-sm font-semibold text-ground transition hover:bg-ink-secondary"
+              className="rounded-xl bg-action px-4 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               Save note
             </button>

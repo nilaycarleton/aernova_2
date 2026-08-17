@@ -1,6 +1,6 @@
 # Phase 5 — Estimate Summary Panel: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §7.3, §25 Phase 5 only. Branch: `feature/astryx-integration`. Phases 1–4 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_4_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, or Phase 1–4 code.
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §7.3, §25 Phase 5 only. Branch: `feature/astryx-integration`. Phases 1–4 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_4_` before starting; nothing here touches the 3D viewer, roof detection, measurement tools, photogrammetry rendering, or Phase 1–4 code.
 
 Core product goal: close the "noted gap" §7.3 has carried since the first draft — "a rolled-up cost/margin summary panel ahead of the line-item builder" — as a pure read/review surface, not a new workflow state, permission, or schema model.
 

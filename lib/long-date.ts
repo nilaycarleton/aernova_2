@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.4/§20/§25 Phase 10 — the date format
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.4/§20/§25 Phase 10 — the date format
  * meant to "outlive the transaction that created it": a long month name, a
  * day, a full year, never a time of day, never a relative phrasing like
  * "3 days ago." A relative date reads fine the week it's written and stops

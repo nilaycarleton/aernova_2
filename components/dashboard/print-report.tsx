@@ -155,9 +155,9 @@ export function PrintReport({ report }: { report: ReportVm }) {
       `}</style>
 
       <div className="print-hide flex items-center justify-between rounded-2xl border border-paper-rule bg-paper-document p-6">
-        <h1 className="text-lg font-semibold text-paper-ink">
+        <p className="text-lg font-semibold text-paper-ink">
           Printable Report Preview
-        </h1>
+        </p>
         <button
           onClick={() => window.print()}
           className="rounded-xl bg-paper-ink px-4 py-2 text-sm font-medium text-paper-document transition hover:bg-paper-ink-body"

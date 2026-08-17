@@ -9,7 +9,7 @@ import { applyWorkflowTemplate } from "@/lib/workflow-template";
 export type SaveWorkflowState = { error?: string; savedAt?: number };
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — v1 is show/hide
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — v1 is show/hide
  * + rename only, so this always writes all eight `STATUS_FLOW` rows in one
  * transaction rather than diffing what changed; `sortOrder` is set to the
  * fixed flow position, never user-editable in v1 (no drag-and-drop). Same

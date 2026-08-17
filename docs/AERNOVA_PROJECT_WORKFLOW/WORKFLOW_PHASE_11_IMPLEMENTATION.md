@@ -1,6 +1,6 @@
 # Phase 11 — Workflow Customization v1: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §14.6, §15, §16, §17, §23, §25 Phase 11 only. Branch: `feature/astryx-integration`. Phases 1–10 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_10_` before starting; nothing here touches the 3D model viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–10 code beyond the one integration point the job page needs and the pre-existing `JobStatusStepper`/`updateJobStatusAction` this phase is specifically about.
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §14.6, §15, §16, §17, §23, §25 Phase 11 only. Branch: `feature/astryx-integration`. Phases 1–10 (confirmed complete and approved) were re-read from `WORKFLOW_PHASE_1_IMPLEMENTATION.md` through `_10_` before starting; nothing here touches the 3D model viewer, roof detection, measurement tools, photogrammetry rendering, the quote builder, or Phase 1–10 code beyond the one integration point the job page needs and the pre-existing `JobStatusStepper`/`updateJobStatusAction` this phase is specifically about.
 
 Core product rule, unchanged from the plan: one shared `JobStatus` enum stays the backend's only source of truth for where a job actually is. `CompanyWorkflowStage`/`WorkflowTemplate` are a display/visibility layer read at render time — never a second state machine, never something `updateJobStatusAction` consults.
 

@@ -5,7 +5,7 @@
 **Approved direction:** Precision Workshop
 **Scope:** Authenticated application, onboarding, public documents, and roof measurement workspace
 
-**Evergreen reference:** [`docs/AERNOVA_DESIGN_REFERENCE.md`](./AERNOVA_DESIGN_REFERENCE.md)
+**Evergreen reference:** [`docs/AERNOVA_DESIGN_REFERENCE.md`](../AERNOVA_DESIGN_REFERENCE.md)
 
 ## 1. Executive Summary
 

@@ -64,7 +64,7 @@ export function RequestsBrowser({
         action={
           <Link
             href="/requests/new"
-            className="inline-flex rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            className="inline-flex rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             Write down a request
           </Link>
@@ -153,7 +153,7 @@ export function RequestsBrowser({
                         <input type="hidden" name="requestId" value={request.id} />
                         <SubmitButton
                           pendingText="Creating…"
-                          className="rounded-xl bg-ink-primary px-4 py-2 text-sm font-semibold text-ground transition hover:bg-ink-secondary disabled:opacity-60"
+                          className="rounded-xl bg-action px-4 py-2 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
                         >
                           Turn into a job
                         </SubmitButton>

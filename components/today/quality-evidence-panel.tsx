@@ -94,7 +94,7 @@ export function QualityEvidencePanel({
 
       <button
         type="submit"
-        className="w-full rounded-xl bg-ink-primary px-5 py-4 text-base font-semibold text-ground transition hover:bg-ink-secondary"
+        className="w-full rounded-xl bg-action px-5 py-4 text-base font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
       >
         {state.submittedAt ? "Saved — update again" : "Save"}
       </button>

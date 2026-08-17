@@ -31,16 +31,18 @@ function num(value: unknown, decimals = 1) {
 /**
  * The primary action, in high-contrast neutral rather than cyan. Cyan used to
  * mark both "this is the number" and "this is the button"; when one colour means
- * two things, neither reads as special. Here the ink/ground inversion carries
- * "clickable" and cyan is left to mean one thing only — the reading.
+ * two things, neither reads as special. Here the ink/ground inversion (the
+ * `action`/`on-action` token pair) carries "clickable" and cyan is left to
+ * mean one thing only — the reading.
  *
- * `text-ground` is correct on this fill even though The Constant-On-Accent Rule
- * forbids it on a bright accent: there, cyan stays fixed while ground flips, so
- * the label would vanish. Here ink-primary and ground are inverses and flip
- * *together* — 20.3:1 in dark, 15.6:1 in light. Don't "fix" this to on-accent.
+ * `text-on-action` is correct on this fill even though The Constant-On-Accent
+ * Rule forbids `on-accent` on a bright accent: there, cyan stays fixed while
+ * ground flips, so the label would vanish. Here `action`/`on-action` are an
+ * inversion pair and flip *together* — 20.3:1 in dark, 15.6:1 in light. Don't
+ * swap this for `on-accent`.
  */
 const primaryAction =
-  "shrink-0 rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "shrink-0 rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 /** The accelerator beside it — offered, never required. */
 const secondaryAction =

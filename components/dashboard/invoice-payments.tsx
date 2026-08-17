@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { PaymentMethod } from "@prisma/client";
+import { useImperativeAlertDialog } from "@astryxdesign/core/AlertDialog";
 import {
   deletePaymentAction,
   recordPaymentAction,
@@ -81,6 +82,10 @@ export function InvoicePayments({
     if (open && openedByUser.current) amountRef.current?.focus();
   }, [open]);
 
+  const confirm = useImperativeAlertDialog();
+  const pendingRemoveFormRef = useRef<HTMLFormElement | null>(null);
+  const skipRemoveConfirmRef = useRef(false);
+
   const settled = balanceCents <= 0;
 
   return (
@@ -137,13 +142,23 @@ export function InvoicePayments({
                 <form
                   action={deletePaymentAction}
                   onSubmit={(event) => {
-                    if (
-                      !window.confirm(
-                        `Remove this ${formatMoney(payment.amountCents)} payment? Do this only if it was recorded by mistake — the balance goes back up.`
-                      )
-                    ) {
-                      event.preventDefault();
+                    if (skipRemoveConfirmRef.current) {
+                      skipRemoveConfirmRef.current = false;
+                      return;
                     }
+                    event.preventDefault();
+                    pendingRemoveFormRef.current = event.currentTarget;
+                    confirm.show({
+                      title: "Remove this payment?",
+                      description: `${formatMoney(payment.amountCents)} — do this only if it was recorded by mistake. The balance goes back up.`,
+                      actionLabel: "Remove",
+                      actionVariant: "destructive",
+                      onAction: () => {
+                        confirm.hide();
+                        skipRemoveConfirmRef.current = true;
+                        pendingRemoveFormRef.current?.requestSubmit();
+                      },
+                    });
                   }}
                 >
                   <input type="hidden" name="jobId" value={jobId} />
@@ -246,7 +261,7 @@ export function InvoicePayments({
               <div className="flex flex-wrap items-center gap-3">
                 <SubmitButton
                   pendingText="Recording…"
-                  className="rounded-xl bg-ink-primary px-5 py-3 text-sm font-semibold text-ground transition hover:bg-ink-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+                  className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
                 >
                   Record it
                 </SubmitButton>
@@ -264,12 +279,14 @@ export function InvoicePayments({
           )}
         </>
       )}
+
+      {confirm.element}
     </section>
   );
 }
 
 const inputClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
 
 function Field({
   label,

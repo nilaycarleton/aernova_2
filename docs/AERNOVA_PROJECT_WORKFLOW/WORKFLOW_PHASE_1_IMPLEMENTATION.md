@@ -1,6 +1,6 @@
 # Phase 1 — Foundations: Implementation Summary
 
-Implements `docs/AERNOVA_PROJECT_WORKFLOW.md` §25 Phase 1 only. Branch: `feature/astryx-integration` (confirmed via `git branch --show-current` before starting — not `main`).
+Implements `AERNOVA_PROJECT_WORKFLOW.md` §25 Phase 1 only. Branch: `feature/astryx-integration` (confirmed via `git branch --show-current` before starting — not `main`).
 
 ## Files changed
 

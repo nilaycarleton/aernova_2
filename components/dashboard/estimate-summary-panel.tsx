@@ -2,7 +2,7 @@ import { formatMoney } from "@/lib/money";
 import type { QuoteTotals } from "@/lib/quote/totals";
 
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §7.3/§25 Phase 5 — the "noted gap" from
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §7.3/§25 Phase 5 — the "noted gap" from
  * the first draft: a rolled-up read of the estimate's financial shape,
  * ahead of the line-item builder rather than after it. Purely
  * presentational — every figure here is a `QuoteTotals` field the builder

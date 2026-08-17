@@ -1,5 +1,5 @@
 /**
- * docs/AERNOVA_PROJECT_WORKFLOW.md §3/§11/§15/§25 Phase 12.
+ * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §3/§11/§15/§25 Phase 12.
  *
  * One list, not three competing tiles. This is a pure derivation over
  * narrow input facts the dashboard page has already computed — zero
