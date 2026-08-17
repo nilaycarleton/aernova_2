@@ -103,7 +103,7 @@ export function InvoiceBillingAddress({
 
         <SubmitButton
           pendingText="Saving…"
-          className="rounded-xl border border-hairline px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+          className="rounded-lg border border-hairline px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
         >
           Save
         </SubmitButton>
@@ -113,7 +113,7 @@ export function InvoiceBillingAddress({
 }
 
 const inputClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
 
 function Field({
   label,

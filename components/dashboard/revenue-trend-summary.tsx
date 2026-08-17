@@ -40,7 +40,7 @@ export async function RevenueTrendSummary({ companyId }: { companyId: string }) 
   const nothingBilled = currentCents === 0 && priorCents === 0;
 
   return (
-    <section className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-6">
+    <section className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-6">
       <NumericReadout
         label="Revenue, last 30 days"
         value={nothingBilled ? null : formatMoney(currentCents)}

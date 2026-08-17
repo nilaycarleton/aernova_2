@@ -15,10 +15,10 @@ import {
 } from "@/lib/format";
 
 const SELECT =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue";
 
 function textCls(error?: string) {
-  return `w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none ${
+  return `w-full rounded-lg border bg-ground/50 px-4 py-3 text-ink-primary outline-none ${
     error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"
   }`;
 }
@@ -46,7 +46,7 @@ export function MeasurementEditForm({
   return (
     <>
       <FormError message={state.formError} />
-      <form action={formAction} className="rounded-3xl border border-hairline bg-surface-raised p-5">
+      <form action={formAction} className="rounded-lg border border-hairline bg-surface-raised p-5">
         <input type="hidden" name="measurementId" value={measurement.id} />
         <input type="hidden" name="jobId" value={jobId} />
 
@@ -129,7 +129,7 @@ export function MeasurementEditForm({
         <div className="mt-5 flex flex-wrap gap-3">
           <SubmitButton
             pendingText="Saving…"
-            className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+            className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
           >
             Save Changes
           </SubmitButton>

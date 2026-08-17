@@ -16,7 +16,7 @@ import { EmptyState } from "@/components/ui/empty-state";
  * building the display, not inventing the content.
  *
  * List/ListItem/Timestamp are Astryx primitives (Phase 3 of the Astryx
- * integration); the outer panel stays hand-built at `rounded-2xl` to match
+ * integration); the outer panel stays hand-built at `rounded-lg` to match
  * DESIGN.md's own panel radius, which has no Astryx equivalent (see
  * lib/astryx/theme.ts's radius comment).
  */
@@ -37,7 +37,7 @@ export async function RecentActivity({ companyId }: { companyId: string }) {
   const actorNameById = new Map(actors.map((actor) => [actor.id, personName(actor)]));
 
   return (
-    <section className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-6">
+    <section className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-6">
       <h2 className="text-sm font-semibold text-ink-primary">Recent activity</h2>
 
       {events.length === 0 ? (

@@ -161,12 +161,12 @@ export function RoofAssistant({
             onKeyDown={onKeyDown}
             rows={1}
             placeholder="Ask about this roof or its quote…"
-            className="max-h-32 flex-1 resize-none rounded-xl border border-hairline bg-ground/50 px-3 py-2 text-sm text-ink-primary placeholder:text-ink-primary/40 focus:border-signal-blue focus:outline-none"
+            className="max-h-32 flex-1 resize-none rounded-lg border border-hairline bg-ground/50 px-3 py-2 text-sm text-ink-primary placeholder:text-ink-primary/40 focus:border-signal-blue focus:outline-none"
           />
           <button
             onClick={() => send(input)}
             disabled={busy || !input.trim()}
-            className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+            className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
           >
             {busy ? "…" : "Send"}
           </button>

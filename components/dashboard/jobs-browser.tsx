@@ -3,12 +3,13 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { JobStatus } from "@prisma/client";
-import { ALL_STATUSES, STATUS_META, statusBadgeClass } from "@/lib/job-status";
+import { ALL_STATUSES, STATUS_META, statusTone } from "@/lib/job-status";
 import { deleteJobAction } from "@/app/(dashboard)/jobs/[jobId]/status-actions";
 import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
 import { FilterToolbar } from "@/components/ui/filter-toolbar";
 import { DataRow } from "@/components/ui/data-row";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Status } from "@/components/ui/status";
 
 // Was a hand-rolled `window.confirm` on the form's `onSubmit` — the same
 // question, now asked through the shared ConfirmSubmit primitive instead of
@@ -89,7 +90,7 @@ export function JobsBrowser({
         action={
           <Link
             href="/jobs/new"
-            className="inline-flex rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            className="inline-flex rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             New job
           </Link>
@@ -137,7 +138,7 @@ export function JobsBrowser({
       {filtered.length === 0 ? (
         <EmptyState kind="filtered" title="No jobs match your filters." />
       ) : (
-        <ul className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface-raised">
+        <ul className="divide-y divide-hairline rounded-lg border border-hairline bg-surface-raised">
           {filtered.map((job) => (
             <DataRow
               key={job.id}
@@ -161,13 +162,7 @@ export function JobsBrowser({
               }
               trailing={
                 <div className="flex flex-col items-end gap-2">
-                  <span
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${statusBadgeClass(
-                      job.status
-                    )}`}
-                  >
-                    {STATUS_META[job.status].label}
-                  </span>
+                  <Status variant="solid" tone={statusTone(job.status)} label={STATUS_META[job.status].label} />
                   <DeleteProjectButton jobId={job.id} jobName={job.name} />
                 </div>
               }

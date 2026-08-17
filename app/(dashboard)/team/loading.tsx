@@ -10,9 +10,9 @@ export default function TeamLoading() {
         <div className="h-4 w-80 animate-pulse rounded-md bg-surface-lifted" />
       </div>
 
-      <div className="h-40 animate-pulse rounded-3xl border border-hairline bg-surface-raised" />
+      <div className="h-40 animate-pulse rounded-lg border border-hairline bg-surface-raised" />
 
-      <div className="rounded-3xl border border-hairline bg-surface-raised px-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised px-6">
         <SkeletonList rows={4} />
       </div>
     </div>

@@ -7,7 +7,7 @@ import { ClientPicker, type ClientSelection } from "@/components/dashboard/clien
 import { SubmitButton } from "@/components/dashboard/submit-button";
 
 const FIELD =
-  "w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted";
+  "w-full rounded-lg border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted";
 
 /** Red stroke on the field itself, so the problem is visible without reading. */
 function fieldClass(error?: string) {
@@ -76,11 +76,11 @@ export function NewJobForm() {
   const isNewClient = selection?.kind === "new";
 
   return (
-    <form action={formAction} className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <form action={formAction} className="rounded-lg border border-hairline bg-surface-raised p-6">
       {errorCount > 0 ? (
         <div
           role="alert"
-          className="mb-6 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
+          className="mb-6 rounded-lg border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
         >
           {errorCount === 1
             ? "One thing needs fixing before we can save this job."
@@ -334,14 +334,14 @@ export function NewJobForm() {
       <div className="mt-8 flex flex-wrap gap-3">
         <SubmitButton
           pendingText="Creating…"
-          className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
+          className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Create job
         </SubmitButton>
 
         <Link
           href="/jobs"
-          className="rounded-xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
+          className="rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
         >
           Cancel
         </Link>

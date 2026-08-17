@@ -46,7 +46,7 @@ export function InvoiceDrawForm({
         <div className="flex flex-wrap items-center gap-4">
           <SubmitButton
             pendingText="Raising…"
-            className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+            className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
           >
             {isFirstDraw ? "Raise an invoice" : `Bill the remaining ${formatMoney(remainingCents)}`}
           </SubmitButton>
@@ -103,7 +103,7 @@ export function InvoiceDrawForm({
           <div className="flex flex-wrap items-center gap-4">
             <SubmitButton
               pendingText="Raising…"
-              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+              className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Raise this draw
             </SubmitButton>
@@ -122,4 +122,4 @@ export function InvoiceDrawForm({
 }
 
 const inputClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";

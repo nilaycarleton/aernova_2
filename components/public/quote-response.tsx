@@ -45,7 +45,7 @@ export function QuoteResponse({
 
   if (status === "APPROVED") {
     return (
-      <aside className="rounded-2xl border border-paper-rule bg-paper-inset p-6 lg:sticky lg:top-8">
+      <aside className="rounded-lg border border-paper-rule bg-paper-inset p-6 lg:sticky lg:top-8">
         <p className="font-semibold text-paper-ink">Thanks — that&rsquo;s approved.</p>
         <p className="mt-2 text-sm leading-6 text-paper-ink-muted">
           {depositLabel
@@ -58,7 +58,7 @@ export function QuoteResponse({
 
   if (status === "CHANGES_REQUESTED") {
     return (
-      <aside className="rounded-2xl border border-paper-rule bg-paper-inset p-6 lg:sticky lg:top-8">
+      <aside className="rounded-lg border border-paper-rule bg-paper-inset p-6 lg:sticky lg:top-8">
         <p className="font-semibold text-paper-ink">We got your note.</p>
         <p className="mt-2 text-sm leading-6 text-paper-ink-muted">
           We&rsquo;ll have another look and send you an updated quote.
@@ -68,7 +68,7 @@ export function QuoteResponse({
   }
 
   return (
-    <aside className="rounded-2xl border border-paper-rule bg-paper-inset p-6 lg:sticky lg:top-8">
+    <aside className="rounded-lg border border-paper-rule bg-paper-inset p-6 lg:sticky lg:top-8">
       <p className="text-sm text-paper-ink-muted">Your price</p>
       <p className="mt-1 text-2xl font-semibold tabular-nums text-paper-ink">{totalLabel}</p>
       {totals.acceptedOptionalCents > 0 ? (
@@ -97,19 +97,19 @@ export function QuoteResponse({
             rows={4}
             required
             placeholder="Anything at all — a different shingle, leaving the gutters, a question about the price."
-            className="mt-2 w-full rounded-xl border border-paper-rule-strong bg-paper-document px-3 py-2.5 text-sm text-paper-ink outline-none transition placeholder:text-paper-ink-faint focus:border-signal-blue"
+            className="mt-2 w-full rounded-md border border-paper-rule-strong bg-paper-document px-3 py-2.5 text-sm text-paper-ink outline-none transition placeholder:text-paper-ink-faint focus:border-signal-blue"
           />
           <div className="mt-3 flex flex-wrap gap-2">
             <SubmitButton
               pendingText="Sending…"
-              className="rounded-xl bg-paper-ink px-4 py-2.5 text-sm font-semibold text-paper-document transition hover:bg-paper-ink-strong disabled:opacity-60"
+              className="rounded-lg bg-paper-ink px-4 py-2.5 text-sm font-semibold text-paper-document transition hover:bg-paper-ink-strong disabled:opacity-60"
             >
               Send it
             </SubmitButton>
             <button
               type="button"
               onClick={() => setAsking(false)}
-              className="rounded-xl border border-paper-rule-strong px-4 py-2.5 text-sm font-medium text-paper-ink-body transition hover:bg-paper"
+              className="rounded-lg border border-paper-rule-strong px-4 py-2.5 text-sm font-medium text-paper-ink-body transition hover:bg-paper"
             >
               Never mind
             </button>
@@ -129,11 +129,11 @@ export function QuoteResponse({
               required
               defaultValue={clientName}
               autoComplete="name"
-              className="mt-2 w-full rounded-xl border border-paper-rule-strong bg-paper-document px-3 py-2.5 text-sm text-paper-ink outline-none transition focus:border-signal-blue"
+              className="mt-2 w-full rounded-md border border-paper-rule-strong bg-paper-document px-3 py-2.5 text-sm text-paper-ink outline-none transition focus:border-signal-blue"
             />
             <SubmitButton
               pendingText="Approving…"
-              className="mt-3 w-full rounded-xl bg-confirm px-4 py-3 text-sm font-semibold text-on-accent transition hover:opacity-90 disabled:opacity-60"
+              className="mt-3 w-full rounded-lg bg-confirm px-4 py-3 text-sm font-semibold text-on-accent transition hover:opacity-90 disabled:opacity-60"
             >
               Approve this quote
             </SubmitButton>
@@ -148,7 +148,7 @@ export function QuoteResponse({
           <button
             type="button"
             onClick={() => setAsking(true)}
-            className="w-full rounded-xl border border-paper-rule-strong px-4 py-3 text-sm font-medium text-paper-ink-body transition hover:bg-paper"
+            className="w-full rounded-lg border border-paper-rule-strong px-4 py-3 text-sm font-medium text-paper-ink-body transition hover:bg-paper"
           >
             Ask for a change
           </button>

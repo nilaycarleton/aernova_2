@@ -9,10 +9,10 @@ export default function PipelineLoading() {
 
       <div className="flex gap-4 overflow-x-auto pb-2">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="w-72 shrink-0 space-y-2 rounded-2xl border border-hairline bg-surface-raised p-3">
+          <div key={i} className="w-72 shrink-0 space-y-2 rounded-lg border border-hairline bg-surface-raised p-3">
             <div className="h-4 w-20 animate-pulse rounded-md bg-surface-lifted" />
-            <div className="h-16 animate-pulse rounded-xl bg-ground/40" />
-            <div className="h-16 animate-pulse rounded-xl bg-ground/40" />
+            <div className="h-16 animate-pulse rounded-lg bg-ground/40" />
+            <div className="h-16 animate-pulse rounded-lg bg-ground/40" />
           </div>
         ))}
       </div>

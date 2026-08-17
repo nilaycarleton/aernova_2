@@ -72,7 +72,7 @@ export default async function JobsPage({
           jobs.length > 0 ? (
             <Link
               href="/jobs/new"
-              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               New job
             </Link>
@@ -84,7 +84,7 @@ export default async function JobsPage({
             // shortcut past it is just a second door to the same room.
             <Link
               href="/jobs/quick"
-              className="rounded-xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument sm:hidden"
+              className="rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument sm:hidden"
             >
               Quick job
             </Link>
@@ -145,8 +145,8 @@ async function DisabledWorkflowStageJobs({ companyId }: { companyId: string }) {
         name: entry.title,
         clientName: jobClient(job).name,
         address: formatAddress(jobAddress(job)),
+        status: meta.status,
         statusLabel: meta.label,
-        statusBadge: meta.badge,
         stageEnteredAt: entry.stageEnteredAt,
       },
     ];

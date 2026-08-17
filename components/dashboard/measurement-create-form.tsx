@@ -14,10 +14,10 @@ import {
 } from "@/lib/format";
 
 const SELECT =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue";
 
 function textCls(error?: string) {
-  return `w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary placeholder:text-ink-muted outline-none ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`;
+  return `w-full rounded-md border bg-ground/50 px-4 py-3 text-ink-primary placeholder:text-ink-muted outline-none ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`;
 }
 
 export function MeasurementCreateForm({ jobId }: { jobId: string }) {
@@ -127,7 +127,7 @@ export function MeasurementCreateForm({ jobId }: { jobId: string }) {
       <div className="md:col-span-2 flex flex-wrap gap-3">
         <SubmitButton
           pendingText="Adding…"
-          className="rounded-xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+          className="rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
         >
           Add Measurement
         </SubmitButton>

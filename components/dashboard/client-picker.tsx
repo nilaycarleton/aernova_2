@@ -280,7 +280,7 @@ export function ClientPicker({ initialQuery = "", error, onSelectionChange }: Pr
         // A tick, so a click on an option lands before the list closes.
         onBlur={() => setTimeout(() => setOpen(false), 120)}
         onKeyDown={onKeyDown}
-        className={`w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted ${
+        className={`w-full rounded-lg border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted ${
           error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"
         }`}
       />
@@ -310,7 +310,7 @@ export function ClientPicker({ initialQuery = "", error, onSelectionChange }: Pr
         // because the form fields underneath read straight through. And no
         // shadow: this system is flat by doctrine and layers by tone
         // (DESIGN.md), so a floating layer gets its own opaque neutral instead.
-        <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-hairline bg-surface-sidebar">
+        <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-lg border border-hairline bg-surface-sidebar">
           {visible.length > 1 ? (
             // Outside the listbox, not a presentational row inside it: a
             // listbox's children have to be options, and a screen reader
@@ -339,7 +339,7 @@ export function ClientPicker({ initialQuery = "", error, onSelectionChange }: Pr
                 select({ kind: "existing", client });
               }}
               onMouseEnter={() => setActive(index)}
-              className={`cursor-pointer rounded-xl px-3 py-2.5 ${
+              className={`cursor-pointer rounded-lg px-3 py-2.5 ${
                 active === index ? "bg-surface-lifted" : ""
               }`}
             >
@@ -358,7 +358,7 @@ export function ClientPicker({ initialQuery = "", error, onSelectionChange }: Pr
                 select({ kind: "new", name: trimmed, isBusiness: looksLikeBusiness(query) });
               }}
               onMouseEnter={() => setActive(CREATE_INDEX)}
-              className={`cursor-pointer rounded-xl px-3 py-2.5 ${
+              className={`cursor-pointer rounded-lg px-3 py-2.5 ${
                 active === CREATE_INDEX ? "bg-surface-lifted" : ""
               } ${visible.length > 0 ? "mt-1 border-t border-hairline pt-3" : ""}`}
             >
@@ -412,7 +412,7 @@ function SelectedClient({
     <div>
       <p className="mb-2 block text-sm font-medium text-ink-secondary">Who it&rsquo;s for</p>
 
-      <div className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-hairline bg-surface-lifted px-4 py-3">
+      <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-hairline bg-surface-lifted px-4 py-3">
         <div className="min-w-0">
           <p className="font-medium text-ink-primary">{name}</p>
           <p className="text-sm text-ink-muted">

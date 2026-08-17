@@ -38,7 +38,7 @@ export type StartTemplate = {
 };
 
 const PRIMARY =
-  "shrink-0 rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "shrink-0 rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 export function QuoteStartDialog({
   jobId,
@@ -104,7 +104,7 @@ export function QuoteStartDialog({
                   <button
                     type="submit"
                     disabled={managing}
-                    className="w-full rounded-xl px-3 py-3 text-left transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:cursor-default disabled:hover:bg-transparent"
+                    className="w-full rounded-lg px-3 py-3 text-left transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:cursor-default disabled:hover:bg-transparent"
                   >
                     <span className="block truncate text-sm font-medium text-ink-primary">
                       {template.name}
@@ -145,7 +145,7 @@ export function QuoteStartDialog({
               <input type="hidden" name="jobId" value={jobId} />
               <SubmitButton
                 pendingText="Opening…"
-                className="rounded-xl border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+                className="rounded-lg border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
               >
                 Start from scratch
               </SubmitButton>
@@ -154,7 +154,7 @@ export function QuoteStartDialog({
             <button
               type="button"
               onClick={() => handleOpenChange(false)}
-              className="rounded-xl px-3 py-2.5 text-sm text-ink-secondary transition hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="rounded-lg px-3 py-2.5 text-sm text-ink-secondary transition hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               Never mind
             </button>

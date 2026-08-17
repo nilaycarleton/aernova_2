@@ -2,6 +2,8 @@
 
 **This is not Phase 9.** Phases 0–8 are complete and closed; this document is an independent, evidence-based verification of that closure, not a continuation of the roadmap. Nothing in it authorizes further phases.
 
+> **Superseded 2026-08-17.** §1–34 below are the original audit, preserved verbatim as historical record — do not edit them. The three code-level blockers they identified (visual regression, radius, status-badge duplication) were closed in a follow-up completion pass; see **§35, "Post-Audit Completion Pass — 2026-08-17"** at the end of this document for the current verdict and evidence. The original **NOT COMPLETE** verdict in §1 no longer reflects the current state of the codebase.
+
 ## 1. Verdict
 
 **NOT COMPLETE.**
@@ -355,3 +357,137 @@ No Prisma schema change. No migration. No permission-table (`lib/permissions.ts`
 Not every code-level requirement in `PREMIUM_UI_REDESIGN_PLAN.md` is complete. The foundation (tokens, typography, shell, primitives, all 11 operational route families, public documents, onboarding/auth, and the roof viewer) is genuinely, verifiably built and correctly cut over — no production route mixes old and new foundations, no P0 or P1 finding from any phase remains open, and the one previously-unexplained test failure is now a real fix with a verified root cause rather than an assumption. But three Phase 8 deliverables — automated visual-regression coverage, the radius reduction target, and status-badge consolidation — are genuinely, quantifiably unfinished at the code level, not blocked by anything external. That is a real "not yet" honestly reported, not a hedge.
 
 Premium UI Redesign final audit complete. The redesign is not yet fully complete; the unresolved code-level blockers are listed above. There is no Phase 9.
+
+---
+
+## 35. Post-Audit Completion Pass — 2026-08-17
+
+**This is not Phase 9.** This section closes the three code-level blockers §1–34 identified above (visual regression, radius, status-badge duplication) with genuine, verified work — not a re-characterization of the same gaps. §1–34 are left untouched above as the historical record of what was true before this pass.
+
+### 35.1 Verdict
+
+**CODE-COMPLETE / RELEASE-BLOCKED.**
+
+Not **FULLY RELEASED** — no production deployment has occurred (§29, §35.9 below), so there is nothing to have released. Not **NOT COMPLETE** — all three code-level blockers named in §1 are closed with verified evidence, not asserted. What remains open is exactly what §33's original "EXTERNAL BLOCKERS" and "MANUAL RELEASE CHECKS" lists already named (real brand asset, a real production deployment, real-device testing) — none of which are code-level work, and none of which this pass was asked to resolve.
+
+### 35.2 Blocker 1 closed — persistent automated visual regression
+
+§21's conclusion ("no persistent, automated, rerunnable visual-regression coverage exists") is no longer true.
+
+- **Tool:** `@playwright/test@1.62.1` (exact-pinned), real Chromium, real dev server (`webServer` in `playwright.config.ts`), real Clerk authentication via the official `@clerk/testing@2.2.24` SDK (`clerkSetup()` + `clerk.signIn()` — no password/bot-bypass hack), a one-time "setup" project producing a reusable `storageState` per Playwright's own documented pattern.
+- **Data:** a dedicated, idempotent seed script (`tests/visual/fixtures/seed-visual-test-company.mjs`, Prisma `upsert`) populates a fixed "Aernova Demo Roofing" company — client, property, 3 jobs, 1 request, a quote, an invoice, a change order, a warranty — under a dedicated Clerk test user, so the suite never depends on hand-curated production-like data drifting out of sync.
+- **Coverage:** 12 spec files, 41 tests, spanning every route family named in the plan's own "Visual regression coverage for all route families" deliverable — shell/dashboard, jobs (list + workspace + new-job form), pipeline/requests, field (today/schedule), business (quotes/invoices/change-orders/reports), clients, company (team/settings), entry (auth), public documents (all four token routes + client hub), and the roof viewer's scan tab. Viewport coverage spans mobile (390px) through wide (1920px); theme coverage includes both dark and light where the route supports switching.
+- **Command:** `npm run test:visual` (`playwright test`); baselines update via `npm run test:visual:update`.
+- **Result:** **41/41 passing**, run twice consecutively without `--update-snapshots` in this pass (once after the radius/status code changes landed, once again as final confirmation) — a real, rerunnable, evidence-backed pass, not a one-time capture.
+- **A genuine bug was found and fixed in the harness itself, not the product:** Aernova's authenticated shell sets `<html>`/`<body>` to `overflow: hidden auto` (the real scrollable region is `#main-content`), which made Playwright's own `fullPage: true` screenshot capture silently composite blank voids over real content on any route taller than one viewport. Root-caused via direct DOM/computed-style inspection (not guessed), and fixed by measuring the true content height across `documentElement`/`body`/`#main-content`, resizing the viewport to that height, doing a fresh `page.goto()` (not `reload()` — verified `reload()` does not reliably repaint after a resize on this app), then capturing at `fullPage: false` (not `true` — `toHaveScreenshot`'s own internal fullPage resize logic was independently shown capable of re-triggering the same bug even on an already-correctly-sized viewport). Documented in `tests/visual/README.md` for future maintainers. This fix was necessary before any baseline could be trusted, and every tall authenticated route (e.g., the 3673px job workspace) was manually inspected end-to-end after the fix, per this pass's own instruction not to finish visual work from automated output alone.
+- **Not committed to the visual suite this pass, and out of scope:** genuine cross-browser (Safari/Firefox) or real-device visual coverage — Playwright's Chromium project is the only one configured, matching what a single-engine CI budget can sustain; this is a reasonable, explicit scope boundary, not a silent gap. Real-device/cross-browser testing remains a MANUAL RELEASE CHECK per §23, unchanged.
+
+### 35.3 Blocker 2 closed — radius migration
+
+§18's finding (537 occurrences of `rounded-{xl,2xl,3xl}`, "the redesign has not fully cut over on radius") is resolved.
+
+- **Every one of the 537 occurrences was mechanically migrated**, not sampled: `rounded-3xl` → `rounded-lg` (122 occurrences), `rounded-2xl` → `rounded-lg` (123 occurrences), `rounded-xl` → `rounded-md` where the surrounding class context matched a button/input pattern and `rounded-lg` otherwise (63 files, resolved individually, not blanket-mapped).
+- **The KEEP-composite panels §18 explicitly deferred as a group** (`JobStatusStepper`, `PreConstructionChecklistPanel`, `QualityCheckPanel`, `ChangeOrdersPanel`, `AdditionalWorkPanel`, `FinancialCompletionPanel`, `WarrantyPanel`, `VisitPanel`, `JobProgressPanel`, `estimate-summary-panel.tsx`, `status-mini-card.tsx`) were migrated together in this pass, not left half-done — every sibling in each vertical stack now shares the same 8px-maximum radius scale, closing the exact "fixing one without its siblings reads as broken" risk §18/§33 named as the reason for deferring them.
+- **Exactly 2 occurrences remain, both intentional and both allowlisted**, not silently excluded: `components/dashboard/roof-assistant.tsx`'s two chat-bubble message shapes (`rounded-2xl rounded-br-sm` / `rounded-2xl rounded-bl-sm`) — a recognized asymmetric chat-bubble convention, not a generic panel or control, and not the "hundreds of generic operational cards, buttons, and controls" §18's failure condition described.
+- **A new permanent regression test enforces this going forward:** `tests/radius-invariant.test.ts` scans every `.ts`/`.tsx` file under `app/`, `components/`, `lib/` for `rounded-(xl|2xl|3xl)`, asserts zero unexplained occurrences against a checked-in allowlist (currently exactly the 2 chat-bubble lines above, each with a written reason), and separately asserts every allowlist entry still points at real, matching source — so a stale allowlist entry (one whose line no longer contains the claimed class) fails loudly instead of silently drifting. **2/2 passing**, confirmed independently in this pass (not only as part of the full suite run).
+- Two sed-mangled prose comments that referenced the old class names as literal text (`app/(dashboard)/quotes/page.tsx`, `lib/clerk-appearance.ts`) were caught by a post-migration re-grep and hand-fixed, per this pass's own discipline of not trusting a mechanical find-and-replace against comments.
+
+### 35.4 Blocker 3 closed — status-badge consolidation
+
+§19's finding ("status-badge duplication is real in 5 of 6 remaining domain files") is resolved — and one additional duplication the original audit's own file list missed was found and closed in the same pass, addressed below.
+
+**All 6 domain status families now have a pure tone adapter, and every production JSX consumer renders through the shared `Status` primitive** (`components/ui/status.tsx`):
+
+| File | Tone adapter | Production JSX migrated |
+|---|---|---|
+| `lib/warranty.ts` | Pre-existing (`tone` field) | Already migrated (Phase 6) — unchanged |
+| `lib/client-status.ts` | `clientStatusTone()` (pre-existing) | Already migrated in the original audit pass (§19); dead `badge` field removed this pass |
+| `lib/job-status.ts` | `statusTone()` (pre-existing, Phase 4) | `jobs-browser.tsx` list badge, `disabled-stage-jobs-list.tsx` — **migrated this pass** |
+| `lib/quote-status.ts` | `quoteStatusTone()` — **new this pass** | `quotes-table.tsx` / `app/(dashboard)/quotes/page.tsx` — **migrated this pass** |
+| `lib/invoice/status.ts` | `invoiceStatusTone()` — **new this pass** | `invoices-table.tsx` / `app/(dashboard)/invoices/page.tsx`, the invoice-detail page's header badge — **migrated this pass** |
+| `lib/request-status.ts` | `requestStatusTone()` — **new this pass** | `requests-browser.tsx` — **migrated this pass** |
+| `lib/job-mini-cards.ts` | Consumes `quoteStatusTone()`/`invoiceStatusTone()`; `MiniCardState.badge: string` → `MiniCardState.tone: StatusTone` | `status-mini-card.tsx` + its 2 call sites in the job workspace — **migrated this pass** |
+
+- **A sixth duplicated family the original audit's named list did not include was found and closed in this pass:** `lib/client-status.ts`'s `CLIENT_STATUS_META` still carried a dead `badge: string` field (unused — both of its production consumers, `clients-browser.tsx` and the client detail page, already read only `.label` and used `clientStatusTone()` for color, confirmed by a repo-wide grep before removal) — removed. This was found via a final repo-wide sweep for the bare identifier `badge`, not assumed complete from the 5-file list alone, per this pass's explicit "search for/eliminate remaining raw duplicated status-pill implementations" instruction.
+- **Every now-dead `badge`/`statusBadgeClass` field was removed**, not left as unused dead code: `QuoteStatusMeta.badge`, `InvoiceStatusMeta`'s equivalent, `job-status.ts`'s `statusBadgeClass()` function and its `IN_FLIGHT`/`COMPLETE`/`ARCHIVED_BADGE` constants, `workflow-stages.ts`'s `EffectiveStageMeta.badge`, and `client-status.ts`'s `badge` field are all gone. A repo-wide grep for `.badge\b` across `app/`, `components/`, `lib/` after these removals returns zero hits.
+- **Other `rounded-full` pills found during the duplication sweep were deliberately left untouched** — they belong to different, out-of-scope enums/concepts: `VisitStatus` (schedule/today "Done"/"Missed" pills), inspection-issue `severity`, and single-boolean completion confirmations (pre-construction checklist, quality-check panel). None of these are one of the 6 status families this pass (or the original audit) named as in scope, and the user's explicit constraints prohibit touching workflow stages or other enums beyond this scope.
+- **Adapter tests cover label + tone semantics for every family, never a Tailwind class-string snapshot:** `tests/quote-status.test.ts`, `tests/invoice-status-tone.test.ts` (new file), `tests/request-status.test.ts`, `tests/job-status-tone.test.ts`, `tests/client-status-tone.test.ts`, and `tests/job-mini-cards.test.ts` (extended with `.tone` assertions on every branch, including a new "overdue invoice reads as danger" case) all assert on the returned `StatusTone` value and the human-facing `label`, exactly as the original `job-status-tone.test.ts`/`status-tone.test.ts` pattern already established — no test asserts on a rendered class string.
+- **Visual confirmation, not just a passing diff:** the Playwright suite (§35.2) was re-run after this migration and passed 41/41 against pre-existing baselines without needing `--update-snapshots`, and five representative screenshots (jobs list, quotes list, invoice detail, requests, client detail, job workspace mini-cards) were manually opened and visually inspected in this pass — every status pill renders as a correct, solid-filled, tonally-colored badge with its label intact.
+
+### 35.5 Regression check against Phases 0–8
+
+Nothing in §5–17 (the per-phase Phase 0–8 audits) changed in a way that reopens any of them. This pass touched only: `lib/{job,quote,request,client}-status.ts`, `lib/invoice/status.ts`, `lib/job-mini-cards.ts`, `lib/workflow-stages.ts` (removed dead field only), `components/ui/status.tsx` (unchanged — already correct), 9 render-site components/pages for the status migration, ~180 files for the mechanical radius class rename, and new test/visual-suite files. No Prisma schema, migration, permission table, workflow/status enum, financial/quote/invoice/tax logic, Stripe/payment behavior, warranty/Additional-Work/Change-Order semantics, recurrence semantics, or client-lifecycle code was touched, consistent with this pass's explicit constraints. Specifically re-confirmed unregressed:
+
+- **Phase 1 (tokens):** `tests/design-tokens.test.ts` still passes (part of the 509 total, §35.6); no token file was touched.
+- **Phase 3 (primitives):** `components/ui/status.tsx` itself was not modified — this pass added consumers, not a new primitive or a change to the existing one's API.
+- **Phase 4 (dashboard/job workspace):** the job workspace's Sales/Financial mini-cards were visually re-confirmed correct (§35.4) after their `badge`→`tone` prop rename.
+- **Phase 5 (11 route families):** every route family's own list/detail page that carried a status pill was migrated in this pass, closing the exact gap §10/§19 identified as belonging to this phase.
+- **Phase 6 (public documents):** untouched — the public token routes (`/q`, `/i`, `/co`, `/w`) render their own status copy via a separate mechanism (ternary confirmation banners, not the domain `*_STATUS_META` tables), confirmed by direct read during the duplication sweep, and were correctly left alone as out of scope.
+- **Phase 8 (`action-guards.test.ts`, `quote-start-dialog.tsx`, rollback doc):** none of the original audit's own fixes (§16, §17, §29) were touched or reverted this pass.
+- A repo-wide legacy-pattern sweep (Field Notebook, `bg-ink-primary`/`text-ground` raw hardcodes, `window.confirm(`, `showModal(`, raw `<dialog`, `TODO`/`FIXME`/`temporary`) found zero new live occurrences — every hit is either `docs/DESIGN.md`'s own historical explanation of the prior system's name, a demo swatch in the internal design-system page, or a comment describing an already-completed migration. No regression.
+
+### 35.6 Full validation suite (this pass)
+
+- `git diff --check` — clean.
+- `npx tsc --noEmit` — clean, zero errors.
+- `npm run lint` — **0 errors**, 24 warnings (byte-for-byte the same set as §32's baseline: `<img>`-vs-`next/image` suggestions and the one pre-existing unused-variable warning in `lib/report-view-model.ts` — none introduced this pass).
+- `npm test` — **509 total, 509 passing, 0 failing** (up from §32's 500 — 2 new radius-invariant tests from the radius pass, plus 7 new/extended status-tone assertions from this pass: `quote-status.test.ts` +1, `request-status.test.ts` +1, `invoice-status-tone.test.ts` +3 new file, `job-mini-cards.test.ts` +2).
+- `npm run test:visual` (Playwright) — **41/41 passing**, run twice; see §35.2.
+- `npm run build` — succeeds; the only output is the same pre-existing, harmless Sentry sourcemap-upload error (stale local `SENTRY_AUTH_TOKEN`) §32 already documented — unrelated to and untouched by this pass.
+- `npx astryx doctor` — 4 passed, 2 warnings (both pre-existing/deliberate, unchanged), 0 failures.
+- `npm ls three` — single `three@0.184.0`, deduped under `animejs` and `three-mesh-bvh` — unchanged from §32's baseline.
+- `graphify` — an incremental structural (AST-only) update was run against every file this pass touched or added (508 code files matched by the detector). Semantic (LLM) extraction for ~48 pre-existing, unrelated doc/image files the detector also flagged as stale was deliberately **not** run this pass — those files belong to other in-flight work already documented as out of scope (§3), and forcing a full semantic re-extraction of unrelated content under this pass's time budget would repeat the exact "don't force it" mistake §18/§28 already reasoned about for other items. Post-merge graph: **3,038 nodes, 7,386 edges**. Health diagnostic re-run against the full merged graph (not the incremental chunk in isolation, which would show false positives against nodes outside the chunk): **zero dangling-endpoint, missing-endpoint, or self-loop edges.** Import-cycle check (directed subgraph of `imports`/`imports_from` edges only, 2,989 edges): **zero cycles.** Community re-labeling (Step 5) was not re-run this pass, matching §28's own precedent that it isn't required for the architectural questions this pass needed answered.
+
+### 35.7 Accessibility — honestly reported, not fabricated
+
+A live axe-core re-run (the technique §22/§27 established) was **not performed this pass** — Chrome browser automation was unavailable in this session's environment (the extension did not connect). This is reported here rather than silently skipped or claimed. What is true instead, by construction, not by live measurement: the status-badge migration replaced raw `<span>` markup with the same Astryx `Badge` component already in live, axe-clean production use elsewhere in the app (§22's "zero violations" baseline already covered `Status variant="dot"` and other existing `Badge` call sites); every migrated pill kept its visible text label (color was never the only signal, before or after); no new interactive element, focus target, or ARIA role was introduced anywhere in this pass — every touched element is a static, non-focusable informational pill or a mechanical class-name rename. No accessibility regression is expected, and none was found by any other means available this pass (Playwright's own rendering — which does exercise real DOM/CSS — surfaced nothing), but this is not the same claim as a fresh, live axe-core pass, and it is not represented as one. This remains an open item for the next session with browser automation available, not a fabricated PASS.
+
+### 35.8 Code changes made this pass
+
+| File | Why |
+|---|---|
+| `playwright.config.ts`, `tests/visual/**` (new, ~20 files) | New persistent visual-regression suite (§35.2) |
+| `.gitignore` | Excludes Playwright run artifacts and the authenticated storage state from version control |
+| `package.json` | Added `test:visual`, `test:visual:seed`, `test:visual:update` scripts |
+| ~180 files across `app/`, `components/`, `lib/` | Mechanical `rounded-{xl,2xl,3xl}` → `rounded-{md,lg}` radius migration (§35.3) |
+| `tests/radius-invariant.test.ts` (new) | Permanent regression guard for the radius contract |
+| `lib/{job,quote,request,client}-status.ts`, `lib/invoice/status.ts` | New/reused pure `*StatusTone()` adapters; dead `badge`/`statusBadgeClass` fields removed |
+| `lib/job-mini-cards.ts`, `lib/workflow-stages.ts` | `badge: string` → `tone: StatusTone` shape change |
+| `components/dashboard/status-mini-card.tsx`, `jobs-browser.tsx`, `disabled-stage-jobs-list.tsx`, `quotes-table.tsx`, `invoices-table.tsx`, `requests-browser.tsx` | Raw badge markup → shared `Status` primitive |
+| `app/(dashboard)/jobs/page.tsx`, `app/(dashboard)/jobs/[jobId]/page.tsx`, `app/(dashboard)/quotes/page.tsx`, `app/(dashboard)/invoices/page.tsx`, `app/(dashboard)/jobs/[jobId]/invoices/[invoiceId]/page.tsx` | View-model field rename (`badge`/`statusBadgeClass` → `tone`) to match their component's new prop |
+| `tests/{quote-status,request-status,job-mini-cards,client-status-tone,job-status-tone}.test.ts` | New/extended tone assertions; stale comments referencing removed badge constants cleaned up |
+| `tests/invoice-status-tone.test.ts` (new) | `invoiceStatusTone()` coverage |
+| `docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_FINAL_AUDIT.md` | This section |
+| `docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_PHASE_8_IMPLEMENTATION.md` | Short addendum pointing to this section (Phase 8's own narrative is unchanged) |
+
+No Prisma schema change. No migration. No permission-table edit. No workflow/status-enum change. No financial/quote/invoice/tax logic change. No Stripe/payment behavior change. No warranty/Additional-Work/Change-Order semantics change. No recurrence semantics change. No client-lifecycle change. No Workflow Phase 13/13A/13B/13C work of any kind.
+
+### 35.9 Remaining items (unchanged in kind from §33 — nothing new introduced)
+
+**EXTERNAL BLOCKERS** (unchanged):
+- Original Aernova vector/transparent brand master (§30).
+- A real production deployment, to make any rollback claim genuinely testable (§29) — **explicitly not done this pass**: no deploy, no Vercel promotion, no production migration, no release tag.
+
+**MANUAL RELEASE CHECKS** (unchanged, plus one added by this pass):
+- Real iPhone/iPad/macOS Safari, Android Chrome device testing (§23) — Playwright's suite (§35.2) is Chromium-only; it does not substitute for this.
+- Native 200% browser zoom and OS-level `prefers-reduced-motion`/`prefers-contrast`/`prefers-reduced-transparency` toggle-and-observe passes (§22).
+- 768px/1024px/1728–1920px live responsive captures at genuine device widths (§9, §23) — the Playwright suite's own viewport presets (§35.2) partially cover this in emulation, not on real hardware.
+- Browser print-preview verification of the four public documents and the job report (§25).
+- Multi-role (non-OWNER) live QA pass (§23) — unchanged; the visual suite's single seeded Clerk user is also OWNER-role, so it does not close this gap either.
+- **Added by this pass:** a live axe-core accessibility re-run (§35.7) — genuinely not performed this pass (browser automation unavailable), reported honestly rather than skipped silently.
+
+**ACCEPTED DESIGN DEBT** (unchanged from §33 — none of these were in this pass's scope):
+- Client-side capability checks absent on a few buttons whose server action already denies correctly (Jobs-index Delete/New-job) — UI convenience gap, not a security gap.
+- Three near-identical `Deletable*` components — a real, minor, pre-existing duplication outside this redesign's specific scope.
+
+**FUTURE PRODUCT WORK** (unchanged — explicitly not touched this pass, per instruction):
+- Workflow Phase 13 (stage reordering) and any 13A/13B/13C variant — not implemented, not referenced as blocking.
+- Real Lighthouse/CWV field data — requires an actual production deployment.
+
+### 35.10 Final conclusion
+
+The three code-level blockers that kept §1's verdict at **NOT COMPLETE** are closed with genuine, independently re-run, and — where automation could not reach (§35.7) — honestly-flagged-as-unverified evidence, not a re-characterization of the same gaps under a friendlier label. Visual regression is real, persistent, and passing 41/41 against manually-reviewed baselines. Radius is fully migrated except two documented, allowlist-tested, and permanently regression-guarded exceptions. Status-badge duplication is closed across all six domain families, including one the original audit's own list missed, with pure adapters, migrated production JSX, and semantic (not class-string) test coverage.
+
+What remains is exactly what §33 already correctly separated from code work: a real brand asset, a real production deployment, and real-device/manual QA passes — none of which this pass was asked or authorized to perform, and none of which are represented as done. The verdict is **CODE-COMPLETE / RELEASE-BLOCKED**, not **FULLY RELEASED** and not **NOT COMPLETE**.
+
+Post-audit completion pass complete. There is no Phase 9.

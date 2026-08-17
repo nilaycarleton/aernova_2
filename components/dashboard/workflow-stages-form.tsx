@@ -14,7 +14,7 @@ export type WorkflowStageRow = {
 };
 
 const inputClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
 
 /**
  * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.6/§15/§25 Phase 11 — every backend
@@ -29,7 +29,7 @@ export function WorkflowStagesForm({ stages }: { stages: WorkflowStageRow[] }) {
   const [state, formAction] = useActionState<SaveWorkflowState, FormData>(saveWorkflowStagesAction, {});
 
   return (
-    <form action={formAction} className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <form action={formAction} className="rounded-lg border border-hairline bg-surface-raised p-6">
       <ul className="divide-y divide-hairline">
         {stages.map((stage) => (
           <li key={stage.status} className="flex flex-wrap items-center gap-4 py-4 first:pt-0 last:pb-0">
@@ -62,7 +62,7 @@ export function WorkflowStagesForm({ stages }: { stages: WorkflowStageRow[] }) {
       <div className="mt-5 flex items-center gap-3">
         <SubmitButton
           pendingText="Saving…"
-          className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+          className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
         >
           {state.savedAt ? "Saved" : "Save changes"}
         </SubmitButton>

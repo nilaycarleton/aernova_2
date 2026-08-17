@@ -11,21 +11,17 @@ import type { StatusTone } from "@/lib/status-tone";
 
 type ClientStatusMeta = {
   label: string;
-  /** Tailwind classes for a badge. */
-  badge: string;
 };
 
 export const CLIENT_STATUS_META: Record<ClientStatus, ClientStatusMeta> = {
-  LEAD: { label: "Lead", badge: "text-ink-secondary bg-surface-lifted" },
-  ACTIVE: { label: "Active", badge: "text-confirm-fg bg-confirm/10" },
-  ARCHIVED: { label: "Archived", badge: "text-ink-muted bg-surface-lifted" },
+  LEAD: { label: "Lead" },
+  ACTIVE: { label: "Active" },
+  ARCHIVED: { label: "Archived" },
 };
 
 /**
- * Minimal Phase 5 adapter for the client detail page's PageHeader `status`
- * slot (the shared `Status` primitive) — same pattern as `lib/job-status.ts`'s
- * `statusTone`. `CLIENT_STATUS_META` keeps owning label/badge for the list
- * table; this only adds the tonal reading the one Status usage needs.
+ * Feeds the shared `Status` primitive everywhere a client status renders —
+ * `CLIENT_STATUS_META` keeps owning the label; this owns only the tone.
  */
 export function clientStatusTone(status: ClientStatus): StatusTone {
   if (status === "ACTIVE") return "success";

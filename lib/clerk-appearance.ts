@@ -25,8 +25,7 @@ export const clerkAppearance = {
     colorInputBackground: "var(--color-ground)",
     colorInputText: "var(--color-ink-primary)",
     // docs/DESIGN.md's Buttons section: 6px (`{rounded.md}`) is the documented
-    // control radius — not the old rounded-xl/12px convention the redesign
-    // superseded.
+    // control radius — not the old 12px convention the redesign superseded.
     borderRadius: "0.375rem",
     fontFamily: "var(--font-sans)",
   },

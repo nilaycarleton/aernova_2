@@ -57,7 +57,7 @@ export default async function JoinPage({
         <SignUpButton mode="modal" forceRedirectUrl={`/join/${token}`}>
           <button
             type="button"
-            className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             Create my account
           </button>
@@ -126,7 +126,7 @@ function Shell({
 }) {
   return (
     <main className="flex min-h-screen items-center justify-center bg-ground px-4 py-12">
-      <div className="w-full max-w-md rounded-3xl border border-hairline bg-surface-raised p-8">
+      <div className="w-full max-w-md rounded-lg border border-hairline bg-surface-raised p-8">
         <h1 className="text-2xl font-semibold text-ink-primary">{title}</h1>
         <p className="mt-3 text-sm leading-6 text-ink-secondary">{body}</p>
         <div className="mt-6">{children}</div>

@@ -97,7 +97,7 @@ export function JobWorkspace({
         role="tablist"
         aria-label="Job sections"
         onKeyDown={onKeyDown}
-        className="sticky top-2 z-20 flex gap-1 rounded-2xl border border-hairline bg-ground/80 p-1 backdrop-blur"
+        className="sticky top-2 z-20 flex gap-1 rounded-lg border border-hairline bg-ground/80 p-1 backdrop-blur"
       >
         {TABS.map((t) => {
           const active = tab === t.key;
@@ -114,7 +114,7 @@ export function JobWorkspace({
               aria-controls={`panel-${t.key}`}
               tabIndex={active ? 0 : -1}
               onClick={() => selectTab(t.key)}
-              className={`flex-1 rounded-xl px-3 py-3 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument sm:px-4 sm:text-left ${
+              className={`flex-1 rounded-lg px-3 py-3 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument sm:px-4 sm:text-left ${
                 active ? "bg-surface-lifted text-ink-primary" : "text-ink-secondary hover:bg-surface-raised"
               }`}
             >

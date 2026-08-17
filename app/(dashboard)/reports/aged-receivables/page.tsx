@@ -52,7 +52,7 @@ export default async function AgedReceivablesPage() {
           action={
             <Link
               href="/invoices"
-              className="inline-block rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-block rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               See invoices
             </Link>
@@ -60,14 +60,14 @@ export default async function AgedReceivablesPage() {
         />
       ) : (
         <>
-          <section className="rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
+          <section className="rounded-lg border border-hairline bg-surface-raised p-6 sm:p-8">
             {/* Was cyan — same backwards-Readout-Rule bug Phase 4 found on the
                 dashboard. Outstanding balance is a business figure, never a
                 measurement. */}
             <NumericReadout label="Outstanding" value={formatMoney(totalCents)} size="lg" />
           </section>
 
-          <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+          <section className="rounded-lg border border-hairline bg-surface-raised p-6">
             <h3 className="text-lg font-semibold text-ink-primary">By age</h3>
             <ul className="mt-4 divide-y divide-hairline">
               {rows.map((row) => (

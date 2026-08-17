@@ -174,7 +174,7 @@ export default async function RevenueReportPage({
           action={
             <Link
               href="/invoices"
-              className="inline-block rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-block rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               See invoices
             </Link>
@@ -182,7 +182,7 @@ export default async function RevenueReportPage({
         />
       ) : (
         <>
-          <section className="rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
+          <section className="rounded-lg border border-hairline bg-surface-raised p-6 sm:p-8">
             {/* Was cyan — same backwards-Readout-Rule bug Phase 4 found on the
                 dashboard. Revenue is a business figure, never a measurement. */}
             <NumericReadout
@@ -193,7 +193,7 @@ export default async function RevenueReportPage({
             />
           </section>
 
-          <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+          <section className="rounded-lg border border-hairline bg-surface-raised p-6">
             <h3 className="text-lg font-semibold text-ink-primary">By lead source</h3>
             <ul className="mt-4 divide-y divide-hairline">
               {bySource.map((row) => {
@@ -214,7 +214,7 @@ export default async function RevenueReportPage({
           </section>
 
           {funnelRows.length > 0 ? (
-            <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+            <section className="rounded-lg border border-hairline bg-surface-raised p-6">
               <h3 className="text-lg font-semibold text-ink-primary">Lead funnel</h3>
               <p className="mt-1 text-sm text-ink-muted">
                 Everything opened or moved in this period, by stage.
@@ -238,7 +238,7 @@ export default async function RevenueReportPage({
           ) : null}
 
           {topProfitRows.length > 0 ? (
-            <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+            <section className="rounded-lg border border-hairline bg-surface-raised p-6">
               <h3 className="text-lg font-semibold text-ink-primary">Profit per job</h3>
               <p className="mt-1 text-sm text-ink-muted">
                 Billed in this period, less whatever cost has been logged against the job — see

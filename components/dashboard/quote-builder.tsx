@@ -50,13 +50,13 @@ export type BuilderQuote = {
 export type TaxOption = { id: string; name: string; rateMicros: number };
 
 const FIELD =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
 
 const PRIMARY =
-  "rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
+  "rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
 
 const SECONDARY =
-  "rounded-xl border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "rounded-lg border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 let scratchId = 0;
 function newKey() {
@@ -226,14 +226,14 @@ export function QuoteBuilder({
       {state.error ? (
         <div
           role="alert"
-          className="rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
+          className="rounded-lg border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
         >
           {state.error} Nothing you typed has been lost.
         </div>
       ) : null}
 
       {/* ── Who and what ───────────────────────────────────────────────── */}
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <label htmlFor="quote-title" className="mb-1.5 block text-xs font-medium text-ink-secondary">
@@ -321,11 +321,11 @@ export function QuoteBuilder({
       />
 
       {/* ── The document ───────────────────────────────────────────────── */}
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">The work</h3>
 
         {lines.length === 0 ? (
-          <div className="mt-4 rounded-2xl border border-dashed border-hairline p-8 text-center text-sm text-ink-muted">
+          <div className="mt-4 rounded-lg border border-dashed border-hairline p-8 text-center text-sm text-ink-muted">
             Nothing on this quote yet. Add the first thing you&rsquo;re charging for.
           </div>
         ) : (
@@ -411,7 +411,7 @@ export function QuoteBuilder({
       </section>
 
       {/* ── Totals ─────────────────────────────────────────────────────── */}
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <div className="ml-auto max-w-md space-y-3">
           <Row label="Subtotal" value={formatMoney(totals.subtotalCents)} />
 
@@ -448,7 +448,7 @@ export function QuoteBuilder({
                 value={discountKind}
                 onChange={(e) => setDiscountKind(e.target.value as typeof discountKind)}
                 aria-label="Discount as a percentage or an amount"
-                className="rounded-xl border border-hairline bg-ground/50 px-2 py-2.5 text-sm text-ink-strong"
+                className="rounded-lg border border-hairline bg-ground/50 px-2 py-2.5 text-sm text-ink-strong"
               >
                 <option value="">—</option>
                 <option value="AMOUNT">$</option>
@@ -470,7 +470,7 @@ export function QuoteBuilder({
                 name="taxRateId"
                 value={taxRateId}
                 onChange={(e) => setTaxRateId(e.target.value)}
-                className="rounded-xl border border-hairline bg-ground/50 px-2 py-2.5 text-sm text-ink-strong"
+                className="rounded-lg border border-hairline bg-ground/50 px-2 py-2.5 text-sm text-ink-strong"
               >
                 <option value="">No tax</option>
                 {taxRates.map((rate) => (
@@ -531,7 +531,7 @@ export function QuoteBuilder({
                 value={depositKind}
                 onChange={(e) => setDepositKind(e.target.value as typeof depositKind)}
                 aria-label="Deposit as a percentage or an amount"
-                className="rounded-xl border border-hairline bg-ground/50 px-2 py-2.5 text-sm text-ink-strong"
+                className="rounded-lg border border-hairline bg-ground/50 px-2 py-2.5 text-sm text-ink-strong"
               >
                 <option value="">—</option>
                 <option value="AMOUNT">$</option>
@@ -637,7 +637,7 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">{title}</h3>
       <p className="mb-4 mt-1 text-sm text-ink-muted">{hint}</p>
       {children}

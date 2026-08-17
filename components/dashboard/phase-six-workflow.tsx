@@ -86,7 +86,7 @@ function StepCard({
 }) {
   return (
     <div
-      className={`min-w-0 rounded-3xl border p-6 transition ${
+      className={`min-w-0 rounded-lg border p-6 transition ${
         state === "current"
           ? "border-hairline bg-surface-lifted"
           : "border-hairline bg-surface-raised"
@@ -161,7 +161,7 @@ export function PhaseSixWorkflow({
     <section className="min-w-0 max-w-full space-y-5 overflow-hidden">
       <ProcessingJobPoller jobId={jobId} activeJobs={activeJob ? 1 : 0} />
 
-      <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h2 className="text-2xl font-semibold text-ink-primary">Roof scan</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">
           Turn your drone photos into a 3D model of the roof, then measure it. Just follow the
@@ -181,7 +181,7 @@ export function PhaseSixWorkflow({
         {hasPhotos ? (
           <>
             <div
-              className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
+              className={`mt-4 rounded-lg border px-4 py-3 text-sm ${
                 qualityTone === "good"
                   ? "border-confirm/25 bg-confirm/10 text-confirm-fg"
                   : qualityTone === "ok"
@@ -237,7 +237,7 @@ export function PhaseSixWorkflow({
         {!hasPhotos ? (
           <p className="text-sm text-ink-muted">Add photos in step 1 first.</p>
         ) : building ? (
-          <div className="rounded-2xl border border-hairline bg-surface-lifted p-4">
+          <div className="rounded-lg border border-hairline bg-surface-lifted p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-ink-primary">Building your 3D model…</p>
               <span className="text-sm text-instrument-fg">{progress}%</span>
@@ -250,13 +250,13 @@ export function PhaseSixWorkflow({
             </p>
           </div>
         ) : modelReady ? (
-          <div className="rounded-2xl border border-confirm/25 bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
+          <div className="rounded-lg border border-confirm/25 bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
             3D model ready. Review it in step 3 below.
           </div>
         ) : (
           <>
             {failed ? (
-              <p className="mb-3 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg">
+              <p className="mb-3 rounded-lg border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg">
                 The last attempt needs another look — try building again{workerHealth.online ? "" : " once the processor is connected"}.
               </p>
             ) : null}
@@ -306,7 +306,7 @@ export function PhaseSixWorkflow({
                       <input type="hidden" name="jobId" value={jobId} />
                       <SubmitButton
                         pendingText="Building quote…"
-                        className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
+                        className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
                       >
                         Build the quote
                       </SubmitButton>
@@ -315,7 +315,7 @@ export function PhaseSixWorkflow({
                       <input type="hidden" name="jobId" value={jobId} />
                       <SubmitButton
                         pendingText="Saving…"
-                        className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-lifted disabled:opacity-60"
+                        className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-lifted disabled:opacity-60"
                       >
                         Save to the job
                       </SubmitButton>
@@ -339,7 +339,7 @@ export function PhaseSixWorkflow({
       </StepCard>
 
       {/* Optional: before / after photos */}
-      <details className="min-w-0 rounded-3xl border border-hairline bg-surface-raised">
+      <details className="min-w-0 rounded-lg border border-hairline bg-surface-raised">
         <summary className="cursor-pointer px-6 py-4 text-sm font-medium text-ink-primary">
           Before &amp; after photos (optional)
         </summary>
@@ -352,7 +352,7 @@ export function PhaseSixWorkflow({
           {comparisons.length > 0 ? (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               {comparisons.map((comparison) => (
-                <div key={comparison.id} className="rounded-2xl border border-hairline bg-ground/45 p-4">
+                <div key={comparison.id} className="rounded-lg border border-hairline bg-ground/45 p-4">
                   <DeletableItem
                     jobId={jobId}
                     itemId={comparison.id}
@@ -362,10 +362,10 @@ export function PhaseSixWorkflow({
                   >
                     <p className="font-medium text-ink-primary">{comparison.title}</p>
                     <div className="mt-3 grid grid-cols-2 gap-3">
-                      <div className="aspect-video overflow-hidden rounded-xl bg-ground">
+                      <div className="aspect-video overflow-hidden rounded-lg bg-ground">
                         {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt={`Before: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
                       </div>
-                      <div className="aspect-video overflow-hidden rounded-xl bg-ground">
+                      <div className="aspect-video overflow-hidden rounded-lg bg-ground">
                         {comparison.afterUrl ? <img src={comparison.afterUrl} alt={`After: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
                       </div>
                     </div>

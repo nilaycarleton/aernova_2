@@ -63,7 +63,7 @@ export function ImageryUploadForm({ jobId }: { jobId: string }) {
   }
 
   return (
-    <form ref={formRef} onSubmit={submitUpload} className="mt-6 rounded-2xl border border-hairline bg-ground/35 p-3">
+    <form ref={formRef} onSubmit={submitUpload} className="mt-6 rounded-lg border border-hairline bg-ground/35 p-3">
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_420px]">
         <label
           onDragOver={(event) => {
@@ -72,7 +72,7 @@ export function ImageryUploadForm({ jobId }: { jobId: string }) {
           }}
           onDragLeave={() => setIsDragActive(false)}
           onDrop={handleDrop}
-          className={`flex min-h-32 cursor-pointer flex-col justify-center rounded-2xl border border-dashed p-4 transition ${
+          className={`flex min-h-32 cursor-pointer flex-col justify-center rounded-lg border border-dashed p-4 transition ${
             isDragActive
               ? "border-instrument-bright/70 bg-instrument-bright/10"
               : "border-hairline bg-ground/45 hover:border-instrument-bright/35 hover:bg-ground/65"
@@ -97,7 +97,7 @@ export function ImageryUploadForm({ jobId }: { jobId: string }) {
           <span className="mt-1 max-w-xl text-sm leading-6 text-ink-muted">
             Add all the photos from your drone flight at once. The details on the right apply to every photo you select.
           </span>
-          <span className="mt-3 inline-flex w-fit rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted">
+          <span className="mt-3 inline-flex w-fit rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted">
             Choose files
           </span>
           {selectedFiles.length > 0 ? (
@@ -109,17 +109,17 @@ export function ImageryUploadForm({ jobId }: { jobId: string }) {
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <select name="type" defaultValue="DRONE" aria-label="Photo type" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue">
+          <select name="type" defaultValue="DRONE" aria-label="Photo type" className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue">
           <option value="DRONE">Drone photo</option>
           <option value="ORTHOMOSAIC">Top-down map</option>
           <option value="MODEL">3D model</option>
           <option value="BEFORE">Before photo</option>
           <option value="AFTER">After photo</option>
           </select>
-          <input name="altitudeFt" type="number" step="0.01" aria-label="Flight height, feet" placeholder="Flight height (ft) — optional" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue" />
-          <input name="captureDate" type="date" aria-label="Date taken" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue" />
-          <input name="captureTime" type="time" aria-label="Time taken" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue" />
-          <textarea name="notes" rows={2} aria-label="Photo note" placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue sm:col-span-2" />
+          <input name="altitudeFt" type="number" step="0.01" aria-label="Flight height, feet" placeholder="Flight height (ft) — optional" className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue" />
+          <input name="captureDate" type="date" aria-label="Date taken" className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue" />
+          <input name="captureTime" type="time" aria-label="Time taken" className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue" />
+          <textarea name="notes" rows={2} aria-label="Photo note" placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue sm:col-span-2" />
         </div>
       </div>
 
@@ -130,7 +130,7 @@ export function ImageryUploadForm({ jobId }: { jobId: string }) {
         <button
           type="submit"
           disabled={isUploading || isPending}
-          className="rounded-2xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-lg bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isUploading ? "Uploading…" : isPending ? "Refreshing…" : "Upload photos"}
         </button>

@@ -73,7 +73,7 @@ export function ChangeOrderEditor({
   }
 
   return (
-    <form action={formAction} className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <form action={formAction} className="rounded-lg border border-hairline bg-surface-raised p-6">
       <input type="hidden" name="jobId" value={jobId} />
       <input type="hidden" name="changeOrderId" value={changeOrderId} />
       {/* Draft ids (`draft-N`) are never sent as a real id — only rows the
@@ -97,7 +97,7 @@ export function ChangeOrderEditor({
           onChange={(e) => setTitle(e.target.value)}
           disabled={!editable}
           required
-          className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue disabled:opacity-60"
+          className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue disabled:opacity-60"
         />
       </div>
 
@@ -112,7 +112,7 @@ export function ChangeOrderEditor({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           disabled={!editable}
-          className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue disabled:opacity-60"
+          className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue disabled:opacity-60"
         />
       </div>
 
@@ -212,7 +212,7 @@ export function ChangeOrderEditor({
       {editable ? (
         <SubmitButton
           pendingText="Saving…"
-          className="mt-4 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+          className="mt-4 rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
         >
           {state.savedAt ? "Saved" : "Save"}
         </SubmitButton>

@@ -119,7 +119,7 @@ export default async function ReportsPage({
           action={
             <Link
               href="/pipeline"
-              className="inline-block rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-block rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               See what&rsquo;s still open
             </Link>
@@ -127,7 +127,7 @@ export default async function ReportsPage({
         />
       ) : (
         <>
-          <section className="rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
+          <section className="rounded-lg border border-hairline bg-surface-raised p-6 sm:p-8">
             {/* Was the one cyan figure on this surface — same backwards-
                 Readout-Rule bug Phase 4 found on the dashboard. A win rate is
                 a business scoreboard figure, never a measurement. */}
@@ -140,7 +140,7 @@ export default async function ReportsPage({
             </p>
           </section>
 
-          <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+          <section className="rounded-lg border border-hairline bg-surface-raised p-6">
             <h3 className="text-lg font-semibold text-ink-primary">Why they were lost</h3>
             {reasonRows.length === 0 ? (
               <p className="mt-3 text-sm text-ink-muted">Nothing lost in this period.</p>

@@ -89,7 +89,7 @@ export function InvoicePayments({
   const settled = balanceCents <= 0;
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Money in</h3>
 
       <dl className="mt-4 space-y-2 border-b border-hairline pb-5">
@@ -195,7 +195,7 @@ export function InvoicePayments({
                 setOpen(true);
               }}
               aria-expanded={false}
-              className="mt-5 rounded-xl border border-hairline px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="mt-5 rounded-lg border border-hairline px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {settled ? "Record another payment" : "Record a payment"}
             </button>
@@ -261,7 +261,7 @@ export function InvoicePayments({
               <div className="flex flex-wrap items-center gap-3">
                 <SubmitButton
                   pendingText="Recording…"
-                  className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+                  className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
                 >
                   Record it
                 </SubmitButton>
@@ -286,7 +286,7 @@ export function InvoicePayments({
 }
 
 const inputClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
 
 function Field({
   label,

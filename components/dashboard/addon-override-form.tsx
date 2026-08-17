@@ -37,7 +37,7 @@ export function AddOnOverrideForm({ jobId, invoiceId }: { jobId: string; invoice
       {state.error ? <p className="text-sm text-danger-fg">{state.error}</p> : null}
       <SubmitButton
         pendingText="Recording…"
-        className="rounded-xl border border-hairline px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
+        className="rounded-lg border border-hairline px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
       >
         Skip homeowner review
       </SubmitButton>

@@ -10,10 +10,10 @@ export default function JobLoading() {
           <div className="h-7 w-56 animate-pulse rounded-md bg-surface-lifted" />
           <div className="h-4 w-72 animate-pulse rounded-md bg-surface-lifted" />
         </div>
-        <div className="h-10 w-40 animate-pulse rounded-xl bg-surface-lifted" />
+        <div className="h-10 w-40 animate-pulse rounded-lg bg-surface-lifted" />
       </div>
 
-      <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised p-6">
         <SkeletonReadout />
       </div>
 
@@ -24,7 +24,7 @@ export default function JobLoading() {
         <div className="h-10 w-32 animate-pulse rounded-md bg-surface-lifted" />
       </div>
 
-      <div className="rounded-2xl border border-hairline bg-surface-raised px-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised px-6">
         <SkeletonList rows={5} />
       </div>
     </div>

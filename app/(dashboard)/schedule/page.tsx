@@ -242,7 +242,7 @@ export default async function SchedulePage({
           <div className="flex flex-wrap items-center gap-2">
             {/* Views are links, so each one is a place with a URL — the browser's
                 own Back button then does what everybody expects it to. */}
-            <div className="flex flex-wrap gap-1 rounded-xl border border-hairline p-1">
+            <div className="flex flex-wrap gap-1 rounded-lg border border-hairline p-1">
               {VIEWS.filter((option) => option.key !== "day" || zone).map((option) => (
                 <Link
                   key={option.key}
@@ -311,7 +311,7 @@ export default async function SchedulePage({
       {!zone && runsSchedule ? (
         <form
           action={setCompanyTimeZoneAction}
-          className="flex flex-wrap items-end gap-3 rounded-3xl border border-hairline bg-surface-raised p-5"
+          className="flex flex-wrap items-end gap-3 rounded-lg border border-hairline bg-surface-raised p-5"
         >
           <div className="min-w-0 flex-1">
             <label htmlFor="company-timezone" className="mb-1.5 block text-sm font-medium text-ink-primary">
@@ -321,7 +321,7 @@ export default async function SchedulePage({
               Needed once, before a visit can carry a start time or the Day view
               can open. Visits stay day-only until you set this.
             </p>
-            <select id="company-timezone" name="timeZone" defaultValue="" className="w-full max-w-xs rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue sm:w-auto">
+            <select id="company-timezone" name="timeZone" defaultValue="" className="w-full max-w-xs rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue sm:w-auto">
               <option value="" disabled>
                 Choose a time zone…
               </option>
@@ -334,7 +334,7 @@ export default async function SchedulePage({
           </div>
           <SubmitButton
             pendingText="Saving…"
-            className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
+            className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
           >
             Save
           </SubmitButton>
@@ -344,7 +344,7 @@ export default async function SchedulePage({
       {/* Non-blocking, and only for whoever runs the calendar — a heads-up,
           not a wall in front of booking. See `lib/schedule/double-booking.ts`. */}
       {overlaps.length > 0 || overbookedDays.length > 0 ? (
-        <section className="rounded-3xl border border-caution/30 bg-caution/10 p-5">
+        <section className="rounded-lg border border-caution/30 bg-caution/10 p-5">
           <p className="text-sm font-medium text-caution-fg">Heads up</p>
           <ul className="mt-2 space-y-1.5 text-sm text-ink-secondary">
             {overlaps.map((conflict, index) => (
@@ -384,7 +384,7 @@ export default async function SchedulePage({
 
       {view === "month" ? (
         <div className="overflow-x-auto">
-          <div className="grid min-w-[44rem] grid-cols-7 gap-px rounded-2xl border border-hairline bg-hairline">
+          <div className="grid min-w-[44rem] grid-cols-7 gap-px rounded-lg border border-hairline bg-hairline">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((label) => (
               <div key={label} className="bg-surface-raised px-2 py-2 text-xs font-medium text-ink-muted">
                 {label}
@@ -461,7 +461,7 @@ export default async function SchedulePage({
         renderedVisits.length === 0 ? (
           <EmptyState kind="first-use" title="Nothing booked in the next three months." />
         ) : (
-          <ul className="divide-y divide-hairline rounded-3xl border border-hairline bg-surface-raised">
+          <ul className="divide-y divide-hairline rounded-lg border border-hairline bg-surface-raised">
             {[...byDay.entries()].map(([key, dayVisits]) => {
               const day = parseDayInput(key)!;
               return (
@@ -478,7 +478,7 @@ export default async function SchedulePage({
                       <li key={visit.id}>
                         <Link
                           href={`/jobs/${visit.jobId}`}
-                          className="block rounded-xl px-2 py-1 transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+                          className="block rounded-lg px-2 py-1 transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
                         >
                           <span className="block text-sm font-medium text-ink-primary">
                             {!visit.allDay && zone ? (
@@ -570,7 +570,7 @@ function DayColumn({
   const section = (
     <section
       aria-label={formatDayLong(day)}
-      className={`min-w-0 rounded-2xl border border-hairline p-3 ${
+      className={`min-w-0 rounded-lg border border-hairline p-3 ${
         isToday ? "bg-surface-lifted" : "bg-surface-raised"
       }`}
     >
@@ -631,7 +631,7 @@ function DayGrid({ day, zone, visits }: { day: CalendarDate; zone: string; visit
           "Anytime" shelf above a full hour grid is a second way of saying
           the same nothing the grid already shows. */}
       {anytime.length > 0 ? (
-        <section aria-label="Anytime" className="rounded-2xl border border-hairline bg-surface-raised p-3">
+        <section aria-label="Anytime" className="rounded-lg border border-hairline bg-surface-raised p-3">
           <h3 className="text-xs font-medium uppercase tracking-[0.1em] text-ink-muted">Anytime</h3>
           <ul className="mt-2 flex flex-wrap gap-2">
             {anytime.map((visit) => (
@@ -643,7 +643,7 @@ function DayGrid({ day, zone, visits }: { day: CalendarDate; zone: string; visit
         </section>
       ) : null}
 
-      <ol className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface-raised">
+      <ol className="divide-y divide-hairline rounded-lg border border-hairline bg-surface-raised">
         {hours.map((hour) => {
           const hourVisits = timed.filter(
             (visit) => Math.floor(utcToZoned(visit.startAt, zone).minutes / 60) === hour
@@ -688,7 +688,7 @@ function VisitCard({ visit, timeLabel }: { visit: GridVisit; timeLabel?: string 
   return (
     <Link
       href={`/jobs/${visit.jobId}`}
-      className={`block rounded-xl border border-hairline p-2.5 transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument ${
+      className={`block rounded-lg border border-hairline p-2.5 transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument ${
         done ? "opacity-60" : ""
       }`}
     >
@@ -729,7 +729,7 @@ function Nav({
     <Link
       href={href}
       aria-label={label}
-      className="rounded-xl border border-hairline px-3 py-2 text-sm text-ink-secondary transition hover:bg-surface-raised hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+      className="rounded-lg border border-hairline px-3 py-2 text-sm text-ink-secondary transition hover:bg-surface-raised hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
     >
       {children}
     </Link>

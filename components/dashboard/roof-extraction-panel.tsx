@@ -133,7 +133,7 @@ export function RoofExtractionPanel({
   };
 
   return (
-    <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <div className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-col gap-2">
         <h3 className="text-lg font-semibold text-ink-primary">Measure your roof</h3>
         <p className="text-sm text-ink-muted">
@@ -161,7 +161,7 @@ export function RoofExtractionPanel({
           type="button"
           onClick={loadPreview}
           disabled={loadingPreview}
-          className="mt-4 rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
+          className="mt-4 rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
         >
           {loadingPreview ? "Loading…" : "Load the 3D roof"}
         </button>
@@ -173,7 +173,7 @@ export function RoofExtractionPanel({
             <canvas
               ref={canvasRef}
               onClick={handleCanvasClick}
-              className="w-full max-w-full cursor-crosshair rounded-2xl border border-hairline"
+              className="w-full max-w-full cursor-crosshair rounded-lg border border-hairline"
               style={{ imageRendering: "pixelated", aspectRatio: `${preview.width} / ${preview.height}` }}
             />
             <div className="mt-3 flex flex-wrap gap-2">
@@ -208,7 +208,7 @@ export function RoofExtractionPanel({
             </p>
           </div>
 
-          <div className="min-w-0 rounded-2xl border border-hairline bg-ground/40 p-4">
+          <div className="min-w-0 rounded-lg border border-hairline bg-ground/40 p-4">
             {!result && !error && (
               <p className="text-sm text-ink-muted">
                 Draw a box around the roof, then measure. The results flow straight into your quote

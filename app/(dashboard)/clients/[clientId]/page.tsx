@@ -82,7 +82,7 @@ export default async function ClientDetailPage({
         shareUrl={client.shareToken ? buildShareUrl("hub", client.shareToken, origin) : null}
       />
 
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Properties</h3>
         {client.properties.length === 0 ? (
           <EmptyState kind="first-use" title="No property on file yet." compact />
@@ -98,7 +98,7 @@ export default async function ClientDetailPage({
         )}
       </section>
 
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Jobs</h3>
         {client.jobs.length === 0 ? (
           <EmptyState kind="first-use" title="No jobs yet." compact />

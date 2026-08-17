@@ -381,7 +381,7 @@ export default async function JobDetailPage({
     <div className="min-w-0 space-y-6">
       {/* The quote figure leads the rail — it is the number a contractor
           stakes a bid on, so it is legible rather than a caption. */}
-      <div className="rounded-2xl border border-hairline bg-ground/50 px-5 py-4">
+      <div className="rounded-lg border border-hairline bg-ground/50 px-5 py-4">
         <p className="text-xs uppercase tracking-[0.18em] text-ink-muted">Quote</p>
         {latestQuote ? (
           <p className="mt-1 text-2xl font-semibold tabular-nums text-ink-primary">
@@ -400,7 +400,7 @@ export default async function JobDetailPage({
       {liveInvoice ? (
         <Link
           href={`/jobs/${job.id}/invoices/${liveInvoice.id}`}
-          className="block rounded-2xl border border-hairline bg-ground/50 px-5 py-4 transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="block rounded-lg border border-hairline bg-ground/50 px-5 py-4 transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           <p className="text-xs uppercase tracking-[0.18em] text-ink-muted">
             {invoiceOwedCents > 0 ? "Still owed" : "Invoiced"}
@@ -424,7 +424,7 @@ export default async function JobDetailPage({
           eyebrow="Sales"
           label={salesCard.label}
           description={salesCard.description}
-          badge={salesCard.badge}
+          tone={salesCard.tone}
           secondaryDetail={salesCard.secondaryDetail}
           action={salesCard.action}
         />
@@ -432,7 +432,7 @@ export default async function JobDetailPage({
           eyebrow="Financial"
           label={financialCard.label}
           description={financialCard.description}
-          badge={financialCard.badge}
+          tone={financialCard.tone}
           secondaryDetail={financialCard.secondaryDetail}
           action={financialCard.action}
         />
@@ -673,7 +673,7 @@ export default async function JobDetailPage({
           showsMoney ? (
             <Link
               href={`/jobs/${job.id}/report`}
-              className="inline-flex rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-flex rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               Open printable report
             </Link>

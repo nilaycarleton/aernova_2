@@ -12,13 +12,13 @@ export default function QuotesLoading() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-3xl border border-hairline bg-surface-raised p-6">
+          <div key={i} className="rounded-lg border border-hairline bg-surface-raised p-6">
             <SkeletonReadout />
           </div>
         ))}
       </div>
 
-      <div className="rounded-3xl border border-hairline bg-surface-raised px-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised px-6">
         <SkeletonList rows={6} />
       </div>
     </div>

@@ -27,7 +27,7 @@ const TONE_DOT: Record<ActionCenterTone, string> = {
  */
 export function DashboardActionCenter({ items }: { items: ActionCenterItem[] }) {
   return (
-    <section className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-6">
+    <section className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-6">
       <h2 className="text-sm font-semibold text-ink-primary">Needs attention</h2>
 
       {items.length === 0 ? (

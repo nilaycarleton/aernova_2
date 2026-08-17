@@ -46,7 +46,7 @@ function PhotoDropZone({ name, label }: { name: string; label: string }) {
       }}
       onDragLeave={() => setDrag(false)}
       onDrop={onDrop}
-      className={`flex min-h-28 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed p-4 text-center transition ${
+      className={`flex min-h-28 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed p-4 text-center transition ${
         drag
           ? "border-instrument-bright/70 bg-instrument-bright/10"
           : "border-hairline bg-ground/45 hover:border-instrument-bright/35 hover:bg-ground/65"
@@ -121,7 +121,7 @@ export function ComparisonCreateForm({ jobId }: { jobId: string }) {
         <input
           name="title"
           placeholder="e.g. Front slope — before and after"
-          className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
+          className="w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
           required
         />
       </div>
@@ -131,12 +131,12 @@ export function ComparisonCreateForm({ jobId }: { jobId: string }) {
         name="summary"
         rows={2}
         placeholder="Optional note"
-        className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue md:col-span-2"
+        className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue md:col-span-2"
       />
       <button
         type="submit"
         disabled={saving || isPending}
-        className="rounded-2xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40 md:col-span-2"
+        className="rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40 md:col-span-2"
       >
         {saving ? "Creating…" : isPending ? "Refreshing…" : "Create comparison"}
       </button>

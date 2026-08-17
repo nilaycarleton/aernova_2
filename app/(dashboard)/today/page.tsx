@@ -103,7 +103,7 @@ export default async function TodayPage() {
       />
 
       {todays.length === 0 && next ? (
-        <section className="rounded-3xl border border-dashed border-hairline p-6">
+        <section className="rounded-lg border border-dashed border-hairline p-6">
           <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">Next up</p>
           <p className="mt-2 text-lg font-medium text-ink-primary">
             {jobClient(next.job).name}
@@ -123,7 +123,7 @@ export default async function TodayPage() {
           return (
             <li
               key={visit.id}
-              className={`rounded-3xl border border-hairline bg-surface-raised p-5 ${
+              className={`rounded-lg border border-hairline bg-surface-raised p-5 ${
                 done ? "opacity-60" : ""
               }`}
             >
@@ -161,7 +161,7 @@ export default async function TodayPage() {
                   href={`https://maps.apple.com/?q=${encodeURIComponent(address)}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 block break-words rounded-xl border border-hairline px-4 py-3 text-sm text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+                  className="mt-3 block break-words rounded-lg border border-hairline px-4 py-3 text-sm text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
                 >
                   {address}
                   <span className="mt-0.5 block text-xs text-ink-muted">Tap for directions</span>
@@ -169,7 +169,7 @@ export default async function TodayPage() {
               ) : null}
 
               {visit.notes ? (
-                <p className="mt-3 whitespace-pre-line rounded-xl bg-ground/40 px-4 py-3 text-sm leading-6 text-ink-secondary">
+                <p className="mt-3 whitespace-pre-line rounded-lg bg-ground/40 px-4 py-3 text-sm leading-6 text-ink-secondary">
                   {visit.notes}
                 </p>
               ) : null}
@@ -202,7 +202,7 @@ export default async function TodayPage() {
               <div className="mt-3">
                 <Link
                   href={`/jobs/${visit.jobId}`}
-                  className="block rounded-xl border border-hairline px-5 py-4 text-center text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+                  className="block rounded-lg border border-hairline px-5 py-4 text-center text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
                 >
                   The job
                 </Link>

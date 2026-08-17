@@ -50,7 +50,7 @@ export default async function OnboardingPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-ground p-6">
-      <div className="w-full max-w-md rounded-2xl border border-hairline bg-surface-raised p-8">
+      <div className="w-full max-w-md rounded-lg border border-hairline bg-surface-raised p-8">
         <h1 className="text-xl font-semibold text-ink-primary">Let&apos;s set you up</h1>
         <p className="mt-2 text-sm text-ink-secondary">
           A few quick things, and your price list, taxes and workflow are ready to go.

@@ -1,4 +1,5 @@
 import { QuoteDeclineReason, QuoteStatus } from "@prisma/client";
+import type { StatusTone } from "@/lib/status-tone";
 
 /**
  * What a quote's standing is called out loud.
@@ -44,44 +45,32 @@ export function canDeleteQuote(status: QuoteStatus): boolean {
   return DELETABLE_QUOTE_STATUSES.includes(status);
 }
 
-// Tone, not colour — status is state, and the Readout Rule keeps cyan for
-// numbers. Only two statuses earn a hue, and both mean "something happened":
-// one good, one needing an answer.
-const NEUTRAL = "text-ink-secondary bg-surface-lifted";
-const QUIET = "text-ink-muted bg-surface-lifted";
-
 type QuoteStatusMeta = {
   label: string;
   /** What it means, in the words a roofer would use. */
   hint: string;
-  badge: string;
 };
 
 export const QUOTE_STATUS_META: Record<QuoteStatus, QuoteStatusMeta> = {
   DRAFT: {
     label: "Draft",
     hint: "Not sent. Nobody has seen this but you.",
-    badge: QUIET,
   },
   SENT: {
     label: "Awaiting response",
     hint: "Sent, and they haven't opened it yet.",
-    badge: NEUTRAL,
   },
   VIEWED: {
     label: "Opened",
     hint: "They've read it. No answer yet.",
-    badge: NEUTRAL,
   },
   APPROVED: {
     label: "Approved",
     hint: "They said yes. The job moved to quoted.",
-    badge: "text-confirm-fg bg-confirm/10",
   },
   CHANGES_REQUESTED: {
     label: "Changes asked for",
     hint: "They want something different. Check the job's history.",
-    badge: "text-caution-fg bg-caution/10",
   },
   REJECTED: {
     label: "Turned down",
@@ -90,17 +79,29 @@ export const QUOTE_STATUS_META: Record<QuoteStatus, QuoteStatusMeta> = {
     // Written by `markQuoteDeclinedAction`, alongside the reason this label
     // doesn't repeat (see `QUOTE_DECLINE_REASON_META`).
     hint: "They went elsewhere. Worth a call in a year.",
-    badge: QUIET,
   },
   EXPIRED: {
     label: "Expired",
     hint: "The price no longer holds. Re-quote it if they come back.",
-    badge: QUIET,
   },
 };
 
 export function quoteStatusLabel(status: QuoteStatus): string {
   return QUOTE_STATUS_META[status]?.label ?? "Draft";
+}
+
+/**
+ * Status-consolidation adapter (Premium UI Redesign final completion pass) —
+ * feeds the shared `Status` primitive (components/ui/status.tsx) instead of
+ * each call site hand-rolling its own badge pill. Only APPROVED and
+ * CHANGES_REQUESTED earn a hue; everything else reads as an ordinary neutral
+ * state, matching the tone grouping the old per-status badge strings already
+ * drew (DRAFT/SENT/VIEWED/REJECTED/EXPIRED were all uncolored grays).
+ */
+export function quoteStatusTone(status: QuoteStatus): StatusTone {
+  if (status === QuoteStatus.APPROVED) return "success";
+  if (status === QuoteStatus.CHANGES_REQUESTED) return "caution";
+  return "neutral";
 }
 
 /**

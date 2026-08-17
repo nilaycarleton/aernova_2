@@ -76,7 +76,7 @@ export function AdditionalWorkPanel({
   }
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold text-ink-primary">Additional work</h3>
@@ -90,7 +90,7 @@ export function AdditionalWorkPanel({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="shrink-0 rounded-xl border border-hairline px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
+            className="shrink-0 rounded-lg border border-hairline px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
           >
             Bill for something extra
           </button>
@@ -146,7 +146,7 @@ export function AdditionalWorkPanel({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Extra downspout"
               required
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+              className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
             />
           </div>
 
@@ -235,7 +235,7 @@ export function AdditionalWorkPanel({
           </div>
 
           {atOrAboveThreshold ? (
-            <div className="rounded-xl border border-caution/30 bg-caution/5 p-4">
+            <div className="rounded-lg border border-caution/30 bg-caution/5 p-4">
               <p className="text-sm text-caution-fg">
                 This is at or above your {formatMoney(thresholdCents)}{" "}
                 review threshold. By default it&rsquo;ll be shared to the homeowner for review
@@ -253,7 +253,7 @@ export function AdditionalWorkPanel({
           <div className="flex gap-3">
             <SubmitButton
               pendingText="Creating…"
-              className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+              className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Create invoice
             </SubmitButton>

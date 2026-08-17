@@ -31,7 +31,6 @@ export type EffectiveStageMeta = {
   /** `STATUS_META[status].label`, always — for Settings UI to show what "clear" restores. */
   defaultLabel: string;
   description: string;
-  badge: string;
   nextStep: string;
   advanceLabel: string;
   /** False if the company has hidden this stage for future jobs. */
@@ -66,7 +65,6 @@ export function effectiveStageMeta(
     label: trimmedLabel || meta.label,
     defaultLabel: meta.label,
     description: meta.description,
-    badge: meta.badge,
     nextStep: meta.nextStep,
     advanceLabel: meta.advanceLabel,
     isEnabled,

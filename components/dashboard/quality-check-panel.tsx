@@ -47,7 +47,7 @@ export function QualityCheckPanel({
   const complete = Boolean(data?.completedAt);
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-lg font-semibold text-ink-primary">Quality check</h3>
         {complete ? (
@@ -62,7 +62,7 @@ export function QualityCheckPanel({
           What crew reported
         </p>
         {data?.fieldEvidenceSubmittedAt ? (
-          <div className="mt-2 space-y-2 rounded-xl bg-ground/40 px-4 py-3">
+          <div className="mt-2 space-y-2 rounded-lg bg-ground/40 px-4 py-3">
             <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
               <span className={data.siteCleaned ? "text-confirm-fg" : "text-ink-muted"}>
                 {data.siteCleaned ? "✓" : "—"} Site cleaned
@@ -135,7 +135,7 @@ export function QualityCheckPanel({
                 name="walkthroughNotes"
                 rows={2}
                 defaultValue={data?.walkthroughNotes ?? ""}
-                className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+                className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
               />
             </div>
 
@@ -143,7 +143,7 @@ export function QualityCheckPanel({
 
             <SubmitButton
               pendingText="Saving…"
-              className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+              className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               {state.savedAt ? "Saved" : "Save"}
             </SubmitButton>

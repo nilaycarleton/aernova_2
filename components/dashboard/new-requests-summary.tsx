@@ -28,7 +28,7 @@ export async function NewRequestsSummary({ companyId }: { companyId: string }) {
   const oldest = requests[0];
 
   return (
-    <section className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-6">
+    <section className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-6">
       <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">New requests</p>
 
       {requests.length === 0 ? (

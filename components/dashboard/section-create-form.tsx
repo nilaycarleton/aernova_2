@@ -9,7 +9,7 @@ import { SubmitButton } from "@/components/dashboard/submit-button";
 import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
 
 const NUM =
-  "rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue";
+  "rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue";
 
 export function SectionCreateForm({ jobId }: { jobId: string }) {
   const [state, formAction] = useActionState<SectionFormState, FormData>(createRoofSectionAction, {});
@@ -24,7 +24,7 @@ export function SectionCreateForm({ jobId }: { jobId: string }) {
         <input
           name="label"
           placeholder="Garage rear slope"
-          className={`w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted ${labelError ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`}
+          className={`w-full rounded-md border bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted ${labelError ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`}
           required
           {...errorAttrs("section-label", labelError)}
         />
@@ -39,7 +39,7 @@ export function SectionCreateForm({ jobId }: { jobId: string }) {
       <input name="rakeLengthFt" type="number" step="0.01" aria-label="Rake length, feet" placeholder="Rake ft" className={NUM} />
       <SubmitButton
         pendingText="Adding…"
-        className="rounded-xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+        className="rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
       >
         Add Facet
       </SubmitButton>

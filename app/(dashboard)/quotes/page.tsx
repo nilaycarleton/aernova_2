@@ -9,6 +9,7 @@ import {
   OUTSTANDING,
   QUOTE_STATUS_FLOW,
   QUOTE_STATUS_META,
+  quoteStatusTone,
 } from "@/lib/quote-status";
 import { DATE_RANGES, isRangeKey, rangeStart, type RangeKey } from "@/lib/date-range";
 import { FilterPill } from "@/components/dashboard/filter-pill";
@@ -91,7 +92,7 @@ export default async function QuotesPage({
         {/* Was the one cyan figure on this surface — same backwards-Readout-
             Rule bug Phase 4 found on the dashboard. Money is a business
             figure, never a measurement. */}
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
           <NumericReadout
             label="Waiting on an answer"
             value={formatMoney(outstandingCents)}
@@ -104,7 +105,7 @@ export default async function QuotesPage({
           />
         </div>
 
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
           <NumericReadout
             label="Won"
             value={formatMoney(approvedCents)}
@@ -113,7 +114,7 @@ export default async function QuotesPage({
           />
         </div>
 
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
           <NumericReadout
             label="Of the ones you sent"
             value={approvalRate === null ? null : `${approvalRate}%`}
@@ -166,17 +167,15 @@ export default async function QuotesPage({
           action={
             <Link
               href="/jobs"
-              className="inline-block rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-block rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               Go to your jobs
             </Link>
           }
         />
       ) : (
-        /* Scrolls in its own box rather than pushing the page sideways. The
-           outer rounded-3xl panel stays hand-built — that radius has no
-           Astryx equivalent (see lib/astryx/theme.ts's radius comment). */
-        <div className="overflow-x-auto rounded-3xl border border-hairline bg-surface-raised">
+        /* Scrolls in its own box rather than pushing the page sideways. */
+        <div className="overflow-x-auto rounded-lg border border-hairline bg-surface-raised">
           <QuotesTable rows={quotes.map((quote): QuoteRow => {
             const client = jobClient(quote.job);
             const address = formatAddress(jobAddress(quote.job));
@@ -191,7 +190,7 @@ export default async function QuotesPage({
               createdLabel: quote.createdAt.toLocaleDateString("en-CA", { dateStyle: "medium" }),
               statusLabel: meta.label,
               statusHint: meta.hint,
-              statusBadgeClass: meta.badge,
+              statusTone: quoteStatusTone(quote.status),
               totalLabel: formatMoney(quote.totalAmountCents),
             };
           })} />

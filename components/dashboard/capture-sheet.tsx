@@ -14,7 +14,7 @@ import { downscaleImage } from "@/lib/image-downscale";
 import { formatMoney } from "@/lib/money";
 
 const FIELD =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-base text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-base text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
 
 /**
  * Item 49. Two steps in one sheet: a photo goes up and comes back as a
@@ -58,7 +58,7 @@ export function CaptureSheet() {
         <div>
           <label
             htmlFor={inputId}
-            className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-hairline bg-ground/50 px-6 py-10 text-center transition hover:bg-surface-lifted has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-instrument ${busy ? "opacity-60" : ""}`}
+            className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-hairline bg-ground/50 px-6 py-10 text-center transition hover:bg-surface-lifted has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-instrument ${busy ? "opacity-60" : ""}`}
           >
             <span className="text-base font-medium text-ink-primary">
               {busy ? "Reading the photo…" : "Take or choose a photo"}
@@ -91,7 +91,7 @@ export function CaptureSheet() {
 
         <Link
           href="/jobs/new"
-          className="block w-full rounded-xl border border-hairline bg-surface-raised px-6 py-4 text-center text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="block w-full rounded-lg border border-hairline bg-surface-raised px-6 py-4 text-center text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           The full form instead
         </Link>
@@ -124,7 +124,7 @@ export function CaptureSheet() {
 
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt="" className="h-40 w-full rounded-xl border border-hairline object-cover" />
+        <img src={imageUrl} alt="" className="h-40 w-full rounded-lg border border-hairline object-cover" />
       ) : null}
 
       <ClientPicker error={errors.client} onSelectionChange={setSelection} />
@@ -156,7 +156,7 @@ export function CaptureSheet() {
       </div>
 
       {draft.serviceId && draft.suggestedPriceCents != null ? (
-        <p className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-sm text-ink-secondary">
+        <p className="rounded-lg border border-hairline bg-ground/50 px-4 py-3 text-sm text-ink-secondary">
           Matched to your catalog at {formatMoney(draft.suggestedPriceCents)}. Saving starts a
           draft quote with this line already on it.
         </p>
@@ -169,14 +169,14 @@ export function CaptureSheet() {
       <div className="space-y-3 pt-2">
         <SubmitButton
           pendingText="Saving…"
-          className="w-full rounded-xl bg-action px-6 py-4 text-base font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
+          className="w-full rounded-md bg-action px-6 py-4 text-base font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
         >
           Save it
         </SubmitButton>
         <button
           type="button"
           onClick={() => setCapture({})}
-          className="block w-full rounded-xl border border-hairline bg-surface-raised px-6 py-4 text-center text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="block w-full rounded-lg border border-hairline bg-surface-raised px-6 py-4 text-center text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           Start over with a different photo
         </button>

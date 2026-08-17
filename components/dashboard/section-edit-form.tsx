@@ -10,7 +10,7 @@ import { SubmitButton } from "@/components/dashboard/submit-button";
 import { FieldError, FormError, errorAttrs } from "@/components/dashboard/form-feedback";
 
 const FIELD =
-  "w-full rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue";
 
 /**
  * Inline edit for one roof facet. useActionState keeps a failed save (bad
@@ -45,7 +45,7 @@ export function SectionEditForm({
             aria-label="Facet name"
             className={
               labelError
-                ? "w-full rounded-xl border border-danger bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none focus:border-danger"
+                ? "w-full rounded-lg border border-danger bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none focus:border-danger"
                 : FIELD
             }
             required
@@ -64,7 +64,7 @@ export function SectionEditForm({
         <div className="flex gap-2 md:col-span-4 xl:col-span-9">
           <SubmitButton
             pendingText="Saving…"
-            className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+            className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
           >
             Save Facet
           </SubmitButton>

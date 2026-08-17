@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { Status } from "@/components/ui/status";
+import type { StatusTone } from "@/lib/status-tone";
 
 /**
  * §16/§17/§25 Phase 7 — the generalized shape `JobStatusStepper` already
- * proved out (label/description/badge/next-action), sized down to sit
+ * proved out (label/description/tone/next-action), sized down to sit
  * beside it rather than duplicate it. Purely presentational: every field is
  * a plain string handed in by a caller like `lib/job-mini-cards.ts` — this
  * component makes no decision about what state means, only how to show one.
@@ -15,7 +17,7 @@ export function StatusMiniCard({
   eyebrow,
   label,
   description,
-  badge,
+  tone,
   secondaryDetail,
   action,
 }: {
@@ -24,19 +26,16 @@ export function StatusMiniCard({
   /** The current state, in the trade's words — never a raw enum. */
   label: string;
   description: string;
-  /** Tailwind classes for the state pill. */
-  badge: string;
+  tone: StatusTone;
   secondaryDetail?: string | null;
   action?: { label: string; href: string } | null;
 }) {
   return (
-    <section className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-5">
+    <section className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-5">
       <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">{eyebrow}</p>
 
-      <span
-        className={`mt-2 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${badge}`}
-      >
-        {label}
+      <span className="mt-2 inline-flex">
+        <Status variant="solid" tone={tone} label={label} />
       </span>
 
       <p className="mt-2 text-sm leading-6 text-ink-secondary">{description}</p>
@@ -50,7 +49,7 @@ export function StatusMiniCard({
       {action ? (
         <Link
           href={action.href}
-          className="mt-4 inline-flex rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="mt-4 inline-flex rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           {action.label}
         </Link>

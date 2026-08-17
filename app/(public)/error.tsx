@@ -24,7 +24,7 @@ export default function PublicError({
 
   return (
     <div className="flex min-h-[70vh] items-center justify-center">
-      <div className="mx-auto max-w-xl rounded-xl border border-paper-rule bg-paper-document p-8 text-center">
+      <div className="mx-auto max-w-xl rounded-lg border border-paper-rule bg-paper-document p-8 text-center">
         <h1 className="text-xl font-semibold text-paper-ink">Something went wrong</h1>
         <p className="mt-3 text-sm text-paper-ink-muted">
           {error.message || "That didn't go through. Try again, or reach out to whoever sent you this link."}

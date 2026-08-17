@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { JobStatus } from "@prisma/client";
 import { statusTone } from "../lib/job-status.ts";
 
-test("every in-flight status reads as neutral, matching STATUS_META's IN_FLIGHT badge tier", () => {
+test("every in-flight status reads as neutral", () => {
   for (const status of [
     JobStatus.LEAD,
     JobStatus.INSPECTION,
@@ -17,10 +17,10 @@ test("every in-flight status reads as neutral, matching STATUS_META's IN_FLIGHT 
   }
 });
 
-test("COMPLETED reads as success, matching STATUS_META's COMPLETE badge tier", () => {
+test("COMPLETED reads as success", () => {
   assert.equal(statusTone(JobStatus.COMPLETED), "success");
 });
 
-test("ARCHIVED reads as neutral, matching STATUS_META's muted ARCHIVED_BADGE tier", () => {
+test("ARCHIVED reads as neutral", () => {
   assert.equal(statusTone(JobStatus.ARCHIVED), "neutral");
 });

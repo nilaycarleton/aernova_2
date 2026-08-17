@@ -6,6 +6,7 @@ import { financialMiniCardState, salesMiniCardState } from "../lib/job-mini-card
 test("a job with no quote reads as its own state, not a database default", () => {
   const card = salesMiniCardState("job1", null);
   assert.equal(card.label, "No quote yet");
+  assert.equal(card.tone, "neutral");
   assert.equal(card.secondaryDetail, null);
   assert.deepEqual(card.action, { label: "Create a quote", href: "/jobs/job1?tab=quote" });
 });
@@ -30,10 +31,34 @@ test("a sent, viewed, or approved quote's action is to open it, and the label is
   }
 });
 
+test("the sales mini-card's tone always matches quoteStatusTone for the underlying quote", () => {
+  const approved = salesMiniCardState("job1", {
+    id: "q1",
+    status: QuoteStatus.APPROVED,
+    totalAmountCents: 100_000,
+  });
+  assert.equal(approved.tone, "success");
+
+  const changesRequested = salesMiniCardState("job1", {
+    id: "q1",
+    status: QuoteStatus.CHANGES_REQUESTED,
+    totalAmountCents: 100_000,
+  });
+  assert.equal(changesRequested.tone, "caution");
+
+  const draft = salesMiniCardState("job1", {
+    id: "q1",
+    status: QuoteStatus.DRAFT,
+    totalAmountCents: 100_000,
+  });
+  assert.equal(draft.tone, "neutral");
+});
+
 test("a job with no invoice explains why differently depending on whether a quote is approved", () => {
   const withApproval = financialMiniCardState("job1", null, true);
   const withoutApproval = financialMiniCardState("job1", null, false);
   assert.equal(withApproval.label, "No invoice yet");
+  assert.equal(withApproval.tone, "neutral");
   assert.match(withApproval.description, /nothing has been billed/i);
   assert.match(withoutApproval.description, /approved|directly/i);
   assert.deepEqual(withApproval.action, { label: "Go to billing", href: "/jobs/job1?tab=quote" });
@@ -72,6 +97,7 @@ test("an Additional Work invoice shared for review reads as its own state, not a
     true
   );
   assert.equal(card.label, "Awaiting homeowner review");
+  assert.equal(card.tone, "neutral");
   assert.equal(card.secondaryDetail, "$600.00");
 });
 
@@ -107,6 +133,7 @@ test("a paid invoice shows its total, not a stale $0.00 owed", () => {
     true
   );
   assert.equal(card.label, "Paid");
+  assert.equal(card.tone, "success");
   assert.equal(card.secondaryDetail, "$1,000.00");
 });
 
@@ -124,6 +151,24 @@ test("a partially paid invoice shows what's still owed, not the full total", () 
     },
     true
   );
+  assert.equal(card.tone, "neutral");
   assert.equal(card.secondaryDetail, "$600.00 owed");
   assert.equal(card.action?.label, "Open the invoice");
+});
+
+test("an overdue invoice's mini-card reads as danger", () => {
+  const card = financialMiniCardState(
+    "job1",
+    {
+      id: "inv1",
+      status: InvoiceStatus.OVERDUE,
+      totalAmountCents: 100_000,
+      amountPaidCents: 0,
+      requiresHomeownerReview: false,
+      homeownerReviewConfirmedAt: null,
+      sentAt: new Date("2026-08-01"),
+    },
+    true
+  );
+  assert.equal(card.tone, "danger");
 });

@@ -45,7 +45,7 @@ export async function PipelineSnapshot({ companyId }: { companyId: string }) {
   const total = rows.reduce((sum, row) => sum + row.count, 0);
 
   return (
-    <section className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-6">
+    <section className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-6">
       <h2 className="text-sm font-semibold text-ink-primary">Where things stand</h2>
 
       {total === 0 ? (

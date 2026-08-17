@@ -1,4 +1,5 @@
 import { InvoiceStatus } from "@prisma/client";
+import type { StatusTone } from "@/lib/status-tone";
 
 /**
  * What an invoice's standing is called out loud.
@@ -28,50 +29,52 @@ export const UNPAID: InvoiceStatus[] = [
   InvoiceStatus.OVERDUE,
 ];
 
-// Tone, not colour — the Readout Rule keeps cyan for numbers.
-const NEUTRAL = "text-ink-secondary bg-surface-lifted";
-const QUIET = "text-ink-muted bg-surface-lifted";
-
 type InvoiceStatusMeta = {
   label: string;
   /** What it means, in the words a roofer would use. */
   hint: string;
-  badge: string;
 };
 
 export const INVOICE_STATUS_META: Record<InvoiceStatus, InvoiceStatusMeta> = {
   DRAFT: {
     label: "Draft",
     hint: "Not sent. Nobody has been asked for this money yet.",
-    badge: QUIET,
   },
   SENT: {
     label: "Awaiting payment",
     hint: "Sent. Nothing has come in against it.",
-    badge: NEUTRAL,
   },
   PARTIALLY_PAID: {
     label: "Part paid",
     hint: "Some of it has come in. The rest is still owed.",
-    badge: NEUTRAL,
   },
   OVERDUE: {
     label: "Overdue",
     hint: "Past its due date and still owing. Worth a call.",
-    badge: "text-danger-fg bg-danger/10",
   },
   PAID: {
     label: "Paid",
     hint: "Settled in full. Nothing to chase.",
-    badge: "text-confirm-fg bg-confirm/10",
   },
   VOID: {
     label: "Cancelled",
     hint: "Written off. It stays on the record rather than disappearing.",
-    badge: QUIET,
   },
 };
 
 export function invoiceStatusLabel(status: InvoiceStatus): string {
   return INVOICE_STATUS_META[status]?.label ?? "Draft";
+}
+
+/**
+ * Status-consolidation adapter (Premium UI Redesign final completion pass) —
+ * feeds the shared `Status` primitive instead of each call site hand-rolling
+ * its own badge pill. OVERDUE is the one danger status in this product
+ * (per this file's own header note); PAID is success; everything else reads
+ * as an ordinary neutral state, matching the old badge strings' grouping.
+ */
+export function invoiceStatusTone(status: InvoiceStatus): StatusTone {
+  if (status === InvoiceStatus.OVERDUE) return "danger";
+  if (status === InvoiceStatus.PAID) return "success";
+  return "neutral";
 }

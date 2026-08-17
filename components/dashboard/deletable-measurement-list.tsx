@@ -123,7 +123,7 @@ export function DeletableMeasurementList({
         {visible.map((measurement) => (
           <div
             key={`delete-${measurement.id}`}
-            className="flex flex-col gap-3 rounded-2xl border border-danger/25 bg-danger/10 p-4 md:flex-row md:items-center md:justify-between"
+            className="flex flex-col gap-3 rounded-lg border border-danger/25 bg-danger/10 p-4 md:flex-row md:items-center md:justify-between"
           >
             <label className="flex min-w-0 items-center gap-3">
               <input
@@ -144,7 +144,7 @@ export function DeletableMeasurementList({
             <button
               type="button"
               onClick={() => requestDelete(measurement)}
-              className="shrink-0 rounded-xl border border-danger/25 bg-danger/10 px-4 py-2 text-sm font-medium text-danger-fg transition hover:bg-danger/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-danger"
+              className="shrink-0 rounded-lg border border-danger/25 bg-danger/10 px-4 py-2 text-sm font-medium text-danger-fg transition hover:bg-danger/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-danger"
             >
               Delete
             </button>

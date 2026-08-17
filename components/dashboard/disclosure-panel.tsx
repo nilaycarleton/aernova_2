@@ -44,7 +44,7 @@ export function DisclosurePanel({
         aria-expanded={open}
         aria-controls={regionId}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-4 rounded-2xl border border-hairline bg-surface-raised px-5 py-4 text-left transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+        className="flex w-full items-center gap-4 rounded-lg border border-hairline bg-surface-raised px-5 py-4 text-left transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
       >
         <ChevronRight
           size={18}

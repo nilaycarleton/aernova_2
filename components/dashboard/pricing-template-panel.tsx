@@ -34,7 +34,7 @@ const groups: { heading: string; rows: [string, string][] }[] = [
 
 export function PricingTemplatePanel() {
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-2xl font-semibold text-ink-primary">
         Company pricing defaults
       </h3>

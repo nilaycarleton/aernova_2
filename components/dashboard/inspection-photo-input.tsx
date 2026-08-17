@@ -38,7 +38,7 @@ export function InspectionPhotoInput() {
       }}
       onDragLeave={() => setIsDragActive(false)}
       onDrop={handleDrop}
-      className={`flex min-h-32 cursor-pointer flex-col justify-center rounded-2xl border border-dashed p-4 transition ${
+      className={`flex min-h-32 cursor-pointer flex-col justify-center rounded-lg border border-dashed p-4 transition ${
         isDragActive
           ? "border-instrument-bright/70 bg-instrument-bright/10"
           : "border-hairline bg-ground/45 hover:border-instrument-bright/35 hover:bg-ground/65"
@@ -61,7 +61,7 @@ export function InspectionPhotoInput() {
       <span className="mt-1 max-w-xl text-sm leading-6 text-ink-muted">
         On phones and tablets this opens the camera directly for on-roof capture.
       </span>
-      <span className="mt-3 inline-flex w-fit rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted">
+      <span className="mt-3 inline-flex w-fit rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted">
         Choose file
       </span>
     </label>

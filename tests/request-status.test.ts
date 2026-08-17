@@ -6,6 +6,7 @@ import {
   isOpenRequest,
   isOverdue,
   matchesRequestFilter,
+  requestStatusTone,
 } from "../lib/request-status.ts";
 import { sinceLabel } from "../lib/relative-time.ts";
 
@@ -55,6 +56,13 @@ test("no status label is a database enum", () => {
   for (const [value, meta] of Object.entries(REQUEST_STATUS_META)) {
     assert.notEqual(meta.label, value);
     assert.ok(!meta.label.includes("_"), `${value} label reads as an enum`);
+  }
+});
+
+test("only CONVERTED reads as success; every other status reads as neutral", () => {
+  assert.equal(requestStatusTone("CONVERTED"), "success");
+  for (const status of ["NEW", "CONTACTED", "ASSESSING", "CLOSED"] as const) {
+    assert.equal(requestStatusTone(status), "neutral", status);
   }
 });
 

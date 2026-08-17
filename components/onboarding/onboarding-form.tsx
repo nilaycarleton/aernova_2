@@ -6,7 +6,7 @@ import { SubmitButton } from "@/components/dashboard/submit-button";
 import { completeOnboardingAction } from "@/app/onboarding/actions";
 
 const selectClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "w-full rounded-lg border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 export type OnboardingTemplateCard = {
   id: string;
@@ -114,7 +114,7 @@ export function OnboardingForm({
           type="button"
           onClick={continueToStep2}
           disabled={!trade || !province}
-          className="w-full rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-50"
+          className="w-full rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-50"
         >
           Continue
         </button>
@@ -134,7 +134,7 @@ export function OnboardingForm({
             {tradeTemplates.map((t) => (
               <label
                 key={t.id}
-                className={`block cursor-pointer rounded-xl border p-4 transition ${
+                className={`block cursor-pointer rounded-lg border p-4 transition ${
                   templateId === t.id
                     ? "border-signal-blue/40 bg-signal-blue/10"
                     : "border-hairline hover:bg-surface-lifted"
@@ -163,7 +163,7 @@ export function OnboardingForm({
             ))}
 
             <label
-              className={`block cursor-pointer rounded-xl border p-4 transition ${
+              className={`block cursor-pointer rounded-lg border p-4 transition ${
                 templateId === ""
                   ? "border-signal-blue/40 bg-signal-blue/10"
                   : "border-hairline hover:bg-surface-lifted"
@@ -192,13 +192,13 @@ export function OnboardingForm({
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="rounded-xl border border-hairline px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
+              className="rounded-lg border border-hairline px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
             >
               Back
             </button>
             <SubmitButton
               pendingText="Setting up…"
-              className="flex-1 rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+              className="flex-1 rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Finish setup
             </SubmitButton>

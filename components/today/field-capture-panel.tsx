@@ -174,14 +174,14 @@ export function FieldCapturePanel({
           <button
             type="button"
             onClick={handleComplete}
-            className="flex-1 rounded-xl bg-action px-5 py-4 text-base font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            className="flex-1 rounded-md bg-action px-5 py-4 text-base font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             Mark this done
           </button>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-xl border border-hairline px-5 py-4 text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            className="rounded-lg border border-hairline px-5 py-4 text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             Add a photo
           </button>
@@ -190,7 +190,7 @@ export function FieldCapturePanel({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="w-full rounded-xl border border-hairline px-5 py-4 text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="w-full rounded-lg border border-hairline px-5 py-4 text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           Add a photo
         </button>
@@ -217,20 +217,20 @@ export function FieldCapturePanel({
             onChange={(event) => setNoteDraft(event.target.value)}
             rows={3}
             placeholder="What should the office know?"
-            className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+            className="w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
           />
           <div className="flex gap-3">
             <button
               type="button"
               onClick={handleSaveNote}
-              className="rounded-xl bg-action px-4 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="rounded-md bg-action px-4 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               Save note
             </button>
             <button
               type="button"
               onClick={() => setNoteOpen(false)}
-              className="rounded-xl px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
+              className="rounded-lg px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
             >
               Cancel
             </button>

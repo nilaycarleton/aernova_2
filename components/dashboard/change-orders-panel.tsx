@@ -37,7 +37,7 @@ export function ChangeOrdersPanel({
     .reduce((sum, co) => sum + co.amountCents, 0);
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold text-ink-primary">Change orders</h3>
@@ -52,7 +52,7 @@ export function ChangeOrdersPanel({
           <input type="hidden" name="quoteId" value={quoteId} />
           <SubmitButton
             pendingText="Creating…"
-            className="shrink-0 rounded-xl border border-hairline px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
+            className="shrink-0 rounded-lg border border-hairline px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
           >
             New change order
           </SubmitButton>

@@ -9,7 +9,7 @@
  */
 
 const FIELD_BASE =
-  "w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted";
+  "w-full rounded-lg border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted";
 
 /** Field classes with an error-aware border. Pass the field's error, if any. */
 export function fieldClass(error?: string, extra = "") {
@@ -46,7 +46,7 @@ export function FormError({ message }: { message?: string }) {
   return (
     <div
       role="alert"
-      className="mb-4 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
+      className="mb-4 rounded-lg border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
     >
       {message} Nothing you typed has been lost.
     </div>

@@ -44,7 +44,7 @@ export function JobIntelligence({ measurements, sections }: Props) {
 
   return (
     <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-      <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised p-6">
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
@@ -61,7 +61,7 @@ export function JobIntelligence({ measurements, sections }: Props) {
 
         <div className="mt-6 space-y-4">
           {pitchRows.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-hairline p-6 text-sm text-ink-muted">
+            <div className="rounded-lg border border-dashed border-hairline p-6 text-sm text-ink-muted">
               Add roof structures or facets to generate a pitch breakdown.
             </div>
           ) : (
@@ -85,7 +85,7 @@ export function JobIntelligence({ measurements, sections }: Props) {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised p-6">
         <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
           Material estimate
         </p>

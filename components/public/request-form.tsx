@@ -9,7 +9,7 @@ import {
 import { SubmitButton } from "@/components/dashboard/submit-button";
 
 const FIELD =
-  "mt-2 w-full rounded-xl border border-paper-rule-strong bg-paper-document px-3 py-2.5 text-sm text-paper-ink outline-none transition placeholder:text-paper-ink-faint focus:border-signal-blue";
+  "mt-2 w-full rounded-md border border-paper-rule-strong bg-paper-document px-3 py-2.5 text-sm text-paper-ink outline-none transition placeholder:text-paper-ink-faint focus:border-signal-blue";
 
 function fieldClass(error?: string) {
   return error ? `${FIELD} border-danger focus:border-danger` : FIELD;
@@ -32,7 +32,7 @@ export function RequestForm({ companySlug }: { companySlug: string }) {
 
   if (state.success) {
     return (
-      <div className="mt-8 rounded-2xl border border-paper-rule bg-paper-inset p-6">
+      <div className="mt-8 rounded-lg border border-paper-rule bg-paper-inset p-6">
         <p className="font-semibold text-paper-ink">Thanks — that&rsquo;s sent.</p>
         <p className="mt-2 text-sm leading-6 text-paper-ink-muted">
           They&rsquo;ll be in touch. No account, no password — this page is all you needed.
@@ -213,7 +213,7 @@ export function RequestForm({ companySlug }: { companySlug: string }) {
 
       <SubmitButton
         pendingText="Sending…"
-        className="w-full rounded-xl bg-paper-ink px-4 py-3 text-sm font-semibold text-paper-document transition hover:bg-paper-ink-strong disabled:opacity-60 sm:w-auto"
+        className="w-full rounded-lg bg-paper-ink px-4 py-3 text-sm font-semibold text-paper-document transition hover:bg-paper-ink-strong disabled:opacity-60 sm:w-auto"
       >
         Send it
       </SubmitButton>

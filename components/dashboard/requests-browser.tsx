@@ -9,6 +9,7 @@ import {
   RequestFilter,
   isOverdue,
   matchesRequestFilter,
+  requestStatusTone,
 } from "@/lib/request-status";
 import { sinceLabel } from "@/lib/relative-time";
 import {
@@ -20,6 +21,7 @@ import { SubmitButton } from "@/components/dashboard/submit-button";
 import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
 import { FilterToolbar } from "@/components/ui/filter-toolbar";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Status } from "@/components/ui/status";
 
 export type BrowserRequest = {
   id: string;
@@ -64,7 +66,7 @@ export function RequestsBrowser({
         action={
           <Link
             href="/requests/new"
-            className="inline-flex rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            className="inline-flex rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             Write down a request
           </Link>
@@ -104,7 +106,7 @@ export function RequestsBrowser({
             return (
               <li
                 key={request.id}
-                className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-5"
+                className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-5"
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
@@ -122,11 +124,7 @@ export function RequestsBrowser({
                   </div>
 
                   <div className="flex shrink-0 flex-col items-end gap-2">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${meta.badge}`}
-                    >
-                      {meta.label}
-                    </span>
+                    <Status variant="solid" tone={requestStatusTone(request.status)} label={meta.label} />
                     {/* Amber only when it is genuinely late. An hour-old
                         request is not a warning, it is Tuesday. */}
                     <span
@@ -143,7 +141,7 @@ export function RequestsBrowser({
                   {request.jobId ? (
                     <Link
                       href={`/jobs/${request.jobId}`}
-                      className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+                      className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
                     >
                       Open the job
                     </Link>
@@ -153,7 +151,7 @@ export function RequestsBrowser({
                         <input type="hidden" name="requestId" value={request.id} />
                         <SubmitButton
                           pendingText="Creating…"
-                          className="rounded-xl bg-action px-4 py-2 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
+                          className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
                         >
                           Turn into a job
                         </SubmitButton>
@@ -229,7 +227,7 @@ function StatusButton({
       <input type="hidden" name="status" value={status} />
       <SubmitButton
         pendingText="Saving…"
-        className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-secondary transition hover:bg-surface-lifted hover:text-ink-primary disabled:opacity-60"
+        className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-secondary transition hover:bg-surface-lifted hover:text-ink-primary disabled:opacity-60"
       >
         {label}
       </SubmitButton>

@@ -3,7 +3,7 @@ import { formatMoney } from "@/lib/money";
 import type { JobFinancialSummary } from "@/lib/job-financial-summary";
 
 const ACTION_LINK =
-  "rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 /**
  * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §6/§21/§25 Phase 8 — the composed
@@ -33,7 +33,7 @@ export function FinancialCompletionPanel({
 
   if (!hasAnyActivity) {
     return (
-      <section className="rounded-3xl border border-dashed border-hairline p-8 text-center">
+      <section className="rounded-lg border border-dashed border-hairline p-8 text-center">
         <p className="text-sm font-medium text-ink-primary">Nothing to summarize yet</p>
         <p className="mx-auto mt-2 max-w-md text-sm text-ink-muted">
           Once there&rsquo;s an approved quote, or a bill for work outside one, the contract and
@@ -44,7 +44,7 @@ export function FinancialCompletionPanel({
   }
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Financial summary</h3>
       <p className="mt-1 text-sm text-ink-muted">
         Contract value and billing, all in one place — for closing out the job.

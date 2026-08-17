@@ -5,7 +5,7 @@ import { requirePageCapability } from "@/lib/auth";
 import { formatAddress } from "@/lib/client-matching";
 import { jobAddress, jobClient, jobIdentityInclude } from "@/lib/job-identity";
 import { formatMoney } from "@/lib/money";
-import { INVOICE_STATUS_FLOW, INVOICE_STATUS_META, UNPAID } from "@/lib/invoice/status";
+import { INVOICE_STATUS_FLOW, INVOICE_STATUS_META, UNPAID, invoiceStatusTone } from "@/lib/invoice/status";
 import { sweepOverdueInvoices } from "@/lib/invoice/overdue";
 import { DATE_RANGES, isRangeKey, rangeStart, type RangeKey } from "@/lib/date-range";
 import { FilterPill } from "@/components/dashboard/filter-pill";
@@ -93,7 +93,7 @@ export default async function InvoicesPage({
             claiming the Readout Rule for it — backwards, same bug Phase 4
             found on the dashboard. Money is a business figure, not a
             measurement; NumericReadout's tone="default" is ordinary ink. */}
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
           <NumericReadout
             label="Still owed"
             value={formatMoney(owedCents)}
@@ -102,7 +102,7 @@ export default async function InvoicesPage({
           />
         </div>
 
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
           <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Past due</p>
           <p
             className={`mt-1 break-words text-2xl font-semibold tabular-nums ${
@@ -158,14 +158,14 @@ export default async function InvoicesPage({
           action={
             <Link
               href="/quotes?status=APPROVED"
-              className="inline-block rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="inline-block rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               See your approved quotes
             </Link>
           }
         />
       ) : (
-        <div className="overflow-x-auto rounded-3xl border border-hairline bg-surface-raised">
+        <div className="overflow-x-auto rounded-lg border border-hairline bg-surface-raised">
           <InvoicesTable
             rows={invoices.map((invoice): InvoiceRow => {
               const client = jobClient(invoice.job);
@@ -184,7 +184,7 @@ export default async function InvoicesPage({
                   : "On receipt",
                 statusLabel: meta.label,
                 statusHint: meta.hint,
-                statusBadgeClass: meta.badge,
+                statusTone: invoiceStatusTone(invoice.status),
                 // What is left, not what was billed. The billed figure is on
                 // the invoice; the one worth scanning a column of is the one
                 // somebody still has to collect.

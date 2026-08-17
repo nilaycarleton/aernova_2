@@ -22,7 +22,7 @@ export default function GlobalError({
     <html lang="en">
       <body className="min-h-screen bg-ground text-ink-primary antialiased">
         <main className="flex min-h-screen items-center justify-center p-6">
-          <div className="max-w-md rounded-3xl border border-hairline bg-surface-raised p-8 text-center">
+          <div className="max-w-md rounded-lg border border-hairline bg-surface-raised p-8 text-center">
             <h1 className="text-2xl font-semibold">Something went wrong</h1>
             <p className="mt-3 text-sm text-ink-muted">
               {error.message || "An unexpected error occurred."}
@@ -30,7 +30,7 @@ export default function GlobalError({
             <button
               type="button"
               onClick={reset}
-              className="mt-6 rounded-xl border border-hairline bg-info/20 px-4 py-2 text-sm font-medium text-info-fg transition hover:bg-info/30"
+              className="mt-6 rounded-lg border border-hairline bg-info/20 px-4 py-2 text-sm font-medium text-info-fg transition hover:bg-info/30"
             >
               Try again
             </button>

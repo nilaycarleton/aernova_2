@@ -2,16 +2,14 @@
 
 import Link from "next/link";
 import { Table, pixel, proportional, type TableColumn } from "@astryxdesign/core/Table";
+import { Status } from "@/components/ui/status";
+import type { StatusTone } from "@/lib/status-tone";
 
 /**
  * Plain, pre-formatted view model — the server page does every lookup
- * (client name, address, status label) and money/date formatting before this
- * crosses the server/client boundary, since renderCell closures can't be
- * passed as props from a Server Component. The status pill keeps the
- * existing `QUOTE_STATUS_META` classes as-is: DESIGN.md's Chips spec (10%
- * tint + `-fg` text, read-only carriers) doesn't match Astryx Badge's
- * semantic variants, which `lib/astryx/theme.ts` wires as the *solid-fill*
- * role instead — see that file's `--color-success/error/warning` comment.
+ * (client name, address, status label/tone) and money/date formatting before
+ * this crosses the server/client boundary, since renderCell closures can't be
+ * passed as props from a Server Component.
  */
 export interface QuoteRow extends Record<string, unknown> {
   id: string;
@@ -23,7 +21,7 @@ export interface QuoteRow extends Record<string, unknown> {
   createdLabel: string;
   statusLabel: string;
   statusHint: string;
-  statusBadgeClass: string;
+  statusTone: StatusTone;
   totalLabel: string;
 }
 
@@ -55,11 +53,8 @@ export function QuotesTable({ rows }: { rows: QuoteRow[] }) {
       header: "Standing",
       width: pixel(170),
       renderCell: (row) => (
-        <span
-          title={row.statusHint}
-          className={`inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${row.statusBadgeClass}`}
-        >
-          {row.statusLabel}
+        <span title={row.statusHint} className="inline-block whitespace-nowrap">
+          <Status variant="solid" tone={row.statusTone} label={row.statusLabel} />
         </span>
       ),
     },

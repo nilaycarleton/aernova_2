@@ -47,7 +47,7 @@ export function ChangeOrderSharePanel({
   }
 
   return (
-    <section className="mt-6 rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="mt-6 rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Send it to them</h3>
 
       {status === "DECLINED" ? (
@@ -60,7 +60,7 @@ export function ChangeOrderSharePanel({
           <input type="hidden" name="changeOrderId" value={changeOrderId} />
           <SubmitButton
             pendingText="Creating…"
-            className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+            className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
           >
             Create the link
           </SubmitButton>
@@ -83,12 +83,12 @@ export function ChangeOrderSharePanel({
               value={shareUrl}
               onFocus={(e) => e.currentTarget.select()}
               aria-label="The link to send"
-              className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
+              className="min-w-0 flex-1 rounded-lg border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
             />
             <button
               type="button"
               onClick={copy}
-              className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="shrink-0 rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {copied ? "Copied" : "Copy link"}
             </button>

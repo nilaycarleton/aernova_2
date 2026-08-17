@@ -47,7 +47,7 @@ export function AddOnOverrideFields({
           required={reasonRequired}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+          className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
         >
           <option value="" disabled={reasonRequired}>
             {reasonRequired ? "Pick a reason" : "No override — send for homeowner review"}
@@ -73,7 +73,7 @@ export function AddOnOverrideFields({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             maxLength={isOwnerOverride ? OVERRIDE_NOTE_MAX : undefined}
-            className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+            className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
           />
           {isOwnerOverride ? (
             <p className="mt-1.5 text-xs text-ink-muted">{overrideNoteCounterText(length)}</p>

@@ -1261,7 +1261,7 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
         </div>
 
         {showAdvanced ? (
-          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-hairline bg-ground/40 p-2">
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-hairline bg-ground/40 p-2">
             <span className="px-1 text-xs font-medium uppercase tracking-wide text-ink-muted">
               Measure by hand
             </span>
@@ -1299,7 +1299,7 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
           className={
             fullscreen
               ? "absolute inset-0 overflow-hidden bg-[#0b1418]"
-              : "relative min-h-[480px] overflow-hidden rounded-2xl border border-hairline bg-[#0b1418] sm:min-h-[560px]"
+              : "relative min-h-[480px] overflow-hidden rounded-lg border border-hairline bg-[#0b1418] sm:min-h-[560px]"
           }
           onPointerEnter={() => (hoveredRef.current = true)}
           onPointerLeave={() => (hoveredRef.current = false)}
@@ -1315,7 +1315,7 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
         </div>
 
         {!fullscreen && isSplit && isInspectorOpen ? (
-          <div className="rounded-2xl border border-hairline bg-ground/40">{inspectorPanel}</div>
+          <div className="rounded-lg border border-hairline bg-ground/40">{inspectorPanel}</div>
         ) : null}
       </div>
 
@@ -1323,7 +1323,7 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
         <div
           {...keepChrome}
           inert={chromeHidden || undefined}
-          className={`absolute right-3 top-20 z-30 max-h-[70vh] w-64 overflow-auto rounded-2xl border border-hairline bg-ground/85 backdrop-blur transition-all duration-300 ${
+          className={`absolute right-3 top-20 z-30 max-h-[70vh] w-64 overflow-auto rounded-lg border border-hairline bg-ground/85 backdrop-blur transition-all duration-300 ${
             chromeHidden ? "translate-x-4 opacity-0" : "translate-x-0 opacity-100"
           }`}
         >
@@ -1339,7 +1339,7 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
       ) : null}
 
       {contextLost ? (
-        <div className="pointer-events-none absolute inset-x-4 bottom-4 z-30 rounded-xl border border-hairline bg-ground/85 p-3 text-center text-sm text-ink-secondary backdrop-blur">
+        <div className="pointer-events-none absolute inset-x-4 bottom-4 z-30 rounded-lg border border-hairline bg-ground/85 p-3 text-center text-sm text-ink-secondary backdrop-blur">
           The 3D view paused to save graphics memory. It will pick back up shortly.
         </div>
       ) : null}
@@ -1376,7 +1376,7 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
 function ViewerStateBanner({ loadState, error }: { loadState: LoadState; error: string }) {
   if (loadState === "ready") return null;
   return (
-    <div className="pointer-events-none absolute inset-x-4 top-4 rounded-xl border border-hairline bg-ground/80 p-3 text-sm backdrop-blur">
+    <div className="pointer-events-none absolute inset-x-4 top-4 rounded-lg border border-hairline bg-ground/80 p-3 text-sm backdrop-blur">
       {loadState === "error" ? (
         <p className="text-danger-fg">Couldn&apos;t load the 3D model. {error}</p>
       ) : loadState === "unsupported" ? (
@@ -1412,7 +1412,7 @@ function ToolHint({
 }) {
   if (tool === "detect") {
     return (
-      <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-xl border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
+      <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-lg border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
         <span className="text-ink-secondary">
           {detectError ? (
             <span className="text-danger-fg">{detectError}</span>
@@ -1435,7 +1435,7 @@ function ToolHint({
   }
   if (tool === "edit") {
     return (
-      <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
+      <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-lg border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
         <span className="text-ink-secondary">
           {measurementsCount === 0
             ? "Nothing to edit yet — draw a measurement first."
@@ -1446,7 +1446,7 @@ function ToolHint({
   }
   if (tool === "split") {
     return (
-      <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-xl border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
+      <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-lg border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
         <span className="text-ink-secondary">
           {splitError ? <span className="text-danger-fg">{splitError}</span> : `Click two points across a facet to cut it in two (${draftCount}/2).`}
         </span>
@@ -1455,7 +1455,7 @@ function ToolHint({
   }
   if (tool !== "orbit") {
     return (
-      <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-xl border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
+      <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 rounded-lg border border-hairline bg-ground/85 px-3 py-2 text-sm backdrop-blur">
         <span className="text-ink-secondary">
           {tool === "marker"
             ? "Click a point on the roof to drop a marker."

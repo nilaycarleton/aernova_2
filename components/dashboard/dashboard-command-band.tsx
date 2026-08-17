@@ -38,7 +38,7 @@ export function DashboardCommandBand({
   ].join(" · ");
 
   return (
-    <section className="min-w-0 rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
+    <section className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-6 sm:p-8">
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
           {hasValue ? (
@@ -54,7 +54,7 @@ export function DashboardCommandBand({
 
         <Link
           href="/jobs/new"
-          className="shrink-0 rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="shrink-0 rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           New Job
         </Link>

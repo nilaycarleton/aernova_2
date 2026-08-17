@@ -28,7 +28,7 @@ export default async function CapturePage() {
       {isAiConfigured() ? (
         <CaptureSheet />
       ) : (
-        <p className="rounded-2xl border border-hairline bg-surface-raised p-6 text-sm text-ink-muted">
+        <p className="rounded-lg border border-hairline bg-surface-raised p-6 text-sm text-ink-muted">
           AI capture isn&rsquo;t set up in this environment yet.{" "}
           <Link href="/jobs/new" className="underline underline-offset-4 hover:text-ink-primary">
             Use the full form instead

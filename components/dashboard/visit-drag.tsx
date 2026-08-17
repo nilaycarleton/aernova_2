@@ -124,20 +124,20 @@ function MoveDialog({
             type="date"
             required
             autoFocus
-            className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+            className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
           />
           <div className="mt-5 flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
+              className="rounded-lg px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
+              className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
             >
               {pending ? "Moving…" : "Move it"}
             </button>

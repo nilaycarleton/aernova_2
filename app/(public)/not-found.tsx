@@ -9,7 +9,7 @@
 export default function PublicNotFound() {
   return (
     <div className="flex min-h-[70vh] items-center justify-center">
-      <div className="mx-auto max-w-md rounded-xl border border-paper-rule bg-paper-document p-8 text-center">
+      <div className="mx-auto max-w-md rounded-lg border border-paper-rule bg-paper-document p-8 text-center">
         <h1 className="text-xl font-semibold text-paper-ink">This link isn&rsquo;t working anymore</h1>
         <p className="mt-3 text-sm text-paper-ink-muted">
           It may have expired, or been typed in wrong. Ask whoever sent it to you for a new one.

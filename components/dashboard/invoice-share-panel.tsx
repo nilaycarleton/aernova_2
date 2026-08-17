@@ -62,7 +62,7 @@ export function InvoiceSharePanel({
 
   if (status === "VOID") {
     return (
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">This invoice was cancelled</h3>
         <p className="mt-1 text-sm text-ink-muted">
           It stays on the record so your numbering has no holes in it. Raise a new one to bill
@@ -73,7 +73,7 @@ export function InvoiceSharePanel({
   }
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Send it to them</h3>
 
       {!shareUrl ? (
@@ -87,7 +87,7 @@ export function InvoiceSharePanel({
             <input type="hidden" name="invoiceId" value={invoiceId} />
             <SubmitButton
               pendingText="Creating…"
-              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+              className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Create the link
             </SubmitButton>
@@ -111,12 +111,12 @@ export function InvoiceSharePanel({
               value={shareUrl}
               onFocus={(e) => e.currentTarget.select()}
               aria-label="The link to send"
-              className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
+              className="min-w-0 flex-1 rounded-lg border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
             />
             <button
               type="button"
               onClick={copy}
-              className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="shrink-0 rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {copied ? "Copied" : "Copy link"}
             </button>
@@ -127,7 +127,7 @@ export function InvoiceSharePanel({
                 <input type="hidden" name="invoiceId" value={invoiceId} />
                 <SubmitButton
                   pendingText="Sending…"
-                  className="w-full rounded-xl border border-hairline px-5 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+                  className="w-full rounded-lg border border-hairline px-5 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
                 >
                   {emailState.sentAt ? "Sent" : "Email it to them"}
                 </SubmitButton>

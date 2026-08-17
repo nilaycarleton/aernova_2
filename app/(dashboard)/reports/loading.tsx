@@ -12,11 +12,11 @@ export default function ReportsLoading() {
 
       <div className="h-8 w-64 animate-pulse rounded-md bg-surface-lifted" />
 
-      <div className="rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
+      <div className="rounded-lg border border-hairline bg-surface-raised p-6 sm:p-8">
         <SkeletonReadout />
       </div>
 
-      <div className="rounded-3xl border border-hairline bg-surface-raised px-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised px-6">
         <SkeletonList rows={4} />
       </div>
     </div>

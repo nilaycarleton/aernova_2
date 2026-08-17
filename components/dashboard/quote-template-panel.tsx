@@ -35,7 +35,7 @@ export function QuoteTemplatePanel({
   );
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Use this one again</h3>
 
       {lineCount === 0 ? (
@@ -62,11 +62,11 @@ export function QuoteTemplatePanel({
               type="text"
               defaultValue={defaultName}
               placeholder="Full re-roof — architectural asphalt"
-              className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
+              className="min-w-0 flex-1 rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
             />
             <SubmitButton
               pendingText="Saving…"
-              className="shrink-0 rounded-xl border border-hairline bg-surface-raised px-5 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
+              className="shrink-0 rounded-lg border border-hairline bg-surface-raised px-5 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
             >
               Save as a template
             </SubmitButton>

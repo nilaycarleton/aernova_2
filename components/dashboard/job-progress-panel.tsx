@@ -36,7 +36,7 @@ export function JobProgressPanel({
   const [value, setValue] = useState(officePercent != null ? String(officePercent) : "");
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Progress</h3>
       <p className="mt-2 text-2xl font-semibold text-ink-primary">{display.primaryLabel}</p>
       <p className="mt-1 text-sm text-ink-muted">{display.secondaryDescription}</p>
@@ -72,12 +72,12 @@ export function JobProgressPanel({
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="0-100"
-              className="w-28 rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm tabular-nums text-ink-primary outline-none transition focus:border-signal-blue"
+              className="w-28 rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm tabular-nums text-ink-primary outline-none transition focus:border-signal-blue"
             />
           </div>
           <SubmitButton
             pendingText="Saving…"
-            className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+            className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
           >
             {state.savedAt ? "Saved" : "Save"}
           </SubmitButton>

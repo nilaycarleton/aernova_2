@@ -99,7 +99,7 @@ export function QuoteSharePanel({
   }
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Send it to them</h3>
 
       {/* Shown regardless of whether a link ever existed — plenty of these
@@ -123,7 +123,7 @@ export function QuoteSharePanel({
             <input type="hidden" name="quoteId" value={quoteId} />
             <SubmitButton
               pendingText="Creating…"
-              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+              className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Create the link
             </SubmitButton>
@@ -155,12 +155,12 @@ export function QuoteSharePanel({
               value={shareUrl}
               onFocus={(e) => e.currentTarget.select()}
               aria-label="The link to send"
-              className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
+              className="min-w-0 flex-1 rounded-lg border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
             />
             <button
               type="button"
               onClick={copy}
-              className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="shrink-0 rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {copied ? "Copied" : "Copy link"}
             </button>
@@ -171,7 +171,7 @@ export function QuoteSharePanel({
                 <input type="hidden" name="quoteId" value={quoteId} />
                 <SubmitButton
                   pendingText="Sending…"
-                  className="w-full rounded-xl border border-hairline px-5 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+                  className="w-full rounded-lg border border-hairline px-5 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
                 >
                   {emailState.sentAt ? "Sent" : "Email it to them"}
                 </SubmitButton>
@@ -221,7 +221,7 @@ export function QuoteSharePanel({
                     name="customMessage"
                     rows={3}
                     defaultValue={followUpDraft}
-                    className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+                    className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
                   />
                 </div>
               )}
@@ -349,7 +349,7 @@ export function QuoteSharePanel({
                   name="reason"
                   required
                   autoFocus
-                  className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+                  className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
                 >
                   {Object.entries(QUOTE_DECLINE_REASON_META).map(([value, meta]) => (
                     <option key={value} value={value}>
@@ -369,13 +369,13 @@ export function QuoteSharePanel({
                   id="decline-note"
                   name="note"
                   rows={2}
-                  className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+                  className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
                 />
               </div>
               <div className="flex gap-3">
                 <SubmitButton
                   pendingText="Recording…"
-                  className="rounded-xl bg-danger px-4 py-2 text-sm font-semibold text-on-accent transition hover:opacity-90 disabled:opacity-60"
+                  className="rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-on-accent transition hover:opacity-90 disabled:opacity-60"
                 >
                   Mark it declined
                 </SubmitButton>

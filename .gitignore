@@ -65,3 +65,13 @@ skills-lock.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright visual-regression suite: run artifacts and the authenticated
+# storage state (real Clerk session cookies for the dedicated test user —
+# never committed) are local/regenerable. tests/visual/**/*.spec.ts-snapshots/
+# (the actual baseline PNGs) are NOT excluded here — those are the
+# intentional, committed regression baselines.
+/test-results/
+/playwright-report/
+/blob-report/
+tests/visual/.clerk/

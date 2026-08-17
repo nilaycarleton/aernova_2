@@ -31,7 +31,7 @@ export function JobGapsPanel({ gaps }: { gaps: JobGap[] }) {
   return (
     <section
       aria-labelledby="job-gaps-heading"
-      className="rounded-2xl border border-hairline bg-ground/50 p-5"
+      className="rounded-lg border border-hairline bg-ground/50 p-5"
     >
       <h3 id="job-gaps-heading" className="text-sm font-semibold text-ink-primary">
         Still to add

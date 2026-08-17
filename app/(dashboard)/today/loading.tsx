@@ -10,7 +10,7 @@ export default function TodayLoading() {
 
       <div className="space-y-4">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="h-40 animate-pulse rounded-3xl border border-hairline bg-surface-raised" />
+          <div key={i} className="h-40 animate-pulse rounded-lg border border-hairline bg-surface-raised" />
         ))}
       </div>
     </div>

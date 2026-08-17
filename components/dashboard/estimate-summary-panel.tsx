@@ -24,7 +24,7 @@ export function EstimateSummaryPanel({
   const percent = (value: number | null) => (value === null ? "—" : `${value.toFixed(1)}%`);
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Estimate summary</h3>
       <p className="mt-1 text-sm text-ink-muted">
         The financial shape of this estimate, before you get into the lines below.
@@ -51,7 +51,7 @@ export function EstimateSummaryPanel({
 
 function Tile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-ground/50 p-4">
+    <div className="rounded-lg bg-ground/50 p-4">
       <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">{label}</p>
       <p className="mt-2 text-xl font-semibold tabular-nums text-ink-primary">{value}</p>
     </div>

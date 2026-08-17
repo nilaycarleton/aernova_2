@@ -139,7 +139,7 @@ export default async function ClientHubPage({
         </DocumentSurface>
 
         {!hasAnything ? (
-          <div className="rounded-2xl border border-dashed border-paper-rule bg-paper-document p-10 text-center">
+          <div className="rounded-lg border border-dashed border-paper-rule bg-paper-document p-10 text-center">
             <p className="text-paper-ink-body">Nothing to show yet.</p>
             <p className="mt-2 text-sm text-paper-ink-muted">
               Check back once {client.company.name} sends something your way.
@@ -179,7 +179,7 @@ export default async function ClientHubPage({
                     {measurements.length > 0 ? (
                       <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                         {measurements.map((m) => (
-                          <div key={m.type} className="rounded-xl bg-paper-inset p-3">
+                          <div key={m.type} className="rounded-lg bg-paper-inset p-3">
                             <dt className="text-xs text-paper-ink-faint">{m.label}</dt>
                             <dd className="mt-1 font-medium tabular-nums text-paper-ink-strong">
                               {m.displayValue}

@@ -55,7 +55,7 @@ export function JobWorkspaceShell({
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="min-h-11 rounded-xl border border-hairline bg-surface-raised px-4 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument xl:hidden"
+            className="min-h-11 rounded-lg border border-hairline bg-surface-raised px-4 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument xl:hidden"
           >
             Job details
           </button>

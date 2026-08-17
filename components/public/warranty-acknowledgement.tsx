@@ -24,7 +24,7 @@ export function WarrantyAcknowledgement({
 
   if (confirmed) {
     return (
-      <section className="mt-8 rounded-xl bg-confirm/10 px-5 py-4 text-sm text-confirm-fg">
+      <section className="mt-8 rounded-lg bg-confirm/10 px-5 py-4 text-sm text-confirm-fg">
         Confirmed received{signerName ? ` by ${signerName}` : ""}.
       </section>
     );
@@ -60,7 +60,7 @@ export function WarrantyAcknowledgement({
           required
           autoComplete="name"
           placeholder="Type your name"
-          className="w-full max-w-xs rounded-xl border border-paper-rule bg-paper-inset px-3 py-2.5 text-sm text-paper-ink outline-none transition focus:border-signal-blue"
+          className="w-full max-w-xs rounded-md border border-paper-rule bg-paper-inset px-3 py-2.5 text-sm text-paper-ink outline-none transition focus:border-signal-blue"
         />
       </div>
 
@@ -68,7 +68,7 @@ export function WarrantyAcknowledgement({
 
       <SubmitButton
         pendingText="Confirming…"
-        className="rounded-xl bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
+        className="rounded-md bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
       >
         Confirm
       </SubmitButton>

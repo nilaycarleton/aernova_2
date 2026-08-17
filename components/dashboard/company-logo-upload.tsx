@@ -51,10 +51,10 @@ export function CompanyLogoUpload({ logoUrl }: { logoUrl: string | null }) {
         <img
           src={url}
           alt="Company logo"
-          className="size-16 rounded-xl border border-hairline object-cover"
+          className="size-16 rounded-lg border border-hairline object-cover"
         />
       ) : (
-        <div className="flex size-16 items-center justify-center rounded-xl border border-dashed border-hairline text-xs text-ink-muted">
+        <div className="flex size-16 items-center justify-center rounded-lg border border-dashed border-hairline text-xs text-ink-muted">
           No logo
         </div>
       )}

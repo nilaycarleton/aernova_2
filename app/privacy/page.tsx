@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
   return (
     <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper px-4 py-12 text-paper-ink-body outline-none sm:px-6">
       <div className="mx-auto max-w-3xl">
-        <article className="rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
+        <article className="rounded-lg border border-paper-rule bg-paper-document p-6 sm:p-10">
           <p className="text-sm uppercase tracking-[0.14em] text-paper-ink-faint">
             Last updated {updated}
           </p>
@@ -281,7 +281,7 @@ export default function PrivacyPolicyPage() {
             </a>
           </P>
 
-          <div className="mt-10 rounded-xl border border-paper-rule bg-paper-inset p-4">
+          <div className="mt-10 rounded-lg border border-paper-rule bg-paper-inset p-4">
             <p className="text-sm leading-6 text-paper-ink-muted">
               <strong className="text-paper-ink">Before this governs real customers:</strong> this
               draft has not been reviewed by a lawyer, the registered office address is a

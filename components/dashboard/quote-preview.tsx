@@ -38,7 +38,7 @@ export function QuotePreview({
 }) {
   if (!quote) {
     return (
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Client-ready preview</p>
         <p className="mt-3 text-sm text-ink-muted">
           Save a quote draft to see the client-facing version here.
@@ -53,11 +53,11 @@ export function QuotePreview({
   const legacyLineItems = scope.customLineItems ?? [];
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">How the client sees this quote</h3>
 
       {/* Light "document" surface so it reads like the printed quote. */}
-      <article className="mt-5 rounded-2xl bg-paper-document p-8 text-paper-ink-strong shadow-xl">
+      <article className="mt-5 rounded-lg bg-paper-document p-8 text-paper-ink-strong shadow-xl">
         <header className="flex items-start justify-between border-b border-paper-rule pb-4">
           <div>
             <p className="text-lg font-bold text-paper-ink">{companyName}</p>

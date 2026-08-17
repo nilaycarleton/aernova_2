@@ -14,7 +14,7 @@ import { SubmitButton } from "@/components/dashboard/submit-button";
 export function ChangeOrderApproval({ token, status }: { token: string; status: string }) {
   if (status === "APPROVED") {
     return (
-      <p className="mt-8 rounded-xl bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
+      <p className="mt-8 rounded-lg bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
         Thanks — you approved this change. We&rsquo;ll get it scheduled.
       </p>
     );
@@ -22,7 +22,7 @@ export function ChangeOrderApproval({ token, status }: { token: string; status: 
 
   if (status === "DECLINED") {
     return (
-      <p className="mt-8 rounded-xl bg-paper-inset px-4 py-3 text-sm text-paper-ink-muted">
+      <p className="mt-8 rounded-lg bg-paper-inset px-4 py-3 text-sm text-paper-ink-muted">
         This change order is no longer open.
       </p>
     );
@@ -40,11 +40,11 @@ export function ChangeOrderApproval({ token, status }: { token: string; status: 
         type="text"
         required
         autoComplete="name"
-        className="mt-2 w-full max-w-sm rounded-xl border border-paper-rule-strong bg-paper-document px-3 py-2.5 text-sm text-paper-ink outline-none transition focus:border-signal-blue"
+        className="mt-2 w-full max-w-sm rounded-md border border-paper-rule-strong bg-paper-document px-3 py-2.5 text-sm text-paper-ink outline-none transition focus:border-signal-blue"
       />
       <SubmitButton
         pendingText="Approving…"
-        className="mt-3 rounded-xl bg-confirm px-5 py-3 text-sm font-semibold text-on-accent transition hover:opacity-90 disabled:opacity-60"
+        className="mt-3 rounded-lg bg-confirm px-5 py-3 text-sm font-semibold text-on-accent transition hover:opacity-90 disabled:opacity-60"
       >
         Approve this change
       </SubmitButton>

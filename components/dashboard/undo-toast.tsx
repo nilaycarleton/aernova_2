@@ -102,7 +102,7 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
               key={toast.id}
               role="status"
               aria-live="polite"
-              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-2xl border border-hairline bg-surface-lifted backdrop-blur"
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border border-hairline bg-surface-lifted backdrop-blur"
             >
               <div className="flex items-center justify-between gap-4 px-4 py-3">
                 <span className="text-sm text-ink-primary">{toast.label} deleted</span>

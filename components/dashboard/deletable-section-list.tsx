@@ -28,7 +28,7 @@ export function DeletableSectionList({
 
   if (sections.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-hairline p-6 text-sm text-ink-muted">
+      <div className="rounded-lg border border-dashed border-hairline p-6 text-sm text-ink-muted">
         Add each roof plane or detached structure so pitch, area, and line lengths can drive Phase 4
         calculations.
       </div>
@@ -121,7 +121,7 @@ export function DeletableSectionList({
       />
 
       {visible.map((section) => (
-        <div key={section.id} className="rounded-2xl border border-hairline bg-ground/45 p-4">
+        <div key={section.id} className="rounded-lg border border-hairline bg-ground/45 p-4">
           <SectionEditForm jobId={jobId} section={section} />
           <div className="mt-3 flex items-center gap-4">
             <label className="flex items-center gap-2 text-sm text-ink-muted">
@@ -137,7 +137,7 @@ export function DeletableSectionList({
             <button
               type="button"
               onClick={() => requestDelete(section)}
-              className="rounded-xl border border-danger/25 bg-danger/10 px-4 py-2 text-sm font-medium text-danger-fg transition hover:bg-danger/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-danger"
+              className="rounded-lg border border-danger/25 bg-danger/10 px-4 py-2 text-sm font-medium text-danger-fg transition hover:bg-danger/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-danger"
             >
               Delete Facet
             </button>

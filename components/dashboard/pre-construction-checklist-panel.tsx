@@ -48,7 +48,7 @@ export function PreConstructionChecklistPanel({
     data?.permitRequired === true ? "yes" : data?.permitRequired === false ? "no" : "";
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-lg font-semibold text-ink-primary">Pre-construction checklist</h3>
         {confirmed ? (
@@ -62,11 +62,11 @@ export function PreConstructionChecklistPanel({
       </p>
 
       {gaps.length > 0 ? (
-        <p className="mt-3 rounded-xl bg-ground/50 px-4 py-2.5 text-sm text-ink-secondary">
+        <p className="mt-3 rounded-lg bg-ground/50 px-4 py-2.5 text-sm text-ink-secondary">
           {preConstructionGateMessage(gaps)}
         </p>
       ) : (
-        <p className="mt-3 rounded-xl bg-confirm/10 px-4 py-2.5 text-sm text-confirm-fg">
+        <p className="mt-3 rounded-lg bg-confirm/10 px-4 py-2.5 text-sm text-confirm-fg">
           Everything here is confirmed. This job is ready to schedule.
         </p>
       )}
@@ -90,7 +90,7 @@ export function PreConstructionChecklistPanel({
               rows={2}
               defaultValue={data?.materialsNotes ?? ""}
               placeholder="Notes (optional) — e.g. supplier, delivery date"
-              className="mt-2 w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
+              className="mt-2 w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
             />
           </div>
 
@@ -132,7 +132,7 @@ export function PreConstructionChecklistPanel({
               rows={2}
               defaultValue={data?.permitNotes ?? ""}
               placeholder="Notes (optional) — e.g. permit number, applied-for date"
-              className="mt-2 w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
+              className="mt-2 w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
             />
           </div>
 
@@ -168,7 +168,7 @@ export function PreConstructionChecklistPanel({
               name="readinessNotes"
               rows={2}
               defaultValue={data?.readinessNotes ?? ""}
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+              className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
             />
           </div>
 
@@ -176,7 +176,7 @@ export function PreConstructionChecklistPanel({
 
           <SubmitButton
             pendingText="Saving…"
-            className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+            className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
           >
             {state.savedAt ? "Saved" : "Save"}
           </SubmitButton>

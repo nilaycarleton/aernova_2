@@ -72,7 +72,7 @@ export function DeletableItem({
           type="button"
           onClick={requestDelete}
           disabled={pending}
-          className="rounded-xl border border-danger/30 px-3 py-1.5 text-xs font-medium text-danger-fg transition hover:bg-danger/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger disabled:opacity-50"
+          className="rounded-lg border border-danger/30 px-3 py-1.5 text-xs font-medium text-danger-fg transition hover:bg-danger/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger disabled:opacity-50"
         >
           Delete
         </button>

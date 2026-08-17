@@ -26,7 +26,10 @@
     "db:seed-workflow-templates": "node --env-file=.env --experimental-strip-types prisma/seed-workflow-templates.ts",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "import:photos": "node --env-file=.env --experimental-strip-types prisma/import-photos.ts",
-    "nodeodm": "scripts/nodeodm.sh"
+    "nodeodm": "scripts/nodeodm.sh",
+    "test:visual:seed": "node --env-file=.env --experimental-strip-types tests/visual/fixtures/seed-visual-test-company.mjs",
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
@@ -53,6 +56,8 @@
   },
   "devDependencies": {
     "@astryxdesign/cli": "0.3.0",
+    "@clerk/testing": "2.2.24",
+    "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

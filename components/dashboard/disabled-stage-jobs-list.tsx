@@ -2,14 +2,17 @@ import Link from "next/link";
 import { sinceLabel } from "@/lib/relative-time";
 import { DataRow } from "@/components/ui/data-row";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Status } from "@/components/ui/status";
+import { statusTone } from "@/lib/job-status";
+import type { JobStatus } from "@prisma/client";
 
 export type DisabledStageJobRow = {
   id: string;
   name: string;
   clientName: string;
   address: string | null;
+  status: JobStatus;
   statusLabel: string;
-  statusBadge: string;
   stageEnteredAt: string | Date;
 };
 
@@ -31,7 +34,7 @@ export function DisabledStageJobsList({ jobs }: { jobs: DisabledStageJobRow[] })
         action={
           <Link
             href="/jobs"
-            className="inline-flex rounded-xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            className="inline-flex rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             See all jobs
           </Link>
@@ -41,7 +44,7 @@ export function DisabledStageJobsList({ jobs }: { jobs: DisabledStageJobRow[] })
   }
 
   return (
-    <ul className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface-raised">
+    <ul className="divide-y divide-hairline rounded-lg border border-hairline bg-surface-raised">
       {jobs.map((job) => (
         <DataRow
           key={job.id}
@@ -58,9 +61,7 @@ export function DisabledStageJobsList({ jobs }: { jobs: DisabledStageJobRow[] })
             </span>
           }
           trailing={
-            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${job.statusBadge}`}>
-              {job.statusLabel}
-            </span>
+            <Status variant="solid" tone={statusTone(job.status)} label={job.statusLabel} />
           }
         />
       ))}

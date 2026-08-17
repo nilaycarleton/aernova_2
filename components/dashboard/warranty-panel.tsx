@@ -51,13 +51,13 @@ export type WarrantyRow = {
 };
 
 const FIELD =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue";
 
 const SECONDARY =
-  "rounded-xl border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "rounded-lg border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 const PRIMARY =
-  "rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
+  "rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
 
 /**
  * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §14.4/§20/§25 Phase 10 — office-facing
@@ -83,7 +83,7 @@ export function WarrantyPanel({
   if (!warranty && !editable) return null;
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-lg font-semibold text-ink-primary">Warranty</h3>
         {warranty ? (
@@ -115,7 +115,7 @@ export function WarrantyPanel({
 function ConfirmedSummary({ warranty }: { warranty: WarrantyRow }) {
   return (
     <div className="mt-4 space-y-4">
-      <p className="rounded-xl bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
+      <p className="rounded-lg bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
         Confirmed{warranty.signerName ? ` by ${warranty.signerName}` : ""}
         {warranty.confirmedAtLabel ? ` on ${warranty.confirmedAtLabel}` : ""}.
       </p>
@@ -317,7 +317,7 @@ function DraftEditor({
       {sendState.error ? <p className="text-sm text-danger-fg">{sendState.error}</p> : null}
 
       {(warranty.status === "SENT" || warranty.status === "VIEWED") && warranty.shareUrl ? (
-        <div className="rounded-xl bg-ground/40 px-4 py-3 text-sm">
+        <div className="rounded-lg bg-ground/40 px-4 py-3 text-sm">
           <p className="text-ink-secondary">
             {warranty.sentAtLabel ? `Sent ${warranty.sentAtLabel}.` : "Sent."}{" "}
             {warranty.status === "VIEWED" ? "They've opened it." : "They haven't opened it yet."}
@@ -431,7 +431,7 @@ function TemplateRow({
       </div>
 
       {editing && template.isCompanyOwned ? (
-        <form action={updateAction} className="mt-3 space-y-2 rounded-xl border border-hairline p-3">
+        <form action={updateAction} className="mt-3 space-y-2 rounded-lg border border-hairline p-3">
           <input type="hidden" name="jobId" value={jobId} />
           <input type="hidden" name="templateId" value={template.id} />
           <div className="flex flex-wrap gap-3">

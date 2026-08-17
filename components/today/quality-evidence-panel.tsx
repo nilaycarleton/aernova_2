@@ -41,7 +41,7 @@ export function QualityEvidencePanel({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-3 w-full rounded-xl border border-hairline px-5 py-4 text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+        className="mt-3 w-full rounded-lg border border-hairline px-5 py-4 text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
       >
         {submitted ? "Update quality check evidence" : "Quality check — before you go"}
       </button>
@@ -49,11 +49,11 @@ export function QualityEvidencePanel({
   }
 
   return (
-    <form action={formAction} className="mt-3 space-y-3 rounded-xl border border-hairline p-4">
+    <form action={formAction} className="mt-3 space-y-3 rounded-lg border border-hairline p-4">
       <input type="hidden" name="jobId" value={jobId} />
       <p className="text-sm font-medium text-ink-primary">Quality check — before you go</p>
 
-      <label className="flex items-center gap-3 rounded-xl border border-hairline px-4 py-3">
+      <label className="flex items-center gap-3 rounded-lg border border-hairline px-4 py-3">
         <input
           type="checkbox"
           name="siteCleaned"
@@ -64,7 +64,7 @@ export function QualityEvidencePanel({
         <span className="text-base text-ink-primary">Site cleaned up</span>
       </label>
 
-      <label className="flex items-center gap-3 rounded-xl border border-hairline px-4 py-3">
+      <label className="flex items-center gap-3 rounded-lg border border-hairline px-4 py-3">
         <input
           type="checkbox"
           name="photosUploaded"
@@ -86,7 +86,7 @@ export function QualityEvidencePanel({
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
           placeholder="Anything the office should know (optional)"
-          className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+          className="w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
         />
       </div>
 
@@ -94,7 +94,7 @@ export function QualityEvidencePanel({
 
       <button
         type="submit"
-        className="w-full rounded-xl bg-action px-5 py-4 text-base font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+        className="w-full rounded-md bg-action px-5 py-4 text-base font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
       >
         {state.submittedAt ? "Saved — update again" : "Save"}
       </button>

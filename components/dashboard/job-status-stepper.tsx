@@ -50,7 +50,7 @@ export function JobStatusStepper({
   };
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Workflow</p>
@@ -64,7 +64,7 @@ export function JobStatusStepper({
               type="button"
               onClick={() => setStatus(next)}
               disabled={pending}
-              className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
+              className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
             >
               {pending ? "Saving…" : meta.advanceLabel}
             </button>
@@ -74,7 +74,7 @@ export function JobStatusStepper({
             onChange={(e) => setStatus(e.target.value as JobStatus)}
             disabled={pending}
             aria-label="Set job status"
-            className="rounded-xl border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong disabled:opacity-50"
+            className="rounded-lg border border-hairline bg-ground/60 px-3 py-2 text-sm text-ink-strong disabled:opacity-50"
           >
             {visibleFlow.map((m) => (
               <option key={m.status} value={m.status}>
@@ -89,7 +89,7 @@ export function JobStatusStepper({
       </div>
 
       {meta.isCurrentDisabled ? (
-        <p className="mt-3 rounded-xl border border-caution/30 bg-caution/5 px-4 py-3 text-sm text-caution-fg">
+        <p className="mt-3 rounded-lg border border-caution/30 bg-caution/5 px-4 py-3 text-sm text-caution-fg">
           This stage is disabled for future jobs. Move this job to the next active stage when ready.
         </p>
       ) : null}

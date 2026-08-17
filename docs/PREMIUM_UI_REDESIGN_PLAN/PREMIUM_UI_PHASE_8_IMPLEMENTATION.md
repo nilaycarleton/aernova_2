@@ -573,3 +573,22 @@ resolve from this environment: a human needs to complete `docs/DEPLOYMENT.md`'s 
 checklist, obtain real devices for the browser/device matrix, decide on and resource real visual-
 regression tooling if wanted, and supply the real Aernova brand asset before any of that work can
 be considered genuinely finished. Phase 8 is complete. There is no Phase 9.
+
+## Post-audit completion addendum
+
+This phase's own narrative above is unchanged and not being rewritten. Two independent follow-up
+passes verified and then closed the code-level gaps this phase left open:
+
+- `docs/PREMIUM_UI_REDESIGN_PLAN/PREMIUM_UI_REDESIGN_FINAL_AUDIT.md` §1–34 — an independent audit
+  that re-verified every claim in this document, found the radius and status-badge gaps larger than
+  characterized here, found visual-regression tooling still entirely absent, and fixed one real
+  security gap (`action-guards.test.ts`) this phase's own record had mischaracterized as pre-existing
+  and unrelated.
+- The same document's §35, "Post-Audit Completion Pass" — closed all three of that audit's code-level
+  blockers: a real, persistent Playwright visual-regression suite (41 tests, 12 spec files); the
+  radius migration completed to 2 documented exceptions (from 537); and status-badge consolidation
+  across all 6 domain families (this phase's own count above says 7 — the final audit's §19
+  reconciles that discrepancy).
+
+See that document for the current, evidence-based verdict. This phase's own conclusion above should
+be read as a snapshot of what was true when Phase 8 closed, not the current state of the codebase.

@@ -42,11 +42,11 @@ function num(value: unknown, decimals = 1) {
  * swap this for `on-accent`.
  */
 const primaryAction =
-  "shrink-0 rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "shrink-0 rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 /** The accelerator beside it — offered, never required. */
 const secondaryAction =
-  "shrink-0 rounded-xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "shrink-0 rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -89,7 +89,7 @@ export function QuoteGeneratorCard({ jobId, quotes, templates, hasMeasurements }
     : "";
 
   return (
-    <section className="min-w-0 space-y-6 rounded-3xl border border-hairline bg-surface-raised p-6 sm:p-8">
+    <section className="min-w-0 space-y-6 rounded-lg border border-hairline bg-surface-raised p-6 sm:p-8">
       {latest ? (
         /* With a quote in hand, the panel leads with the number instead of
            another eyebrow-and-headline — the same hero-readout shape the
@@ -219,7 +219,7 @@ export function QuoteGeneratorCard({ jobId, quotes, templates, hasMeasurements }
             </div>
           </div>
 
-          <div className="rounded-2xl border border-dashed border-hairline p-8 text-ink-muted">
+          <div className="rounded-lg border border-dashed border-hairline p-8 text-ink-muted">
             {hasMeasurements
               ? "No quote yet. Start a blank one, or build it from the roof measurements you already have."
               : "No quote yet. Start a blank one and price it by hand — or measure the roof first and have it priced for you."}

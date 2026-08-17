@@ -37,7 +37,7 @@ export async function ReceivablesSummary({ companyId }: { companyId: string }) {
   const overdueCents = totalCents - (rows.find((row) => row.key === "current")?.cents ?? 0);
 
   return (
-    <section className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-6">
+    <section className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-6">
       <p className="text-xs uppercase tracking-[0.16em] text-ink-muted">Money owed</p>
 
       {totalCents === 0 ? (

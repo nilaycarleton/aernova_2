@@ -36,7 +36,7 @@ export default async function PublicRequestPage({
   return (
     <div className="min-h-screen bg-paper px-4 py-8 text-paper-ink-body sm:px-6 sm:py-12">
       <div className="mx-auto max-w-xl">
-        <article className="rounded-2xl border border-paper-rule bg-paper-document p-6 sm:p-10">
+        <article className="rounded-lg border border-paper-rule bg-paper-document p-6 sm:p-10">
           <p className="text-lg font-semibold text-paper-ink">{company.name}</p>
           {company.phone ? (
             <p className="mt-0.5 text-sm text-paper-ink-muted">{company.phone}</p>

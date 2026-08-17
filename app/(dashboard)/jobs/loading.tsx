@@ -9,12 +9,12 @@ export default function JobsLoading() {
           <div className="h-7 w-20 animate-pulse rounded-md bg-surface-lifted" />
           <div className="h-4 w-56 animate-pulse rounded-md bg-surface-lifted" />
         </div>
-        <div className="h-11 w-28 animate-pulse rounded-xl bg-surface-lifted" />
+        <div className="h-11 w-28 animate-pulse rounded-lg bg-surface-lifted" />
       </div>
 
       <div className="h-10 w-full max-w-xs animate-pulse rounded-md bg-surface-lifted" />
 
-      <div className="rounded-2xl border border-hairline bg-surface-raised px-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised px-6">
         <SkeletonList rows={6} />
       </div>
     </div>

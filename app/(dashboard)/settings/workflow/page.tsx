@@ -61,7 +61,7 @@ export default async function WorkflowSettingsPage() {
       <WorkflowStagesForm stages={stageRows} />
 
       {templates.length > 0 ? (
-        <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <section className="rounded-lg border border-hairline bg-surface-raised p-6">
           <h3 className="text-lg font-semibold text-ink-primary">Start over with a template</h3>
           <p className="mt-1 text-sm text-ink-muted">
             Replaces every label and shown/hidden choice above with the template&rsquo;s own.
@@ -79,7 +79,7 @@ export default async function WorkflowSettingsPage() {
                   <ConfirmSubmit
                     pendingText="Applying…"
                     question={`Replace your current workflow labels and shown/hidden stages with "${template.name}"? This doesn't change any job already in progress.`}
-                    className="rounded-xl border border-hairline px-5 py-3 text-sm font-semibold text-ink-primary transition hover:bg-ground/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+                    className="rounded-lg border border-hairline px-5 py-3 text-sm font-semibold text-ink-primary transition hover:bg-ground/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
                   >
                     {template.name}
                   </ConfirmSubmit>

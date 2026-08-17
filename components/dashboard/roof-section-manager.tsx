@@ -12,7 +12,7 @@ export function RoofSectionManager({ jobId, sections }: Props) {
   const totals = buildRoofSectionTotals(sections);
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {[
           ["Facet count", totals.facetCount.toString()],
@@ -21,7 +21,7 @@ export function RoofSectionManager({ jobId, sections }: Props) {
           ["Ridge + hip", `${(totals.ridgeLengthFt + totals.hipLengthFt).toLocaleString()} ft`],
           ["Valley + drip", `${(totals.valleyLengthFt + totals.eaveLengthFt + totals.rakeLengthFt).toLocaleString()} ft`],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-hairline bg-ground/50 p-4">
+          <div key={label} className="rounded-lg border border-hairline bg-ground/50 p-4">
             <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">{label}</p>
             <p className="mt-2 text-lg font-semibold text-ink-primary">{value}</p>
           </div>

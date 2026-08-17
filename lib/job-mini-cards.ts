@@ -1,6 +1,6 @@
 /**
  * docs/AERNOVA_PROJECT_WORKFLOW/AERNOVA_PROJECT_WORKFLOW.md §16/§17/§25 Phase 7 — generalizing
- * `JobStatusStepper`'s shape (label/description/badge/next-action) into two
+ * `JobStatusStepper`'s shape (label/description/tone/next-action) into two
  * read-only mini-cards, not a cross-entity workflow engine. Pure, same
  * doctrine as `lib/pipeline.ts`'s `stageForJob()`: rows in, a small display
  * shape out, no database and no JSX in sight.
@@ -13,20 +13,19 @@
  */
 import { InvoiceStatus, QuoteStatus } from "@prisma/client";
 import { formatMoney } from "./money.ts";
-import { QUOTE_STATUS_META } from "./quote-status.ts";
-import { INVOICE_STATUS_META } from "./invoice/status.ts";
-
-/** Same tone, same reasoning as the `QUIET` constant `lib/quote-status.ts` and `lib/invoice/status.ts` each already define privately for their own tables — state, not colour. */
-const QUIET = "text-ink-muted bg-surface-lifted";
-const NEUTRAL = "text-ink-secondary bg-surface-lifted";
+import { QUOTE_STATUS_META, quoteStatusTone } from "./quote-status.ts";
+import { INVOICE_STATUS_META, invoiceStatusTone } from "./invoice/status.ts";
+import type { StatusTone } from "./status-tone.ts";
 
 export type MiniCardState = {
   /** The current state, in the trade's words — never a raw enum. */
   label: string;
   /** What it means, one sentence. */
   description: string;
-  /** Tailwind classes for the state pill. */
-  badge: string;
+  /** Feeds the shared Status primitive — the "no quote/invoice yet" and
+   * "awaiting homeowner review" synthetic states are as ordinary/neutral as
+   * most real QuoteStatus/InvoiceStatus values already are. */
+  tone: StatusTone;
   /** A dollar figure, when there's a meaningful one to show. */
   secondaryDetail: string | null;
   /** The single most useful next step, if there is one. */
@@ -50,7 +49,7 @@ export function salesMiniCardState(jobId: string, latestQuote: SalesQuoteFacts):
     return {
       label: "No quote yet",
       description: "Nothing has been priced for this job.",
-      badge: QUIET,
+      tone: "neutral",
       secondaryDetail: null,
       action: { label: "Create a quote", href: `/jobs/${jobId}?tab=quote` },
     };
@@ -60,7 +59,7 @@ export function salesMiniCardState(jobId: string, latestQuote: SalesQuoteFacts):
   return {
     label: meta.label,
     description: meta.hint,
-    badge: meta.badge,
+    tone: quoteStatusTone(latestQuote.status),
     secondaryDetail:
       latestQuote.totalAmountCents != null ? formatMoney(latestQuote.totalAmountCents) : null,
     action: {
@@ -104,7 +103,7 @@ export function financialMiniCardState(
       description: hasApprovedQuote
         ? "Nothing has been billed for this job yet."
         : "Nothing to bill until a quote is approved, or bill directly for work outside one.",
-      badge: QUIET,
+      tone: "neutral",
       secondaryDetail: null,
       action: { label: "Go to billing", href: `/jobs/${jobId}?tab=quote` },
     };
@@ -114,7 +113,7 @@ export function financialMiniCardState(
     return {
       label: "Awaiting homeowner review",
       description: "Sent for review before it can be paid. They haven't confirmed yet.",
-      badge: NEUTRAL,
+      tone: "neutral",
       secondaryDetail: formatMoney(liveInvoice.totalAmountCents),
       action: { label: "Open the invoice", href: `/jobs/${jobId}/invoices/${liveInvoice.id}` },
     };
@@ -125,7 +124,7 @@ export function financialMiniCardState(
   return {
     label: meta.label,
     description: meta.hint,
-    badge: meta.badge,
+    tone: invoiceStatusTone(liveInvoice.status),
     secondaryDetail:
       owedCents > 0 ? `${formatMoney(owedCents)} owed` : formatMoney(liveInvoice.totalAmountCents),
     action: {

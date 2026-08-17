@@ -157,7 +157,7 @@ export default async function QuoteBuilderPage({
           action refuses it anyway — a button that exists and then throws is
           worse than one that waits. */}
       {quote.status === QuoteStatus.APPROVED && can(role, "editInvoice") ? (
-        <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <section className="rounded-lg border border-hairline bg-surface-raised p-6">
           <h3 className="text-lg font-semibold text-ink-primary">
             {invoices.length > 0 ? "Billed so far" : "Bill for it"}
           </h3>
@@ -246,7 +246,7 @@ export default async function QuoteBuilderPage({
       />
 
       {can(role, "deleteQuote") && canDeleteQuote(quote.status) ? (
-        <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <section className="rounded-lg border border-hairline bg-surface-raised p-6">
           <form action={deleteQuoteAction}>
             <input type="hidden" name="jobId" value={jobId} />
             <input type="hidden" name="quoteId" value={quote.id} />

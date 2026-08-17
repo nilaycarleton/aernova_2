@@ -44,7 +44,7 @@ export function PhotoAnnotationStudio({ jobId, photos }: Props) {
 
   if (!selectedPhoto) {
     return (
-      <div className="rounded-3xl border border-dashed border-hairline bg-surface-raised p-8 text-sm text-ink-muted">
+      <div className="rounded-lg border border-dashed border-hairline bg-surface-raised p-8 text-sm text-ink-muted">
         Upload a site photo to start annotating damage with circles, arrows, and labels.
       </div>
     );
@@ -78,7 +78,7 @@ export function PhotoAnnotationStudio({ jobId, photos }: Props) {
   }
 
   return (
-    <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <div className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
@@ -94,7 +94,7 @@ export function PhotoAnnotationStudio({ jobId, photos }: Props) {
               key={mode}
               type="button"
               onClick={() => setTool(mode)}
-              className={`rounded-2xl border px-4 py-2 text-sm capitalize transition ${
+              className={`rounded-lg border px-4 py-2 text-sm capitalize transition ${
                 tool === mode
                   ? "border-signal-blue/40 bg-signal-blue/15 text-info-fg"
                   : "border-hairline bg-ground/50 text-ink-secondary hover:bg-surface-lifted"
@@ -113,13 +113,13 @@ export function PhotoAnnotationStudio({ jobId, photos }: Props) {
               key={photo.id}
               type="button"
               onClick={() => setSelectedPhotoId(photo.id)}
-              className={`w-full rounded-2xl border p-3 text-left transition ${
+              className={`w-full rounded-lg border p-3 text-left transition ${
                 selectedPhoto.id === photo.id
                   ? "border-signal-blue/40 bg-signal-blue/10"
                   : "border-hairline bg-ground/40 hover:bg-surface-lifted"
               }`}
             >
-              <div className="aspect-video overflow-hidden rounded-xl bg-ground">
+              <div className="aspect-video overflow-hidden rounded-lg bg-ground">
                 <img
                   src={photo.url}
                   alt={photo.caption || photo.locationTag || photo.fileName || "Inspection photo"}
@@ -143,13 +143,13 @@ export function PhotoAnnotationStudio({ jobId, photos }: Props) {
             <input
               value={label}
               onChange={(event) => setLabel(event.target.value)}
-              className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
+              className="rounded-lg border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
               placeholder="Annotation label"
             />
             <button
               type="button"
               onClick={clearLast}
-              className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3 text-sm text-ink-strong transition hover:bg-surface-lifted"
+              className="rounded-lg border border-hairline bg-ground/50 px-4 py-3 text-sm text-ink-strong transition hover:bg-surface-lifted"
             >
               Undo Last
             </button>
@@ -159,7 +159,7 @@ export function PhotoAnnotationStudio({ jobId, photos }: Props) {
               <input type="hidden" name="annotationsJson" value={JSON.stringify(annotations)} />
               <button
                 type="submit"
-                className="rounded-2xl border border-hairline bg-surface-raised px-4 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+                className="rounded-lg border border-hairline bg-surface-raised px-4 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
               >
                 Save Markup
               </button>
@@ -170,7 +170,7 @@ export function PhotoAnnotationStudio({ jobId, photos }: Props) {
             role="button"
             tabIndex={0}
             onClick={addAnnotation}
-            className="relative overflow-hidden rounded-3xl border border-hairline bg-ground"
+            className="relative overflow-hidden rounded-lg border border-hairline bg-ground"
           >
             <img
               src={selectedPhoto.url}

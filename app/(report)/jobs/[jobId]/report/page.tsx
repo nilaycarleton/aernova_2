@@ -65,7 +65,7 @@ export default async function JobReportPage({
       <div className="mx-auto mb-4 flex max-w-5xl items-center justify-between print:hidden">
         <Link
           href={`/jobs/${job.id}`}
-          className="rounded-xl border border-slate-300 bg-paper-document px-4 py-2 text-sm font-medium text-paper-ink-strong transition hover:bg-paper-inset"
+          className="rounded-lg border border-slate-300 bg-paper-document px-4 py-2 text-sm font-medium text-paper-ink-strong transition hover:bg-paper-inset"
         >
           Back to Job
         </Link>

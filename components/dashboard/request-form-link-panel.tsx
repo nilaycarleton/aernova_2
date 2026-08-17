@@ -21,7 +21,7 @@ export function RequestFormLinkPanel({ url }: { url: string }) {
   }
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Your request form</h3>
       <p className="mb-4 mt-1 text-sm text-ink-muted">
         Put this on your website or hand it out — anyone who opens it can ask for work without
@@ -35,12 +35,12 @@ export function RequestFormLinkPanel({ url }: { url: string }) {
           value={url}
           onFocus={(e) => e.currentTarget.select()}
           aria-label="Your request form link"
-          className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
+          className="min-w-0 flex-1 rounded-lg border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
         />
         <button
           type="button"
           onClick={copy}
-          className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="shrink-0 rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           {copied ? "Copied" : "Copy link"}
         </button>

@@ -77,7 +77,7 @@ export function JobExpensesPanel({
 
   return (
     <section className="space-y-6">
-      <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised p-6">
         <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">Costs</p>
         <h3 className="mt-2 text-2xl font-semibold text-ink-primary">Quoted vs. actual</h3>
         <p className="mt-2 text-sm text-ink-muted">
@@ -85,19 +85,19 @@ export function JobExpensesPanel({
         </p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl bg-ground/50 p-4">
+          <div className="rounded-lg bg-ground/50 p-4">
             <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Quoted cost</p>
             <p className="mt-2 text-xl font-semibold tabular-nums text-ink-primary">
               {formatMoney(quotedCostCents)}
             </p>
           </div>
-          <div className="rounded-2xl bg-ground/50 p-4">
+          <div className="rounded-lg bg-ground/50 p-4">
             <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">Actual cost</p>
             <p className="mt-2 text-xl font-semibold tabular-nums text-ink-primary">
               {formatMoney(actualCostCents)}
             </p>
           </div>
-          <div className="rounded-2xl bg-ground/50 p-4">
+          <div className="rounded-lg bg-ground/50 p-4">
             <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">
               {varianceCents > 0 ? "Over quote" : varianceCents < 0 ? "Under quote" : "Variance"}
             </p>
@@ -112,7 +112,7 @@ export function JobExpensesPanel({
         </div>
       </div>
 
-      <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Logged costs</h3>
 
         {expenses.length === 0 ? (
@@ -162,7 +162,7 @@ export function JobExpensesPanel({
       </div>
 
       {canManage ? (
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
           <h3 className="text-lg font-semibold text-ink-primary">Log a cost</h3>
 
           <FormError message={state.formError} />
@@ -274,7 +274,7 @@ export function JobExpensesPanel({
             <div className="md:col-span-2">
               <SubmitButton
                 pendingText="Logging…"
-                className="rounded-xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
+                className="rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
               >
                 Log cost
               </SubmitButton>

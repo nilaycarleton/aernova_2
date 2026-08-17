@@ -7,41 +7,47 @@
  * hanging, and that is the one thing on this page worth colouring.
  */
 import type { RequestStatus } from "@prisma/client";
+import type { StatusTone } from "@/lib/status-tone";
 
 type RequestStatusMeta = {
   label: string;
   /** What this stage means, in a roofer's words. */
   description: string;
-  badge: string;
 };
 
 export const REQUEST_STATUS_META: Record<RequestStatus, RequestStatusMeta> = {
   NEW: {
     label: "New",
     description: "Nobody has answered this yet.",
-    badge: "text-ink-secondary bg-surface-lifted",
   },
   CONTACTED: {
     label: "Contacted / Qualified",
     description: "Someone has reached them, and it's worth pursuing.",
-    badge: "text-ink-secondary bg-surface-lifted",
   },
   ASSESSING: {
     label: "Looking at it",
     description: "Someone is going out to see it, or has.",
-    badge: "text-ink-secondary bg-surface-lifted",
   },
   CONVERTED: {
     label: "Became a job",
     description: "This turned into work.",
-    badge: "text-confirm-fg bg-confirm/10",
   },
   CLOSED: {
     label: "Closed",
     description: "Not going ahead.",
-    badge: "text-ink-muted bg-surface-lifted",
   },
 };
+
+/**
+ * Status-consolidation adapter (Premium UI Redesign final completion pass) —
+ * feeds the shared `Status` primitive instead of a hand-rolled badge pill.
+ * CONVERTED is the one success state; everything else (including CLOSED,
+ * previously a slightly dimmer gray) reads as an ordinary neutral state.
+ */
+export function requestStatusTone(status: RequestStatus): StatusTone {
+  if (status === "CONVERTED") return "success";
+  return "neutral";
+}
 
 /** The three states that are still somebody's problem. */
 export const OPEN_REQUEST_STATUSES: RequestStatus[] = ["NEW", "CONTACTED", "ASSESSING"];

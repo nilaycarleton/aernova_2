@@ -33,7 +33,7 @@ export function CalendarFeedPanel({ feedUrl }: { feedUrl: string | null }) {
   }
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">
         See this in your own calendar
       </h3>
@@ -48,7 +48,7 @@ export function CalendarFeedPanel({ feedUrl }: { feedUrl: string | null }) {
           <form action={createCalendarFeedAction}>
             <SubmitButton
               pendingText="Making the link…"
-              className="rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
+              className="rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
             >
               Make the link
             </SubmitButton>
@@ -67,12 +67,12 @@ export function CalendarFeedPanel({ feedUrl }: { feedUrl: string | null }) {
               value={feedUrl}
               onFocus={(event) => event.currentTarget.select()}
               aria-label="Your calendar link"
-              className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
+              className="min-w-0 flex-1 rounded-lg border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
             />
             <button
               type="button"
               onClick={copy}
-              className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+              className="shrink-0 rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
             >
               {copied ? "Copied" : "Copy link"}
             </button>

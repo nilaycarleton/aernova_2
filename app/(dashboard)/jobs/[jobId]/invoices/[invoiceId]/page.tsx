@@ -11,7 +11,8 @@ import { formatMoney, microsToPercent } from "@/lib/money";
 import { shareUrl as buildShareUrl } from "@/lib/share-token";
 import { isEmailConfigured } from "@/lib/email";
 import { invoiceBalance } from "@/lib/invoice/balance";
-import { INVOICE_STATUS_META } from "@/lib/invoice/status";
+import { INVOICE_STATUS_META, invoiceStatusTone } from "@/lib/invoice/status";
+import { Status } from "@/components/ui/status";
 import { invoiceSendGaps } from "@/lib/invoice/gaps";
 import { hasBillingOverride } from "@/lib/invoice/billing-address";
 import { PageHeader } from "@/components/ui/page-header";
@@ -119,11 +120,8 @@ export default async function InvoicePage({
           title={invoice.invoiceNumber ? `Invoice #${invoice.invoiceNumber}` : "Invoice"}
           description={`${invoice.title} · ${client.name}${address ? ` · ${address}` : ""}`}
           status={
-            <span
-              title={meta.hint}
-              className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${meta.badge}`}
-            >
-              {meta.label}
+            <span title={meta.hint} className="shrink-0 whitespace-nowrap">
+              <Status variant="solid" tone={invoiceStatusTone(invoice.status)} label={meta.label} />
             </span>
           }
         />
@@ -140,7 +138,7 @@ export default async function InvoicePage({
       {/* What is stopping it going out, said on the record rather than as a
           wall in front of a button. Required to advance, not to exist. */}
       {gaps.length > 0 && invoice.status === InvoiceStatus.DRAFT ? (
-        <section className="rounded-3xl border border-caution/30 bg-caution/5 p-6">
+        <section className="rounded-lg border border-caution/30 bg-caution/5 p-6">
           <h3 className="text-sm font-semibold text-caution-fg">
             Before this can go out
           </h3>
@@ -168,7 +166,7 @@ export default async function InvoicePage({
       {/* §19.2 — this invoice can't reach SENT on its own; it needs the
           homeowner's own look first, or a named office override. */}
       {invoice.requiresHomeownerReview && !invoice.homeownerReviewConfirmedAt ? (
-        <section className="rounded-3xl border border-caution/30 bg-caution/5 p-6">
+        <section className="rounded-lg border border-caution/30 bg-caution/5 p-6">
           <h3 className="text-sm font-semibold text-caution-fg">Needs homeowner review</h3>
           <p className="mt-2 text-sm leading-6 text-ink-secondary">
             This is additional work at or above your review threshold. Share the link below so the
@@ -225,7 +223,7 @@ export default async function InvoicePage({
         }))}
       />
 
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-4">
           <h3 className="text-lg font-semibold text-ink-primary">What they were billed for</h3>
           {invoice.quote ? (
@@ -314,7 +312,7 @@ export default async function InvoicePage({
       </section>
 
       {can(role, "editInvoice") && invoice.status !== InvoiceStatus.VOID ? (
-        <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <section className="rounded-lg border border-hairline bg-surface-raised p-6">
           <h3 className="text-lg font-semibold text-ink-primary">Billing address</h3>
           <p className="mt-1 text-sm text-ink-muted">
             Where this invoice is billed, if that isn&rsquo;t the property itself — a landlord
@@ -333,7 +331,7 @@ export default async function InvoicePage({
       ) : null}
 
       {can(role, "editInvoice") && invoice.status !== InvoiceStatus.VOID ? (
-        <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <section className="rounded-lg border border-hairline bg-surface-raised p-6">
           <h3 className="text-lg font-semibold text-ink-primary">Terms</h3>
 
           <form
@@ -348,12 +346,12 @@ export default async function InvoicePage({
                 type="date"
                 name="dueAt"
                 defaultValue={dateInput(invoice.dueAt)}
-                className="rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+                className="rounded-lg border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
               />
             </label>
             <SubmitButton
               pendingText="Saving…"
-              className="rounded-xl border border-hairline px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+              className="rounded-lg border border-hairline px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Save
             </SubmitButton>
@@ -388,7 +386,7 @@ export default async function InvoicePage({
           homeowner has actually seen. */}
       {can(role, "deleteInvoice") &&
       (invoice.status === InvoiceStatus.DRAFT || invoice.status === InvoiceStatus.VOID) ? (
-        <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <section className="rounded-lg border border-hairline bg-surface-raised p-6">
           <form action={deleteInvoiceAction}>
             <input type="hidden" name="jobId" value={jobId} />
             <input type="hidden" name="invoiceId" value={invoice.id} />

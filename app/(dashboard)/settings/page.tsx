@@ -17,7 +17,7 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "w-full rounded-lg border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 const selectClass = inputClass;
 
 function Field({
@@ -78,7 +78,7 @@ export default async function SettingsPage() {
   }
 
   const buttonClass =
-    "rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
+    "rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60";
 
   const tradeLabel = TRADE_OPTIONS.find((t) => t.value === company.trade)?.label ?? company.trade;
   const provinceLabel = PROVINCE_OPTIONS.find((p) => p.value === company.province)?.label ?? null;
@@ -91,7 +91,7 @@ export default async function SettingsPage() {
         description="What goes on a quote or an invoice, and how homeowners can pay one."
       />
 
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Company profile</h3>
         <p className="mt-1 text-sm text-ink-muted">
           Your name, logo and numbers appear on every quote and invoice a homeowner sees —
@@ -203,7 +203,7 @@ export default async function SettingsPage() {
         </form>
       </section>
 
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Starter price list &amp; tax rates</h3>
         <p className="mt-1 text-sm text-ink-muted">
           Changing trade or province above doesn&rsquo;t touch a single price or tax rate you
@@ -218,14 +218,14 @@ export default async function SettingsPage() {
           <ConfirmSubmit
             pendingText="Resetting…"
             question={`This deletes every service and tax rate this company currently has, and replaces them with the starter set for ${tradeLabel}${provinceLabel ? `, ${provinceLabel}` : ""}. Quotes and invoices already sent keep their own numbers — this only touches the price list itself. Continue?`}
-            className="rounded-xl border border-hairline px-5 py-3 text-sm font-semibold text-ink-primary transition hover:bg-ground/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+            className="rounded-lg border border-hairline px-5 py-3 text-sm font-semibold text-ink-primary transition hover:bg-ground/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
           >
             Reset starter price list &amp; tax rates
           </ConfirmSubmit>
         </form>
       </section>
 
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Workflow</h3>
         <p className="mt-1 text-sm text-ink-muted">
           What stages a job moves through, and what you call them — hide stages you don&rsquo;t
@@ -233,7 +233,7 @@ export default async function SettingsPage() {
         </p>
         <Link
           href="/settings/workflow"
-          className="mt-4 inline-flex rounded-xl border border-hairline px-5 py-3 text-sm font-semibold text-ink-primary transition hover:bg-ground/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="mt-4 inline-flex rounded-lg border border-hairline px-5 py-3 text-sm font-semibold text-ink-primary transition hover:bg-ground/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           Edit workflow
         </Link>
@@ -242,7 +242,7 @@ export default async function SettingsPage() {
       <RequestFormLinkPanel url={requestFormUrl} />
 
       {can(role, "manageBilling") ? (
-        <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <section className="rounded-lg border border-hairline bg-surface-raised p-6">
           <h3 className="text-lg font-semibold text-ink-primary">Online payments</h3>
           <p className="mt-1 text-sm text-ink-muted">
             Connect your own bank account so homeowners can pay their invoices online, by card.

@@ -89,7 +89,7 @@ export function ClientsBrowser({ tiles, clients, canDelete }: Props) {
         action={
           <Link
             href="/jobs/new"
-            className="inline-flex rounded-xl bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+            className="inline-flex rounded-md bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
           >
             New job
           </Link>
@@ -104,7 +104,7 @@ export function ClientsBrowser({ tiles, clients, canDelete }: Props) {
         {tiles.map((tile) => (
           <div
             key={tile.label}
-            className="min-w-0 rounded-2xl border border-hairline bg-surface-raised p-5"
+            className="min-w-0 rounded-lg border border-hairline bg-surface-raised p-5"
           >
             {/* Was the one cyan figure per tile, with a doc comment claiming
                 the Readout Rule for it — backwards, same bug Phase 4 found and

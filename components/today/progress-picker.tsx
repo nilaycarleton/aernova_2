@@ -37,7 +37,7 @@ export function ProgressPicker({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-3 w-full rounded-xl border border-hairline px-5 py-4 text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+        className="mt-3 w-full rounded-lg border border-hairline px-5 py-4 text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
       >
         {currentLabel ? `Progress — ${currentLabel}` : "How's it going?"}
       </button>
@@ -45,7 +45,7 @@ export function ProgressPicker({
   }
 
   return (
-    <form action={formAction} className="mt-3 space-y-3 rounded-xl border border-hairline p-4">
+    <form action={formAction} className="mt-3 space-y-3 rounded-lg border border-hairline p-4">
       <input type="hidden" name="jobId" value={jobId} />
       <input type="hidden" name="progressState" value={selected ?? ""} />
       <p className="text-sm font-medium text-ink-primary">How&rsquo;s it going?</p>
@@ -58,7 +58,7 @@ export function ProgressPicker({
             type="button"
             onClick={() => setSelected(option.value)}
             aria-pressed={selected === option.value}
-            className={`rounded-xl border px-4 py-3.5 text-left text-base font-medium transition ${
+            className={`rounded-lg border px-4 py-3.5 text-left text-base font-medium transition ${
               selected === option.value
                 ? "border-ink-primary bg-action text-on-action"
                 : "border-hairline text-ink-primary hover:bg-surface-lifted"
@@ -74,7 +74,7 @@ export function ProgressPicker({
       <button
         type="submit"
         disabled={!selected}
-        className="w-full rounded-xl bg-action px-5 py-4 text-base font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+        className="w-full rounded-md bg-action px-5 py-4 text-base font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
       >
         {state.savedAt ? "Saved — update again" : "Save"}
       </button>

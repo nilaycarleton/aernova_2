@@ -47,7 +47,7 @@ export function QuoteExtras({
   // option" is the argument this record exists to settle.
   if (!toggle) {
     return (
-      <section className="mt-8 rounded-xl border border-dashed border-paper-rule p-5">
+      <section className="mt-8 rounded-lg border border-dashed border-paper-rule p-5">
         <h2 className="font-semibold text-paper-ink-strong">The extras that were offered</h2>
         <ul className="mt-3 space-y-3">
           {lines.map((line) => {
@@ -85,7 +85,7 @@ export function QuoteExtras({
     .reduce((sum, line) => sum + line.amountCents, 0);
 
   return (
-    <section className="mt-8 rounded-xl border border-dashed border-paper-rule p-5">
+    <section className="mt-8 rounded-lg border border-dashed border-paper-rule p-5">
       <h2 className="font-semibold text-paper-ink-strong">
         Anything else while we&rsquo;re up there?
       </h2>
@@ -102,7 +102,7 @@ export function QuoteExtras({
                   phone, a 16px checkbox is not a thing you hit while holding a
                   coffee. */}
               <label
-                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-signal-blue ${
+                className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-signal-blue ${
                   on
                     ? "border-paper-rule-strong bg-paper-inset"
                     : "border-transparent hover:bg-paper"

@@ -23,7 +23,7 @@ export function BulkActionBar({
 }) {
   if (count < 1) return null;
   return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface-lifted px-4 py-2.5">
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-surface-lifted px-4 py-2.5">
       <span aria-live="polite" className="text-sm text-ink-secondary">
         {count} {noun}
         {count === 1 ? "" : "s"} selected

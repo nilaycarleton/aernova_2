@@ -8,12 +8,12 @@ export default function ScheduleLoading() {
           <div className="h-8 w-48 animate-pulse rounded-md bg-surface-lifted" />
           <div className="h-4 w-24 animate-pulse rounded-md bg-surface-lifted" />
         </div>
-        <div className="h-10 w-64 animate-pulse rounded-xl bg-surface-lifted" />
+        <div className="h-10 w-64 animate-pulse rounded-lg bg-surface-lifted" />
       </div>
 
       <div className="grid gap-3 lg:grid-cols-7">
         {Array.from({ length: 7 }).map((_, i) => (
-          <div key={i} className="h-40 animate-pulse rounded-2xl border border-hairline bg-surface-raised" />
+          <div key={i} className="h-40 animate-pulse rounded-lg border border-hairline bg-surface-raised" />
         ))}
       </div>
     </div>

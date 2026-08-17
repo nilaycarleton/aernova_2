@@ -41,7 +41,7 @@ export function quantityOf(text: string): number {
 }
 
 const FIELD =
-  "w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
+  "w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue";
 
 /**
  * What it costs you, and what you're charging.
@@ -92,7 +92,7 @@ function CostPopover({
        so a hairline does the lifting rather than a shadow. */
     <div
       ref={ref}
-      className="absolute right-0 top-full z-30 mt-2 w-60 rounded-xl border border-hairline bg-surface-sidebar p-3"
+      className="absolute right-0 top-full z-30 mt-2 w-60 rounded-lg border border-hairline bg-surface-sidebar p-3"
     >
       <label className="block text-xs font-medium text-ink-secondary" htmlFor={`cost-${line.key}`}>
         What it costs you

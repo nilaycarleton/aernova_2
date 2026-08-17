@@ -54,10 +54,10 @@ const DURATIONS = [
 ];
 
 const FIELD =
-  "rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue";
+  "rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue";
 
 const SECONDARY =
-  "rounded-xl border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "rounded-lg border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 export function VisitPanel({
   jobId,
@@ -90,7 +90,7 @@ export function VisitPanel({
   const done = visits.filter((visit) => visit.status === "COMPLETED");
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="text-lg font-semibold text-ink-primary">When it&rsquo;s happening</h3>
         {visits.length > 0 ? (
@@ -229,7 +229,7 @@ export function VisitPanel({
         {jobStatus === "LEAD" && !repeating ? (
           <div>
             <span className="mb-1.5 block text-xs font-medium text-ink-secondary">What kind</span>
-            <div className="flex gap-1 rounded-xl border border-hairline p-1">
+            <div className="flex gap-1 rounded-lg border border-hairline p-1">
               {(["ASSESSMENT", "WORK"] as const).map((option) => (
                 <button
                   key={option}
@@ -337,7 +337,7 @@ export function VisitPanel({
 
         <SubmitButton
           pendingText="Booking…"
-          className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+          className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
         >
           {repeating ? "Book them all in" : "Book it in"}
         </SubmitButton>

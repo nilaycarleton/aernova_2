@@ -141,7 +141,7 @@ export default async function PublicInvoicePage({
           </header>
 
           {pendingReview ? (
-            <p className="mt-6 rounded-xl bg-caution/10 px-4 py-3 text-sm leading-6 text-paper-ink-body">
+            <p className="mt-6 rounded-lg bg-caution/10 px-4 py-3 text-sm leading-6 text-paper-ink-body">
               This is additional work beyond what was originally quoted. Have a look below, then
               confirm you&rsquo;ve reviewed it — that&rsquo;s what lets it go out as a bill.
             </p>
@@ -278,7 +278,7 @@ export default async function PublicInvoicePage({
             // completed, so this is honest even if the webhook that updates
             // the figures above hasn't landed yet — a homeowner refreshing a
             // second later will see the real balance.
-            <p className="mt-6 rounded-xl bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
+            <p className="mt-6 rounded-lg bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
               Payment received — thanks! This page will catch up in a moment.
             </p>
           ) : null}
@@ -290,7 +290,7 @@ export default async function PublicInvoicePage({
               <input type="hidden" name="token" value={token} />
               <SubmitButton
                 pendingText="Confirming…"
-                className="w-full rounded-xl bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60 sm:w-auto"
+                className="w-full rounded-md bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60 sm:w-auto"
               >
                 I&rsquo;ve reviewed this
               </SubmitButton>
@@ -300,7 +300,7 @@ export default async function PublicInvoicePage({
               <input type="hidden" name="token" value={token} />
               <SubmitButton
                 pendingText="Opening…"
-                className="rounded-xl bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+                className="rounded-md bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
               >
                 Pay {formatMoney(Math.abs(balance.balanceCents))} online
               </SubmitButton>

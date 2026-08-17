@@ -16,7 +16,7 @@ export default function NewJobPage() {
         secondaryActions={
           <Link
             href="/jobs"
-            className="rounded-xl border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
+            className="rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
           >
             Back to jobs
           </Link>

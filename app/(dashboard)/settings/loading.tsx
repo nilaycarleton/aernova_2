@@ -9,7 +9,7 @@ export default function SettingsLoading() {
       </div>
 
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="h-32 animate-pulse rounded-3xl border border-hairline bg-surface-raised" />
+        <div key={i} className="h-32 animate-pulse rounded-lg border border-hairline bg-surface-raised" />
       ))}
     </div>
   );

@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { Table, pixel, proportional, type TableColumn } from "@astryxdesign/core/Table";
+import { Status } from "@/components/ui/status";
+import type { StatusTone } from "@/lib/status-tone";
 
 /**
  * Plain, pre-formatted view model — see quotes-table.tsx for why formatting
- * happens server-side and why the status pill isn't Astryx Badge.
+ * happens server-side.
  */
 export interface InvoiceRow extends Record<string, unknown> {
   id: string;
@@ -17,7 +19,7 @@ export interface InvoiceRow extends Record<string, unknown> {
   dueLabel: string;
   statusLabel: string;
   statusHint: string;
-  statusBadgeClass: string;
+  statusTone: StatusTone;
   owedLabel: string;
   isOwed: boolean;
 }
@@ -50,11 +52,8 @@ export function InvoicesTable({ rows }: { rows: InvoiceRow[] }) {
       header: "Standing",
       width: pixel(170),
       renderCell: (row) => (
-        <span
-          title={row.statusHint}
-          className={`inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${row.statusBadgeClass}`}
-        >
-          {row.statusLabel}
+        <span title={row.statusHint} className="inline-block whitespace-nowrap">
+          <Status variant="solid" tone={row.statusTone} label={row.statusLabel} />
         </span>
       ),
     },

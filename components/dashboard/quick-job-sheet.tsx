@@ -10,7 +10,7 @@ import { ClientPicker, type ClientSelection } from "@/components/dashboard/clien
 import { SubmitButton } from "@/components/dashboard/submit-button";
 
 const FIELD =
-  "w-full rounded-xl border bg-ground/50 px-4 py-3 text-base text-ink-primary outline-none transition placeholder:text-ink-muted";
+  "w-full rounded-lg border bg-ground/50 px-4 py-3 text-base text-ink-primary outline-none transition placeholder:text-ink-muted";
 
 function fieldClass(error?: string) {
   return `${FIELD} ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`;
@@ -126,13 +126,13 @@ export function QuickJobSheet() {
       <div className="space-y-3 pt-2">
         <SubmitButton
           pendingText="Saving…"
-          className="w-full rounded-xl bg-action px-6 py-4 text-base font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
+          className="w-full rounded-md bg-action px-6 py-4 text-base font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
         >
           Save it
         </SubmitButton>
         <Link
           href="/jobs/new"
-          className="block w-full rounded-xl border border-hairline bg-surface-raised px-6 py-4 text-center text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="block w-full rounded-lg border border-hairline bg-surface-raised px-6 py-4 text-center text-base font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           The full form instead
         </Link>

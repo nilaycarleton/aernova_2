@@ -176,7 +176,7 @@ function MobileStageList({
         value={stage}
         onChange={(event) => setStage(event.target.value as PipelineStage)}
         aria-label="Stage"
-        className="w-full rounded-xl border border-hairline bg-ground/60 px-3 py-2.5 text-sm text-ink-strong"
+        className="w-full rounded-lg border border-hairline bg-ground/60 px-3 py-2.5 text-sm text-ink-strong"
       >
         {PIPELINE_STAGES.map((option) => (
           <option key={option} value={option}>
@@ -186,7 +186,7 @@ function MobileStageList({
       </select>
 
       {cards.length === 0 ? (
-        <p className="rounded-2xl border border-hairline bg-surface-raised px-4 py-6 text-center text-sm text-ink-muted">
+        <p className="rounded-lg border border-hairline bg-surface-raised px-4 py-6 text-center text-sm text-ink-muted">
           Nothing here.
         </p>
       ) : (
@@ -272,7 +272,7 @@ function Column({
       onDragOver={onDragOver}
       onDragLeave={() => setOver(false)}
       onDrop={onDrop}
-      className={`w-72 shrink-0 rounded-2xl border border-hairline bg-surface-raised p-3 transition ${
+      className={`w-72 shrink-0 rounded-lg border border-hairline bg-surface-raised p-3 transition ${
         over ? "outline outline-2 outline-offset-2 outline-instrument" : ""
       }`}
     >
@@ -352,7 +352,7 @@ function Card({
       <div
         draggable={draggable}
         onDragStart={draggable ? onDragStart : undefined}
-        className={`rounded-xl border border-hairline bg-ground/40 p-3 transition hover:bg-surface-lifted ${
+        className={`rounded-lg border border-hairline bg-ground/40 p-3 transition hover:bg-surface-lifted ${
           draggable ? "cursor-grab active:cursor-grabbing" : ""
         }`}
       >
@@ -519,7 +519,7 @@ function MoveDialog({
             autoFocus
             value={stage}
             onChange={(event) => setStage(event.target.value as PipelineStage)}
-            className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+            className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
           >
             {targets.map((option) => (
               <option key={option} value={option}>
@@ -537,7 +537,7 @@ function MoveDialog({
                 id="move-card-reason"
                 name="reason"
                 required
-                className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+                className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
               >
                 {Object.entries(QUOTE_DECLINE_REASON_META).map(([value, reasonMeta]) => (
                   <option key={value} value={value}>
@@ -552,7 +552,7 @@ function MoveDialog({
                 id="move-card-note"
                 name="note"
                 rows={2}
-                className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+                className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
               />
             </>
           ) : null}
@@ -561,14 +561,14 @@ function MoveDialog({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
+              className="rounded-lg px-4 py-2.5 text-sm text-ink-muted underline underline-offset-2"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
+              className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
             >
               {pending ? "Moving…" : needsReason ? "Mark it lost" : "Move it"}
             </button>

@@ -37,7 +37,7 @@ export function ReviewRequestPanel({
   }
 
   return (
-    <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <section className="rounded-lg border border-hairline bg-surface-raised p-6">
       <h3 className="text-lg font-semibold text-ink-primary">Ask for a review</h3>
       <p className="mt-1 text-sm text-ink-muted">
         {reviewRequestedAt ? `Asked on ${reviewRequestedAt}.` : "The job's done — worth asking."}
@@ -49,12 +49,12 @@ export function ReviewRequestPanel({
           value={reviewUrl}
           onFocus={(e) => e.currentTarget.select()}
           aria-label="The review link"
-          className="min-w-0 flex-1 rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
+          className="min-w-0 flex-1 rounded-lg border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-secondary"
         />
         <button
           type="button"
           onClick={copy}
-          className="shrink-0 rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+          className="shrink-0 rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
         >
           {copied ? "Copied" : "Copy link"}
         </button>
@@ -65,7 +65,7 @@ export function ReviewRequestPanel({
             <input type="hidden" name="channel" value="email" />
             <SubmitButton
               pendingText="Sending…"
-              className="w-full rounded-xl border border-hairline px-5 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+              className="w-full rounded-lg border border-hairline px-5 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
             >
               Email it to them
             </SubmitButton>

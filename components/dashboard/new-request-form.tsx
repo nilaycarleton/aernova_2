@@ -6,7 +6,7 @@ import { ClientPicker, type ClientSelection } from "@/components/dashboard/clien
 import { SubmitButton } from "@/components/dashboard/submit-button";
 
 const FIELD =
-  "w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted";
+  "w-full rounded-lg border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted";
 
 function fieldClass(error?: string) {
   return `${FIELD} ${error ? "border-danger focus:border-danger" : "border-hairline focus:border-signal-blue"}`;
@@ -35,11 +35,11 @@ export function NewRequestForm() {
   const isNewClient = selection?.kind === "new";
 
   return (
-    <form action={formAction} className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <form action={formAction} className="rounded-lg border border-hairline bg-surface-raised p-6">
       {errorCount > 0 ? (
         <div
           role="alert"
-          className="mb-6 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
+          className="mb-6 rounded-lg border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
         >
           {errorCount === 1
             ? "One thing needs fixing before we can save this."
@@ -284,7 +284,7 @@ export function NewRequestForm() {
       <div className="mt-8 flex flex-wrap items-center gap-4">
         <SubmitButton
           pendingText="Saving…"
-          className="rounded-xl bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
+          className="rounded-md bg-action px-6 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active disabled:opacity-60"
         >
           Save request
         </SubmitButton>

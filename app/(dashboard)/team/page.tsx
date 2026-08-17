@@ -56,7 +56,7 @@ export default async function TeamPage() {
         description="Crew see the jobs they're booked on and nothing else — no prices, no margins, no other crews' work."
       />
 
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">Add someone</h3>
         {/* No Send button. We can't send a text, and a button claiming we did
             would be the worst lie this screen could tell somebody waiting on a
@@ -76,7 +76,7 @@ export default async function TeamPage() {
               name="label"
               type="text"
               placeholder="Dave"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
+              className="w-full rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
             />
           </div>
           <div>
@@ -87,7 +87,7 @@ export default async function TeamPage() {
               id="invite-role"
               name="role"
               defaultValue="CREW"
-              className="rounded-xl border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
+              className="rounded-md border border-hairline bg-ground/50 px-3 py-2.5 text-sm text-ink-primary outline-none transition focus:border-signal-blue"
             >
               {(["CREW", "ESTIMATOR", "SALES", "VIEWER", "ADMIN"] as const).map((role) => (
                 <option key={role} value={role}>
@@ -98,7 +98,7 @@ export default async function TeamPage() {
           </div>
           <SubmitButton
             pendingText="Making the link…"
-            className="rounded-xl bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
+            className="rounded-md bg-action px-5 py-2.5 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:opacity-60"
           >
             Make a link
           </SubmitButton>
@@ -149,7 +149,7 @@ export default async function TeamPage() {
         ) : null}
       </section>
 
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-lg font-semibold text-ink-primary">On the team</h3>
         <ul className="mt-4 divide-y divide-hairline border-t border-hairline">
           {members.map((member) => {

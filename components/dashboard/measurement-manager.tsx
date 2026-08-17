@@ -22,7 +22,7 @@ const measurementTemplates = [
 export function MeasurementManager({ jobId, measurements }: Props) {
   return (
     <div className="space-y-8">
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-xl font-semibold text-ink-primary">Add measurement</h3>
         <p className="mt-2 text-sm text-ink-muted">
           Add roof metrics like area, ridge, pitch, waste factor, eaves, valleys, and hips.
@@ -79,7 +79,7 @@ export function MeasurementManager({ jobId, measurements }: Props) {
         </div>
 
         {measurements.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-hairline p-8 text-ink-muted">
+          <div className="rounded-lg border border-dashed border-hairline p-8 text-ink-muted">
             No measurements yet. Add your first one above.
           </div>
         ) : (

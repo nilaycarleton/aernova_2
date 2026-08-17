@@ -30,7 +30,7 @@ export type CatalogService = {
 };
 
 const SECONDARY =
-  "rounded-xl border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
+  "rounded-lg border border-hairline bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument";
 
 export function QuoteCatalogPicker({
   services,
@@ -68,7 +68,7 @@ export function QuoteCatalogPicker({
 
       {open ? (
         <div
-          className="mt-3 rounded-2xl border border-hairline bg-ground/40 p-3"
+          className="mt-3 rounded-lg border border-hairline bg-ground/40 p-3"
           onKeyDown={(event) => {
             if (event.key === "Escape") setOpen(false);
           }}
@@ -83,7 +83,7 @@ export function QuoteCatalogPicker({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search — shingles, tear-off, gutters…"
-            className="w-full rounded-xl border border-hairline bg-surface-raised px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
+            className="w-full rounded-md border border-hairline bg-surface-raised px-3 py-2.5 text-sm text-ink-primary outline-none transition placeholder:text-ink-muted focus:border-signal-blue"
           />
 
           {matches === 0 ? (
@@ -108,7 +108,7 @@ export function QuoteCatalogPicker({
                             setOpen(false);
                             setQuery("");
                           }}
-                          className="flex w-full items-baseline justify-between gap-4 rounded-xl px-3 py-2.5 text-left transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+                          className="flex w-full items-baseline justify-between gap-4 rounded-lg px-3 py-2.5 text-left transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
                         >
                           <span className="flex min-w-0 items-center gap-3">
                             {service.imageUrl ? (

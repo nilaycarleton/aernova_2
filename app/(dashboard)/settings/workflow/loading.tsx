@@ -10,7 +10,7 @@ export default function WorkflowSettingsLoading() {
         <div className="h-4 w-80 animate-pulse rounded-md bg-surface-lifted" />
       </div>
 
-      <div className="rounded-3xl border border-hairline bg-surface-raised px-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised px-6">
         <SkeletonList rows={9} />
       </div>
     </div>
