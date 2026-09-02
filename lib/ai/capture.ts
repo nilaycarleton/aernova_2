@@ -2,19 +2,16 @@
  * Item 49: a photo in, a drafted job out.
  *
  * Runs before a job exists — there is no `buildRoofContext()` to reuse — so
- * the only context this gives Claude is the company's own `Service` catalog,
- * built with the same doctrine `roof-context.ts` documents for its own
- * snapshot: sorted, deterministic, nothing volatile. Vision calls aren't
- * prompt-cached the way the chat system prompt is (the image itself is the
- * expensive part, not this text), but a stable ordering still makes the
- * output reproducible for the same catalog.
+ * the only context this gives the model is the company's own `Service`
+ * catalog, built with the same doctrine `roof-context.ts` documents for its
+ * own snapshot: sorted, deterministic, nothing volatile.
  *
  * The deterministic response-parsing lives in `capture-response.ts` instead
  * of here, so it can be tested without `@prisma/client` or a network call —
- * this file is the one that actually talks to Prisma and Anthropic.
+ * this file is the one that actually talks to Prisma and Gemini.
  */
 import { prisma } from "@/lib/prisma";
-import { getAnthropic, isAiConfigured, AI_MODELS } from "./client.ts";
+import { getGemini, isAiConfigured, AI_MODELS } from "./client.ts";
 import {
   catalogContext,
   parseCaptureResponse,
@@ -57,30 +54,27 @@ export async function draftJobFromPhoto(input: {
 
   const services = await serviceCatalogForCapture(input.companyId);
 
-  const response = await getAnthropic().messages.create({
+  const response = await getGemini().models.generateContent({
     model: AI_MODELS.chat,
-    max_tokens: 512,
-    thinking: { type: "disabled" },
-    system: CAPTURE_SYSTEM,
-    messages: [
+    config: {
+      systemInstruction: CAPTURE_SYSTEM,
+      maxOutputTokens: 512,
+      thinkingConfig: { thinkingBudget: 0 },
+      responseMimeType: "application/json",
+    },
+    contents: [
       {
         role: "user",
-        content: [
-          {
-            type: "image",
-            source: { type: "base64", media_type: input.mediaType, data: input.imageBase64 },
-          },
-          {
-            type: "text",
-            text: `PRICE LIST:\n${catalogContext(services)}`,
-          },
+        parts: [
+          { inlineData: { data: input.imageBase64, mimeType: input.mediaType } },
+          { text: `PRICE LIST:\n${catalogContext(services)}` },
         ],
       },
     ],
   });
 
-  const block = response.content.find((b) => b.type === "text");
-  if (!block || block.type !== "text") throw new Error("The assistant didn't return any text.");
+  const text = response.text;
+  if (!text) throw new Error("The assistant didn't return any text.");
 
-  return parseCaptureResponse(block.text, services);
+  return parseCaptureResponse(text, services);
 }

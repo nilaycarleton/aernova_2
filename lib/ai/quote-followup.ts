@@ -13,7 +13,7 @@
  * ever sees it, which an unattended cron can't do.
  */
 import { prisma } from "@/lib/prisma";
-import { getAnthropic, isAiConfigured, AI_MODELS } from "./client.ts";
+import { getGemini, isAiConfigured, AI_MODELS } from "./client.ts";
 import { buildRoofContext } from "./roof-context.ts";
 
 const FOLLOWUP_SYSTEM = `You are Aernova's follow-up assistant. A contractor sent a homeowner a quote and hasn't heard back. Draft one short, warm nudge — a few sentences, not a sales pitch.
@@ -37,23 +37,26 @@ export async function draftFollowUpMessage(input: {
     }),
   ]);
 
-  const response = await getAnthropic().messages.create({
+  const response = await getGemini().models.generateContent({
     model: AI_MODELS.chat,
-    max_tokens: 256,
-    thinking: { type: "disabled" },
-    system: FOLLOWUP_SYSTEM,
-    messages: [
+    config: {
+      systemInstruction: FOLLOWUP_SYSTEM,
+      maxOutputTokens: 256,
+      thinkingConfig: { thinkingBudget: 0 },
+    },
+    contents: [
       {
         role: "user",
-        content: `PROJECT DATA:\n${roofContext}\n\n---\nThis quote${quote ? ` ("${quote.title}")` : ""} was sent ${input.daysSinceSent} day${input.daysSinceSent === 1 ? "" : "s"} ago and hasn't been answered.`,
+        parts: [
+          {
+            text: `PROJECT DATA:\n${roofContext}\n\n---\nThis quote${quote ? ` ("${quote.title}")` : ""} was sent ${input.daysSinceSent} day${input.daysSinceSent === 1 ? "" : "s"} ago and hasn't been answered.`,
+          },
+        ],
       },
     ],
   });
 
-  const block = response.content.find((b) => b.type === "text");
-  if (!block || block.type !== "text") throw new Error("The assistant didn't return any text.");
-
-  const message = block.text.trim();
+  const message = (response.text ?? "").trim();
   if (!message) throw new Error("The assistant didn't draft anything.");
   return message;
 }

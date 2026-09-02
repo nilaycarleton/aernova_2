@@ -33,9 +33,9 @@ export type CaptureState = {
 /**
  * Photo in, drafted job out — item 49. One action rather than an upload step
  * plus a separate read-it-back step: the file's bytes are already in memory
- * from the multipart post, so they go to Claude directly and to storage in
- * the same call, instead of uploading first and then having the server fetch
- * its own object back over `storage.getBytes()`.
+ * from the multipart post, so they go to the assistant directly and to
+ * storage in the same call, instead of uploading first and then having the
+ * server fetch its own object back over `storage.getBytes()`.
  *
  * The upload happens regardless of what the model says — same "bytes go up
  * the moment they're picked" doctrine `uploadCompanyLogoAction` documents —
@@ -52,7 +52,7 @@ export async function captureFromPhotoAction(formData: FormData): Promise<Captur
     return { error: "Choose or take a photo first." };
   }
   if (!ALLOWED_TYPES.has(file.type)) {
-    return { error: "That file isn't a photo Claude can read (JPEG, PNG or WebP)." };
+    return { error: "That file isn't a photo the assistant can read (JPEG, PNG or WebP)." };
   }
   if (file.size > MAX_CAPTURE_BYTES) {
     return { error: "That photo is too big. Try one taken at a smaller size." };

@@ -8,7 +8,7 @@ Roofing is the wedge; the platform underneath is trade-agnostic (see
 **Stack**: Next.js 16 (App Router, Turbopack), React 19, TypeScript, Prisma 6
 + Postgres, Clerk (auth), Tailwind 4. Optional integrations degrade
 gracefully when unconfigured: Stripe Connect (payments), Resend (email),
-Anthropic (AI features), Sentry (error monitoring), S3/Cloudflare R2
+Google Gemini (AI features), Sentry (error monitoring), S3/Cloudflare R2
 (storage), NodeODM (drone photogrammetry).
 
 ## Quick start

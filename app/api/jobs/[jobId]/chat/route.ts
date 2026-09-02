@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAnthropic, isAiConfigured, AI_MODELS } from "@/lib/ai/client";
+import { getGemini, isAiConfigured, AI_MODELS } from "@/lib/ai/client";
 import { buildRoofContext, ROOF_ASSISTANT_SYSTEM } from "@/lib/ai/roof-context";
 import { checkAiRateLimit, recordAiUsage } from "@/lib/ai/rate-limit";
 import { requireJobAccess } from "@/lib/auth";
@@ -19,7 +19,7 @@ export async function POST(
 
   if (!isAiConfigured()) {
     return NextResponse.json(
-      { error: "AI is not configured. Set ANTHROPIC_API_KEY." },
+      { error: "AI is not configured. Set GEMINI_API_KEY." },
       { status: 503 }
     );
   }
@@ -67,31 +67,32 @@ export async function POST(
   // client disconnecting mid-stream doesn't refund it.
   await recordAiUsage({ jobId, userId, kind: "chat" });
 
-  const stream = getAnthropic().messages.stream({
+  const stream = await getGemini().models.generateContentStream({
     model: AI_MODELS.chat,
-    max_tokens: 2048,
-    // Snappy, low-cost conversational Q&A over data we already provide.
-    thinking: { type: "disabled" },
-    system: [
-      {
-        type: "text",
-        // Instructions + roof context are identical for every question in a
-        // job — cache the whole prefix so follow-ups read it at ~0.1x cost.
-        text: `${ROOF_ASSISTANT_SYSTEM}\n\n---\nPROJECT DATA:\n${context}`,
-        cache_control: { type: "ephemeral" },
-      },
-    ],
-    messages,
+    config: {
+      // Instructions + roof context are identical for every question in a
+      // job. (Gemini context caching isn't wired up here — the roof-context
+      // snapshot for a typical job is well under the token minimum caching
+      // requires, so it wouldn't help most jobs; this is a cost-optimization
+      // gap versus the old Anthropic prompt-cache prefix, not a functional
+      // one — every question still gets the full, correct context.)
+      systemInstruction: `${ROOF_ASSISTANT_SYSTEM}\n\n---\nPROJECT DATA:\n${context}`,
+      maxOutputTokens: 2048,
+      // Snappy, low-cost conversational Q&A over data we already provide.
+      thinkingConfig: { thinkingBudget: 0 },
+    },
+    contents: messages.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    })),
   });
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const event of stream) {
-          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-            controller.enqueue(encoder.encode(event.delta.text));
-          }
+        for await (const chunk of stream) {
+          if (chunk.text) controller.enqueue(encoder.encode(chunk.text));
         }
       } catch (err) {
         console.error("[chat] stream error", err);

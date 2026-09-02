@@ -1689,6 +1689,18 @@ hollowed-out one-tile remainder would have been worse than no component.
     352/352 tests, tsc, lint (app scope), and a production build all clean
     across all three items.
 
+    **Provider addendum:** items 49 and 50 above were originally implemented
+    against Anthropic's Claude API on 2026-08-05, as this record describes.
+    Aernova's AI runtime was migrated to Google's Gemini API on 2026-08-17 —
+    the product behavior, safety rules (never an invented price, human
+    review before anything reaches a homeowner), and rate limits described
+    above are unchanged; only the model provider and the environment
+    variable that configures it (`GEMINI_API_KEY`, not `ANTHROPIC_API_KEY`)
+    changed. See `docs/AERNOVA_FEATURES_AND_TESTING_GUIDE.md` for the
+    current AI feature set and setup instructions. This note is an
+    addendum, not a correction — the narrative above remains an accurate
+    record of what was true on 2026-08-05.
+
 ---
 
 ## Sequencing notes

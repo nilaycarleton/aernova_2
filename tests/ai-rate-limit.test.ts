@@ -4,7 +4,7 @@ import { evaluateAiLimits, evaluateCaptureLimits, AI_LIMITS } from "../lib/ai/ra
 
 // Every AI call spends real money, so these pin the caps. A future change that
 // silently raises a limit (or drops a rule) should fail here rather than show up
-// on the Anthropic bill.
+// on the Gemini bill.
 
 test("a fresh job is allowed", () => {
   assert.deepEqual(evaluateAiLimits({ projectDay: 0, userMinute: 0 }), { allowed: true });

@@ -4,7 +4,7 @@
  * generic web knowledge of what a roofing quote sounds like.
  */
 import { prisma } from "@/lib/prisma";
-import { getAnthropic, isAiConfigured, AI_MODELS } from "./client.ts";
+import { getGemini, isAiConfigured, AI_MODELS } from "./client.ts";
 import { buildRoofContext } from "./roof-context.ts";
 import { parseScopeDraft, type ScopeDraft } from "./scope-draft-response.ts";
 
@@ -57,21 +57,28 @@ export async function draftScopeOfWork(input: {
     pastAcceptedQuotesContext(input.companyId, input.quoteId),
   ]);
 
-  const response = await getAnthropic().messages.create({
+  const response = await getGemini().models.generateContent({
     model: AI_MODELS.chat,
-    max_tokens: 512,
-    thinking: { type: "disabled" },
-    system: SCOPE_SYSTEM,
-    messages: [
+    config: {
+      systemInstruction: SCOPE_SYSTEM,
+      maxOutputTokens: 512,
+      thinkingConfig: { thinkingBudget: 0 },
+      responseMimeType: "application/json",
+    },
+    contents: [
       {
         role: "user",
-        content: `PROJECT DATA:\n${roofContext}\n\n---\nPAST ACCEPTED QUOTES FROM THIS COMPANY (tone and style only — do not copy):\n${pastQuotes}`,
+        parts: [
+          {
+            text: `PROJECT DATA:\n${roofContext}\n\n---\nPAST ACCEPTED QUOTES FROM THIS COMPANY (tone and style only — do not copy):\n${pastQuotes}`,
+          },
+        ],
       },
     ],
   });
 
-  const block = response.content.find((b) => b.type === "text");
-  if (!block || block.type !== "text") throw new Error("The assistant didn't return any text.");
+  const text = response.text;
+  if (!text) throw new Error("The assistant didn't return any text.");
 
-  return parseScopeDraft(block.text);
+  return parseScopeDraft(text);
 }
