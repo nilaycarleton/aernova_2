@@ -3,6 +3,19 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+// Some OS file pickers don't map .tif/.tiff to an "image/*" MIME type, so the
+// dropzone filter also checks the extension. This is only a UI hint — the
+// upload action re-checks the real file bytes before trusting anything.
+function isTiffFile(file: File) {
+  return file.type === "image/tiff" || /\.tiff?$/i.test(file.name);
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function ImageryUploadForm({ jobId }: { jobId: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -21,7 +34,9 @@ export function ImageryUploadForm({ jobId }: { jobId: string }) {
   function handleDrop(event: React.DragEvent<HTMLLabelElement>) {
     event.preventDefault();
     setIsDragActive(false);
-    const droppedFiles = Array.from(event.dataTransfer.files).filter((file) => file.type.startsWith("image/"));
+    const droppedFiles = Array.from(event.dataTransfer.files).filter(
+      (file) => file.type.startsWith("image/") || isTiffFile(file)
+    );
     if (!fileInputRef.current || droppedFiles.length === 0) return;
 
     const dataTransfer = new DataTransfer();
@@ -82,7 +97,7 @@ export function ImageryUploadForm({ jobId }: { jobId: string }) {
             ref={fileInputRef}
             name="images"
             type="file"
-            accept="image/*"
+            accept="image/*,.tif,.tiff"
             multiple
             className="sr-only"
             onChange={(event) => updateSelectedFiles(event.currentTarget.files)}
@@ -101,10 +116,18 @@ export function ImageryUploadForm({ jobId }: { jobId: string }) {
             Choose files
           </span>
           {selectedFiles.length > 0 ? (
-            <span className="mt-3 max-w-full truncate text-xs text-ink-secondary">
-              {selectedFiles.slice(0, 3).map((file) => file.name).join(", ")}
-              {selectedFiles.length > 3 ? `, +${selectedFiles.length - 3} more` : ""}
-            </span>
+            <>
+              <span className="mt-3 max-w-full truncate text-xs text-ink-secondary">
+                {selectedFiles.slice(0, 3).map((file) => file.name).join(", ")}
+                {selectedFiles.length > 3 ? `, +${selectedFiles.length - 3} more` : ""}
+              </span>
+              <span className="mt-1 text-xs text-ink-muted">
+                {formatBytes(selectedFiles.reduce((sum, file) => sum + file.size, 0))} total
+                {selectedFiles.some(isTiffFile)
+                  ? ` · ${selectedFiles.filter(isTiffFile).length} GeoTIFF, ${selectedFiles.filter((f) => !isTiffFile(f)).length} JPEG/other`
+                  : ""}
+              </span>
+            </>
           ) : null}
         </label>
 

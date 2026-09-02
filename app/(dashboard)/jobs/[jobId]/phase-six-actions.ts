@@ -11,6 +11,12 @@ import { isNodeOdmConfigured } from "@/lib/nodeodm-client";
 import { requireJobAccess } from "@/lib/auth";
 import { parseDroneImageMetadata } from "@/lib/drone-metadata";
 import {
+  isSupportedImageryUpload,
+  looksLikeJpeg,
+  looksLikeTiff,
+  parseGeoTiffMetadata,
+} from "@/lib/geotiff-metadata";
+import {
   buildProcessingReadiness,
   loadSourceImages,
   queueNodeOdmReconstruction,
@@ -55,9 +61,6 @@ export async function uploadProjectImageryAction(formData: FormData) {
   if (!jobId) throw new Error("Missing jobId");
   if (!imageryTypes.has(typeRaw)) throw new Error("Invalid imagery type");
   if (files.length === 0) throw new Error("Choose one or more images to upload");
-  if (files.some((file) => !file.type.startsWith("image/"))) {
-    throw new Error("Only image uploads are supported in this MVP");
-  }
   await requireJobAccess(jobId, "editJob");
 
   const batchId = randomUUID();
@@ -81,12 +84,27 @@ export async function uploadProjectImageryAction(formData: FormData) {
     const extension = path.extname(file.name).toLowerCase() || ".jpg";
     const storedName = `${randomUUID()}${extension}`;
     const bytes = Buffer.from(await file.arrayBuffer());
+
+    // Identify the container by magic bytes rather than trusting the
+    // extension or the browser-supplied MIME type, since either can lie
+    // (§13 of the imagery-input requirements). GeoTIFF orthomosaics/DSMs
+    // carry their own georeferencing instead of JPEG GPS EXIF, so the two
+    // kinds feed different metadata extractors.
+    const isTiff = looksLikeTiff(bytes);
+    const isJpeg = !isTiff && looksLikeJpeg(bytes);
+    const fileKind = isTiff ? "geotiff" : isJpeg ? "jpeg" : "other";
+    if (!isSupportedImageryUpload(bytes, file.type)) {
+      throw new Error("Only image uploads are supported in this MVP");
+    }
     const { url } = await storage.put(`imagery/${jobId}/${storedName}`, bytes, file.type);
 
     // Recover GPS / altitude / capture date from the drone image itself so the
     // geotag and capture-QA stages reflect the real data. Form values win when
     // the operator supplied them.
-    const droneMeta = parseDroneImageMetadata(bytes, file.name);
+    const droneMeta = isJpeg
+      ? parseDroneImageMetadata(bytes, file.name)
+      : { latitude: null, longitude: null, altitudeFt: null, captureDate: null };
+    const geoTiffMeta = isTiff ? parseGeoTiffMetadata(bytes) : null;
     const effectiveAltitude = formAltitude ?? droneMeta.altitudeFt;
     const effectiveCaptureDate = captureDate ?? droneMeta.captureDate;
 
@@ -111,11 +129,23 @@ export async function uploadProjectImageryAction(formData: FormData) {
           captureDate: captureDateRaw || null,
           captureTime: captureTimeRaw || null,
           photogrammetryRole: typeRaw === "DRONE" ? "source-capture" : "reference",
+          fileKind,
           latitude: droneMeta.latitude ?? undefined,
           longitude: droneMeta.longitude ?? undefined,
           gps: droneMeta.latitude != null && droneMeta.longitude != null ? true : undefined,
           exifAltitudeFt: droneMeta.altitudeFt ?? undefined,
           exifCaptureDate: droneMeta.captureDate?.toISOString() ?? undefined,
+          geotiff: geoTiffMeta
+            ? {
+                hasGeoreferencing: geoTiffMeta.hasGeoreferencing,
+                epsg: geoTiffMeta.epsg ?? undefined,
+                crsKind: geoTiffMeta.crsKind ?? undefined,
+                imageWidth: geoTiffMeta.imageWidth ?? undefined,
+                imageHeight: geoTiffMeta.imageHeight ?? undefined,
+                pixelSize: geoTiffMeta.pixelSize ?? undefined,
+                origin: geoTiffMeta.origin ?? undefined,
+              }
+            : undefined,
         },
       },
     });

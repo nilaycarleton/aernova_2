@@ -99,7 +99,12 @@ function metadataObject(value: unknown) {
 
 function hasGpsMetadata(image: ProjectImagery) {
   const metadata = metadataObject(image.metadataJson);
-  return Boolean(metadata.gps || metadata.latitude || metadata.longitude);
+  if (metadata.gps || metadata.latitude || metadata.longitude) return true;
+  // A GeoTIFF carries its own georeferencing (pixel scale + tiepoint or an
+  // affine transform) instead of JPEG GPS EXIF — that's an equally valid
+  // location anchor for the capture-QA "geotag" stage.
+  const geotiff = metadataObject(metadata.geotiff);
+  return Boolean(geotiff.hasGeoreferencing);
 }
 
 function stageStatus(sourceImageCount: number, requiredImages: number): PipelineStageStatus {
