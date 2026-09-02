@@ -78,6 +78,20 @@ const DETECT_COLOR = 0xfacc15; // yellow ROI box
 // Distinct hues so adjacent roof facets read as separate planes, not one blob.
 const AREA_PALETTE = [0x34d399, 0x38bdf8, 0xa78bfa, 0xf472b6, 0xfbbf24, 0x22d3ee, 0x4ade80, 0xfb923c];
 
+// Precision vertex markers — small enough that the roof feature underneath
+// (a shingle edge, a ridge line) stays visible, instead of the old handles
+// that were large enough to hide the exact point they marked. Sized in model
+// metres, not pixels: these are simple world-space spheres, so they scale
+// with the roof surface the way a physical survey pin would, never ballooning
+// relative to the roof as the camera moves in. A saved vertex is a fixed dot;
+// an edit-mode handle is the same dot slightly larger since it's the thing
+// you're meant to grab (its actual pointer/touch target is far bigger still —
+// see pickHandleScreen, a pure screen-space test unrelated to this radius).
+const DOT_RADIUS = 0.045;
+const HANDLE_RADIUS = 0.065;
+const MARKER_OUTLINE_SCALE = 1.55;
+const MARKER_OUTLINE_COLOR = 0x0a0f1a; // near-black ring so the dot reads on any roof color
+
 export type SavedMeasurement = {
   id: string;
   kind: ModelMeasurementKind;
@@ -136,6 +150,87 @@ const LABEL_CLASS =
   "pointer-events-none rounded-md border border-hairline bg-ground/85 px-1.5 py-0.5 text-xs font-medium tabular-nums text-instrument-fg shadow";
 
 /**
+ * A precision vertex dot: a tiny core sphere in the tool/facet color, with a
+ * thin dark outline sphere behind it so the center reads clearly against any
+ * roof color (black, white, red, brown, grey, grass). Both spheres share the
+ * marker's position exactly — there is no offset, so the visible center is
+ * always the real measurement coordinate. depthTest is off so the dot never
+ * disappears into the mesh it's sitting on.
+ */
+function makePrecisionDot(color: number, radius: number = DOT_RADIUS): THREE.Group {
+  const group = new THREE.Group();
+  const outline = new THREE.Mesh(
+    new THREE.SphereGeometry(radius * MARKER_OUTLINE_SCALE, 10, 8),
+    new THREE.MeshBasicMaterial({ color: MARKER_OUTLINE_COLOR, depthTest: false })
+  );
+  outline.renderOrder = 998;
+  const core = new THREE.Mesh(new THREE.SphereGeometry(radius, 10, 8), new THREE.MeshBasicMaterial({ color, depthTest: false }));
+  core.renderOrder = 999;
+  group.add(outline, core);
+  return group;
+}
+
+// Cached per-color "+" glyph textures for the active-drawing point marker —
+// built once per color and reused across every redraw instead of allocating a
+// canvas per click. A flat cross needs to face the camera to read as a "+"
+// from any angle, so it's a camera-facing Sprite rather than world-space
+// geometry (the precision dots above don't need this: a sphere already looks
+// the same from every angle).
+const plusTextureCache = new Map<number, THREE.CanvasTexture>();
+function getPlusTexture(color: number): THREE.CanvasTexture {
+  const cached = plusTextureCache.get(color);
+  if (cached) return cached;
+  const size = 64;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  const c = size / 2;
+  const arm = size * 0.34;
+  ctx.lineCap = "round";
+  // Dark outline stroke first for contrast, then the tool-color stroke on top,
+  // thinner — the same outline-then-core idea as the precision dot above.
+  ctx.strokeStyle = "rgba(10, 15, 26, 0.85)";
+  ctx.lineWidth = 9;
+  ctx.beginPath();
+  ctx.moveTo(c - arm, c);
+  ctx.lineTo(c + arm, c);
+  ctx.moveTo(c, c - arm);
+  ctx.lineTo(c, c + arm);
+  ctx.stroke();
+  ctx.strokeStyle = `#${color.toString(16).padStart(6, "0")}`;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(c - arm, c);
+  ctx.lineTo(c + arm, c);
+  ctx.moveTo(c, c - arm);
+  ctx.lineTo(c, c + arm);
+  ctx.stroke();
+  const texture = new THREE.CanvasTexture(canvas);
+  plusTextureCache.set(color, texture);
+  return texture;
+}
+
+/**
+ * The active-drawing point marker: a small camera-facing "+" whose exact
+ * intersection is the point being placed. sizeAttenuation is off so it stays
+ * a small, constant, legible mark on screen rather than ballooning as the
+ * camera moves in close — the roof detail underneath should always win.
+ */
+function makePlusMarker(color: number): THREE.Sprite {
+  const material = new THREE.SpriteMaterial({
+    map: getPlusTexture(color),
+    depthTest: false,
+    sizeAttenuation: false,
+    transparent: true,
+  });
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(0.05, 0.05, 1);
+  sprite.renderOrder = 999;
+  return sprite;
+}
+
+/**
  * Build the on-model graphics for one measurement (fill/outline/dots/label).
  * Shared by the committed render and the live edit-drag so a dragged shape
  * updates identically. Returns the group plus its LineMaterials (need viewport
@@ -166,12 +261,12 @@ function buildMeasurementGraphics(
     group.add(new THREE.Mesh(fill, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false })));
     addOutline([...local, local[0]], 3);
   } else if (m.type === "marker") {
-    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16), new THREE.MeshBasicMaterial({ color }));
+    const dot = makePrecisionDot(color);
     dot.position.copy(local[0]);
     group.add(dot);
   } else if (local.length >= 2) {
     for (const v of [local[0], local[local.length - 1]]) {
-      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 12), new THREE.MeshBasicMaterial({ color }));
+      const dot = makePrecisionDot(color);
       dot.position.copy(v);
       group.add(dot);
     }
@@ -195,6 +290,15 @@ function colorForMeasurement(m: Measurement, areaIndex: number): number {
 function disposeAndClear(group: THREE.Group) {
   group.traverse((o) => {
     if (o instanceof CSS2DObject) o.element.remove();
+    if (o instanceof THREE.Sprite) {
+      // Sprite.geometry is a single shared static instance reused by every
+      // THREE.Sprite in the app — disposing it here would corrupt every other
+      // sprite that gets created afterward. Only the material (unique per
+      // marker) is ours to dispose; its cached "+" texture is deliberately
+      // shared/reused too, so it isn't touched either.
+      o.material.dispose();
+      return;
+    }
     const mesh = o as THREE.Mesh;
     mesh.geometry?.dispose?.();
     const mat = mesh.material;
@@ -310,11 +414,11 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
   // Edit mode: draggable vertex handles + live-drag state.
   const handlesGroupRef = useRef<THREE.Group | null>(null);
   const dragDraftRef = useRef<THREE.Group | null>(null);
-  const handleMeshesRef = useRef<THREE.Mesh[]>([]);
+  const handleMeshesRef = useRef<THREE.Object3D[]>([]);
   const committedMapRef = useRef<Map<string, THREE.Object3D>>(new Map());
   const colorMapRef = useRef<Map<string, number>>(new Map());
   const measurementsRef = useRef<Measurement[]>(measurements);
-  const dragRef = useRef<{ id: string; index: number; handle: THREE.Mesh; point: Pt } | null>(null);
+  const dragRef = useRef<{ id: string; index: number; handle: THREE.Object3D; point: Pt } | null>(null);
 
   // Kept in sync after every commit (not during render) so the Three.js
   // pointer handlers set up once in the mount effect below can read the
@@ -437,12 +541,15 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
     // Grab the nearest edit handle within a finger-friendly screen radius, so a
     // fat-finger tap near a small handle still catches it (and stays easy at any zoom).
     const handleScreenTmp = new THREE.Vector3();
-    const pickHandleScreen = (event: PointerEvent): THREE.Mesh | null => {
+    const pickHandleScreen = (event: PointerEvent): THREE.Object3D | null => {
       const rect = renderer.domElement.getBoundingClientRect();
       const ex = event.clientX - rect.left;
       const ey = event.clientY - rect.top;
-      let bestD = event.pointerType === "touch" ? 44 : 14;
-      let best: THREE.Mesh | null = null;
+      // Independent of the visible marker's tiny on-screen size — this is a
+      // screen-space proximity test, not a raycast against the mesh, so the
+      // grab target stays comfortably large even though the dot itself is small.
+      let bestD = event.pointerType === "touch" ? 44 : 22;
+      let best: THREE.Object3D | null = null;
       for (const h of handleMeshesRef.current) {
         h.getWorldPosition(handleScreenTmp).project(camera);
         if (handleScreenTmp.z > 1) continue; // behind the camera
@@ -502,9 +609,9 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
       // Points are stored in group-local metres and draft is a child of group.
       const local = draftPtsRef.current.map((p) => new THREE.Vector3(...p));
       for (const v of local) {
-        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.4, 12, 12), new THREE.MeshBasicMaterial({ color }));
-        dot.position.copy(v);
-        d.add(dot);
+        const plus = makePlusMarker(color);
+        plus.position.copy(v);
+        d.add(plus);
       }
       if (local.length >= 2) {
         // The detect ROI draws as a closed box; measurements draw open while drafting.
@@ -840,15 +947,17 @@ export function MeasureViewer({ glbUrl, jobId, modelImageryId, initialMeasuremen
     if (tool !== "edit" || loadState !== "ready") return;
     for (const m of measurements) {
       m.points.forEach((p, index) => {
-        const mesh = new THREE.Mesh(
-          new THREE.SphereGeometry(0.7, 16, 16),
-          new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false })
-        );
-        mesh.position.set(p[0], p[1], p[2]);
-        mesh.renderOrder = 999; // always grabbable, even behind the roof
-        mesh.userData = { id: m.id, index };
-        handles.add(mesh);
-        handleMeshesRef.current.push(mesh);
+        // Same small precision dot as a saved vertex, just slightly larger
+        // since this is the thing you're meant to grab — the actual grab
+        // target is the much bigger screen-space radius in pickHandleScreen,
+        // not this mesh's size.
+        // depthTest is already off inside makePrecisionDot, so this stays
+        // grabbable even when it sits behind the roof from the current angle.
+        const handle = makePrecisionDot(0xffffff, HANDLE_RADIUS);
+        handle.position.set(p[0], p[1], p[2]);
+        handle.userData = { id: m.id, index };
+        handles.add(handle);
+        handleMeshesRef.current.push(handle);
       });
     }
     return () => {
