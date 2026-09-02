@@ -1,13 +1,16 @@
 import { PhotoAsset, RoofIssue } from "@prisma/client";
-import { createRoofIssueAction } from "@/app/(dashboard)/projects/[projectId]/issue-actions";
+import { createRoofIssueAction } from "@/app/(dashboard)/jobs/[jobId]/issue-actions";
 import {
+  deleteInspectionPhotoAction,
   updateInspectionPhotoAction,
   uploadInspectionPhotoAction,
-} from "@/app/(dashboard)/projects/[projectId]/photo-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/photo-actions";
+import { DeletableItem } from "@/components/dashboard/deletable-item";
+import { InspectionPhotoInput } from "@/components/dashboard/inspection-photo-input";
 import { PhotoAnnotationStudio } from "@/components/dashboard/photo-annotation-studio";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   issues: RoofIssue[];
   photos: PhotoAsset[];
 };
@@ -25,82 +28,63 @@ function issueTone(severity: string) {
   switch (severity) {
     case "CRITICAL":
     case "HIGH":
-      return "border-rose-400/25 bg-rose-500/10 text-rose-200";
+      return "border-danger/25 bg-danger/10 text-danger-fg";
     case "MEDIUM":
-      return "border-amber-400/25 bg-amber-500/10 text-amber-200";
+      return "border-caution/25 bg-caution/10 text-caution-fg";
     default:
-      return "border-sky-accent/25 bg-sky-500/10 text-sky-200";
+      return "border-info/25 bg-info/10 text-info-fg";
   }
 }
 
-export function InspectionWorkflow({ projectId, issues, photos }: Props) {
+export function InspectionWorkflow({ jobId, issues, photos }: Props) {
+  const urgentCount = issues.filter((issue) =>
+    ["HIGH", "CRITICAL"].includes(issue.severity)
+  ).length;
+
+  const tally = [
+    `${photos.length} photo${photos.length === 1 ? "" : "s"}`,
+    `${issues.length} issue${issues.length === 1 ? "" : "s"}`,
+    urgentCount > 0 ? `${urgentCount} urgent` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <section className="space-y-6">
-      <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-              Inspection
-            </p>
-            <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
-              Photo evidence, annotations, and issue tracking
-            </h3>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
-              Upload site photos, group them by slope or location, mark damage with circles, arrows, and labels,
-              then generate homeowner-friendly report evidence.
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3">
-              <p className="text-lg font-semibold text-ink-primary">{photos.length}</p>
-              <p className="text-xs text-ink-muted">Photos</p>
-            </div>
-            <div className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3">
-              <p className="text-lg font-semibold text-ink-primary">{issues.length}</p>
-              <p className="text-xs text-ink-muted">Issues</p>
-            </div>
-            <div className="rounded-2xl border border-hairline bg-ground/50 px-4 py-3">
-              <p className="text-lg font-semibold text-ink-primary">
-                {issues.filter((issue) => ["HIGH", "CRITICAL"].includes(issue.severity)).length}
-              </p>
-              <p className="text-xs text-ink-muted">Urgent</p>
-            </div>
-          </div>
-        </div>
+      <div className="rounded-lg border border-hairline bg-surface-raised p-6">
+        <h3 className="text-2xl font-semibold text-ink-primary">
+          Photo evidence, annotations, and issue tracking
+        </h3>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
+          Upload site photos, group them by slope or location, mark damage with circles, arrows, and labels,
+          then generate homeowner-friendly report evidence.
+        </p>
+        {/* Said the way a roofer would say it, rather than as three identical
+            tiles. A count you only read is a phrase, not a card — the same shape
+            the dashboard opens with. Urgent is dropped when it's zero: "0 urgent"
+            invents a worry the job doesn't have. */}
+        <p className="mt-3 text-sm text-ink-secondary">{tally}</p>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-            Photo Upload
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
+          <h3 className="text-2xl font-semibold text-ink-primary">
             Add site photos
           </h3>
 
           <form action={uploadInspectionPhotoAction} className="mt-6 space-y-4">
-            <input type="hidden" name="projectId" value={projectId} />
-            <input
-              name="photo"
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="block w-full rounded-2xl border border-dashed border-white/15 bg-ground/50 px-4 py-5 text-sm text-ink-secondary file:mr-4 file:rounded-xl file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink-primary"
-              required
-            />
-            <p className="text-xs text-ink-muted">
-              On phones and tablets this opens the camera directly for on-roof capture.
-            </p>
+            <input type="hidden" name="jobId" value={jobId} />
+            <InspectionPhotoInput />
             <div className="grid gap-4 md:grid-cols-2">
               <input
                 name="locationTag"
                 placeholder="Slope, section, or location"
-                className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
+                className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
               />
               <select
                 name="roofIssueId"
                 defaultValue=""
-                className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400"
+                className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
               >
                 <option value="">No linked issue yet</option>
                 {issues.map((issue) => (
@@ -114,22 +98,19 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               name="caption"
               rows={3}
               placeholder="Caption for report evidence"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
+              className="w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
             />
             <button
               type="submit"
-              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
+              className="rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
             >
-              Upload Photo
+              Upload photo
             </button>
           </form>
         </div>
 
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
-            Roof Issue Management
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold text-ink-primary">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
+          <h3 className="text-2xl font-semibold text-ink-primary">
             Record structured inspection issues
           </h3>
 
@@ -140,12 +121,12 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
             <div className="flex flex-wrap gap-2">
               {issueTypes.slice(0, 4).map((issueType) => (
                 <form key={issueType} action={createRoofIssueAction}>
-                  <input type="hidden" name="projectId" value={projectId} />
+                  <input type="hidden" name="jobId" value={jobId} />
                   <input type="hidden" name="title" value={issueType} />
                   <input type="hidden" name="severity" value="MEDIUM" />
                   <button
                     type="submit"
-                    className="rounded-full border border-hairline bg-ground/50 px-3 py-1.5 text-xs font-medium text-ink-strong transition hover:border-blue-400/40 hover:bg-signal-blue/10 hover:text-blue-200"
+                    className="rounded-full border border-hairline bg-ground/50 px-3 py-1.5 text-xs font-medium text-ink-strong transition hover:bg-surface-lifted hover:text-ink-primary"
                   >
                     + {issueType}
                   </button>
@@ -155,11 +136,11 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
           </div>
 
           <form action={createRoofIssueAction} className="mt-4 space-y-4">
-            <input type="hidden" name="projectId" value={projectId} />
+            <input type="hidden" name="jobId" value={jobId} />
             <select
               name="title"
               defaultValue="Missing shingles"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400"
+              className="w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
             >
               {issueTypes.map((issueType) => (
                 <option key={issueType} value={issueType}>
@@ -171,7 +152,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               <select
                 name="severity"
                 defaultValue="MEDIUM"
-                className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400"
+                className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -181,46 +162,46 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
               <input
                 name="locationLabel"
                 placeholder="Rear slope near ridge"
-                className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
+                className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
               />
             </div>
             <input
               name="photoTag"
               placeholder="Photo tag, slope, or section"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
+              className="w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
             />
             <textarea
               name="recommendedAction"
               rows={3}
               placeholder="Recommended action"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
+              className="w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
             />
             <textarea
               name="urgency"
               rows={2}
               placeholder="Urgency explanation"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
+              className="w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
             />
             <textarea
               name="caption"
               rows={3}
               placeholder="Homeowner-friendly caption or claim support note"
-              className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
+              className="w-full rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
             />
             <button
               type="submit"
-              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
+              className="rounded-lg border border-hairline bg-surface-raised px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
             >
-              Add Issue
+              Add issue
             </button>
           </form>
         </div>
       </div>
 
-      <PhotoAnnotationStudio projectId={projectId} photos={photos} />
+      <PhotoAnnotationStudio jobId={jobId} photos={photos} />
 
       <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
@@ -237,19 +218,29 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {photos.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-hairline p-6 text-sm text-ink-muted md:col-span-2">
+              <div className="rounded-lg border border-dashed border-hairline p-6 text-sm text-ink-muted md:col-span-2">
                 Uploaded photos will appear here with captions, locations, and linked issue records.
               </div>
             ) : (
               photos.map((photo) => (
-                <form
+                /* The card is itself the update form, so the delete wraps it
+                   rather than sitting inside — a second submit control in the
+                   same form would race the save. */
+                <DeletableItem
                   key={photo.id}
-                  action={updateInspectionPhotoAction}
-                  className="rounded-2xl border border-hairline bg-ground/50 p-3"
+                  jobId={jobId}
+                  itemId={photo.id}
+                  idField="photoId"
+                  label="Photo"
+                  deleteAction={deleteInspectionPhotoAction}
                 >
-                  <input type="hidden" name="projectId" value={projectId} />
+                <form
+                  action={updateInspectionPhotoAction}
+                  className="rounded-lg border border-hairline bg-ground/50 p-3"
+                >
+                  <input type="hidden" name="jobId" value={jobId} />
                   <input type="hidden" name="photoId" value={photo.id} />
-                  <div className="aspect-video overflow-hidden rounded-xl bg-ground">
+                  <div className="aspect-video overflow-hidden rounded-lg bg-ground">
                     <img
                       src={photo.url}
                       alt={photo.caption || photo.locationTag || photo.fileName || "Inspection photo"}
@@ -262,12 +253,12 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                     name="locationTag"
                     defaultValue={photo.locationTag ?? ""}
                     placeholder="Location tag"
-                    className="mt-3 w-full rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
+                    className="mt-3 w-full rounded-md border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
                   />
                   <select
                     name="roofIssueId"
                     defaultValue={photo.roofIssueId ?? ""}
-                    className="mt-2 w-full rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none focus:border-blue-400"
+                    className="mt-2 w-full rounded-md border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none focus:border-signal-blue"
                   >
                     <option value="">No linked issue</option>
                     {issues.map((issue) => (
@@ -281,21 +272,22 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                     rows={3}
                     defaultValue={photo.caption ?? ""}
                     placeholder="Caption"
-                    className="mt-2 w-full rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400"
+                    className="mt-2 w-full rounded-md border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue"
                   />
                   <button
                     type="submit"
-                    className="mt-3 rounded-xl border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-strong transition hover:bg-surface-lifted"
+                    className="mt-3 rounded-lg border border-hairline bg-surface-raised px-3 py-2 text-sm text-ink-strong transition hover:bg-surface-lifted"
                   >
-                    Save Photo Details
+                    Save photo details
                   </button>
                 </form>
+                </DeletableItem>
               ))
             )}
           </div>
         </div>
 
-        <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+        <div className="rounded-lg border border-hairline bg-surface-raised p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-sm uppercase tracking-[0.18em] text-ink-muted">
@@ -312,14 +304,14 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
 
           <div className="mt-6 space-y-3">
             {issues.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-hairline p-6 text-sm text-ink-muted">
+              <div className="rounded-lg border border-dashed border-hairline p-6 text-sm text-ink-muted">
                 Add missing shingles, flashing damage, water damage, ventilation issues, soft spots, or repair notes.
               </div>
             ) : (
               issues.map((issue) => {
                 const linkedPhotos = photos.filter((photo) => photo.roofIssueId === issue.id);
                 return (
-                  <div key={issue.id} className="rounded-2xl border border-hairline bg-ground/50 p-4">
+                  <div key={issue.id} className="rounded-lg border border-hairline bg-ground/50 p-4">
                     <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                       <div>
                         <p className="font-medium text-ink-primary">{issue.title}</p>
@@ -339,7 +331,7 @@ export function InspectionWorkflow({ projectId, issues, photos }: Props) {
                     {linkedPhotos.length ? (
                       <div className="mt-4 flex flex-wrap gap-2">
                         {linkedPhotos.map((photo) => (
-                          <span key={photo.id} className="rounded-full bg-signal-blue/10 px-3 py-1 text-xs text-blue-200">
+                          <span key={photo.id} className="rounded-full bg-surface-lifted px-3 py-1 text-xs text-ink-secondary">
                             Linked photo: {photo.locationTag ?? photo.fileName ?? "Evidence"}
                           </span>
                         ))}

@@ -4,17 +4,17 @@ import { useState, useTransition } from "react";
 import {
   previewPhotogrammetryModelAction,
   processPhotogrammetryModelAction,
-} from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/phase-six-actions";
 import { SubmitButton } from "@/components/dashboard/submit-button";
 import type { ProcessingReadiness } from "@/lib/reconstruction";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   sourceImageCount: number;
   workerConfigured: boolean;
 };
 
-export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigured }: Props) {
+export function ProcessingLauncher({ jobId, sourceImageCount, workerConfigured }: Props) {
   const [readiness, setReadiness] = useState<ProcessingReadiness | null>(null);
   const [previewError, setPreviewError] = useState("");
   const [isPreviewing, startPreview] = useTransition();
@@ -23,7 +23,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
     setPreviewError("");
     startPreview(async () => {
       try {
-        setReadiness(await previewPhotogrammetryModelAction(projectId));
+        setReadiness(await previewPhotogrammetryModelAction(jobId));
       } catch (error) {
         setPreviewError(error instanceof Error ? error.message : "Preview failed");
       }
@@ -35,19 +35,19 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
   const blockSubmit = workerConfigured && readiness !== null && !readiness.ready;
 
   return (
-    <div className="mt-5 rounded-2xl border border-instrument-bright/15 bg-instrument-bright/5 p-4">
+    <div className="mt-5 rounded-lg border border-hairline bg-surface-lifted p-4">
       <form action={processPhotogrammetryModelAction}>
-        <input type="hidden" name="projectId" value={projectId} />
+        <input type="hidden" name="jobId" value={jobId} />
         <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
           <input
             name="label"
             defaultValue="Roof 3D model"
-            className="rounded-xl border border-hairline bg-ground/60 px-4 py-3 text-ink-primary outline-none focus:border-instrument-bright"
+            className="rounded-md border border-hairline bg-ground/60 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
           />
           <select
             name="quality"
             defaultValue="standard"
-            className="rounded-xl border border-hairline bg-ground/60 px-4 py-3 text-ink-primary outline-none focus:border-instrument-bright"
+            className="rounded-md border border-hairline bg-ground/60 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
           >
             <option value="standard">Standard quality</option>
             <option value="high">High quality (slower)</option>
@@ -62,7 +62,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
               type="button"
               onClick={runPreview}
               disabled={isPreviewing}
-              className="rounded-xl border border-instrument-bright/30 bg-instrument-bright/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-instrument-bright/20 disabled:opacity-50"
+              className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-50"
             >
               {isPreviewing ? "Checking…" : "Check my photos (free)"}
             </button>
@@ -70,7 +70,7 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
               disabled={blockSubmit}
               title={blockSubmit ? readiness?.blockingReason ?? undefined : undefined}
               pendingText="Starting…"
-              className="rounded-xl bg-instrument-deep px-4 py-2 text-sm font-medium text-ground transition hover:bg-instrument disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-md bg-action px-4 py-2 text-sm font-medium text-on-action transition hover:bg-action-active disabled:cursor-not-allowed disabled:opacity-50"
             >
               {workerConfigured ? "Build 3D model" : "Build preview model"}
             </SubmitButton>
@@ -79,17 +79,17 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
       </form>
 
       {previewError ? (
-        <p className="mt-3 rounded-xl border border-rose-300/20 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+        <p className="mt-3 rounded-lg border border-danger/25 bg-danger/10 px-3 py-2 text-xs text-danger-fg">
           {previewError}
         </p>
       ) : null}
 
       {readiness ? (
         <div
-          className={`mt-3 rounded-2xl border p-3 ${
+          className={`mt-3 rounded-lg border p-3 ${
             readiness.ready
-              ? "border-emerald-300/25 bg-emerald-400/10"
-              : "border-amber-300/25 bg-amber-400/10"
+              ? "border-confirm/25 bg-confirm/10"
+              : "border-caution/25 bg-caution/10"
           }`}
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -101,9 +101,9 @@ export function ProcessingLauncher({ projectId, sourceImageCount, workerConfigur
             </span>
           </div>
           {readiness.blockingReason ? (
-            <p className="mt-2 text-xs leading-5 text-amber-100">{readiness.blockingReason}</p>
+            <p className="mt-2 text-xs leading-5 text-caution-fg">{readiness.blockingReason}</p>
           ) : (
-            <p className="mt-2 text-xs leading-5 text-emerald-100">
+            <p className="mt-2 text-xs leading-5 text-confirm-fg">
               Your photos look good. Click &quot;Build 3D model&quot; when you&apos;re ready — that&apos;s the step that starts the build.
             </p>
           )}

@@ -129,16 +129,16 @@ export function isNodeOdmConfigured() {
   return Boolean(getNodeOdmBaseUrl());
 }
 
-export function nodeOdmDownloadUrl(projectId: string, imageryId: string, asset: NodeOdmAssetKey | string = "all") {
+export function nodeOdmDownloadUrl(jobId: string, imageryId: string, asset: NodeOdmAssetKey | string = "all") {
   const params = new URLSearchParams({ asset });
-  return `/api/projects/${projectId}/processing/${imageryId}/download?${params.toString()}`;
+  return `/api/jobs/${jobId}/processing/${imageryId}/download?${params.toString()}`;
 }
 
-export function nodeOdmAssetUrls(projectId: string, imageryId: string) {
+export function nodeOdmAssetUrls(jobId: string, imageryId: string) {
   return Object.fromEntries(
     Object.keys(outputAssets).map((asset) => [
       asset,
-      nodeOdmDownloadUrl(projectId, imageryId, asset),
+      nodeOdmDownloadUrl(jobId, imageryId, asset),
     ])
   ) as Record<NodeOdmAssetKey, string>;
 }
@@ -256,6 +256,19 @@ export async function getNodeOdmTaskInfo(uuid: string) {
   return payload;
 }
 
+/**
+ * Detects the permanent "the remote task no longer exists" condition raised by
+ * `getNodeOdmTaskInfo`. WebODM Lightning purges a task's temp storage ~10 days
+ * after completion; once purged, `/task/<uuid>/info` responds with an error like
+ * `Invalid route for taskId <uuid>:info, no task table entry.` This is terminal —
+ * polling can never recover — and must be distinguished from transient failures
+ * (network drops, 5xx, unconfigured URL) which should NOT mark a job dead.
+ */
+export function isNodeOdmTaskMissingError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
+  return /no task table entry/i.test(message) || /invalid route for task/i.test(message);
+}
+
 export async function downloadNodeOdmAsset(uuid: string, asset: NodeOdmAssetKey | string = "all") {
   const baseUrl = getNodeOdmBaseUrl();
   if (!baseUrl) throw new Error("NODEODM_URL is not configured");
@@ -301,10 +314,3 @@ export function nodeOdmStatusToProcessingStatus(code: NodeOdmTaskInfo["status"][
 }
 
 export const nodeOdmOutputAssets = outputAssets;
-
-export const isNodeOdxConfigured = isNodeOdmConfigured;
-export const nodeOdxDownloadUrl = nodeOdmDownloadUrl;
-export const createNodeOdxTask = createNodeOdmTask;
-export const getNodeOdxTaskInfo = getNodeOdmTaskInfo;
-export const downloadNodeOdxArchive = downloadNodeOdmAsset;
-export const nodeOdxStatusToProcessingStatus = nodeOdmStatusToProcessingStatus;

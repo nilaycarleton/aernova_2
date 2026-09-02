@@ -4,11 +4,11 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   activeJobs: number;
 };
 
-export function ProcessingJobPoller({ projectId, activeJobs }: Props) {
+export function ProcessingJobPoller({ jobId, activeJobs }: Props) {
   const router = useRouter();
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export function ProcessingJobPoller({ projectId, activeJobs }: Props) {
     let cancelled = false;
     const sync = async () => {
       try {
-        const response = await fetch(`/api/projects/${projectId}/processing/sync`, {
+        const response = await fetch(`/api/jobs/${jobId}/processing/sync`, {
           method: "POST",
         });
         if (!cancelled && response.ok) router.refresh();
@@ -32,7 +32,7 @@ export function ProcessingJobPoller({ projectId, activeJobs }: Props) {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [activeJobs, projectId, router]);
+  }, [activeJobs, jobId, router]);
 
   return null;
 }

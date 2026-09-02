@@ -19,7 +19,7 @@ export default function DashboardError({
   }, [error]);
 
   return (
-    <div className="mx-auto max-w-xl rounded-3xl border border-hairline bg-surface-raised p-8 text-center">
+    <div className="mx-auto max-w-xl rounded-lg border border-hairline bg-surface-raised p-8 text-center">
       <h2 className="text-xl font-semibold text-ink-primary">Something went wrong</h2>
       <p className="mt-3 text-sm text-ink-muted">
         {error.message || "An unexpected error occurred. Please try again."}
@@ -31,13 +31,13 @@ export default function DashboardError({
         <button
           type="button"
           onClick={reset}
-          className="rounded-xl border border-hairline bg-sky-500/20 px-4 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-500/30"
+          className="rounded-lg border border-hairline bg-info/20 px-4 py-2 text-sm font-medium text-info-fg transition hover:bg-info/30"
         >
           Try again
         </button>
         <a
           href="/dashboard"
-          className="rounded-xl border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
+          className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted"
         >
           Back to dashboard
         </a>

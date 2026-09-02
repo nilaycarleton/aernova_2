@@ -3,7 +3,20 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-export function ImageryUploadForm({ projectId }: { projectId: string }) {
+// Some OS file pickers don't map .tif/.tiff to an "image/*" MIME type, so the
+// dropzone filter also checks the extension. This is only a UI hint — the
+// upload action re-checks the real file bytes before trusting anything.
+function isTiffFile(file: File) {
+  return file.type === "image/tiff" || /\.tiff?$/i.test(file.name);
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export function ImageryUploadForm({ jobId }: { jobId: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -21,7 +34,9 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
   function handleDrop(event: React.DragEvent<HTMLLabelElement>) {
     event.preventDefault();
     setIsDragActive(false);
-    const droppedFiles = Array.from(event.dataTransfer.files).filter((file) => file.type.startsWith("image/"));
+    const droppedFiles = Array.from(event.dataTransfer.files).filter(
+      (file) => file.type.startsWith("image/") || isTiffFile(file)
+    );
     if (!fileInputRef.current || droppedFiles.length === 0) return;
 
     const dataTransfer = new DataTransfer();
@@ -37,7 +52,7 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
     setIsUploading(true);
 
     const formData = new FormData(event.currentTarget);
-    const response = await fetch(`/api/projects/${projectId}/imagery`, {
+    const response = await fetch(`/api/jobs/${jobId}/imagery`, {
       method: "POST",
       body: formData,
     });
@@ -63,7 +78,7 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
   }
 
   return (
-    <form ref={formRef} onSubmit={submitUpload} className="mt-6 rounded-2xl border border-hairline bg-ground/35 p-3">
+    <form ref={formRef} onSubmit={submitUpload} className="mt-6 rounded-lg border border-hairline bg-ground/35 p-3">
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_420px]">
         <label
           onDragOver={(event) => {
@@ -72,17 +87,17 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
           }}
           onDragLeave={() => setIsDragActive(false)}
           onDrop={handleDrop}
-          className={`flex min-h-32 cursor-pointer flex-col justify-center rounded-2xl border border-dashed p-4 transition ${
+          className={`flex min-h-32 cursor-pointer flex-col justify-center rounded-lg border border-dashed p-4 transition ${
             isDragActive
               ? "border-instrument-bright/70 bg-instrument-bright/10"
-              : "border-white/15 bg-ground/45 hover:border-instrument-bright/35 hover:bg-ground/65"
+              : "border-hairline bg-ground/45 hover:border-instrument-bright/35 hover:bg-ground/65"
           }`}
         >
           <input
             ref={fileInputRef}
             name="images"
             type="file"
-            accept="image/*"
+            accept="image/*,.tif,.tiff"
             multiple
             className="sr-only"
             onChange={(event) => updateSelectedFiles(event.currentTarget.files)}
@@ -97,29 +112,37 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
           <span className="mt-1 max-w-xl text-sm leading-6 text-ink-muted">
             Add all the photos from your drone flight at once. The details on the right apply to every photo you select.
           </span>
-          <span className="mt-3 inline-flex w-fit rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue">
+          <span className="mt-3 inline-flex w-fit rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted">
             Choose files
           </span>
           {selectedFiles.length > 0 ? (
-            <span className="mt-3 max-w-full truncate text-xs text-cyan-100">
-              {selectedFiles.slice(0, 3).map((file) => file.name).join(", ")}
-              {selectedFiles.length > 3 ? `, +${selectedFiles.length - 3} more` : ""}
-            </span>
+            <>
+              <span className="mt-3 max-w-full truncate text-xs text-ink-secondary">
+                {selectedFiles.slice(0, 3).map((file) => file.name).join(", ")}
+                {selectedFiles.length > 3 ? `, +${selectedFiles.length - 3} more` : ""}
+              </span>
+              <span className="mt-1 text-xs text-ink-muted">
+                {formatBytes(selectedFiles.reduce((sum, file) => sum + file.size, 0))} total
+                {selectedFiles.some(isTiffFile)
+                  ? ` · ${selectedFiles.filter(isTiffFile).length} GeoTIFF, ${selectedFiles.filter((f) => !isTiffFile(f)).length} JPEG/other`
+                  : ""}
+              </span>
+            </>
           ) : null}
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <select name="type" defaultValue="DRONE" aria-label="Photo type" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400">
+          <select name="type" defaultValue="DRONE" aria-label="Photo type" className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue">
           <option value="DRONE">Drone photo</option>
           <option value="ORTHOMOSAIC">Top-down map</option>
           <option value="MODEL">3D model</option>
           <option value="BEFORE">Before photo</option>
           <option value="AFTER">After photo</option>
           </select>
-          <input name="altitudeFt" type="number" step="0.01" placeholder="Flight height (ft) — optional" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400" />
-          <input name="captureDate" type="date" aria-label="Date taken" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400" />
-          <input name="captureTime" type="time" aria-label="Time taken" className="rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-blue-400" />
-          <textarea name="notes" rows={2} placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-blue-400 sm:col-span-2" />
+          <input name="altitudeFt" type="number" step="0.01" aria-label="Flight height, feet" placeholder="Flight height (ft) — optional" className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue" />
+          <input name="captureDate" type="date" aria-label="Date taken" className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue" />
+          <input name="captureTime" type="time" aria-label="Time taken" className="rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue" />
+          <textarea name="notes" rows={2} aria-label="Photo note" placeholder="Optional note (e.g. front of house)" className="w-full resize-none rounded-md border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none placeholder:text-ink-muted focus:border-signal-blue sm:col-span-2" />
         </div>
       </div>
 
@@ -130,13 +153,17 @@ export function ImageryUploadForm({ projectId }: { projectId: string }) {
         <button
           type="submit"
           disabled={isUploading || isPending}
-          className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-medium text-ink-primary transition hover:bg-signal-blue disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-lg bg-action px-5 py-3 text-sm font-semibold text-on-action transition hover:bg-action-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isUploading ? "Uploading..." : isPending ? "Refreshing..." : "Upload photos"}
+          {isUploading ? "Uploading…" : isPending ? "Refreshing…" : "Upload photos"}
         </button>
       </div>
-      {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
-      {success ? <p className="mt-3 text-sm text-emerald-300">{success}</p> : null}
+      <p role="alert" className="mt-3 text-sm text-danger-fg empty:mt-0">
+        {error}
+      </p>
+      <p aria-live="polite" className="mt-3 text-sm text-confirm-fg empty:mt-0">
+        {success}
+      </p>
     </form>
   );
 }

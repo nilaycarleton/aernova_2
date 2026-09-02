@@ -9,12 +9,12 @@
  */
 
 const FIELD_BASE =
-  "w-full rounded-xl border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted";
+  "w-full rounded-lg border bg-ground/50 px-4 py-3 text-ink-primary outline-none transition placeholder:text-ink-muted";
 
 /** Field classes with an error-aware border. Pass the field's error, if any. */
 export function fieldClass(error?: string, extra = "") {
   const border = error
-    ? "border-rose-400 focus:border-rose-300"
+    ? "border-danger focus:border-danger"
     : "border-hairline focus:border-signal-blue";
   return `${FIELD_BASE} ${border} ${extra}`.trim();
 }
@@ -30,24 +30,25 @@ export function errorAttrs(fieldId: string, error?: string) {
 export function FieldError({ fieldId, message }: { fieldId: string; message?: string }) {
   if (!message) return null;
   return (
-    <p id={`${fieldId}-error`} className="mt-2 text-xs text-rose-200">
+    <p id={`${fieldId}-error`} className="mt-2 text-xs text-danger-fg">
       {message}
     </p>
   );
 }
 
-/** The reassurance banner: names the count and promises nothing was lost. */
-export function FormErrorSummary({ count, noun = "job" }: { count: number; noun?: string }) {
-  if (count < 1) return null;
+/**
+ * A form-level error banner for a failed save (network/server), as opposed to
+ * field validation. It names the problem and promises the typing survived, so
+ * the roofer can just try again — the same contract as returned field errors.
+ */
+export function FormError({ message }: { message?: string }) {
+  if (!message) return null;
   return (
     <div
       role="alert"
-      className="mb-6 rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"
+      className="mb-4 rounded-lg border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg"
     >
-      {count === 1
-        ? `One thing needs fixing before we can save this ${noun}.`
-        : `${count} things need fixing before we can save this ${noun}.`}{" "}
-      Nothing you typed has been lost.
+      {message} Nothing you typed has been lost.
     </div>
   );
 }

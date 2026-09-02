@@ -1,10 +1,17 @@
 "use client";
 
+import {
+  enumLabel,
+  imageryTypeLabel,
+  processingStatusLabel,
+} from "@/lib/format";
+import { formatMoney } from "@/lib/money";
+
 type ReportVm = {
   cover: {
     title: string;
     subtitle: string;
-    projectName: string;
+    jobName: string;
     clientName: string;
     address: string;
     captureSource: string;
@@ -22,7 +29,11 @@ type ReportVm = {
     wasteDisplay: string;
   };
   pricingSummary: {
-    totalAmount: number | null;
+    /** Cents — the authoritative stored total. See lib/money.ts. */
+    totalAmountCents: number | null;
+    // The breakdown below is still dollars: it is read out of the quote's
+    // scopeOfWork JSON, which report-generator writes in dollars. Both move to
+    // cents when line items become real rows.
     materialCost: number | null;
     laborCost: number | null;
     accessoryCost: number | null;
@@ -143,19 +154,19 @@ export function PrintReport({ report }: { report: ReportVm }) {
         }
       `}</style>
 
-      <div className="print-hide flex items-center justify-between rounded-2xl border border-paper-rule bg-paper-document p-6">
-        <h1 className="text-lg font-semibold text-paper-ink">
+      <div className="print-hide flex items-center justify-between rounded-lg border border-paper-rule bg-paper-document p-6">
+        <p className="text-lg font-semibold text-paper-ink">
           Printable Report Preview
-        </h1>
+        </p>
         <button
           onClick={() => window.print()}
-          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+          className="rounded-lg bg-paper-ink px-4 py-2 text-sm font-medium text-paper-document transition hover:bg-paper-ink-body"
         >
           Print / Save as PDF
         </button>
       </div>
 
-      <section className="rounded-3xl border border-paper-rule p-8">
+      <section className="rounded-lg border border-paper-rule p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div>
             <div className="text-sm font-semibold uppercase tracking-[0.25em] text-paper-ink-faint">
@@ -169,51 +180,51 @@ export function PrintReport({ report }: { report: ReportVm }) {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-paper-rule bg-paper-inset p-5 text-sm">
-            <div><span className="font-semibold">Project:</span> {report.cover.projectName}</div>
+          <div className="rounded-lg border border-paper-rule bg-paper-inset p-5 text-sm">
+            <div><span className="font-semibold">Job:</span> {report.cover.jobName}</div>
             <div className="mt-2"><span className="font-semibold">Client:</span> {report.cover.clientName}</div>
             <div className="mt-2"><span className="font-semibold">Address:</span> {report.cover.address}</div>
             <div className="mt-2"><span className="font-semibold">Capture Source:</span> {report.cover.captureSource}</div>
-            <div className="mt-2"><span className="font-semibold">Status:</span> {report.cover.status.replaceAll("_", " ")}</div>
+            <div className="mt-2"><span className="font-semibold">Status:</span> {enumLabel(report.cover.status)}</div>
           </div>
         </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border border-paper-rule p-5">
+        <div className="rounded-lg border border-paper-rule p-5">
           <div className="text-xs uppercase tracking-[0.18em] text-paper-ink-faint">Total Roof Area</div>
           <div className="mt-2 text-2xl font-semibold">{report.measurementsSummary.totalAreaDisplay}</div>
         </div>
-        <div className="rounded-2xl border border-paper-rule p-5">
+        <div className="rounded-lg border border-paper-rule p-5">
           <div className="text-xs uppercase tracking-[0.18em] text-paper-ink-faint">Predominant Pitch</div>
           <div className="mt-2 text-2xl font-semibold">{report.measurementsSummary.predominantPitch}</div>
         </div>
-        <div className="rounded-2xl border border-paper-rule p-5">
+        <div className="rounded-lg border border-paper-rule p-5">
           <div className="text-xs uppercase tracking-[0.18em] text-paper-ink-faint">Ridges + Hips</div>
           <div className="mt-2 text-2xl font-semibold">{report.measurementsSummary.ridgesHipsFt.toLocaleString()} ft</div>
         </div>
-        <div className="rounded-2xl border border-paper-rule p-5">
+        <div className="rounded-lg border border-paper-rule p-5">
           <div className="text-xs uppercase tracking-[0.18em] text-paper-ink-faint">Suggested Waste</div>
           <div className="mt-2 text-2xl font-semibold">{report.measurementsSummary.wasteDisplay}</div>
         </div>
       </section>
 
-      <section className="rounded-3xl border border-paper-rule p-6">
+      <section className="rounded-lg border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Measurement Summary</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div className="rounded-2xl bg-paper-inset p-4">Valleys: {report.measurementsSummary.valleysFt.toLocaleString()} ft</div>
-          <div className="rounded-2xl bg-paper-inset p-4">Rakes: {report.measurementsSummary.rakesFt.toLocaleString()} ft</div>
-          <div className="rounded-2xl bg-paper-inset p-4">Eaves / Starter: {report.measurementsSummary.eavesFt.toLocaleString()} ft</div>
-          <div className="rounded-2xl bg-paper-inset p-4">Drip Edge: {report.measurementsSummary.dripEdgeFt.toLocaleString()} ft</div>
-          <div className="rounded-2xl bg-paper-inset p-4">Roof faces: {report.measurementsSummary.totalFacets ?? "—"}</div>
-          <div className="rounded-2xl bg-paper-inset p-4">Report type: Roof measurement summary</div>
+          <div className="rounded-lg bg-paper-inset p-4">Valleys: {report.measurementsSummary.valleysFt.toLocaleString()} ft</div>
+          <div className="rounded-lg bg-paper-inset p-4">Rakes: {report.measurementsSummary.rakesFt.toLocaleString()} ft</div>
+          <div className="rounded-lg bg-paper-inset p-4">Eaves / Starter: {report.measurementsSummary.eavesFt.toLocaleString()} ft</div>
+          <div className="rounded-lg bg-paper-inset p-4">Drip Edge: {report.measurementsSummary.dripEdgeFt.toLocaleString()} ft</div>
+          <div className="rounded-lg bg-paper-inset p-4">Roof faces: {report.measurementsSummary.totalFacets ?? "—"}</div>
+          <div className="rounded-lg bg-paper-inset p-4">Report type: Roof measurement summary</div>
         </div>
       </section>
 
-      <section className="rounded-3xl border border-paper-rule p-6">
+      <section className="rounded-lg border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Areas by Pitch & Waste Guidance</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl bg-paper-inset p-4">
+          <div className="rounded-lg bg-paper-inset p-4">
             <div className="text-sm font-semibold text-paper-ink-body">Pitch breakdown</div>
             <div className="mt-3 space-y-2">
               {report.pitchBreakdown.length === 0 ? (
@@ -228,7 +239,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
               )}
             </div>
           </div>
-          <div className="rounded-2xl bg-paper-inset p-4">
+          <div className="rounded-lg bg-paper-inset p-4">
             <div className="text-sm font-semibold text-paper-ink-body">Waste recommendation</div>
             <p className="mt-3 text-sm leading-6 text-paper-ink-body">
               Complexity: {report.wasteRecommendation.complexity}. Measured squares:{" "}
@@ -244,15 +255,15 @@ export function PrintReport({ report }: { report: ReportVm }) {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-paper-rule p-6">
+      <section className="rounded-lg border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Pricing & Material Summary</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div className="rounded-2xl bg-paper-inset p-4">Estimated Total: {money(report.pricingSummary.totalAmount)}</div>
-          <div className="rounded-2xl bg-paper-inset p-4">Material Cost: {money(report.pricingSummary.materialCost)}</div>
-          <div className="rounded-2xl bg-paper-inset p-4">Labor Cost: {money(report.pricingSummary.laborCost)}</div>
-          <div className="rounded-2xl bg-paper-inset p-4">Accessory Cost: {money(report.pricingSummary.accessoryCost)}</div>
-          <div className="rounded-2xl bg-paper-inset p-4">Disposal Cost: {money(report.pricingSummary.disposalCost)}</div>
-          <div className="rounded-2xl bg-paper-inset p-4">
+          <div className="rounded-lg bg-paper-inset p-4">Estimated Total: {report.pricingSummary.totalAmountCents === null ? "—" : formatMoney(report.pricingSummary.totalAmountCents)}</div>
+          <div className="rounded-lg bg-paper-inset p-4">Material Cost: {money(report.pricingSummary.materialCost)}</div>
+          <div className="rounded-lg bg-paper-inset p-4">Labor Cost: {money(report.pricingSummary.laborCost)}</div>
+          <div className="rounded-lg bg-paper-inset p-4">Accessory Cost: {money(report.pricingSummary.accessoryCost)}</div>
+          <div className="rounded-lg bg-paper-inset p-4">Disposal Cost: {money(report.pricingSummary.disposalCost)}</div>
+          <div className="rounded-lg bg-paper-inset p-4">
             Suggested Squares: {typeof report.pricingSummary.suggestedSquares === "number"
               ? report.pricingSummary.suggestedSquares.toLocaleString(undefined, { maximumFractionDigits: 1 })
               : "—"}
@@ -275,7 +286,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
               </thead>
               <tbody>
                 {report.lineItems.map((li, i) => (
-                  <tr key={i} className="border-b border-slate-100">
+                  <tr key={i} className="border-b border-paper">
                     <td className="px-3 py-2">{li.description}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{li.quantity.toLocaleString()} {li.unit}</td>
                     <td className="px-3 py-2 text-right tabular-nums">${li.unitCost.toLocaleString()}</td>
@@ -289,14 +300,14 @@ export function PrintReport({ report }: { report: ReportVm }) {
                 <div className="flex justify-between text-paper-ink-muted"><span>Subtotal</span><span>${report.totals.subtotal.toLocaleString()}</span></div>
                 <div className="flex justify-between text-paper-ink-muted"><span>Overhead &amp; profit ({report.totals.markupPercent}%)</span><span>${report.totals.markupAmount.toLocaleString()}</span></div>
                 <div className="flex justify-between text-paper-ink-muted"><span>Tax ({report.totals.taxPercent}%)</span><span>${report.totals.taxAmount.toLocaleString()}</span></div>
-                <div className="flex justify-between border-t border-slate-300 pt-1.5 text-base font-bold"><span>Total</span><span>${report.totals.total.toLocaleString()}</span></div>
+                <div className="flex justify-between border-t border-paper-rule-strong pt-1.5 text-base font-bold"><span>Total</span><span>${report.totals.total.toLocaleString()}</span></div>
               </div>
             )}
           </div>
         )}
       </section>
 
-      <section className="rounded-3xl border border-paper-rule p-6">
+      <section className="rounded-lg border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Roof Sections</h2>
         {report.sections.length === 0 ? (
           <p className="mt-4 text-paper-ink-muted">No roof section data available.</p>
@@ -317,7 +328,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
               </thead>
               <tbody>
                 {report.sections.map((section) => (
-                  <tr key={section.id} className="border-b border-slate-100">
+                  <tr key={section.id} className="border-b border-paper">
                     <td className="px-3 py-3">{section.label}</td>
                     <td className="px-3 py-3">{section.pitchRatio ?? "—"}</td>
                     <td className="px-3 py-3">{section.surfaceAreaSqft ?? "—"}</td>
@@ -334,10 +345,10 @@ export function PrintReport({ report }: { report: ReportVm }) {
         )}
       </section>
 
-      <section className="space-y-4 rounded-3xl border border-paper-rule p-6">
+      <section className="space-y-4 rounded-lg border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Summary</h2>
         {report.reportSections.map((section) => (
-          <div key={section.title} className="rounded-2xl bg-paper-inset p-5">
+          <div key={section.title} className="rounded-lg bg-paper-inset p-5">
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-paper-ink-muted">
               {section.title}
             </h3>
@@ -346,14 +357,14 @@ export function PrintReport({ report }: { report: ReportVm }) {
         ))}
       </section>
 
-      <section className="rounded-3xl border border-paper-rule p-6">
+      <section className="rounded-lg border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Inspection Issues</h2>
         {report.issues.length === 0 ? (
           <p className="mt-4 text-paper-ink-muted">No inspection issues recorded.</p>
         ) : (
           <div className="mt-5 space-y-3">
             {report.issues.map((issue) => (
-              <div key={issue.id} className="rounded-2xl bg-paper-inset p-4">
+              <div key={issue.id} className="rounded-lg bg-paper-inset p-4">
                 <div className="font-semibold">{issue.title}</div>
                 <div className="mt-1 text-sm text-paper-ink-muted">
                   Severity: {issue.severity}
@@ -368,7 +379,7 @@ export function PrintReport({ report }: { report: ReportVm }) {
         )}
       </section>
 
-      <section className="rounded-3xl border border-paper-rule p-6">
+      <section className="rounded-lg border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Photo Evidence</h2>
         {report.photos.length === 0 ? (
           <p className="mt-4 text-paper-ink-muted">No photo evidence uploaded.</p>
@@ -377,8 +388,8 @@ export function PrintReport({ report }: { report: ReportVm }) {
             {report.photos.map((photo) => {
               const annotations = parseAnnotations(photo.annotationsJson);
               return (
-                <div key={photo.id} className="break-inside-avoid rounded-2xl border border-paper-rule p-4">
-                  <div className="relative overflow-hidden rounded-xl border border-paper-rule bg-paper">
+                <div key={photo.id} className="break-inside-avoid rounded-lg border border-paper-rule p-4">
+                  <div className="relative overflow-hidden rounded-lg border border-paper-rule bg-paper">
                     <img
                       src={photo.url}
                       alt={photo.caption || photo.locationTag || photo.fileName || "Roof inspection photo"}
@@ -455,9 +466,9 @@ export function PrintReport({ report }: { report: ReportVm }) {
         )}
       </section>
 
-      <section className="rounded-3xl border border-paper-rule p-6">
+      <section className="rounded-lg border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Drone scan</h2>
-        <div className="mt-5 rounded-2xl bg-paper-inset p-4">
+        <div className="mt-5 rounded-lg bg-paper-inset p-4">
           <div className="text-sm font-semibold text-paper-ink-body">Photos &amp; 3D model</div>
           {report.imagery.length === 0 ? (
             <p className="mt-3 text-sm text-paper-ink-muted">No drone imagery uploaded.</p>
@@ -471,8 +482,8 @@ export function PrintReport({ report }: { report: ReportVm }) {
                     className="h-16 w-20 rounded-lg object-cover"
                   />
                   <div>
-                    <div className="font-semibold text-paper-ink">{item.fileName ?? item.type}</div>
-                    <div>{item.type} · {item.status.replaceAll("_", " ")} · {item.altitudeFt ? `${item.altitudeFt} ft` : "No altitude"}</div>
+                    <div className="font-semibold text-paper-ink">{item.fileName ?? imageryTypeLabel(item.type)}</div>
+                    <div>{imageryTypeLabel(item.type)} · {processingStatusLabel(item.status)} · {item.altitudeFt ? `${item.altitudeFt} ft` : "No altitude"}</div>
                     {item.notes ? <div className="mt-1 text-paper-ink-muted">{item.notes}</div> : null}
                   </div>
                 </div>
@@ -482,25 +493,25 @@ export function PrintReport({ report }: { report: ReportVm }) {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-paper-rule p-6">
+      <section className="rounded-lg border border-paper-rule p-6">
         <h2 className="text-2xl font-semibold">Before / After Comparisons</h2>
         {report.comparisons.length === 0 ? (
           <p className="mt-4 text-paper-ink-muted">No comparison sheets created.</p>
         ) : (
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             {report.comparisons.map((comparison) => (
-              <div key={comparison.id} className="break-inside-avoid rounded-2xl border border-paper-rule p-4">
+              <div key={comparison.id} className="break-inside-avoid rounded-lg border border-paper-rule p-4">
                 <h3 className="font-semibold text-paper-ink">{comparison.title}</h3>
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <div>
                     <div className="mb-1 text-xs uppercase tracking-[0.16em] text-paper-ink-faint">Before</div>
-                    <div className="aspect-video overflow-hidden rounded-xl bg-paper">
+                    <div className="aspect-video overflow-hidden rounded-lg bg-paper">
                       {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt={`Before: ${comparison.title}`} className="h-full w-full object-cover" /> : null}
                     </div>
                   </div>
                   <div>
                     <div className="mb-1 text-xs uppercase tracking-[0.16em] text-paper-ink-faint">After</div>
-                    <div className="aspect-video overflow-hidden rounded-xl bg-paper">
+                    <div className="aspect-video overflow-hidden rounded-lg bg-paper">
                       {comparison.afterUrl ? <img src={comparison.afterUrl} alt={`After: ${comparison.title}`} className="h-full w-full object-cover" /> : null}
                     </div>
                   </div>
@@ -517,10 +528,10 @@ export function PrintReport({ report }: { report: ReportVm }) {
         )}
       </section>
 
-      <section className="rounded-3xl border border-paper-rule p-6 text-sm text-paper-ink-muted">
+      <section className="rounded-lg border border-paper-rule p-6 text-sm text-paper-ink-muted">
         <h2 className="text-lg font-semibold text-paper-ink">Notes & Disclaimer</h2>
         <p className="mt-3 leading-7">
-          This report is intended to support roofing estimation, proposal drafting, and project planning.
+          This report is intended to support roofing estimation, quote drafting, and job planning.
           Measurements, waste recommendations, material quantities, and pricing should be field-verified before
           final ordering or installation. Site conditions, crew methods, decking condition, accessory selection,
           and local code requirements may change final scope and totals.

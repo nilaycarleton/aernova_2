@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { MessageCircle } from "lucide-react";
 import { RoofAssistant } from "@/components/dashboard/roof-assistant";
+import { AiSummary } from "@/components/dashboard/ai-summary";
 
 /**
  * The roof assistant lives in a slide-over drawer, not inline. It used to sit as
- * a 520px panel between the project header and the workspace tabs, pushing the
+ * a 520px panel between the job header and the workspace tabs, pushing the
  * actual work below the fold. It is a helper, not a stage of the job — so it
  * gets a recessive floating trigger (never Instrument Cyan; that is reserved for
  * readouts) and opens on demand over a scrim.
@@ -14,7 +16,7 @@ import { RoofAssistant } from "@/components/dashboard/roof-assistant";
  * survives closing the drawer and hidden content stays out of the tab order and
  * the accessibility tree.
  */
-export function AssistantDrawer({ projectId }: { projectId: string }) {
+export function AssistantDrawer({ jobId }: { jobId: string }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -49,9 +51,7 @@ export function AssistantDrawer({ projectId }: { projectId: string }) {
         aria-expanded={open}
         className="fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full border border-hairline bg-surface-lifted px-4 py-3 text-sm font-medium text-ink-primary transition hover:bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-        </svg>
+        <MessageCircle size={18} strokeWidth={2} aria-hidden="true" />
         Assistant
       </button>
 
@@ -76,7 +76,10 @@ export function AssistantDrawer({ projectId }: { projectId: string }) {
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <RoofAssistant projectId={projectId} onClose={close} />
+        <AiSummary jobId={jobId} />
+        <div className="min-h-0 flex-1">
+          <RoofAssistant jobId={jobId} onClose={close} />
+        </div>
       </div>
     </>
   );

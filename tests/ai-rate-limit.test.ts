@@ -1,12 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { evaluateAiLimits, AI_LIMITS } from "../lib/ai/rate-limit-policy.ts";
+import { evaluateAiLimits, evaluateCaptureLimits, AI_LIMITS } from "../lib/ai/rate-limit-policy.ts";
 
 // Every AI call spends real money, so these pin the caps. A future change that
 // silently raises a limit (or drops a rule) should fail here rather than show up
-// on the Anthropic bill.
+// on the Gemini bill.
 
-test("a fresh project is allowed", () => {
+test("a fresh job is allowed", () => {
   assert.deepEqual(evaluateAiLimits({ projectDay: 0, userMinute: 0 }), { allowed: true });
 });
 
@@ -47,8 +47,37 @@ test("burst wins when both caps are exceeded (cheaper to retry)", () => {
 });
 
 test("caps stay at the modelled values", () => {
-  // ~15 questions/project is typical; 50/day caps a project near the ~$0.50
+  // ~15 questions/job is typical; 50/day caps a job near the ~$0.50
   // worst case that was budgeted for. Changing these is a cost decision.
   assert.equal(AI_LIMITS.perProjectPerDay, 50);
   assert.equal(AI_LIMITS.perUserPerMinute, 20);
+});
+
+// Item 49: capture runs before a job exists, so it's rate-limited per
+// company instead of per job — same shape, different scope.
+
+test("a fresh company is allowed to capture", () => {
+  assert.deepEqual(evaluateCaptureLimits({ companyDay: 0, userMinute: 0 }), { allowed: true });
+});
+
+test("capture blocked at the company's daily cap, not one call past it", () => {
+  const decision = evaluateCaptureLimits({
+    companyDay: AI_LIMITS.perCompanyPerDayCapture,
+    userMinute: 0,
+  });
+  assert.equal(decision.allowed, false);
+  if (decision.allowed) return;
+  assert.match(decision.message, new RegExp(String(AI_LIMITS.perCompanyPerDayCapture)));
+  assert.ok(decision.retryAfterSeconds > 0);
+});
+
+test("capture's burst guard is the same rule and cap as chat's", () => {
+  const decision = evaluateCaptureLimits({
+    companyDay: 0,
+    userMinute: AI_LIMITS.perUserPerMinute,
+  });
+  assert.equal(decision.allowed, false);
+  if (decision.allowed) return;
+  assert.equal(decision.reason, "user_burst");
+  assert.equal(decision.retryAfterSeconds, 60);
 });

@@ -1,13 +1,11 @@
 import { Measurement } from "@prisma/client";
-import {
-  createMeasurementAction,
-  updateMeasurementAction,
-} from "@/app/(dashboard)/projects/[projectId]/measurement-actions";
+import { createMeasurementAction } from "@/app/(dashboard)/jobs/[jobId]/measurement-actions";
 import { DeletableMeasurementList } from "@/components/dashboard/deletable-measurement-list";
 import { MeasurementCreateForm } from "@/components/dashboard/measurement-create-form";
+import { MeasurementEditForm } from "@/components/dashboard/measurement-edit-form";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   measurements: Measurement[];
 };
 
@@ -21,41 +19,50 @@ const measurementTemplates = [
   { label: "Total hip length", type: "HIP", unit: "FT", displayValue: "34 ft", value: "34" },
 ];
 
-export function MeasurementManager({ projectId, measurements }: Props) {
+export function MeasurementManager({ jobId, measurements }: Props) {
   return (
     <div className="space-y-8">
-      <section className="rounded-3xl border border-hairline bg-surface-raised p-6">
+      <section className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h3 className="text-xl font-semibold text-ink-primary">Add measurement</h3>
         <p className="mt-2 text-sm text-ink-muted">
           Add roof metrics like area, ridge, pitch, waste factor, eaves, valleys, and hips.
         </p>
 
-        <MeasurementCreateForm projectId={projectId} />
+        <MeasurementCreateForm jobId={jobId} />
 
+        {/* Seven starter metrics, so seven rows — the last identical card grid in
+            the app. The label already says what the metric is, so the row shows
+            only the starter value beside it; the old tiles also printed the raw
+            enums ("3,240 sq ft · AREA · SQFT"), which is the exact vocabulary
+            PRODUCT.md keeps off the screen. Each row is the submit control, so
+            the whole width is the click target. */}
         <div className="mt-6">
-          <p className="mb-3 text-sm text-ink-muted">
+          <p className="mb-1 text-sm text-ink-muted">
             Quick add — one click drops in a starter metric you can edit below
           </p>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div>
             {measurementTemplates.map((item) => (
-              <form
-                key={item.label}
-                action={createMeasurementAction}
-                className="rounded-2xl border border-hairline bg-ground/40 p-4 text-left transition hover:border-blue-400/40 hover:bg-ground/60"
-              >
-                <input type="hidden" name="projectId" value={projectId} />
+              <form key={item.label} action={createMeasurementAction}>
+                <input type="hidden" name="jobId" value={jobId} />
                 <input type="hidden" name="label" value={item.label} />
                 <input type="hidden" name="displayValue" value={item.displayValue} />
                 <input type="hidden" name="type" value={item.type} />
                 <input type="hidden" name="unit" value={item.unit} />
                 <input type="hidden" name="value" value={item.value} />
                 <input type="hidden" name="source" value="MANUAL" />
-                <button type="submit" className="w-full text-left">
-                  <p className="font-medium text-ink-primary">{item.label}</p>
-                  <p className="mt-1 text-sm text-ink-muted">
-                    {item.displayValue} · {item.type} · {item.unit}
-                  </p>
-                  <p className="mt-2 text-xs font-medium text-blue-300">+ Add this metric</p>
+                <button
+                  type="submit"
+                  className="group flex w-full items-baseline justify-between gap-4 border-b border-hairline py-3 text-left transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instrument"
+                >
+                  <span className="text-sm text-ink-secondary">{item.label}</span>
+                  <span className="flex shrink-0 items-baseline gap-4">
+                    <span className="text-sm font-semibold tabular-nums text-ink-primary">
+                      {item.displayValue}
+                    </span>
+                    <span className="text-xs font-medium text-ink-muted group-hover:text-ink-primary">
+                      Add
+                    </span>
+                  </span>
                 </button>
               </form>
             ))}
@@ -67,147 +74,25 @@ export function MeasurementManager({ projectId, measurements }: Props) {
         <div>
           <h3 className="text-xl font-semibold text-ink-primary">Existing measurements</h3>
           <p className="mt-2 text-sm text-ink-muted">
-            Update or remove roof metrics for this project.
+            Update or remove roof metrics for this job.
           </p>
         </div>
 
         {measurements.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-hairline p-8 text-ink-muted">
+          <div className="rounded-lg border border-dashed border-hairline p-8 text-ink-muted">
             No measurements yet. Add your first one above.
           </div>
         ) : (
           <div className="space-y-4">
             {measurements.map((measurement) => (
-              <form
-                key={measurement.id}
-                action={updateMeasurementAction}
-                className="rounded-3xl border border-hairline bg-surface-raised p-5"
-              >
-                <input type="hidden" name="measurementId" value={measurement.id} />
-                <input type="hidden" name="projectId" value={projectId} />
-
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-label`} className="mb-2 block text-sm text-ink-secondary">Label</label>
-                    <input
-                      id={`measurement-${measurement.id}-label`}
-                      name="label"
-                      defaultValue={measurement.label}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-displayValue`} className="mb-2 block text-sm text-ink-secondary">Display Value</label>
-                    <input
-                      id={`measurement-${measurement.id}-displayValue`}
-                      name="displayValue"
-                      defaultValue={measurement.displayValue}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-type`} className="mb-2 block text-sm text-ink-secondary">Type</label>
-                    <select
-                      id={`measurement-${measurement.id}-type`}
-                      name="type"
-                      defaultValue={measurement.type}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    >
-                      <option value="AREA">AREA</option>
-                      <option value="RIDGE">RIDGE</option>
-                      <option value="PITCH">PITCH</option>
-                      <option value="WASTE_FACTOR">WASTE_FACTOR</option>
-                      <option value="EAVE">EAVE</option>
-                      <option value="VALLEY">VALLEY</option>
-                      <option value="HIP">HIP</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-unit`} className="mb-2 block text-sm text-ink-secondary">Unit</label>
-                    <select
-                      id={`measurement-${measurement.id}-unit`}
-                      name="unit"
-                      defaultValue={measurement.unit}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    >
-                      <option value="SQFT">SQFT</option>
-                      <option value="FT">FT</option>
-                      <option value="RATIO">RATIO</option>
-                      <option value="PERCENT">PERCENT</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-value`} className="mb-2 block text-sm text-ink-secondary">Numeric Value</label>
-                    <input
-                      id={`measurement-${measurement.id}-value`}
-                      name="value"
-                      type="number"
-                      step="0.01"
-                      defaultValue={measurement.value}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-source`} className="mb-2 block text-sm text-ink-secondary">Source</label>
-                    <select
-                      id={`measurement-${measurement.id}-source`}
-                      name="source"
-                      defaultValue={measurement.source}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    >
-                      <option value="MANUAL">MANUAL</option>
-                      <option value="DRONE">DRONE</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-confidence`} className="mb-2 block text-sm text-ink-secondary">Confidence %</label>
-                    <input
-                      id={`measurement-${measurement.id}-confidence`}
-                      name="confidence"
-                      type="number"
-                      step="0.01"
-                      defaultValue={measurement.confidence ?? ""}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor={`measurement-${measurement.id}-sortOrder`} className="mb-2 block text-sm text-ink-secondary">Sort Order</label>
-                    <input
-                      id={`measurement-${measurement.id}-sortOrder`}
-                      name="sortOrder"
-                      type="number"
-                      defaultValue={measurement.sortOrder}
-                      className="w-full rounded-xl border border-hairline bg-ground/50 px-4 py-3 text-ink-primary outline-none focus:border-signal-blue"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <button
-                    type="submit"
-                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-signal-blue"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
+              <MeasurementEditForm key={measurement.id} jobId={jobId} measurement={measurement} />
             ))}
           </div>
         )}
       </section>
 
       {measurements.length > 0 && (
-        <DeletableMeasurementList projectId={projectId} measurements={measurements} />
+        <DeletableMeasurementList jobId={jobId} measurements={measurements} />
       )}
     </div>
   );

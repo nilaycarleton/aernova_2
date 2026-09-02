@@ -6,18 +6,15 @@ import {
   RoofComparison,
 } from "@prisma/client";
 import type { SavedMeasurement } from "@/components/dashboard/measure-viewer";
-import type { ModelMeasurementKind } from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
-import {
-  materializeDroneMeasurementsAction,
-  syncNodeOdmTaskAction,
-} from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
+import type { ModelMeasurementKind } from "@/app/(dashboard)/jobs/[jobId]/model-measurement-actions";
 import { ComparisonCreateForm } from "@/components/dashboard/comparison-create-form";
+import { DeletableItem } from "@/components/dashboard/deletable-item";
+import { deleteComparisonAction } from "@/app/(dashboard)/jobs/[jobId]/phase-six-actions";
 import {
   generateEstimateFromMeasurementsAction,
-  saveModelMeasurementsToProjectAction,
-} from "@/app/(dashboard)/projects/[projectId]/model-measurement-actions";
+  saveModelMeasurementsToJobAction,
+} from "@/app/(dashboard)/jobs/[jobId]/model-measurement-actions";
 import { ImageryUploadForm } from "@/components/dashboard/imagery-upload-form";
-import { ModelMeasurementViewer } from "@/components/dashboard/model-measurement-viewer";
 import { MeasureViewer } from "@/components/dashboard/measure-viewer";
 import { ProcessingJobPoller } from "@/components/dashboard/processing-job-poller";
 import { ProcessingLauncher } from "@/components/dashboard/processing-launcher";
@@ -29,7 +26,7 @@ import {
 import type { NodeOdmWorkerHealth } from "@/lib/nodeodm-client";
 
 type Props = {
-  projectId: string;
+  jobId: string;
   imagery: ProjectImagery[];
   processingJobs: ProcessingJob[];
   workerHealth: NodeOdmWorkerHealth;
@@ -49,12 +46,6 @@ function hasLocation(item: ProjectImagery) {
   return Boolean(metadata.gps || metadata.latitude || metadata.longitude);
 }
 
-function nodeOdmTaskUuid(value: unknown) {
-  const metadata = metadataObject(value);
-  if (typeof metadata.nodeOdmTaskUuid === "string") return metadata.nodeOdmTaskUuid;
-  return typeof metadata.nodeOdxTaskUuid === "string" ? metadata.nodeOdxTaskUuid : "";
-}
-
 function isActiveJob(job: ProcessingJob) {
   return job.status === "QUEUED" || job.status === "PROCESSING";
 }
@@ -69,9 +60,9 @@ function StepBadge({ n, state }: { n: number; state: StepState }) {
     <span
       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
         state === "done"
-          ? "bg-confirm/85 text-ground"
+          ? "bg-confirm/85 text-on-accent"
           : state === "current"
-            ? "bg-instrument text-ground"
+            ? "bg-action text-on-action"
             : "bg-surface-lifted text-ink-muted"
       }`}
     >
@@ -95,9 +86,9 @@ function StepCard({
 }) {
   return (
     <div
-      className={`min-w-0 rounded-3xl border p-6 transition ${
+      className={`min-w-0 rounded-lg border p-6 transition ${
         state === "current"
-          ? "border-instrument-bright/25 bg-instrument-bright/[0.04]"
+          ? "border-hairline bg-surface-lifted"
           : "border-hairline bg-surface-raised"
       } ${state === "todo" ? "opacity-60" : ""}`}
     >
@@ -114,7 +105,7 @@ function StepCard({
 }
 
 export function PhaseSixWorkflow({
-  projectId,
+  jobId,
   imagery,
   processingJobs,
   workerHealth,
@@ -164,16 +155,13 @@ export function PhaseSixWorkflow({
     : modelReady
       ? 100
       : 0;
-  const buildTaskUuid = latestModel ? nodeOdmTaskUuid(latestModel.metadataJson) : "";
-  const beforeImages = imagery.filter((item) => item.type === "BEFORE");
-  const afterImages = imagery.filter((item) => item.type === "AFTER");
   const filmstrip = photos.slice(0, 24);
 
   return (
     <section className="min-w-0 max-w-full space-y-5 overflow-hidden">
-      <ProcessingJobPoller projectId={projectId} activeJobs={activeJob ? 1 : 0} />
+      <ProcessingJobPoller jobId={jobId} activeJobs={activeJob ? 1 : 0} />
 
-      <div className="rounded-3xl border border-hairline bg-gradient-to-br from-white/8 to-white/5 p-6">
+      <div className="rounded-lg border border-hairline bg-surface-raised p-6">
         <h2 className="text-2xl font-semibold text-ink-primary">Roof scan</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">
           Turn your drone photos into a 3D model of the roof, then measure it. Just follow the
@@ -188,17 +176,17 @@ export function PhaseSixWorkflow({
         title="Add your drone photos"
         hint={hasPhotos ? `${photos.length} photo${photos.length === 1 ? "" : "s"} added` : "Upload the photos from your drone flight"}
       >
-        <ImageryUploadForm projectId={projectId} />
+        <ImageryUploadForm jobId={jobId} />
 
         {hasPhotos ? (
           <>
             <div
-              className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
+              className={`mt-4 rounded-lg border px-4 py-3 text-sm ${
                 qualityTone === "good"
-                  ? "border-emerald-300/25 bg-emerald-400/10 text-emerald-100"
+                  ? "border-confirm/25 bg-confirm/10 text-confirm-fg"
                   : qualityTone === "ok"
-                    ? "border-amber-300/25 bg-amber-400/10 text-amber-100"
-                    : "border-rose-300/25 bg-rose-500/10 text-rose-100"
+                    ? "border-caution/25 bg-caution/10 text-caution-fg"
+                    : "border-danger/25 bg-danger/10 text-danger-fg"
               }`}
             >
               <p className="font-medium">{qualityMessage}</p>
@@ -207,7 +195,12 @@ export function PhaseSixWorkflow({
               </p>
             </div>
 
-            <div className="mt-4 flex max-w-full gap-2 overflow-x-auto pb-1">
+            <div
+              className="mt-4 flex max-w-full gap-2 overflow-x-auto pb-1"
+              role="region"
+              aria-label="Photo filmstrip"
+              tabIndex={0}
+            >
               {filmstrip.map((item) => (
                 <img
                   key={item.id}
@@ -244,10 +237,10 @@ export function PhaseSixWorkflow({
         {!hasPhotos ? (
           <p className="text-sm text-ink-muted">Add photos in step 1 first.</p>
         ) : building ? (
-          <div className="rounded-2xl border border-instrument-bright/20 bg-instrument-bright/5 p-4">
+          <div className="rounded-lg border border-hairline bg-surface-lifted p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-ink-primary">Building your 3D model…</p>
-              <span className="text-sm text-cyan-100">{progress}%</span>
+              <span className="text-sm text-instrument-fg">{progress}%</span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-lifted">
               <div className="h-full rounded-full bg-instrument-bright transition-all" style={{ width: `${progress}%` }} />
@@ -257,18 +250,18 @@ export function PhaseSixWorkflow({
             </p>
           </div>
         ) : modelReady ? (
-          <div className="rounded-2xl border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+          <div className="rounded-lg border border-confirm/25 bg-confirm/10 px-4 py-3 text-sm text-confirm-fg">
             3D model ready. Review it in step 3 below.
           </div>
         ) : (
           <>
             {failed ? (
-              <p className="mb-3 rounded-2xl border border-rose-300/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+              <p className="mb-3 rounded-lg border border-danger/25 bg-danger/10 px-4 py-3 text-sm text-danger-fg">
                 The last attempt needs another look — try building again{workerHealth.online ? "" : " once the processor is connected"}.
               </p>
             ) : null}
             <ProcessingLauncher
-              projectId={projectId}
+              jobId={jobId}
               sourceImageCount={photos.length}
               workerConfigured={workerHealth.configured}
             />
@@ -284,76 +277,60 @@ export function PhaseSixWorkflow({
         hint={modelReady ? "Explore the 3D model and pull measurements" : "Available once your 3D model is ready"}
       >
         {modelReady && latestModel && modelPackage ? (
-          <>
-            <ModelMeasurementViewer
-              modelPackage={modelPackage}
-              previewUrl={modelPackage.previewUrl ?? photos[0]?.url ?? null}
-              sourceImageCount={photos.length}
-            />
-
-            {(() => {
-              const glbUrl =
-                modelPackage.assets.viewerGlb?.startsWith("/")
-                  ? modelPackage.assets.viewerGlb
-                  : modelPackage.assets.texturedModelGlb?.startsWith("/")
-                    ? modelPackage.assets.texturedModelGlb
-                    : null;
-              return glbUrl ? (
-                <div className="mt-6">
-                  <h4 className="mb-1 text-sm font-semibold text-ink-primary">Measure on the model</h4>
+          (() => {
+            const glbUrl =
+              modelPackage.assets.viewerGlb?.startsWith("/")
+                ? modelPackage.assets.viewerGlb
+                : modelPackage.assets.texturedModelGlb?.startsWith("/")
+                  ? modelPackage.assets.texturedModelGlb
+                  : null;
+            return glbUrl ? (
+                <div>
+                  <h4 className="mb-1 text-sm font-semibold text-ink-primary">Map your roof</h4>
                   <p className="mb-3 text-xs text-ink-muted">
-                    Pick a tool and click the 3D model to measure distances, roof areas, pitch, and height, or drop
-                    markers — all in real-world units.
+                    Drag to rotate, scroll to zoom — or use Full screen for a closer look. Then hit ✨ Auto-detect
+                    roof, box your roof, and it finds the faces and their pitch for you. Nudge any that look off with
+                    Edit points. Need to measure something by hand? It&apos;s all under More tools.
                   </p>
                   <MeasureViewer
                     glbUrl={glbUrl}
-                    projectId={projectId}
+                    jobId={jobId}
                     modelImageryId={latestModel.id}
                     initialMeasurements={savedMeasurements}
                   />
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                  {/* Two real next steps once the roof is mapped: turn the faces
+                      into a priced quote now, or just save them to the job to
+                      return to later. Both act on what the roofer drew/detected. */}
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
                     <form action={generateEstimateFromMeasurementsAction}>
-                      <input type="hidden" name="projectId" value={projectId} />
+                      <input type="hidden" name="jobId" value={jobId} />
                       <SubmitButton
-                        pendingText="Building estimate…"
-                        className="rounded-xl border border-instrument-bright/30 bg-instrument/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-instrument/20 disabled:opacity-60"
+                        pendingText="Building quote…"
+                        className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted disabled:opacity-60"
                       >
-                        Generate estimate from these measurements
+                        Build the quote
                       </SubmitButton>
                     </form>
-                    <form action={saveModelMeasurementsToProjectAction}>
-                      <input type="hidden" name="projectId" value={projectId} />
+                    <form action={saveModelMeasurementsToJobAction}>
+                      <input type="hidden" name="jobId" value={jobId} />
                       <SubmitButton
                         pendingText="Saving…"
-                        className="rounded-xl border border-white/15 bg-surface-raised px-4 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-lifted disabled:opacity-60"
+                        className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-strong transition hover:bg-surface-lifted disabled:opacity-60"
                       >
-                        Save to project measurements
+                        Save to the job
                       </SubmitButton>
                     </form>
                     <span className="text-xs text-ink-muted">
-                      Build a priced proposal, or roll these up into the project&apos;s measurements list.
+                      Build a priced quote now, or just save these to the job to come back to later.
                     </span>
                   </div>
                 </div>
-              ) : null;
-            })()}
-
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            ) : (
               <p className="text-sm text-ink-muted">
-                Draw a box around the roof in the measurement tool below to get area, pitch, and squares.
+                Your 3D model is ready — the roof view is still preparing. Refresh in a moment.
               </p>
-              <form action={materializeDroneMeasurementsAction}>
-                <input type="hidden" name="projectId" value={projectId} />
-                <input type="hidden" name="imageryId" value={latestModel.id} />
-                <SubmitButton
-                  pendingText="Saving…"
-                  className="rounded-xl border border-emerald-300/30 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-400/20 disabled:opacity-60"
-                >
-                  Save measurements to this project
-                </SubmitButton>
-              </form>
-            </div>
-          </>
+            );
+          })()
         ) : (
           <p className="text-sm text-ink-muted">
             Once your 3D model is built, you&apos;ll be able to spin it around and measure the roof here.
@@ -362,7 +339,7 @@ export function PhaseSixWorkflow({
       </StepCard>
 
       {/* Optional: before / after photos */}
-      <details className="min-w-0 rounded-3xl border border-hairline bg-surface-raised">
+      <details className="min-w-0 rounded-lg border border-hairline bg-surface-raised">
         <summary className="cursor-pointer px-6 py-4 text-sm font-medium text-ink-primary">
           Before &amp; after photos (optional)
         </summary>
@@ -370,26 +347,30 @@ export function PhaseSixWorkflow({
           <p className="text-sm text-ink-muted">
             Create a simple before/after sheet for the homeowner or insurance file.
           </p>
-          <ComparisonCreateForm
-            projectId={projectId}
-            beforeImages={beforeImages.map((i) => ({ id: i.id, url: i.url, fileName: i.fileName }))}
-            afterImages={afterImages.map((i) => ({ id: i.id, url: i.url, fileName: i.fileName }))}
-          />
+          <ComparisonCreateForm jobId={jobId} />
 
           {comparisons.length > 0 ? (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               {comparisons.map((comparison) => (
-                <div key={comparison.id} className="rounded-2xl border border-hairline bg-ground/45 p-4">
-                  <p className="font-medium text-ink-primary">{comparison.title}</p>
-                  <div className="mt-3 grid grid-cols-2 gap-3">
-                    <div className="aspect-video overflow-hidden rounded-xl bg-ground">
-                      {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt={`Before: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
+                <div key={comparison.id} className="rounded-lg border border-hairline bg-ground/45 p-4">
+                  <DeletableItem
+                    jobId={jobId}
+                    itemId={comparison.id}
+                    idField="comparisonId"
+                    label="Before & after sheet"
+                    deleteAction={deleteComparisonAction}
+                  >
+                    <p className="font-medium text-ink-primary">{comparison.title}</p>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div className="aspect-video overflow-hidden rounded-lg bg-ground">
+                        {comparison.beforeUrl ? <img src={comparison.beforeUrl} alt={`Before: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
+                      </div>
+                      <div className="aspect-video overflow-hidden rounded-lg bg-ground">
+                        {comparison.afterUrl ? <img src={comparison.afterUrl} alt={`After: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
+                      </div>
                     </div>
-                    <div className="aspect-video overflow-hidden rounded-xl bg-ground">
-                      {comparison.afterUrl ? <img src={comparison.afterUrl} alt={`After: ${comparison.title}`} loading="lazy" decoding="async" className="h-full w-full object-cover" /> : null}
-                    </div>
-                  </div>
-                  {comparison.summary ? <p className="mt-3 text-sm leading-6 text-ink-muted">{comparison.summary}</p> : null}
+                    {comparison.summary ? <p className="mt-3 text-sm leading-6 text-ink-muted">{comparison.summary}</p> : null}
+                  </DeletableItem>
                 </div>
               ))}
             </div>
@@ -397,59 +378,6 @@ export function PhaseSixWorkflow({
         </div>
       </details>
 
-      {/* Technical details — hidden by default */}
-      <details className="min-w-0 rounded-3xl border border-hairline bg-surface-raised">
-        <summary className="cursor-pointer px-6 py-4 text-sm font-medium text-ink-secondary">
-          Technical details
-        </summary>
-        <div className="space-y-4 border-t border-hairline p-6 text-sm">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-ink-muted">3D processor:</span>
-            <span
-              className={`rounded-full border px-3 py-1 text-xs ${
-                workerHealth.online
-                  ? "border-emerald-300/30 bg-emerald-400/10 text-emerald-100"
-                  : workerHealth.configured
-                    ? "border-amber-300/30 bg-amber-400/10 text-amber-100"
-                    : "border-ink-secondary/20 bg-ink-muted/10 text-ink-secondary"
-              }`}
-            >
-              {workerHealth.online ? "connected" : workerHealth.configured ? "not reachable" : "not set up"}
-            </span>
-            {latestModel && buildTaskUuid ? (
-              <form action={syncNodeOdmTaskAction} className="ml-auto">
-                <input type="hidden" name="projectId" value={projectId} />
-                <input type="hidden" name="imageryId" value={latestModel.id} />
-                <button type="submit" className="rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-ink-strong transition hover:bg-surface-lifted">
-                  Refresh status
-                </button>
-              </form>
-            ) : null}
-          </div>
-
-          {processingJobs.length > 0 ? (
-            <div className="grid gap-2 md:grid-cols-2">
-              {processingJobs.slice(0, 4).map((job) => (
-                <div key={job.id} className="rounded-xl bg-surface-raised p-3 text-xs text-ink-secondary">
-                  {job.provider} · {job.status.replaceAll("_", " ").toLowerCase()}
-                  {typeof job.progress === "number" ? ` · ${Math.round(job.progress)}%` : ""}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-ink-muted">No processing jobs yet.</p>
-          )}
-
-          {modelReady && latestModel ? (
-            <a
-              href={`/api/projects/${projectId}/processing/${latestModel.id}/download`}
-              className="inline-flex rounded-lg border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-cyan-100 transition hover:bg-surface-lifted"
-            >
-              Download all model files (.zip)
-            </a>
-          ) : null}
-        </div>
-      </details>
     </section>
   );
 }

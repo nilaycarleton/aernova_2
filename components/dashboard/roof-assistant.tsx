@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -12,10 +13,10 @@ const SUGGESTIONS = [
 ];
 
 export function RoofAssistant({
-  projectId,
+  jobId,
   onClose,
 }: {
-  projectId: string;
+  jobId: string;
   onClose?: () => void;
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -37,7 +38,7 @@ export function RoofAssistant({
     setBusy(true);
 
     try {
-      const res = await fetch(`/api/projects/${projectId}/chat`, {
+      const res = await fetch(`/api/jobs/${jobId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history }),
@@ -93,7 +94,7 @@ export function RoofAssistant({
       <div className="flex items-center justify-between border-b border-hairline px-5 py-3">
         <div>
           <h3 id="assistant-title" className="text-sm font-semibold text-ink-primary">Roof assistant</h3>
-          <p className="text-xs text-ink-primary/50">Grounded in this project&apos;s measurements & estimate</p>
+          <p className="text-xs text-ink-primary/50">Grounded in this job&apos;s measurements & estimate</p>
         </div>
         <div className="flex items-center gap-1">
           {messages.length > 0 && (
@@ -111,9 +112,7 @@ export function RoofAssistant({
               aria-label="Close assistant"
               className="rounded-lg p-1.5 text-ink-primary/60 transition hover:bg-surface-lifted hover:text-ink-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
+              <X size={16} strokeWidth={2} aria-hidden="true" />
             </button>
           )}
         </div>
@@ -130,7 +129,7 @@ export function RoofAssistant({
                 <button
                   key={s}
                   onClick={() => send(s)}
-                  className="rounded-full border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-ink-primary/80 hover:border-white/20 hover:bg-surface-lifted"
+                  className="rounded-full border border-hairline bg-surface-raised px-3 py-1.5 text-xs text-ink-primary/80 hover:border-hairline hover:bg-surface-lifted"
                 >
                   {s}
                 </button>
@@ -143,7 +142,7 @@ export function RoofAssistant({
               <div
                 className={
                   m.role === "user"
-                    ? "max-w-[85%] rounded-2xl rounded-br-sm bg-blue-600 px-3.5 py-2 text-sm text-ink-primary"
+                    ? "max-w-[85%] rounded-2xl rounded-br-sm bg-signal-blue-deep px-3.5 py-2 text-sm text-ink-primary"
                     : "max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-hairline bg-surface-raised px-3.5 py-2 text-sm text-ink-primary/90"
                 }
               >
@@ -162,12 +161,12 @@ export function RoofAssistant({
             onKeyDown={onKeyDown}
             rows={1}
             placeholder="Ask about this roof or its quote…"
-            className="max-h-32 flex-1 resize-none rounded-xl border border-hairline bg-ground/50 px-3 py-2 text-sm text-ink-primary placeholder:text-ink-primary/40 focus:border-white/25 focus:outline-none"
+            className="max-h-32 flex-1 resize-none rounded-lg border border-hairline bg-ground/50 px-3 py-2 text-sm text-ink-primary placeholder:text-ink-primary/40 focus:border-signal-blue focus:outline-none"
           />
           <button
             onClick={() => send(input)}
             disabled={busy || !input.trim()}
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-ink-primary hover:bg-signal-blue disabled:opacity-40"
+            className="rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-40"
           >
             {busy ? "…" : "Send"}
           </button>

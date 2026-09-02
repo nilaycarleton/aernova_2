@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import {
   prepareRoofExtractionAction,
   extractRoofFromMeshAction,
-} from "@/app/(dashboard)/projects/[projectId]/phase-six-actions";
+} from "@/app/(dashboard)/jobs/[jobId]/phase-six-actions";
 import type { PlanPreview, RoofExtractionSummary } from "@/lib/roof-extraction-types";
 
 type ExtractionResult = RoofExtractionSummary;
@@ -12,11 +12,11 @@ type ExtractionResult = RoofExtractionSummary;
 type Point = { x: number; y: number };
 
 export function RoofExtractionPanel({
-  projectId,
+  jobId,
   imageryId,
   modelLabel,
 }: {
-  projectId: string;
+  jobId: string;
   imageryId: string;
   modelLabel: string;
 }) {
@@ -34,7 +34,7 @@ export function RoofExtractionPanel({
     setPolygon([]);
     startPreview(async () => {
       try {
-        const data = await prepareRoofExtractionAction(projectId, imageryId);
+        const data = await prepareRoofExtractionAction(jobId, imageryId);
         setPreview(data);
         // Seed the ROI with the auto-detected footprint so the operator only has
         // to confirm/adjust instead of outlining the roof from scratch.
@@ -45,7 +45,7 @@ export function RoofExtractionPanel({
         setError(e instanceof Error ? e.message : "Failed to load the roof model preview");
       }
     });
-  }, [projectId, imageryId]);
+  }, [jobId, imageryId]);
 
   // Paint the elevation raster and the in-progress ROI polygon onto the canvas.
   useEffect(() => {
@@ -124,7 +124,7 @@ export function RoofExtractionPanel({
     const meshPolygon = toMeshPolygon(polygon);
     startExtract(async () => {
       try {
-        const res = await extractRoofFromMeshAction(projectId, imageryId, meshPolygon);
+        const res = await extractRoofFromMeshAction(jobId, imageryId, meshPolygon);
         setResult(res);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Roof extraction failed");
@@ -133,7 +133,7 @@ export function RoofExtractionPanel({
   };
 
   return (
-    <div className="rounded-3xl border border-hairline bg-surface-raised p-6">
+    <div className="rounded-lg border border-hairline bg-surface-raised p-6">
       <div className="flex flex-col gap-2">
         <h3 className="text-lg font-semibold text-ink-primary">Measure your roof</h3>
         <p className="text-sm text-ink-muted">
@@ -142,13 +142,13 @@ export function RoofExtractionPanel({
         </p>
         <ol className="mt-1 grid gap-1 text-xs text-ink-muted sm:grid-cols-3">
           <li className="rounded-lg border border-hairline bg-ground/40 px-3 py-2">
-            <span className="font-semibold text-sky-300">1.</span> Load the 3D roof
+            <span className="font-semibold text-info-fg">1.</span> Load the 3D roof
           </li>
           <li className="rounded-lg border border-hairline bg-ground/40 px-3 py-2">
-            <span className="font-semibold text-sky-300">2.</span> Draw a box around the roof
+            <span className="font-semibold text-info-fg">2.</span> Draw a box around the roof
           </li>
           <li className="rounded-lg border border-hairline bg-ground/40 px-3 py-2">
-            <span className="font-semibold text-sky-300">3.</span> Get measurements — they save automatically
+            <span className="font-semibold text-info-fg">3.</span> Get measurements — they save automatically
           </li>
         </ol>
         <p className="mt-1 text-xs text-ink-muted">
@@ -161,7 +161,7 @@ export function RoofExtractionPanel({
           type="button"
           onClick={loadPreview}
           disabled={loadingPreview}
-          className="mt-4 rounded-xl border border-hairline bg-sky-500/20 px-4 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-500/30 disabled:opacity-50"
+          className="mt-4 rounded-lg border border-hairline bg-surface-raised px-4 py-2 text-sm font-medium text-ink-primary transition hover:bg-surface-lifted focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument disabled:opacity-50"
         >
           {loadingPreview ? "Loading…" : "Load the 3D roof"}
         </button>
@@ -173,7 +173,7 @@ export function RoofExtractionPanel({
             <canvas
               ref={canvasRef}
               onClick={handleCanvasClick}
-              className="w-full max-w-full cursor-crosshair rounded-2xl border border-hairline"
+              className="w-full max-w-full cursor-crosshair rounded-lg border border-hairline"
               style={{ imageRendering: "pixelated", aspectRatio: `${preview.width} / ${preview.height}` }}
             />
             <div className="mt-3 flex flex-wrap gap-2">
@@ -197,7 +197,7 @@ export function RoofExtractionPanel({
                 type="button"
                 onClick={runExtraction}
                 disabled={polygon.length < 3 || extracting}
-                className="rounded-lg border border-hairline bg-confirm/20 px-3 py-1.5 text-xs font-medium text-emerald-100 transition hover:bg-confirm/30 disabled:opacity-40"
+                className="rounded-lg border border-hairline bg-confirm/20 px-3 py-1.5 text-xs font-medium text-confirm-fg transition hover:bg-confirm/30 disabled:opacity-40"
               >
                 {extracting ? "Measuring…" : "Measure roof"}
               </button>
@@ -208,14 +208,14 @@ export function RoofExtractionPanel({
             </p>
           </div>
 
-          <div className="min-w-0 rounded-2xl border border-hairline bg-ground/40 p-4">
+          <div className="min-w-0 rounded-lg border border-hairline bg-ground/40 p-4">
             {!result && !error && (
               <p className="text-sm text-ink-muted">
                 Draw a box around the roof, then measure. The results flow straight into your quote
                 and report.
               </p>
             )}
-            {error && <p className="text-sm text-rose-300">{error}</p>}
+            {error && <p className="text-sm text-danger-fg">{error}</p>}
             {result && (
               <div className="space-y-3 text-sm text-ink-strong">
                 <p className="font-medium text-ink-primary">Measurements ready</p>

@@ -102,20 +102,20 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
               key={toast.id}
               role="status"
               aria-live="polite"
-              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-2xl border border-hairline bg-surface-lifted backdrop-blur"
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border border-hairline bg-surface-lifted backdrop-blur"
             >
               <div className="flex items-center justify-between gap-4 px-4 py-3">
                 <span className="text-sm text-ink-primary">{toast.label} deleted</span>
                 <button
                   type="button"
                   onClick={() => handleUndo(toast)}
-                  className="shrink-0 rounded-lg px-2 py-1 text-sm font-semibold text-instrument-bright transition hover:bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
+                  className="shrink-0 rounded-lg px-2 py-1 text-sm font-semibold text-ink-primary transition hover:bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-instrument"
                 >
                   Undo
                 </button>
               </div>
               <div
-                className="undo-countdown-bar h-0.5 origin-left bg-instrument"
+                className="undo-countdown-bar h-0.5 origin-left bg-ink-muted"
                 style={{ animation: `undo-countdown ${toast.durationMs}ms linear forwards` }}
               />
             </div>

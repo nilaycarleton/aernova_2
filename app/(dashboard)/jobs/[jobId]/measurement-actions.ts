@@ -1,0 +1,193 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { MeasurementType, MeasurementUnit, CaptureSource } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { requireJobAccess } from "@/lib/auth";
+
+function getString(formData: FormData, key: string) {
+  return String(formData.get(key) ?? "").trim();
+}
+
+function getNumber(formData: FormData, key: string) {
+  const raw = String(formData.get(key) ?? "").trim();
+  const parsed = Number(raw);
+  if (Number.isNaN(parsed)) {
+    throw new Error(`Invalid number for ${key}`);
+  }
+  return parsed;
+}
+
+const allowedTypes = new Set([
+  "AREA",
+  "RIDGE",
+  "PITCH",
+  "WASTE_FACTOR",
+  "EAVE",
+  "VALLEY",
+  "HIP",
+]);
+
+const allowedUnits = new Set([
+  "SQFT",
+  "FT",
+  "RATIO",
+  "PERCENT",
+]);
+
+const allowedSources = new Set([
+  "MANUAL",
+  "DRONE",
+]);
+
+/**
+ * useActionState wrapper for the free-text create form: it returns validation
+ * as state (so typed input survives) instead of letting createMeasurementAction
+ * throw and unmount the form. The template quick-add buttons keep calling
+ * createMeasurementAction directly — their label/value are fixed, never empty,
+ * so they never hit this path.
+ */
+export type MeasurementFormState = { fieldErrors?: Record<string, string>; formError?: string };
+
+export async function createMeasurementWithState(
+  _prevState: MeasurementFormState,
+  formData: FormData
+): Promise<MeasurementFormState> {
+  const label = String(formData.get("label") ?? "").trim();
+  const displayValue = String(formData.get("displayValue") ?? "").trim();
+  const fieldErrors: Record<string, string> = {};
+  if (!label) fieldErrors.label = "Name this measurement.";
+  if (!displayValue) fieldErrors.displayValue = "Add the value to show, like “3,240 sq ft”.";
+  if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
+
+  try {
+    await createMeasurementAction(formData);
+    return {};
+  } catch {
+    // A bad number or a DB/network hiccup — keep the roofer's input and let them retry.
+    return { formError: "Couldn't save this measurement. Please try again." };
+  }
+}
+
+export async function createMeasurementAction(formData: FormData) {
+  const jobId = getString(formData, "jobId");
+  const label = getString(formData, "label");
+  const displayValue = getString(formData, "displayValue");
+  const typeRaw = getString(formData, "type");
+  const unitRaw = getString(formData, "unit");
+  const sourceRaw = getString(formData, "source");
+  const confidenceRaw = getString(formData, "confidence");
+  const sortOrderRaw = getString(formData, "sortOrder");
+
+  if (!jobId) throw new Error("Missing jobId");
+  if (!label) throw new Error("Label is required");
+  if (!displayValue) throw new Error("Display value is required");
+  if (!allowedTypes.has(typeRaw)) throw new Error("Invalid measurement type");
+  if (!allowedUnits.has(unitRaw)) throw new Error("Invalid measurement unit");
+  if (!allowedSources.has(sourceRaw)) throw new Error("Invalid measurement source");
+  await requireJobAccess(jobId, "editJob");
+
+  const value = getNumber(formData, "value");
+  const confidence = confidenceRaw ? Number(confidenceRaw) : null;
+  const sortOrder = sortOrderRaw ? Number(sortOrderRaw) : 0;
+
+  await prisma.measurement.create({
+    data: {
+      jobId,
+      label,
+      displayValue,
+      type: typeRaw as MeasurementType,
+      unit: unitRaw as MeasurementUnit,
+      source: sourceRaw as CaptureSource,
+      value,
+      confidence,
+      sortOrder,
+    },
+  });
+
+  revalidatePath(`/jobs/${jobId}`);
+}
+
+/**
+ * useActionState wrapper for the inline measurement edit form: validation and
+ * save failures come back as state so the roofer's edits survive in the
+ * still-mounted form, the same recovery contract as createMeasurementWithState.
+ */
+export async function updateMeasurementWithState(
+  _prevState: MeasurementFormState,
+  formData: FormData
+): Promise<MeasurementFormState> {
+  const label = String(formData.get("label") ?? "").trim();
+  const displayValue = String(formData.get("displayValue") ?? "").trim();
+  const fieldErrors: Record<string, string> = {};
+  if (!label) fieldErrors.label = "Name this measurement.";
+  if (!displayValue) fieldErrors.displayValue = "Add the value to show, like “3,240 sq ft”.";
+  if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
+
+  try {
+    await updateMeasurementAction(formData);
+    return {};
+  } catch {
+    return { formError: "Couldn't save your changes. Please try again." };
+  }
+}
+
+export async function updateMeasurementAction(formData: FormData) {
+  const measurementId = getString(formData, "measurementId");
+  const jobId = getString(formData, "jobId");
+  const label = getString(formData, "label");
+  const displayValue = getString(formData, "displayValue");
+  const typeRaw = getString(formData, "type");
+  const unitRaw = getString(formData, "unit");
+  const sourceRaw = getString(formData, "source");
+  const confidenceRaw = getString(formData, "confidence");
+  const sortOrderRaw = getString(formData, "sortOrder");
+
+  if (!measurementId) throw new Error("Missing measurementId");
+  if (!jobId) throw new Error("Missing jobId");
+  if (!label) throw new Error("Label is required");
+  if (!displayValue) throw new Error("Display value is required");
+  if (!allowedTypes.has(typeRaw)) throw new Error("Invalid measurement type");
+  if (!allowedUnits.has(unitRaw)) throw new Error("Invalid measurement unit");
+  if (!allowedSources.has(sourceRaw)) throw new Error("Invalid measurement source");
+  await requireJobAccess(jobId, "editJob");
+
+  const value = getNumber(formData, "value");
+  const confidence = confidenceRaw ? Number(confidenceRaw) : null;
+  const sortOrder = sortOrderRaw ? Number(sortOrderRaw) : 0;
+
+  // Scope by jobId so owning `jobId` can't be paired with another
+  // job's measurementId.
+  const updated = await prisma.measurement.updateMany({
+    where: { id: measurementId, jobId },
+    data: {
+      label,
+      displayValue,
+      type: typeRaw as MeasurementType,
+      unit: unitRaw as MeasurementUnit,
+      source: sourceRaw as CaptureSource,
+      value,
+      confidence,
+      sortOrder,
+    },
+  });
+  if (updated.count === 0) throw new Error("Measurement not found");
+
+  revalidatePath(`/jobs/${jobId}`);
+}
+
+export async function deleteMeasurementAction(formData: FormData) {
+  const measurementId = getString(formData, "measurementId");
+  const jobId = getString(formData, "jobId");
+
+  if (!measurementId) throw new Error("Missing measurementId");
+  if (!jobId) throw new Error("Missing jobId");
+  await requireJobAccess(jobId, "editJob");
+
+  const deleted = await prisma.measurement.deleteMany({
+    where: { id: measurementId, jobId },
+  });
+  if (deleted.count === 0) throw new Error("Measurement not found");
+
+  revalidatePath(`/jobs/${jobId}`);
+}
